@@ -19,6 +19,8 @@ const ProjectWizard = lazy(() => import('./pages/ProjectWizard'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
+const PricingPage = lazy(() => import('./pages/Pricing'));
+
 
 // Anime Studio Components (Lazy)
 const AnimeLayout = lazy(() => import('./pages/studio/AnimeStudio/Layout'));
@@ -95,6 +97,7 @@ export default function App() {
                   <Route path="/tutorials" element={<TutorialsPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/projects" element={<ProjectsPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/create/new" element={<ProjectWizard />} />
                 </Route>
               </Routes>

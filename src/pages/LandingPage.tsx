@@ -1,109 +1,690 @@
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Sparkles, BrainCircuit, Activity, Database, ArrowRight, Wand2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  ChevronDown,
+  Mail,
+  LifeBuoy,
+  Video,
+  Globe,
+  BookOpen,
+  Play,
+  Users,
+  CreditCard,
+  ArrowRight,
+  Zap,
+  Sparkles,
+  Search,
+  Menu,
+  X,
+  CheckCircle,
+  Palette,
+  Download,
+  Code,
+  ExternalLink,
+  Send,
+  Wand2,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+
+// -------------------------------------------------
+// Types
+// -------------------------------------------------
+interface GalleryItem {
+  src: string;
+  prompt: string;
+}
+
+// -------------------------------------------------
+// Sub-components
+// -------------------------------------------------
+const NavItem = ({
+  label,
+  children,
+  isOpen,
+  onClick,
+}: {
+  label: string;
+  children?: React.ReactNode;
+  isOpen?: boolean;
+  onClick?: () => void;
+}) => {
+  return (
+    <div className="relative group">
+      <button
+        onClick={onClick}
+        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors cursor-pointer"
+      >
+        {label}
+        {children && (
+          <ChevronDown
+            className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        )}
+      </button>
+
+      {children && (
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="absolute left-0 mt-2 w-64 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50"
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
+    </div>
+  );
+};
+
+const DropdownLink = ({
+  icon: Icon,
+  title,
+  description,
+  href,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  href: string;
+}) => (
+  <a
+    href={href}
+    className="flex items-start gap-4 p-3 rounded-xl hover:bg-white/5 transition-all group"
+  >
+    <div className="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-studio group-hover:shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all">
+      <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white" />
+    </div>
+    <div className="flex flex-col gap-0.5">
+      <span className="text-sm font-bold text-white group-hover:text-studio transition-colors">
+        {title}
+      </span>
+      <span className="text-[11px] text-zinc-500 leading-tight">{description}</span>
+    </div>
+  </a>
+);
+
+// -------------------------------------------------
+// Gallery placeholder data
+// -------------------------------------------------
+const GALLERY_DATA: GalleryItem[] = [
+  { src: 'https://placehold.co/600x400/1a1a2e/06b6d4?text=Cyberpunk+City', prompt: 'A neon-lit cyberpunk city at night with rain reflections' },
+  { src: 'https://placehold.co/600x400/1a1a2e/a855f7?text=Fantasy+Warrior', prompt: 'A cel-shaded fantasy warrior wielding a glowing katana' },
+  { src: 'https://placehold.co/600x400/1a1a2e/ec4899?text=Sakura+Scene', prompt: 'Watercolor-style sakura blossoms falling over a quiet temple' },
+  { src: 'https://placehold.co/600x400/1a1a2e/06b6d4?text=Mecha+Battle', prompt: 'A massive mecha battle in a ruined metropolis, 90s anime style' },
+  { src: 'https://placehold.co/600x400/1a1a2e/a855f7?text=Ocean+Sunset', prompt: 'An anime girl watching the ocean sunset from a cliff, Studio Ghibli style' },
+  { src: 'https://placehold.co/600x400/1a1a2e/ec4899?text=Space+Station', prompt: 'Interior of a futuristic space station with holographic displays' },
+];
+
+// -------------------------------------------------
+// Main Component
+// -------------------------------------------------
+// Style chips for the prompt bar
+const STYLE_OPTIONS = [
+  { label: 'Cyberpunk', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20' },
+  { label: '90s Cel-Shaded', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20' },
+  { label: 'Watercolor', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20 hover:bg-pink-500/20' },
+  { label: 'Studio Ghibli', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20' },
+  { label: 'Dark Fantasy', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20 hover:bg-purple-500/20' },
+  { label: 'Noir', color: 'bg-zinc-500/10 text-zinc-300 border-zinc-500/20 hover:bg-zinc-500/20' },
+  { label: 'Chibi', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20' },
+  { label: 'Retro Manga', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20' },
+  { label: 'Synthwave', color: 'bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20 hover:bg-fuchsia-500/20' },
+  { label: 'Ukiyo-e', color: 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' },
+  { label: 'Steampunk', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/20' },
+  { label: 'Vaporwave', color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20 hover:bg-indigo-500/20' },
+];
+
+const PLACEHOLDER_PROMPTS = [
+  'A samurai standing in a bamboo forest at sunset...',
+  'A futuristic Tokyo skyline with flying cars...',
+  'An underwater kingdom with bioluminescent creatures...',
+  'A dragon rider soaring above snow-covered mountains...',
+  'A magical girl transformation scene with sparkles...',
+];
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [galleryImages] = useState<GalleryItem[]>(GALLERY_DATA);
+  const [activePrompt, setActivePrompt] = useState<string>('');
+  const [promptText, setPromptText] = useState<string>('');
+  const [selectedStyle, setSelectedStyle] = useState<string>('Cyberpunk');
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  // Cycle placeholder text
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDER_PROMPTS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleGenerate = () => {
+    // Navigate to login with the prompt encoded in the URL so it can be used after auth
+    navigate(`/login?prompt=${encodeURIComponent(promptText || PLACEHOLDER_PROMPTS[placeholderIndex])}&style=${encodeURIComponent(selectedStyle)}`);
+  };
+
+  const toggleMenu = (menu: string) => {
+    setActiveMenu(activeMenu === menu ? null : menu);
+  };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-hidden relative selection:bg-fuchsia-500/30">
-      {/* Heavy God Mode Ambience */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-fuchsia-600/10 blur-[150px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-sky-600/10 blur-[150px] rounded-full animate-pulse delay-1000" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_70%,transparent_100%)]" />
+    <div className="min-h-screen bg-[#030303] text-zinc-100 selection:bg-studio/30 selection:text-studio overflow-x-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-studio/10 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse delay-1000" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
-      {/* Top Navbar */}
-      <nav className="relative z-50 p-6 flex justify-between items-center max-w-7xl mx-auto">
-         <Link 
-           to="/"
-           className="flex items-center gap-3 group no-underline"
-         >
-            <div className="w-10 h-10 bg-fuchsia-600 rounded-xl shadow-[0_0_20px_rgba(192,38,211,0.4)] flex items-center justify-center group-hover:scale-110 transition-transform">
-               <Wand2 className="w-5 h-5 text-white" />
+      {/* Navigation */}
+      <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/5 bg-black/50 backdrop-blur-md">
+        <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-12">
+            <a href="/" className="flex items-center gap-3 no-underline group">
+              <div className="w-9 h-9 bg-studio rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-110 transition-transform">
+                <Zap className="w-5 h-5 text-black fill-black" />
+              </div>
+              <span className="text-xl font-black tracking-tighter uppercase text-white">
+                AnimeScript <span className="text-studio">Pro</span>
+              </span>
+            </a>
+
+            {/* Desktop Menu */}
+            <div className="hidden lg:flex items-center gap-2">
+              <NavItem
+                label="Support"
+                isOpen={activeMenu === 'support'}
+                onClick={() => toggleMenu('support')}
+              >
+                <DropdownLink
+                  icon={LifeBuoy}
+                  title="Contact support"
+                  description="Get help from our technical specialists."
+                  href="#"
+                />
+                <DropdownLink
+                  icon={Mail}
+                  title="Email us"
+                  description="Direct line to our support inbox."
+                  href="mailto:support@animescript.pro"
+                />
+              </NavItem>
+
+              <NavItem
+                label="Tutorials"
+                isOpen={activeMenu === 'tutorials'}
+                onClick={() => toggleMenu('tutorials')}
+              >
+                <DropdownLink
+                  icon={BookOpen}
+                  title="Learn"
+                  description="Master the God Mode engine mechanics."
+                  href="/tutorials"
+                />
+                <DropdownLink
+                  icon={Video}
+                  title="Youtube Channel"
+                  description="Visual guides and production workflows."
+                  href="https://youtube.com"
+                />
+                <DropdownLink
+                  icon={Globe}
+                  title="Instagram Inspiration"
+                  description="Daily art and narrative snippets."
+                  href="https://instagram.com"
+                />
+              </NavItem>
+
+              <a
+                href="/community"
+                className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors no-underline"
+              >
+                Community
+              </a>
+              <a
+                href="/pricing"
+                className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors no-underline"
+              >
+                Pricing
+              </a>
             </div>
-            <span className="text-xl font-black tracking-[0.2em] uppercase text-white">God Mode <span className="opacity-50">Engine</span></span>
-         </Link>
-         <div className="flex gap-4">
-            <Button variant="ghost" className="text-zinc-400 hover:text-white uppercase tracking-widest text-[10px] font-black">Architecture</Button>
-            <Button variant="ghost" className="text-zinc-400 hover:text-white uppercase tracking-widest text-[10px] font-black">Neural Core</Button>
-            <Button onClick={() => navigate('/login')} className="bg-white text-black hover:bg-zinc-200 uppercase tracking-widest text-[10px] font-black px-6 h-9 rounded-xl">Initialize System</Button>
-         </div>
-      </nav>
+          </div>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 pt-20 pb-32">
-        {/* God Mode Hero Section */}
-        <div className="text-center space-y-8 mb-32 relative">
-          
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-fuchsia-500/0 via-fuchsia-500/10 to-sky-500/0 blur-[100px] -z-10" />
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/login')}
+              className="px-5 py-2 text-sm font-bold text-zinc-400 hover:text-white transition-colors hidden sm:block"
+            >
+              Login
+            </button>
+            <Button
+              onClick={() => navigate('/login')}
+              className="bg-white text-black hover:bg-zinc-200 font-bold rounded-full px-6 transition-all transform hover:scale-105"
+            >
+              Sign up
+            </Button>
+            <button
+              className="lg:hidden p-2 text-zinc-400"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X /> : <Menu />}
+            </button>
+          </div>
+        </nav>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/20 backdrop-blur-md shadow-[0_0_20px_rgba(192,38,211,0.15)]"
-          >
-            <Sparkles className="w-4 h-4 text-fuchsia-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-fuchsia-100">System v2.0 Operational</span>
-          </motion.div>
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden border-t border-white/5 bg-black/90 backdrop-blur-xl px-6 py-6 space-y-4"
+            >
+              <a href="/community" className="block text-sm font-medium text-zinc-400 hover:text-white no-underline">Community</a>
+              <a href="/pricing" className="block text-sm font-medium text-zinc-400 hover:text-white no-underline">Pricing</a>
+              <a href="/tutorials" className="block text-sm font-medium text-zinc-400 hover:text-white no-underline">Tutorials</a>
+              <Button onClick={() => navigate('/login')} className="w-full bg-studio text-black font-bold">
+                Get Started
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
-          <motion.h1 
+      {/* Hero Section */}
+      <main className="pt-40 pb-20 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto text-center space-y-12">
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-7xl lg:text-[140px] font-black uppercase tracking-tighter leading-[0.85] drop-shadow-2xl"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-studio/10 border border-studio/20 backdrop-blur-md"
           >
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-300 to-zinc-700">Autonomous</span> <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 via-sky-400 to-fuchsia-500">Creation.</span>
+            <Sparkles className="w-4 h-4 text-studio" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-studio-glow">
+              Autonomous Production Engine v2.0
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tight leading-[0.9] text-white"
+          >
+            TURN YOUR IMAGINATION <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio">
+              INTO STUDIO-QUALITY ANIME.
+            </span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-zinc-400 text-lg lg:text-xl font-bold max-w-3xl mx-auto leading-relaxed uppercase tracking-widest mt-8"
+            transition={{ delay: 0.2 }}
+            className="max-w-2xl mx-auto text-zinc-500 text-lg md:text-xl font-medium leading-relaxed"
           >
-            A multi-agent production environment for Anime & Manga. Architect vast universes, auto-generate scripts via Swarm Logic, and render 4K video all from a single terminal.
+            The fastest AI generator for anime, manga, and concept art. Type a prompt. Get perfect anime art in seconds. Start creating for free.
           </motion.p>
+
+          {/* AI PROMPT BAR */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-5xl mx-auto w-full"
+          >
+            {/* Main Input Container */}
+            <div className="relative group">
+              <div className="absolute -inset-[1px] bg-gradient-to-r from-studio/50 via-purple-500/50 to-studio/50 rounded-[1.75rem] blur-sm opacity-40 group-hover:opacity-70 transition-opacity" />
+              <div className="relative bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-studio/10 shrink-0 mt-1">
+                    <Wand2 className="w-5 h-5 text-studio" />
+                  </div>
+                  <textarea
+                    value={promptText}
+                    onChange={(e) => setPromptText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleGenerate();
+                      }
+                    }}
+                    placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
+                    rows={3}
+                    className="flex-1 bg-transparent border-none outline-none text-white text-base md:text-lg font-medium placeholder:text-zinc-600 py-3 px-2 resize-none max-h-[9rem] overflow-y-auto hide-scrollbar leading-relaxed"
+                  />
+                </div>
+                <div className="flex items-center justify-end pt-2 px-1">
+                  <Button
+                    onClick={handleGenerate}
+                    className="h-12 px-8 rounded-xl bg-studio text-black hover:bg-studio/90 font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95 shrink-0"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    Generate
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Style Chips — Below the prompt bar */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest shrink-0 mr-1">Style:</span>
+              {STYLE_OPTIONS.map((style) => (
+                <button
+                  key={style.label}
+                  onClick={() => setSelectedStyle(style.label)}
+                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                    selectedStyle === style.label
+                      ? style.color + ' ring-1 ring-white/20 scale-105'
+                      : 'bg-zinc-800/50 text-zinc-500 border-zinc-800 hover:text-zinc-300'
+                  }`}
+                >
+                  {style.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Prompt suggestions */}
+            <div className="flex items-center justify-center gap-4 mt-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+              <span>Try:</span>
+              {['Mecha battle', 'Sakura temple', 'Cyberpunk alley'].map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => setPromptText(suggestion)}
+                  className="px-3 py-1 rounded-full border border-zinc-800/50 hover:border-studio/30 hover:text-studio transition-all"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="flex items-center justify-center gap-6 mt-12"
+            transition={{ delay: 0.5 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4"
           >
-             <Button 
-                onClick={() => navigate('/anime')}
-                className="h-16 px-12 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-sky-600 text-white font-black uppercase tracking-[0.2em] text-[12px] hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(192,38,211,0.3)] border border-fuchsia-400/50 transition-all duration-300"
-             >
-                Enter God Mode <ArrowRight className="ml-3 w-5 h-5" />
-             </Button>
+            <Button
+              onClick={() => navigate('/login')}
+              className="h-16 px-10 rounded-2xl bg-studio text-black hover:bg-studio/90 font-black uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95"
+            >
+              Start Generating for Free <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-16 px-10 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-sm transition-all"
+            >
+              Watch Demo <Play className="ml-2 w-5 h-5 fill-white" />
+            </Button>
           </motion.div>
+
+          {/* How It Works Section */}
+          <section className="max-w-7xl mx-auto py-20">
+            <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">
+              How It Works
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
+                  <Code className="w-8 h-8 text-studio" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Describe</h3>
+                <p className="text-zinc-400">Type your prompt or describe your scene.</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
+                  <Palette className="w-8 h-8 text-studio" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Customize</h3>
+                <p className="text-zinc-400">Choose your style – Cyberpunk, 90s Cel‑Shaded, Watercolor, etc.</p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
+                  <Download className="w-8 h-8 text-studio" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Download</h3>
+                <p className="text-zinc-400">Get high‑res, royalty‑free anime art in seconds.</p>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Showcase / Inspiration Gallery */}
+          <section className="max-w-7xl mx-auto py-20">
+            <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-4">
+              Inspiration Gallery
+            </h2>
+            <p className="text-zinc-500 text-center mb-12 text-sm font-medium">
+              <Search className="w-4 h-4 inline-block mr-1" />
+              Hover over any image to see the exact prompt used
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {galleryImages.map((item: GalleryItem, idx: number) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="relative group cursor-pointer rounded-2xl overflow-hidden"
+                  onClick={() => setActivePrompt(item.prompt)}
+                >
+                  <img
+                    src={item.src}
+                    alt="Generated anime art"
+                    className="w-full h-56 object-cover transition-transform group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 p-6">
+                    <span className="text-white text-sm font-medium text-center leading-relaxed">
+                      "{item.prompt}"
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            {/* Active Prompt Display */}
+            <AnimatePresence>
+              {activePrompt && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="mt-8 p-6 rounded-2xl bg-zinc-900/60 border border-studio/20 text-center"
+                >
+                  <p className="text-zinc-400 text-xs uppercase tracking-widest font-bold mb-2">Selected Prompt</p>
+                  <p className="text-white font-medium">"{activePrompt}"</p>
+                  <Button
+                    onClick={() => navigate('/login')}
+                    className="mt-4 bg-studio text-black font-bold rounded-xl px-6 hover:bg-studio/90"
+                  >
+                    Try This Prompt <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          {/* Features & Use Cases */}
+          <section className="max-w-7xl mx-auto py-20">
+            <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">
+              Why Choose AnimeScript Pro?
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                { icon: Zap, title: 'Speed & Quality', text: 'Lightning‑fast generation with 4K upscaling capabilities.' },
+                { icon: Users, title: 'Storyteller Friendly', text: 'Consistent character panels, dynamic backgrounds, VTuber avatars.' },
+                { icon: Palette, title: 'Style Variety', text: 'Cyberpunk, Cel‑Shaded, Watercolor, and many more anime styles.' },
+                { icon: CheckCircle, title: 'Commercial Rights', text: 'Full ownership of every image you generate. Use anywhere.' },
+                { icon: CreditCard, title: 'Flexible Credits', text: '10 free credits daily. Upgrade anytime for unlimited generation.' },
+                { icon: ExternalLink, title: 'Easy Export', text: 'Download in PNG, WebP, or SVG. Share directly to social media.' },
+              ].map((f, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group text-left"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-studio/10 group-hover:scale-110 transition-all">
+                    <f.icon className="w-6 h-6 text-zinc-400 group-hover:text-studio" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{f.title}</h3>
+                  <p className="text-zinc-500 text-sm leading-relaxed">{f.text}</p>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+          {/* Pricing Summary */}
+          <section className="max-w-7xl mx-auto py-20 text-center">
+            <h2 className="text-4xl font-black text-white uppercase tracking-wider mb-8">Pricing</h2>
+            <p className="text-zinc-400 mb-6 max-w-xl mx-auto">
+              Free tier gives you 10 credits daily. Upgrade for unlimited generations, private mode, and commercial rights.
+            </p>
+            <Button
+              onClick={() => navigate('/pricing')}
+              className="h-14 px-12 rounded-2xl bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/90 transition-all hover:scale-105"
+            >
+              View Plans <CreditCard className="ml-2 w-5 h-5" />
+            </Button>
+          </section>
+
+          {/* FAQ Section */}
+          <section className="max-w-7xl mx-auto py-20">
+            <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">FAQ</h2>
+            <div className="space-y-4 max-w-3xl mx-auto">
+              {[
+                { q: 'Do I own the images I generate?', a: 'Yes – you receive full commercial rights for all creations on paid plans. Free-tier images are for personal use.' },
+                { q: 'What happens when I run out of credits?', a: 'You can wait for your daily refresh (resets at midnight UTC) or upgrade to a Pro plan for unlimited usage.' },
+                { q: 'Are there content restrictions?', a: 'Yes. Our safety filters block NSFW and illegal content to keep the community safe and compliant.' },
+                { q: 'Can I use this for manhwa / manga panels?', a: 'Absolutely. Our engine supports consistent character generation across multiple panels, perfect for sequential art.' },
+                { q: 'What resolution are the generated images?', a: 'Standard output is 1024×1024. Pro and Master plans include 4K upscaling up to 4096×4096.' },
+              ].map((faq, i) => (
+                <details
+                  key={i}
+                  className="bg-zinc-900/40 rounded-2xl p-6 border border-white/5 hover:border-white/10 transition-all group"
+                >
+                  <summary className="text-white font-bold cursor-pointer flex items-center justify-between">
+                    {faq.q}
+                    <ChevronDown className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
+                  </summary>
+                  <p className="text-zinc-400 mt-4 leading-relaxed">{faq.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
         </div>
-
-        {/* Feature Grid corresponding to Settings Engine */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-           <motion.div initial={{ opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} className="bg-black/40 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors group">
-              <div className="w-12 h-12 bg-fuchsia-500/10 rounded-2xl flex items-center justify-center mb-6 border border-fuchsia-500/20 group-hover:scale-110 transition-transform"><BrainCircuit className="text-fuchsia-500 w-6 h-6" /></div>
-              <h3 className="text-lg font-black uppercase tracking-widest text-white mb-2">Multi-Agent Swarm</h3>
-              <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider leading-relaxed">Deploy specialized sub-agents to debate, refine, and stress-test your narrative logic before generating the final script.</p>
-           </motion.div>
-
-           <motion.div initial={{ opacity:0, y:20}} whileInView={{opacity:1, y:0}} transition={{delay:0.1}} viewport={{once:true}} className="bg-black/40 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors group">
-              <div className="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center mb-6 border border-sky-500/20 group-hover:scale-110 transition-transform"><Database className="text-sky-500 w-6 h-6" /></div>
-              <h3 className="text-lg font-black uppercase tracking-widest text-white mb-2">PostgreSQL Clusters</h3>
-              <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider leading-relaxed">Deep database integration. Every keystroke is saved via Hybrid Cloud Blob Storage with military-grade AES-256 encryption.</p>
-           </motion.div>
-
-           <motion.div initial={{ opacity:0, y:20}} whileInView={{opacity:1, y:0}} transition={{delay:0.2}} viewport={{once:true}} className="bg-black/40 border border-zinc-800 rounded-3xl p-8 hover:border-zinc-700 transition-colors group">
-              <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 border border-emerald-500/20 group-hover:scale-110 transition-transform"><Activity className="text-emerald-500 w-6 h-6" /></div>
-              <h3 className="text-lg font-black uppercase tracking-widest text-white mb-2">Cinematic Enforcer</h3>
-              <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider leading-relaxed">Matrix-level hardware constraints force LLMs to output purely Hollywood-grade terminology (e.g. Volumetric Fog, Sakuga).</p>
-           </motion.div>
-        </div>
-
       </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/5 bg-black/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">
+            <div className="space-y-6">
+              <a href="/" className="flex items-center gap-3 no-underline group">
+                <div className="w-8 h-8 bg-studio rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-transform group-hover:scale-110">
+                  <Zap className="w-4 h-4 text-black fill-black" />
+                </div>
+                <span className="text-lg font-black tracking-tighter uppercase text-white">
+                  AnimeScript <span className="text-studio">Pro</span>
+                </span>
+              </a>
+              <p className="text-zinc-500 text-sm leading-relaxed font-medium">
+                The world's first autonomous production engine for anime and manga. Built for architects of the new digital age.
+              </p>
+              <div className="flex items-center gap-4">
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-studio/20 hover:text-studio transition-all text-zinc-400">
+                  <Video className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-studio/20 hover:text-studio transition-all text-zinc-400">
+                  <Globe className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-studio/20 hover:text-studio transition-all text-zinc-400">
+                  <X className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">Platform</h4>
+              <ul className="space-y-4">
+                <li><a href="/anime" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">God Mode Engine</a></li>
+                <li><a href="/pricing" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Pricing Plans</a></li>
+                <li><a href="/community" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Social Hub</a></li>
+                <li><a href="/library" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Asset Library</a></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">Resources</h4>
+              <ul className="space-y-4">
+                <li><a href="/tutorials" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Learn / Documentation</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Youtube Guides</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">API Reference</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Lore Database</a></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">Support</h4>
+              <ul className="space-y-4">
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Contact Support</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Neural Help Center</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Status Portal</a></li>
+                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Terms of Protocol</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+            <span className="text-zinc-600 text-xs font-bold uppercase tracking-widest">
+              © 2026 AnimeScript Pro. Engineered by DeepMind Swarm.
+            </span>
+            <div className="flex items-center gap-8">
+              <a href="#" className="text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors no-underline">
+                Privacy Core
+              </a>
+              <a href="#" className="text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors no-underline">
+                Terms of Service
+              </a>
+            </div>
+            <Button
+              onClick={() => navigate('/login')}
+              className="h-12 px-8 rounded-xl bg-white text-black font-black uppercase tracking-widest hover:bg-zinc-200 transition-all"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
