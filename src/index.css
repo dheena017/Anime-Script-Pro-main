@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Helvetica Neue", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-studio: var(--studio-primary);
+  --color-studio-glow: var(--studio-glow);
+}
+
+@utility shadow-studio {
+  box-shadow: 0 0 15px var(--studio-glow);
+}
+
+@utility text-shadow-studio {
+  text-shadow: 0 0 8px var(--studio-glow);
+}
+
+@utility border-studio {
+  border-color: color-mix(in srgb, var(--studio-primary), transparent 80%);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-[#080809] text-[#e4e4e7] min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.05) 0%, transparent 60%),
+      radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.02) 0%, transparent 40%);
+    background-attachment: fixed;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  /* Modern Thin Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-800 rounded-full hover:bg-cyan-900/40 transition-colors border-2 border-[#030303];
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Glass & Technical Components */
+.glass {
+  @apply bg-zinc-950/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+}
+
+.technical-card {
+  @apply bg-[#080808]/40 backdrop-blur-xl border border-zinc-900 shadow-2xl relative overflow-hidden;
+}
+
+/* Production Script Markdown Overrides */
+.prose table {
+  @apply w-full border-separate border-spacing-0 my-10 shadow-2xl rounded-3xl overflow-hidden border border-zinc-800/40 bg-zinc-950/10 backdrop-blur-md;
+}
+
+.prose th {
+  @apply bg-zinc-900/80 text-zinc-500 font-bold p-5 text-left border-b border-zinc-800/60 text-[9px] uppercase tracking-[0.3em] font-sans;
+}
+
+.prose td {
+  @apply p-6 border-b border-zinc-900/40 text-[13px] text-zinc-400 align-top leading-relaxed font-sans transition-all duration-500;
+}
+
+.prose tr:hover td {
+  @apply bg-cyan-500/[0.02] text-zinc-300;
+}
+
+.prose td:nth-child(2) {
+  @apply text-zinc-300 font-medium italic translate-x-0 group-hover:translate-x-1 transition-transform;
+}
+
+.prose td:nth-child(3) {
+  @apply text-cyan-50 font-semibold bg-cyan-500/[0.02] border-x border-cyan-500/5;
+}
+
+.prose td:nth-child(1) { @apply w-[12%]; }
+
+.prose strong {
+  @apply text-cyan-400 font-black tracking-widest uppercase text-[0.85em] drop-shadow-[0_0_8px_rgba(6,182,212,0.3)];
+}
+
+.prose h1, .prose h2, .prose h3 {
+  @apply font-black uppercase text-zinc-100 mb-8 mt-16 first:mt-0 tracking-widest text-shadow-sm;
+}
+
+.prose p {
+  @apply text-zinc-400 leading-loose font-sans mb-8;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-cyan-500/30 pl-8 italic text-zinc-300 my-12 bg-cyan-500/[0.02] py-10 pr-10 rounded-r-3xl border-y border-r border-cyan-500/5 shadow-inner;
+}
+
+.prose hr {
+  @apply border-zinc-900/50 my-20;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: "Inter", sans-serif;
+    --font-sans: 'Inter', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(0.08 0 0); /* #080809 approx */
+    --foreground: oklch(0.92 0.01 0); /* #e4e4e7 approx */
+    --card: oklch(0.12 0 0);
+    --card-foreground: oklch(0.92 0 0);
+    --popover: oklch(0.12 0 0);
+    --popover-foreground: oklch(0.92 0 0);
+    --primary: oklch(0.6 0.25 250);
+    --primary-foreground: oklch(0.05 0 0);
+    --secondary: oklch(0.2 0 0);
+    --secondary-foreground: oklch(0.9 0 0);
+    --muted: oklch(0.15 0 0);
+    --muted-foreground: oklch(0.6 0 0);
+    --accent: oklch(0.6 0.25 250 / 0.1);
+    --accent-foreground: oklch(0.6 0.25 250);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.6 0.25 250);
+    --chart-1: oklch(0.6 0.25 250);
+    --chart-2: oklch(0.8 0.15 200);
+    --chart-3: oklch(0.7 0.2 300);
+    --chart-4: oklch(0.5 0.3 220);
+    --chart-5: oklch(0.4 0.2 280);
+    --radius: 0.75rem;
+    --sidebar: oklch(0.08 0 0);
+    --sidebar-foreground: oklch(0.98 0 0);
+    --sidebar-primary: oklch(0.6 0.25 250);
+    --sidebar-primary-foreground: oklch(0.05 0 0);
+    --sidebar-accent: oklch(0.6 0.25 250 / 0.1);
+    --sidebar-accent-foreground: oklch(0.6 0.25 250);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.6 0.25 250);
+
+    /* Studio Specifics */
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+}
+
+.theme-manhwa {
+    --studio-primary: oklch(0.75 0.25 150); /* Webtoon Green */
+    --studio-glow: rgba(34, 197, 94, 0.5);
+    --primary: oklch(0.75 0.25 150);
+    --ring: oklch(0.75 0.25 150);
+}
+
+.theme-comic {
+    --studio-primary: oklch(0.6 0.25 25); /* Superhero Red */
+    --studio-glow: rgba(220, 38, 38, 0.5);
+    --primary: oklch(0.6 0.25 25);
+    --ring: oklch(0.6 0.25 25);
+}
+
+.theme-anime {
+    --studio-primary: oklch(0.6 0.25 250);
+    --studio-glow: rgba(6, 182, 212, 0.5);
+    --primary: oklch(0.6 0.25 250);
+    --ring: oklch(0.6 0.25 250);
+}
+
+.dark {
+    --background: oklch(0.05 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.08 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.08 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.6 0.25 250);
+    --primary-foreground: oklch(0.05 0 0);
+    --secondary: oklch(0.15 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.15 0 0);
+    --muted-foreground: oklch(0.6 0 0);
+    --accent: oklch(0.15 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.6 0.25 250);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+}

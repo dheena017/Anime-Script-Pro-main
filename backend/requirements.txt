@@ -1,0 +1,29 @@
+# Core Framework
+fastapi
+uvicorn
+python-dotenv
+sqlmodel
+fastapi-users[sqlmodel]
+fastapi-users-db-sqlmodel
+
+# Database Drivers
+aiosqlite
+asyncpg
+psycopg2-binary
+
+# Security & Utilities
+passlib[bcrypt]
+python-jose[cryptography]   
+email-validator
+python-multipart
+slowapi
+loguru
+pydantic
+
+# Database Migrations
+alembic
+
+# Development & Testing
+pytest
+httpx
+pytest-asyncio

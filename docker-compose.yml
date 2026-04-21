@@ -1,0 +1,82 @@
+# Docker Compose for Anime Script Pro - Creative Suite + Mathesar
+version: '3.8'
+
+services:
+  # 1. Node.js Orchestrator (Frontend & Proxy)
+  # Reachable at http://localhost:3000
+  orchestrator:
+    build: .
+    container_name: anime-script-orchestrator
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - BACKEND_URL=http://fastapi:8000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    depends_on:
+      - fastapi
+    networks:
+      - anime_network
+
+  # 2. FastAPI Backend (The Intelligence Layer)
+  fastapi:
+    build: 
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: anime-script-fastapi
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/anime_script_pro}
+    restart: unless-stopped
+    networks:
+      - anime_network
+
+  # 2. Mathesar (Database Management UI)
+  # Reachable at http://localhost:8080
+  mathesar:
+    image: mathesar/mathesar:latest
+    container_name: anime-script-mathesar
+    ports:
+      - "8080:8000"
+    environment:
+      # Use the Supabase connection string for your primary data
+      - 'MATHESAR_DATABASES={"supabase": "${DATABASE_URL}"}'
+      - 'MATHESAR_SECRET_KEY=${MATHESAR_SECRET_KEY:-change_me_to_a_long_random_string}'
+      # Internal metadata storage
+      - 'MATHESAR_INTERNAL_DB_URL=postgresql://mathesar:mathesar_password@mathesar_db:5432/mathesar_metadata'
+    depends_on:
+      - mathesar_db
+    restart: unless-stopped
+    networks:
+      - anime_network
+
+  # 3. Mathesar Metadata DB (Required for Mathesar operation)
+  mathesar_db:
+    image: postgres:15
+    container_name: anime-script-mathesar-db
+    environment:
+      - POSTGRES_DB=mathesar_metadata
+      - POSTGRES_USER=mathesar
+      - POSTGRES_PASSWORD=mathesar_password
+    volumes:
+      - mathesar_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - anime_network
+
+networks:
+  anime_network:
+    driver: bridge
+
+volumes:
+  mathesar_db_data:
