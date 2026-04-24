@@ -1,17 +1,35 @@
 import { callAI, RateLimitError } from "./core";
 import { MOCK_SERIES_PLAN } from "./mockData";
 
-export async function generateSeriesPlan(prompt: string, model: string = "gemini-2.5-flash", contentType: string = "Anime", episodeCount: number = 5) {
+export async function generateSeriesPlan(
+  prompt: string, 
+  model: string = "gemini-2.0-flash-exp", 
+  contentType: string = "Anime", 
+  episodeCount: number = 5,
+  worldLore?: string,
+  castProfiles?: string,
+  narrativeBeats?: string
+) {
   const systemInstruction = `
-    You are a YouTube Content Strategist for ${contentType}.
+    You are a YouTube Content Strategist and Executive Producer for ${contentType}.
     Based on the provided concept, create a ${episodeCount}-episode production plan.
+    
+    WORLD BIBLE: ${worldLore || 'Standard genre rules.'}
+    NARRATIVE ARCHITECTURE: ${narrativeBeats || 'Generic progression.'}
+    CAST DNA: ${castProfiles || 'Generic archetypes.'}
     
     Return ONLY a JSON array of objects:
     [
       {
         "episode": "01",
         "title": "High-Impact Catchy Title",
-        "hook": "The dramatic hook or cliffhanger for this episode"
+        "hook": "The dramatic hook or cliffhanger for this episode",
+        "asset_matrix": {
+          "sound": "Audio profile for this episode (e.g., 'Heavy bass, industrial resonance')",
+          "image": "Visual style/key frame directive",
+          "video": "Motion/Cinematography directive (e.g., 'High-speed tracking, glitch transitions')",
+          "scene_count": "Number of scenes planned for this episode"
+        }
       }
     ]
     
@@ -20,7 +38,7 @@ export async function generateSeriesPlan(prompt: string, model: string = "gemini
   `;
 
   try {
-    const text = await callAI(model, `Generate a ${episodeCount}-episode production plan for: ${prompt}`, systemInstruction);
+    const text = await callAI(model, `Generate a ${episodeCount}-episode production plan for: ${prompt}. Ensure it respects the world lore and characters provided.`, systemInstruction);
     const cleanJson = text.replace(/```json|```/g, "").trim();
     return JSON.parse(cleanJson);
   } catch (error: any) {

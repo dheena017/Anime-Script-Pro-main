@@ -3,14 +3,14 @@ import { MOCK_NARRATIVE_BEATS } from "./mockData";
 
 export async function generateNarrativeBeats(
   prompt: string, 
-  model: string = "gemini-2.5-flash", 
+  model: string = "gemini-2.0-flash-exp", 
   contentType: string = "Anime",
   worldBuilding: string | null = null,
   castProfiles: string | null = null
 ) {
   const systemInstruction = `
-    You are an expert ${contentType} Script Doctor and Pacing Specialist.
-    Your task is to create a set of 5-6 compelling narrative beats for a 5-minute recap script based on the user's concept.
+    You are an expert ${contentType} Audio Director and Tone Architect.
+    Your task is to create a set of 5-6 compelling beats for a production cycle, focusing heavily on the auditory and atmospheric experience.
     
     WORLD LORE: ${worldBuilding || 'Standard genre rules.'}
     CAST PROFILES: ${castProfiles || 'Generic archetypes.'}
@@ -18,21 +18,22 @@ export async function generateNarrativeBeats(
     Return a JSON array of objects with the following structure:
     [
       {
-        "label": "Short Action-Oriented Title",
-        "description": "Detailed description of what happens and the narrative purpose. Reference the world lore and characters if provided.",
+        "label": "Beat Identifier (e.g., 'The Silent Opening')",
+        "description": "Narrative purpose of this beat.",
         "duration": "Time range (e.g., 0:00 - 0:45)",
-        "intensity": 1-10 (Numeric value for tension level),
-        "vfx": "Cinematic/Visual directive for this scene",
-        "audio": "Audio/BGM atmosphere directive"
+        "intensity": 1-10,
+        "tone": "Specific emotional tone (e.g., 'Melancholic', 'Adrenaline-Fueled', 'Eerie')",
+        "music": "Music/BGM directive (e.g., 'Lo-fi hip-hop with muffled sword clashes', 'Orchestral swell with heavy percussion')",
+        "audio": "Ambient sound effects/Soundscape directive (e.g., 'Rain patter against metal', 'Distant screams echoing in a void')",
+        "vfx": "Visual cinematic directive to match the audio"
       }
     ]
     
     Guidelines:
-    - Ensure logical progression (Hook -> Setup -> Rising Action -> Climax -> Cliffhanger).
+    - BEATS ARE PRIMARILY AUDITORY AND ATMOSPHERIC: Focus on how the scene sounds and feels.
     - Match the tone of ${contentType}.
     - Integrity: THE BEATS MUST RESPECT THE WORLD LORE AND CHARACTER PROFILES PROVIDED.
-    - Intensity must vary to create a dynamic pacing wave.
-    - VFX/Audio should be professional studio-grade directives.
+    - Music and Audio must be descriptive enough for a sound engineer.
     - Return ONLY the JSON array.
   `;
 
@@ -69,7 +70,7 @@ export async function refineSingleBeat(
     currentBeat: any, 
     refinementPrompt: string, 
     overallPrompt: string,
-    model: string = "gemini-2.5-flash", 
+    model: string = "gemini-2.0-flash-exp", 
     contentType: string = "Anime"
 ) {
   const systemInstruction = `

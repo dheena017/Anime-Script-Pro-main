@@ -11,7 +11,6 @@ import {
   Users,
   CreditCard,
   ArrowRight,
-  Zap,
   Sparkles,
   Search,
   Menu,
@@ -22,7 +21,7 @@ import {
   Code,
   ExternalLink,
   Send,
-  Wand2,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -179,8 +178,6 @@ export function LandingPage() {
     <div className="min-h-screen bg-[#030303] text-zinc-100 selection:bg-studio/30 selection:text-studio overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-studio/10 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse delay-1000" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
@@ -189,9 +186,6 @@ export function LandingPage() {
         <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-12">
             <a href="/" className="flex items-center gap-3 no-underline group">
-              <div className="w-9 h-9 bg-studio rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:scale-110 transition-transform">
-                <Zap className="w-5 h-5 text-black fill-black" />
-              </div>
               <span className="text-xl font-black tracking-tighter uppercase text-white">
                 AnimeScript <span className="text-studio">Pro</span>
               </span>
@@ -347,9 +341,6 @@ export function LandingPage() {
               <div className="absolute -inset-[1px] bg-gradient-to-r from-studio/50 via-purple-500/50 to-studio/50 rounded-[1.75rem] blur-sm opacity-40 group-hover:opacity-70 transition-opacity" />
               <div className="relative bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-studio/10 shrink-0 mt-1">
-                    <Wand2 className="w-5 h-5 text-studio" />
-                  </div>
                   <textarea
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
@@ -394,19 +385,6 @@ export function LandingPage() {
               ))}
             </div>
 
-            {/* Prompt suggestions */}
-            <div className="flex items-center justify-center gap-4 mt-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
-              <span>Try:</span>
-              {['Mecha battle', 'Sakura temple', 'Cyberpunk alley'].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => setPromptText(suggestion)}
-                  className="px-3 py-1 rounded-full border border-zinc-800/50 hover:border-studio/30 hover:text-studio transition-all"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
           </motion.div>
 
           <motion.div
@@ -610,9 +588,6 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">
             <div className="space-y-6">
               <a href="/" className="flex items-center gap-3 no-underline group">
-                <div className="w-8 h-8 bg-studio rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-transform group-hover:scale-110">
-                  <Zap className="w-4 h-4 text-black fill-black" />
-                </div>
                 <span className="text-lg font-black tracking-tighter uppercase text-white">
                   AnimeScript <span className="text-studio">Pro</span>
                 </span>

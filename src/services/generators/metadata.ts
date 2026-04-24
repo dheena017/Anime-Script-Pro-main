@@ -1,6 +1,6 @@
 import { callAI } from "./core";
 
-export async function generateMetadata(script: string, model: string = "gemini-2.5-flash") {
+export async function generateMetadata(script: string, model: string = "gemini-2.0-flash-exp") {
   const systemInstruction = `
     You are a YouTube SEO Expert and Metadata Specialist.
     Based on the provided anime script (which uses a strict 5-column cinematic format), generate:
@@ -21,7 +21,7 @@ export async function generateMetadata(script: string, model: string = "gemini-2
   }
 }
 
-export async function generateYouTubeDescription(script: string, model: string = "gemini-2.5-flash", contentType: string = "Anime") {
+export async function generateYouTubeDescription(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
   const systemInstruction = `
     You are a YouTube Growth Expert.
     Based on the provided ${contentType} script, generate a professional, high-engagement YouTube Description.

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import { apiRequest } from '../lib/api-utils';
 import { ProductionUnit } from '../lib/sequence-utils';
 import { useAuth } from '../hooks/useAuth';
@@ -6,6 +6,8 @@ import { useAuth } from '../hooks/useAuth';
 interface GeneratorContextType {
   prompt: string;
   setPrompt: (p: string) => void;
+  theme: string;
+  setTheme: (t: string) => void;
   generatedScript: string | null;
   setGeneratedScript: (s: string | null) => void;
   generatedCharacters: string | null;
@@ -81,11 +83,12 @@ interface GeneratorContextType {
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
 }
 
-const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
+export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
 
 export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [prompt, setPrompt] = useState('');
+  const [theme, setTheme] = useState('');
   const [notification, setNotification] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
   const [generatedScript, setGeneratedScript] = useState<string | null>(null);
   const [generatedCharacters, setGeneratedCharacters] = useState<string | null>(null);
@@ -99,7 +102,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [castProfiles, setCastProfiles] = useState<string | null>(null);
   const [castData, setCastData] = useState<any | null>(null);
   const [castList, setCastList] = useState<any[]>([]);
-  const [recapperPersona, setRecapperPersona] = useState('Dynamic/Hype');
+  const [recapperPersona, setRecapperPersona] = useState('');
   const [characterRelationships, setCharacterRelationships] = useState<string | null>(null);
   const [masterLogs, setMasterLogs] = useState<any[]>([]);
 
@@ -119,7 +122,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState('1');
   const [numScenes, setNumScenes] = useState('6');
   const [contentType, setContentType] = useState('Anime');
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
+  const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash-exp');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
   const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
@@ -173,6 +176,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   return (
     <GeneratorContext.Provider value={{
       prompt, setPrompt,
+      theme, setTheme,
       generatedScript, setGeneratedScript,
       generatedCharacters, setGeneratedCharacters,
       generatedMetadata, setGeneratedMetadata,
@@ -232,10 +236,4 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useGenerator() {
-  const context = useContext(GeneratorContext);
-  if (context === undefined) {
-    throw new Error('useGenerator must be used within a GeneratorProvider');
-  }
-  return context;
-}
+

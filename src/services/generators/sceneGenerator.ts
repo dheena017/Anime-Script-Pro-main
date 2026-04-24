@@ -1,24 +1,24 @@
-import { ai } from "../generators/core";
+import { callAI } from "./core";
 
-export async function generateScene(prompt: string, beatDescription: string): Promise<{ narration: string; visuals: string; sound: string }> {
+export async function generateScene(prompt: string, beatDescription: string, model: string = "gemini-2.0-flash-exp"): Promise<{ narration: string; visuals: string; sound: string }> {
+  const systemInstruction = `
+    You are an expert ${prompt.includes('Anime') ? 'Anime' : 'Screenplay'} Writer.
+    Based on the context, generate a detailed scene with narration, visuals, and sound.
+    
+    Return ONLY a valid JSON object with:
+    { "narration": "...", "visuals": "...", "sound": "..." }
+  `;
+
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: `Generate a movie scene based on the following context.
-      Overall Script/Prompt: ${prompt}
-      Narrative Beat: ${beatDescription}
-      
-      Return the output as a JSON object with fields: "narration", "visuals", "sound".`,
-      config: {
-        responseMimeType: "application/json",
-      },
-    });
+    const result = await callAI(model, `Overall Context: ${prompt}\nBeat: ${beatDescription}`, systemInstruction);
 
-    if (!response.text) {
+    
+    if (!result) {
       throw new Error("No response from AI");
     }
 
-    return JSON.parse(response.text);
+    const cleanJson = result.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJson);
   } catch (error) {
     console.error("AI Scene Generation failed:", error);
     return {

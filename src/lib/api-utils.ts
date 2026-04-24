@@ -16,9 +16,11 @@ export function cleanJson(content: string): any {
   }
 }
 
+export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+
 export async function apiRequest<T>(url: string, options?: RequestInit & { timeout?: number }): Promise<T> {
   const { timeout = 30000, ...fetchOptions } = options || {};
-  
+
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 

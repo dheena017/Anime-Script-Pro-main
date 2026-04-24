@@ -1,20 +1,18 @@
 import React from 'react';
 import { useLocation, NavLink } from 'react-router-dom';
-import { 
-  ScrollText, 
-  History, 
-  Settings2, 
-  LayoutDashboard, 
-  Sparkles,
+import {
+  ScrollText,
+  History,
+  Settings2,
+  LayoutDashboard,
   Users,
   Brain,
   BookOpen,
   X,
   Compass,
-  FileText,
   Layers,
   Search,
-  Image as ImageIcon,
+  ImageIcon,
   Layout as LayoutIcon,
   Play,
   UserPlus,
@@ -43,7 +41,7 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
-  
+
   const getPrefix = () => {
     if (location.pathname.startsWith('/anime')) return '/anime';
     if (location.pathname.startsWith('/manhwa')) return '/manhwa';
@@ -65,10 +63,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   }, [isOpen]);
 
   const foundationItems = [
-    { icon: Brain, label: 'Concept', path: 'concept' },
-    { icon: BookOpen, label: 'Template', path: 'template' },
-    { icon: FileText, label: 'Methods', path: 'framework' },
-    { icon: Globe, label: 'World Lore', path: 'world' },
+    { icon: Globe, label: 'Anime World', path: 'world' },
   ];
 
   const architectureItems = [
@@ -85,7 +80,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const distributionItems = [
     { icon: Search, label: 'SEO', path: 'seo' },
     { icon: ImageIcon, label: 'Prompts', path: 'prompts' },
-    { icon: Play, label: 'Screening Room', path: 'example' },
+    { icon: Play, label: 'Screening Room', path: 'screening' },
   ];
 
   const renderNavGroup = (items: any[], title: string) => (
@@ -106,8 +101,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             data-testid={testId}
             className={cn(
               "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
-              isActive 
-                ? "bg-red-600/10 text-red-500 border border-red-500/20 shadow-[0_0_15px_rgba(220,38,38,0.1)]" 
+              isActive
+                ? "bg-red-600/10 text-red-500 border border-red-500/20 shadow-[0_0_15px_rgba(220,38,38,0.1)]"
                 : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
             )}
           >
@@ -136,8 +131,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onClick={onClose}
                 className={({ isActive }) => cn(
                   "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
-                  isActive 
-                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700" 
+                  isActive
+                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700"
                     : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
                 )}
               >
@@ -164,8 +159,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       <div className="p-4 border-t border-zinc-800/50 bg-black/40">
         <div className="bg-zinc-950 rounded-xl p-4 border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">Pro Pipeline</span>
+            <Brain className="w-4 h-4 text-cyan-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300">Neural Engine</span>
           </div>
           <p className="text-[9px] text-zinc-500 leading-relaxed mb-3">
             Advanced AI models & Multi-Session persistence enabled.
@@ -190,9 +185,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[290]"
           />
-          
+
           {/* Sidebar Overlay */}
-          <motion.aside 
+          <motion.aside
             initial={{ x: -320 }}
             animate={{ x: 0 }}
             exit={{ x: -320 }}
@@ -205,7 +200,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <ScrollText className="text-[#bd4a4a] w-4 h-4" />
                 </div>
                 <span className="font-black tracking-tighter text-xs uppercase text-white">Studio <span className="text-[#bd4a4a]">Architect</span></span>
-                <button 
+                <button
                   onClick={onClose}
                   className="ml-auto p-2 text-zinc-500 hover:text-white transition-colors"
                 >

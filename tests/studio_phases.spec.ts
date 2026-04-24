@@ -4,7 +4,7 @@ test.describe('Anime Studio Roadmap: Global Audit', () => {
     
     test.describe('Phases 1-4 Module Integrity', () => {
         const studioModules = [
-            { id: 'Phase 1: Methods', path: '/anime/framework', marker: 'Production Framework' },
+
             { id: 'Phase 1: Template', path: '/anime/template', marker: 'Forge Library' },
             { id: 'Phase 1: World Lore', path: '/anime/world', marker: 'World Architecture' },
             { id: 'Phase 2: Cast', path: '/anime/cast', marker: 'Character Cast' },

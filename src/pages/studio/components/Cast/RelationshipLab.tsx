@@ -11,13 +11,15 @@ import {
   Zap, 
   Lock,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
+import { generateRelationships } from '@/services/geminiService';
 
 interface Connection {
   id: string;
@@ -31,10 +33,45 @@ interface Connection {
 import { RelationshipMatrix } from './RelationshipMatrix';
 
 export function RelationshipLab() {
-  const { characterRelationships, setCharacterRelationships } = useGenerator();
+  const { 
+    characterRelationships, 
+    setCharacterRelationships, 
+    prompt, 
+    selectedModel, 
+    contentType,
+    castList
+  } = useGenerator();
   const [connections, setConnections] = React.useState<Connection[]>([]);
   const [newConn, setNewConn] = React.useState<Partial<Connection>>({ type: 'Ally', tension: 5 });
   const [viewMode, setViewMode] = React.useState<'list' | 'matrix'>('list');
+  const [isGenerating, setIsGenerating] = React.useState(false);
+
+  const handleAISynthesis = async () => {
+    if (!prompt) return;
+    setIsGenerating(true);
+    
+    // Get character names for context
+    const castNames = castList?.map(c => c.name).join(", ") || "various characters";
+    
+    const results = await generateRelationships(prompt, castNames, selectedModel, contentType);
+    
+    if (results && Array.isArray(results)) {
+      const withIds = results.map(r => ({
+        id: Math.random().toString(36).substr(2, 9),
+        ...r
+      }));
+      setConnections(withIds as any);
+      
+      // Sync to global context
+      const syncString = withIds.map(c => 
+        `${c.source} & ${c.target}: ${c.type} (Tension: ${c.tension}/10) - ${c.description}`
+      ).join('\n');
+      setCharacterRelationships(syncString);
+    }
+    
+    setIsGenerating(false);
+  };
+
 
   // Initial parse of the text-based relationships if they exist
   React.useEffect(() => {
@@ -109,6 +146,20 @@ export function RelationshipLab() {
         <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
           Engineering the emotional friction and tactical alliances that drive your plot.
         </p>
+        <div className="pt-4">
+           <Button 
+             onClick={handleAISynthesis}
+             disabled={isGenerating || !prompt}
+             className="bg-[#050505] hover:bg-zinc-900 border border-fuchsia-500/30 text-fuchsia-500 font-black tracking-[0.2em] text-[10px] h-12 px-10 rounded-full shadow-[0_0_20px_rgba(217,70,239,0.1)] hover:shadow-[0_0_30px_rgba(217,70,239,0.2)] transition-all gap-3 group"
+           >
+             {isGenerating ? (
+               <Loader2 className="w-4 h-4 animate-spin" />
+             ) : (
+               <Sparkles className="w-4 h-4 group-hover:scale-125 transition-transform" />
+             )}
+             {isGenerating ? "SYNTHESIZING MATRIX..." : "NEURAL SYNTHESIS"}
+           </Button>
+        </div>
       </div>
 
       <Card className="bg-[#0a0a0a]/80 border-fuchsia-500/20 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { Card } from '@/components/ui/card';
+import { useGenerator } from '@/hooks/useGenerator';
+import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { 
   enhanceSceneVisuals, 
   generateSceneImage, 
   enhanceNarration, 
   rewriteForTension, 
-  suggestDuration,
-  generateScene
+  suggestDuration
 } from '@/services/geminiService';
 
 // Sub-components
@@ -32,15 +33,24 @@ interface Scene {
 }
 
 export function StoryboardPage() {
+  const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
-  const { generatedScript, setGeneratedScript, visualData, setVisualData, generatedImagePrompts } = useGenerator();
+  const { 
+    generatedScript, setGeneratedScript, 
+    visualData, setVisualData, 
+    generatedImagePrompts, 
+    session, episode,
+    selectedModel,
+    isGeneratingVisuals,
+    setIsGeneratingVisuals
+  } = useGenerator();
   const promptList = generatedImagePrompts 
   ? generatedImagePrompts.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0 && !line.includes('---')) 
   : [];
-  const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
   const [scenes, setScenes] = useState<Scene[]>([]);
+
   const [enhancingSceneIds, setEnhancingSceneIds] = useState<Set<string>>(new Set());
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
@@ -95,7 +105,7 @@ export function StoryboardPage() {
   const updateScriptMarkdown = (items: Scene[]) => {
     let currentScript = generatedScript;
     if (!currentScript || !currentScript.includes('|')) {
-      currentScript = "# Production Script\n\n| Section | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues | Duration | Linked Prompt |\n| :--- | :--- | :--- | :--- | :--- | :--- |";
+      currentScript = "# Anime Script\n\n| Section | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues | Duration | Linked Prompt |\n| :--- | :--- | :--- | :--- | :--- | :--- |";
     }
     const lines = currentScript.split('\n');
     const tableHeaderIndex = lines.findIndex(l => l.includes('|') && l.toLowerCase().includes('section'));
@@ -166,7 +176,7 @@ export function StoryboardPage() {
   const handleGenerateVisual = async (originalIndex: number, visualsDescription: string) => {
     setVisualData(prev => ({ ...prev, [originalIndex]: 'loading' }));
     try {
-      const imageUrl = await generateSceneImage(visualsDescription);
+      const imageUrl = await generateSceneImage(visualsDescription, selectedModel);
       if (imageUrl) {
         setVisualData(prev => ({ ...prev, [originalIndex]: imageUrl }));
       } else {
@@ -188,7 +198,7 @@ export function StoryboardPage() {
         setVisualData(prev => ({ ...prev, [scene.originalIndex]: 'loading' }));
         try {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          const imageUrl = await generateSceneImage(promptToUse);
+          const imageUrl = await generateSceneImage(promptToUse, selectedModel);
           newVisualData[scene.originalIndex] = imageUrl || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}/800/450`;
         } catch (error) {
           const promptToUse = scene.linkedPrompt || scene.visuals;
@@ -267,24 +277,6 @@ export function StoryboardPage() {
     updateScriptMarkdown(updatedScenes);
   };
 
-  const handleGenerateNewScene = async (beatDescription: string) => {
-    const prompt = generatedScript || "Generate a scene";
-    const generated = await generateScene(prompt, beatDescription);
-    const nextIndex = scenes.length > 0 ? Math.max(...scenes.map(s => s.originalIndex)) + 1 : 0;
-    const newScene: Scene = {
-      id: `scene-${Math.random().toString(36).substring(2, 9)}-${nextIndex}`,
-      originalIndex: nextIndex,
-      section: 'AI Generated',
-      narration: generated.narration,
-      visuals: generated.visuals,
-      sound: generated.sound,
-      duration: '5s'
-    };
-    const updatedScenes = [...scenes, newScene];
-    setScenes(updatedScenes);
-    updateScriptMarkdown(updatedScenes);
-  };
-
 
   const startEditing = (scene: Scene) => {
     setEditingSceneId(scene.id);
@@ -308,7 +300,6 @@ export function StoryboardPage() {
         isGuideOpen={isGuideOpen}
         setIsGuideOpen={setIsGuideOpen}
         handleAddScene={handleAddScene}
-        handleGenerateNewScene={handleGenerateNewScene}
         scenesLength={scenes.length}
         handleEnhanceAllVisuals={handleEnhanceAllVisuals}
         handleEnhanceAllNarration={handleEnhanceAllNarration}
@@ -317,69 +308,81 @@ export function StoryboardPage() {
         isGeneratingVisuals={isGeneratingVisuals}
         isEnhancingAllVisuals={isEnhancingAllVisuals}
         isEnhancingAllNarration={isEnhancingAllNarration}
+        session={session}
+        episode={episode}
+        onNext={() => navigate('/studio/seo')}
       />
 
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
-      <div className="w-full pr-4 pb-20">
-        {scenes.length > 0 ? (
-          <div className="space-y-12">
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="storyboard">
-                {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
-                    {scenes.map((scene, idx) => (
-                      <Draggable key={scene.id} draggableId={scene.id} index={idx}>
-                        {(provided, snapshot) => (
-                          <SceneCard 
-                            scene={scene}
-                            index={idx}
-                            visualData={visualData}
-                            promptList={promptList}
-                            editingSceneId={editingSceneId}
-                            editForm={editForm}
-                            isEnhancingNarration={isEnhancingNarration}
-                            isEnhancing={isEnhancing}
-                            isRewritingTension={isRewritingTension}
-                            isSuggestingDuration={isSuggestingDuration}
-                            setEditForm={setEditForm}
-                            handleGenerateVisual={handleGenerateVisual}
-                            startEditing={startEditing}
-                            cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
-                            saveSceneEdits={saveSceneEdits}
-                            handleEnhanceNarration={handleEnhanceNarration}
-                            handleEnhanceVisuals={handleEnhanceVisuals}
-                            handleRewriteTension={handleRewriteTension}
-                            handleSuggestDuration={handleSuggestDuration}
-                            dragHandleProps={provided.dragHandleProps}
-                            draggableProps={provided.draggableProps}
-                            innerRef={provided.innerRef}
-                            isDragging={snapshot.isDragging}
-                            isBulkEnhancing={enhancingSceneIds.has(scene.id)}
-                          />
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
+      <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
+        <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
+        <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
+        
+        <div className="w-full p-0">
+          <div className="p-12 max-w-[1400px] mx-auto">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {scenes.length > 0 ? (
+                <div className="space-y-12">
+                  <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="storyboard">
+                      {(provided) => (
+                        <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10">
+                          {scenes.map((scene, idx) => (
+                            <Draggable key={scene.id} draggableId={scene.id} index={idx}>
+                              {(provided, snapshot) => (
+                                <SceneCard 
+                                  scene={scene}
+                                  index={idx}
+                                  visualData={visualData}
+                                  promptList={promptList}
+                                  editingSceneId={editingSceneId}
+                                  editForm={editForm}
+                                  isEnhancingNarration={isEnhancingNarration}
+                                  isEnhancing={isEnhancing}
+                                  isRewritingTension={isRewritingTension}
+                                  isSuggestingDuration={isSuggestingDuration}
+                                  setEditForm={setEditForm}
+                                  handleGenerateVisual={handleGenerateVisual}
+                                  startEditing={startEditing}
+                                  cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+                                  saveSceneEdits={saveSceneEdits}
+                                  handleEnhanceNarration={handleEnhanceNarration}
+                                  handleEnhanceVisuals={handleEnhanceVisuals}
+                                  handleRewriteTension={handleRewriteTension}
+                                  handleSuggestDuration={handleSuggestDuration}
+                                  dragHandleProps={provided.dragHandleProps}
+                                  draggableProps={provided.draggableProps}
+                                  innerRef={provided.innerRef}
+                                  isDragging={snapshot.isDragging}
+                                  isBulkEnhancing={enhancingSceneIds.has(scene.id)}
+                                />
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                  
+                  <div className="pt-10 space-y-12">
+                    <SceneTimeline scenes={scenes} />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-studio/10">
+                      <Moodboard />
+                      <SoundscapeLibrary />
+                    </div>
                   </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-            
-            <div className="pt-10 space-y-12">
-              <SceneTimeline scenes={scenes} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-studio/10">
-                <Moodboard />
-                <SoundscapeLibrary />
-              </div>
+                </div>
+              ) : (
+                <EmptyState handleAddScene={handleAddScene} />
+              )}
             </div>
           </div>
-        ) : (
-          <EmptyState handleAddScene={handleAddScene} />
-        )}
-      </div>
+        </div>
+      </Card>
     </motion.div>
   );
 }

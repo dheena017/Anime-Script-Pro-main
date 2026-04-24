@@ -1,68 +1,75 @@
 import React from 'react';
-import { Download, Save, Edit3 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Box, Activity, Heart, Search, Layout, Volume2, Wand2, Download, RefreshCw } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ScriptToolbarProps {
-  generatedScript: string | null;
-  exportToPDF: () => void;
-  isEditing: boolean;
-  setIsEditing: (e: boolean) => void;
-  isSaving: boolean;
-  handleSaveScript: () => void;
+  session: string;
+  episode: string;
+  status: 'active' | 'draft' | 'empty';
+  onExport: () => void;
+  onViewSEO: () => void;
+  onViewPrompts: () => void;
+  onViewStoryboard: () => void;
+  onExtend: () => void;
+  onListen: () => void;
 }
 
 export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
-  generatedScript,
-  exportToPDF,
-  isEditing,
-  setIsEditing,
-  isSaving,
-  handleSaveScript
+  session,
+  episode,
+  status,
+  onExport,
+  onViewSEO,
+  onViewPrompts,
+  onViewStoryboard,
+  onExtend,
+  onListen
 }) => {
-  if (!generatedScript) return null;
-  
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className="border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-400 h-8 px-3"
-        onClick={exportToPDF}
-      >
-        <Download className="w-4 h-4 mr-2" />
-        PDF
-      </Button>
-      {isEditing && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="text-zinc-500 hover:text-zinc-300 h-8"
-          onClick={() => setIsEditing(false)}
-          disabled={isSaving}
-        >
-          Cancel
-        </Button>
-      )}
-      <Button 
-        variant="outline" 
-        size="sm" 
-        className={`border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 h-8 px-3 ${isEditing ? 'text-cyan-400 border-cyan-900/50 shadow-[0_0_10px_rgba(6,182,212,0.2)]' : 'text-zinc-400 hover:text-cyan-300 hover:border-cyan-500/30'}`}
-        onClick={() => {
-          if (isEditing) {
-            handleSaveScript();
-          } else {
-            setIsEditing(true);
-          }
-        }}
-        disabled={isSaving}
-      >
-        {isSaving ? (
-          <div className="w-4 h-4 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin mr-2" />
-        ) : (
-          isEditing ? <Save className="w-4 h-4 mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />
-        )}
-        {isSaving ? 'Saving...' : (isEditing ? 'Save Changes' : 'Edit Script')}
-      </Button>
+    <div className="flex items-center justify-between p-4 bg-black/40 border border-zinc-800/50 rounded-2xl mb-8">
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
+          <Box className="w-3 h-3 text-studio/50" />
+          <span className="text-[9px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
+          <span className="text-xs font-black text-white font-mono">S{session}-E{episode}</span>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Activity className={cn("w-3 h-3", status === 'active' ? "text-cyan-500" : "text-zinc-600")} />
+          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            {status === 'active' ? 'Active Script' : 'Awaiting Synthesis'}
+          </span>
+          {status === 'active' && <Heart className="w-3 h-3 text-red-500/50 fill-red-500/20" />}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <button onClick={onViewSEO} className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
+          <Search className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">SEO</span>
+        </button>
+        <button onClick={onViewPrompts} className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
+          <Wand2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Prompts</span>
+        </button>
+        <button onClick={onViewStoryboard} className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
+          <Layout className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Storyboard</span>
+        </button>
+        <button onClick={onExtend} className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
+          <RefreshCw className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Extend</span>
+        </button>
+        <button onClick={onListen} className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
+          <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Listen</span>
+        </button>
+        <div className="w-px h-4 bg-zinc-800 mx-2" />
+        <button onClick={onExport} className="flex items-center gap-2 text-studio/60 hover:text-studio transition-colors group">
+          <Download className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">PDF</span>
+        </button>
+      </div>
     </div>
   );
 };

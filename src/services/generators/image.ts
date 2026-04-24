@@ -1,6 +1,6 @@
-import { callAI, ai } from "./core";
+import { callAI, getAIClient } from "./core";
 
-export async function generateImagePrompts(script: string, model: string = "gemini-2.5-flash", contentType: string = "Anime") {
+export async function generateImagePrompts(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
   const systemInstruction = `
     You are an AI Image Prompt Engineer.
     Based on the "Visual/Cinematic Direction" column of the provided ${contentType} script, generate 5-8 highly detailed cinematic image prompts for a storyboard.
@@ -23,7 +23,7 @@ export async function generateImagePrompts(script: string, model: string = "gemi
   }
 }
 
-export async function enhanceSceneVisuals(visuals: string, narration: string, model: string = "gemini-2.5-flash") {
+export async function enhanceSceneVisuals(visuals: string, narration: string, model: string = "gemini-2.0-flash-exp") {
   const systemInstruction = `
     You are an award-winning Cinematic Director and Visual Storyteller.
     Your task is to take a basic scene description and rewrite it into a highly evocative, cinematic storyboard description.
@@ -47,25 +47,22 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
   }
 }
 
-export async function generateSceneImage(prompt: string, model: string = "gemini-2.5-flash-image"): Promise<string | null> {
+export async function generateSceneImage(prompt: string, model: string = "gemini-2.0-flash-exp"): Promise<string | null> {
   try {
-    const response = await ai.models.generateContent({
+    const response = await getAIClient().models.generateContent({
       model,
-      contents: {
-        parts: [
-          {
-            text: `Cinematic anime style, high quality, detailed storyboard frame: ${prompt}`,
-          },
-        ],
-      },
+      contents: [{
+        role: "user",
+        parts: [{ text: `Cinematic anime style, high quality, detailed storyboard frame: ${prompt}` }]
+      }],
       config: {
-        imageConfig: {
-          aspectRatio: "16:9",
-        }
+        //@ts-ignore - Some experimental models use specific config names
+        imageConfig: { aspectRatio: "16:9" }
       }
     });
 
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
+    const parts = response.candidates?.[0]?.content?.parts || [];
+    for (const part of parts) {
       if (part.inlineData) {
         return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
       }

@@ -89,9 +89,9 @@ export async function createServer() {
   }));
 
   // Python Backend Proxy (Phase 2 & 3 Migration)
-  // This forwards all /api requests (except /api/generate) to the FastAPI server on port 8000
+  // This forwards all /api requests (except /api/generate) to the FastAPI server on port 8001
   app.use("/api", createProxyMiddleware({
-    target: process.env.BACKEND_URL || "http://localhost:8000",
+    target: process.env.BACKEND_URL || "http://localhost:8001",
     changeOrigin: true,
     pathFilter: (path: string) => !path.startsWith('/api/generate'),
     on: {
@@ -125,7 +125,7 @@ export async function createServer() {
   // Note: Redundant handlers for projects, world-lore, characters, sessions, episodes, and scenes 
   // have been removed. They are now handled by the FastAPI proxy.
   // Vite middleware for development
-  
+
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
@@ -156,7 +156,7 @@ export async function createServer() {
 async function startServer() {
   const { app, openai, anthropic, groq } = await createServer();
   const PORT = 3000;
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
 
   app.listen(PORT, "0.0.0.0", async () => {
     console.log("====================================================");
@@ -186,7 +186,7 @@ async function startServer() {
         console.log(`[SUCCESS] FastAPI Intelligence Layer: ONLINE`);
       } else {
         console.warn(`[WARNING] FastAPI Backend: REJECTING OR NOT FOUND (Status: ${response?.status || 'No Response'})`);
-        console.warn(`          Ensure backend is running: "uvicorn backend.fastapi_app:app --port 8000"`);
+        console.warn(`          Ensure backend is running: "uvicorn backend.fastapi_app:app --port 8001"`);
       }
     } catch (e) {
       console.warn(`[ERROR] Backend Connectivity Failed. Proxy will return 502 for migrated routes.`);

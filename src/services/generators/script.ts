@@ -8,9 +8,9 @@ export async function generateScript(
     session: string = "1", 
     episode: string = "1", 
     numScenes: string = "6",
-    model: string = "gemini-2.5-flash", 
+    model: string = "gemini-2.0-flash-exp", 
     contentType: string = "Anime",
-    recapperPersona: string = "Dynamic/Hype",
+    recapperPersona: string = "",
     narrativeBeats: string | null = null,
     characterRelationships: string | null = null,
     worldBuilding: string | null = null,
@@ -79,7 +79,7 @@ export async function generateScript(
   }
 }
 
-export async function continueScript(currentScript: string, model: string = "gemini-2.5-flash", contentType: string = "Anime") {
+export async function continueScript(currentScript: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
   const systemInstruction = `
     You are the Prime Synthesis Architect continuing a cosmic blueprint for a ${contentType} production.
     Synthesize the next 3 scenes with Supreme 11-Column depth.
@@ -99,7 +99,7 @@ export async function continueScript(currentScript: string, model: string = "gem
   }
 }
 
-export async function rewriteForTension(sceneDescription: string, model: string = "gemini-2.5-flash") {
+export async function rewriteForTension(sceneDescription: string, model: string = "gemini-2.0-flash-exp") {
   const systemInstruction = `
     You are an expert Dramatic Scriptwriter.
     Your task is to take a scene description and rewrite it specifically to MAXIMIZE TENSION.

@@ -73,6 +73,23 @@ export default function TutorialsPage() {
         <p className="text-zinc-500 text-lg max-w-2xl">
           Master the art of anime content creation with our comprehensive guides and tutorials.
         </p>
+
+        <div className="flex items-center gap-6 pt-4">
+           <div className="flex flex-col items-start px-4 border-l border-zinc-900">
+              <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1.5">Tutorial Backend</span>
+              <div className="flex items-center gap-1.5">
+                 <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
+                 <span className="text-[9px] font-bold text-white uppercase tracking-tighter">SERVICE_READY</span>
+              </div>
+           </div>
+           <div className="flex flex-col items-start px-4 border-l border-zinc-900">
+              <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-1.5">Knowledge DB</span>
+              <div className="flex items-center gap-1.5">
+                 <div className="w-1 h-1 rounded-full bg-cyan-500" />
+                 <span className="text-[9px] font-bold text-white uppercase tracking-tighter">REPLICATED</span>
+              </div>
+           </div>
+        </div>
       </div>
 
       {loading ? (

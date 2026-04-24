@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from sqlmodel import SQLModel, Field
 
 from datetime import datetime
@@ -10,26 +10,26 @@ class Template(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     description: Optional[str] = None
+    category: str = Field(default="All")
+    icon: str = Field(default="Sword")
+    thumbnail: Optional[str] = None
+    prompt: str = Field(default="")
+    color: str = Field(default="text-cyan-500")
+    border: str = Field(default="border-cyan-500/50")
+    bg: str = Field(default="bg-cyan-500/10")
+    shadow: str = Field(default="shadow-[0_0_15px_rgba(6,182,212,0.2)]")
+    elements: List[str] = Field(default_factory=list, sa_column=Column(JSON))
+    vibe: str = Field(default="Standard")
+    stats: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
+    
     def __repr__(self):
         return f"<Template(id={self.id}, name={self.name})>"
     def __str__(self):
         return self.name
 
-class Method(SQLModel, table=True):
-    __tablename__ = "methods"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    description: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    is_active: bool = Field(default=True, index=True)
-    def __repr__(self):
-        return f"<Method(id={self.id}, name={self.name})>"
-    def __str__(self):
-        return self.name
 
 class WorldLore(SQLModel, table=True):
     __tablename__ = "world_lores"
@@ -100,6 +100,7 @@ class Script(SQLModel, table=True):
     content: str
     episode_id: Optional[int] = Field(default=None, foreign_key="episodes.id")
     series_id: Optional[int] = Field(default=None, foreign_key="series.id")
+    project_id: Optional[int] = Field(default=None, foreign_key="projects.id")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
@@ -281,10 +282,15 @@ class Project(SQLModel, table=True):
     __tablename__ = "projects"
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
-    name: str
+    title: str
     content_type: str = Field(default="ANIME")
+    genre: Optional[str] = None
+    art_style: Optional[str] = None
+    episode_length: str = Field(default="FULL") # "SHORT" or "FULL"
+    description: Optional[str] = None
     prompt: Optional[str] = None
-    vibe: Optional[str] = None
+    status: str = Field(default="draft")
+    model_used: str = Field(default="God Mode Engine v2.0")
     prod_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -322,6 +328,8 @@ class Tutorial(SQLModel, table=True):
     duration: str
     level: str
     category: str
+    content: Optional[str] = None
+    video_url: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
@@ -329,3 +337,25 @@ class Tutorial(SQLModel, table=True):
         return f"<Tutorial(id={self.id}, title={self.title})>"
     def __str__(self):
         return self.title
+
+class CommunityPost(SQLModel, table=True):
+    __tablename__ = "community_posts"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    title: str
+    content: str
+    project_id: Optional[int] = Field(default=None, foreign_key="projects.id")
+    script_id: Optional[int] = Field(default=None, foreign_key="scripts.id")
+    likes: int = Field(default=0)
+    views: int = Field(default=0)
+    tags: List[str] = Field(default_factory=list, sa_column=Column(JSON))
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_active: bool = Field(default=True, index=True)
+
+class ScriptVersion(SQLModel, table=True):
+    __tablename__ = "script_versions"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    script_id: int = Field(foreign_key="scripts.id")
+    content: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    is_active: bool = Field(default=True, index=True)

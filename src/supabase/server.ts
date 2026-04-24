@@ -3,9 +3,9 @@ import { createServerClient } from "@supabase/ssr";
 const getSafeConfig = () => {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.VITE_SUPABASE_ANON_KEY;
-  
+
   const isValid = url && typeof url === 'string' && url.startsWith('http');
-  
+
   return {
     url: isValid ? url : "https://placeholder-project.supabase.co",
     key: key || "placeholder-key"

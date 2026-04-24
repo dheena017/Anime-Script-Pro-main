@@ -4,8 +4,7 @@ import {
   Sword, 
   Layers, 
   Users, 
-  ScrollText, 
-  Search,
+  ScrollText,
   ArrowRight,
   TrendingUp,
   Target,
@@ -15,16 +14,16 @@ import {
   History,
   Box,
   BookOpen,
-  FileText,
   Globe,
   LayoutGrid,
+  Search,
   ImageIcon
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { Textarea } from '@/components/ui/textarea';
 import { Brain, Loader2, Sparkles } from 'lucide-react';
 import { ProductionOrchestrator } from '@/services/productionOrchestrator';
@@ -75,9 +74,7 @@ export default function AnimePortal() {
     {
       title: 'PHASE 1: FOUNDATION',
       tools: [
-        { id: 'concept', label: 'Concept Synthesis', desc: 'Narrative objectives and thematic hooks.', icon: Brain, path: 'concept', bg: 'bg-studio/10' },
         { id: 'template', label: 'Drafting Template', desc: 'Core structural templates for different anime sub-genres.', icon: BookOpen, path: 'template', bg: 'bg-orange-500/10' },
-        { id: 'methods', label: 'Production Methods', desc: 'Narrative frameworks and pacing algorithms.', icon: FileText, path: 'framework', bg: 'bg-yellow-500/10' },
         { id: 'world', label: 'Lore Vault', desc: 'Power systems, history, and world-building.', icon: Globe, path: 'world', bg: 'bg-orange-500/10' },
       ]
     },
@@ -101,7 +98,7 @@ export default function AnimePortal() {
       tools: [
         { id: 'seo', label: 'SEO Engine', desc: 'Package episodes with optimized metadata and tags.', icon: Search, path: 'seo', bg: 'bg-orange-500/10' },
         { id: 'prompts', label: 'Visual Prompts', desc: 'Refined AI image prompts for marketing assets.', icon: ImageIcon, path: 'prompts', bg: 'bg-yellow-500/10' },
-        { id: 'screening', label: 'Screening Room', desc: 'Cinematic review room for generated content.', icon: Play, path: 'example', bg: 'bg-orange-500/10' },
+        { id: 'screening', label: 'Screening Room', desc: 'Cinematic review room for generated content.', icon: Play, path: 'screening', bg: 'bg-orange-500/10' },
       ]
     }
   ];
@@ -144,88 +141,44 @@ export default function AnimePortal() {
           </div>
         </div>
 
-        {/* Floating Motifs */}
-        <div className="absolute right-12 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6">
-           <div className="w-16 h-32 rounded-xl border border-studio/30 bg-studio/5 flex items-center justify-center shadow-studio/10">
-              <Film className="w-8 h-8 text-studio opacity-40" />
-           </div>
-           <div className="w-16 h-32 rounded-xl border border-studio/30 bg-studio/5 flex items-center justify-center shadow-studio/10 self-end">
-              <Sword className="w-8 h-8 text-studio opacity-40" />
-           </div>
+        {/* Quick Orchestration Area */}
+        <div className="mt-12 pt-12 border-t border-white/5 relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <Sparkles className="w-5 h-5 text-studio" />
+            <h3 className="text-sm font-black text-white uppercase tracking-widest">Autonomous Production Loop</h3>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative group">
+              <div className="absolute top-4 left-4 z-10">
+                <Brain className="w-4 h-4 text-zinc-700" />
+              </div>
+              <Textarea 
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="DESCRIBE YOUR VISION FOR FULL SELF-CONSTRUCTION..."
+                className="min-h-[120px] bg-black/40 border-zinc-800 rounded-3xl pl-12 py-4 text-xs font-bold uppercase tracking-widest text-zinc-100 placeholder:text-zinc-800 focus:border-studio/50 transition-all resize-none"
+              />
+            </div>
+            <Button 
+              disabled={isLoading || !prompt.trim()}
+              onClick={handleMasterGenerate}
+              className="h-[120px] px-8 bg-zinc-950 border border-studio/20 text-studio rounded-3xl hover:bg-studio/5 transition-all flex flex-col items-center justify-center gap-3 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {isLoading ? (
+                <Loader2 className="w-8 h-8 animate-spin" />
+              ) : (
+                <Sword className="w-8 h-8 group-hover:rotate-12 transition-transform" />
+              )}
+              <span className="text-[10px] font-black uppercase tracking-[0.2em]">{isLoading ? 'Processing' : 'Initiate'}</span>
+            </Button>
+          </div>
+          <p className="mt-4 text-[9px] text-zinc-600 font-bold uppercase tracking-[0.2em] text-center">
+            Orchestrates world lore, character Visual DNA, and narrative beats in a single neural cycle.
+          </p>
         </div>
       </div>
-
-         {/* 1.5 AUTONOMOUS CONSTRUCTION (GOD MODE) */}
-         <div className="relative rounded-[3rem] bg-zinc-950 border border-studio/30 overflow-hidden p-12 group shadow-studio/10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.05)_0%,transparent_100%)] pointer-events-none" />
-            
-            <div className="flex flex-col lg:flex-row gap-12 items-center relative z-10">
-               <div className="flex-1 space-y-6">
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-studio/10 border border-studio/20 text-studio">
-                     <Sparkles className="w-4 h-4 animate-pulse" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Master Control / Concept Synthesis</span>
-                  </div>
-                  
-                  <h2 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">
-                     Concept / <br />
-                     <span className="text-studio">Theme</span>
-                  </h2>
-                  
-                  <p className="text-zinc-500 text-xs font-medium leading-relaxed max-w-md uppercase tracking-wider">
-                     Launch the full production mainline. Generates world architecture, character profiles, and 60 episode narrative beats in one sequence.
-                  </p>
-               </div>
-
-               <div className="w-full lg:w-[500px] space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                      <label className="text-[10px] font-black text-studio uppercase tracking-widest">Narrative Blueprint</label>
-                      <button 
-                        onClick={() => setPrompt('')}
-                        className="text-[9px] font-black text-zinc-500 hover:text-studio uppercase tracking-widest transition-colors cursor-pointer"
-                      >
-                        CLEAR
-                      </button>
-                  </div>
-                  <div className="relative">
-                     <Textarea 
-                        placeholder="Describe your core narrative concept and structural requirements..."
-                        className="min-h-[120px] bg-black border-studio/20 focus:border-studio/50 text-studio placeholder:text-zinc-800 rounded-[2rem] p-6 text-sm font-medium resize-none shadow-inner"
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                     />
-                     <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Neural Sync {prompt.length > 0 ? 'Ready' : 'Pending'}</span>
-                     </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Button 
-                       variant="outline"
-                       className="h-14 border-studio/20 bg-studio/5 text-studio hover:bg-studio/10 text-[10px] font-black uppercase tracking-widest rounded-2xl"
-                    >
-                      Omni-Surge (Synthesize All)
-                    </Button>
-                    <Button 
-                       onClick={handleMasterGenerate}
-                       disabled={isLoading || !prompt.trim()}
-                       className="h-14 rounded-2xl bg-studio hover:bg-studio/90 text-black font-black uppercase tracking-[0.2em] text-[10px] shadow-studio transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
-                    >
-                       {isLoading ? (
-                          <>
-                             <Loader2 className="w-5 h-5 animate-spin" />
-                             Forging...
-                          </>
-                       ) : (
-                          <>
-                             <Zap className="w-5 h-5 fill-current" />
-                             Initiate Master Production Loop
-                          </>
-                       )}
-                    </Button>
-                  </div>
-               </div>
-            </div>
-         </div>
 
          {/* 2. STATS GRID */}
 

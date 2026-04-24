@@ -76,7 +76,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
     <div className="space-y-12">
       <div className="border-b border-zinc-800/80 pb-12 mb-12 text-center space-y-4 relative">
         <div className="inline-block px-3 py-1 bg-zinc-800/20 border border-zinc-800/50 rounded-full text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold mb-4 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
-          Official Production Script
+          Official Anime Script
         </div>
         <h1 className="text-4xl font-black text-cyan-50 leading-tight uppercase tracking-tight drop-shadow-[0_0_10px_rgba(6,182,212,0.3)]">
           {prompt?.split(' ').slice(0, 5).join(' ') || "Untitled Sequence"}

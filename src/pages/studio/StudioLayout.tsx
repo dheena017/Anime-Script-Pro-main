@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { ProductionOrchestrator } from '@/services/productionOrchestrator';
 import { generateScript } from '@/services/geminiService';
@@ -15,7 +15,23 @@ export function StudioLayout({ type }: { type?: string }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  
+  // Sync Creative Engine state with URL query parameter
+  const searchParams = new URLSearchParams(location.search);
+  const isEngineOpen = searchParams.get('engine') === 'open';
+  const [sidebarOpen, setSidebarOpen] = React.useState(isEngineOpen);
+
+  const toggleEngine = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    const newParams = new URLSearchParams(location.search);
+    if (newState) {
+      newParams.set('engine', 'open');
+    } else {
+      newParams.delete('engine');
+    }
+    navigate({ search: newParams.toString() }, { replace: true });
+  };
   const {
     prompt, setPrompt,
     setGeneratedScript,
@@ -40,7 +56,8 @@ export function StudioLayout({ type }: { type?: string }) {
     numScenes, setNumScenes,
     generatedWorld, setGeneratedWorld, generatedCharacters,
     setCastData, setCastList,
-    addLog
+    addLog,
+    theme, setTheme
   } = useGenerator();
 
   React.useEffect(() => {
@@ -48,7 +65,6 @@ export function StudioLayout({ type }: { type?: string }) {
   }, [type, setContentType]);
 
   const basePath = type ? `/${type.toLowerCase()}` : '';
-  const isPortal = location.pathname === basePath || location.pathname === `${basePath}/`;
 
   const handleSaveCurrent = async () => {
     if (!generatedScript || !user) return;
@@ -66,21 +82,21 @@ export function StudioLayout({ type }: { type?: string }) {
           vibe: tone
         })
       });
-      
+
       if (!res.ok) throw new Error("Failed to save project");
       const project = await res.json();
       setCurrentScriptId(project.id);
     } catch (error) {
-       console.error("Save failed:", error);
+      console.error("Save failed:", error);
     } finally {
-       setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
   const handleMasterGenerate = async () => {
     if (!prompt.trim() || !user) return;
     setIsLoading(true);
-    
+
     try {
       const orchestrator = new ProductionOrchestrator({
         prompt,
@@ -98,7 +114,7 @@ export function StudioLayout({ type }: { type?: string }) {
 
       // Sync results to context
       if (result.world) setGeneratedWorld(result.world);
-      
+
       if (result.cast) {
         if (typeof result.cast === 'object' && 'markdown' in result.cast) {
           setGeneratedCharacters(result.cast.markdown);
@@ -133,9 +149,9 @@ export function StudioLayout({ type }: { type?: string }) {
       // Success feedback or redirect
       navigate(`${basePath}/series`);
     } catch (error) {
-       console.error("Master Orchestration Failed:", error);
+      console.error("Master Orchestration Failed:", error);
     } finally {
-       setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -183,12 +199,12 @@ export function StudioLayout({ type }: { type?: string }) {
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
           <div className="flex flex-col gap-6 lg:overflow-visible transition-all duration-500">
             <div className="sticky top-[60px] z-30 bg-[#050505]/80 backdrop-blur-md py-4 -mx-2 px-2">
-              <StudioNavigation 
-                basePath={basePath} 
-                handleGenerate={handleGenerate} 
-                isLoading={isLoading} 
+              <StudioNavigation
+                basePath={basePath}
+                handleGenerate={handleGenerate}
+                isLoading={isLoading}
                 rightSidebarOpen={sidebarOpen}
-                onToggleRightSidebar={() => setSidebarOpen(!sidebarOpen)}
+                onToggleRightSidebar={toggleEngine}
               />
             </div>
             <div className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-hidden">
@@ -210,9 +226,9 @@ export function StudioLayout({ type }: { type?: string }) {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4">
-          <SessionLogs 
+          <SessionLogs
             history={history}
             setPrompt={setPrompt}
             setTone={setTone}
@@ -226,39 +242,39 @@ export function StudioLayout({ type }: { type?: string }) {
         </div>
       </div>
 
-      {!isPortal && (
-        <ProductionCore 
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          prompt={prompt} setPrompt={setPrompt}
-          tone={tone} setTone={setTone}
-          audience={audience} setAudience={setAudience}
-          session={session} setSession={setSession}
-          episode={episode} setEpisode={setEpisode}
-          numScenes={numScenes} setNumScenes={setNumScenes}
-          selectedModel={selectedModel} setSelectedModel={setSelectedModel}
-          recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-          narrativeBeats={narrativeBeats || ''}
-          setNarrativeBeats={setNarrativeBeats}
-          characterRelationships={characterRelationships || ''}
-          setCharacterRelationships={setCharacterRelationships}
-          worldBuilding={generatedWorld || ''}
-          setWorldBuilding={setGeneratedWorld}
-          castProfiles={generatedCharacters || ''}
-          setCastProfiles={setGeneratedCharacters}
-          handleGenerate={handleGenerate}
-          handleMasterGenerate={handleMasterGenerate}
-          handleSaveCurrent={handleSaveCurrent}
-          isLoading={isLoading}
-          isSaving={isSaving}
-          generatedScript={generatedScript}
-          currentScriptId={currentScriptId}
-          user={user}
-          basePath={basePath}
-          navigate={navigate}
-          contentType={contentType}
-        />
-      )}
+      <ProductionCore
+        isOpen={sidebarOpen}
+        onToggle={toggleEngine}
+        prompt={prompt} setPrompt={setPrompt}
+        tone={tone} setTone={setTone}
+        audience={audience} setAudience={setAudience}
+        session={session} setSession={setSession}
+        episode={episode} setEpisode={setEpisode}
+        numScenes={numScenes} setNumScenes={setNumScenes}
+        selectedModel={selectedModel} setSelectedModel={setSelectedModel}
+        recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
+        narrativeBeats={narrativeBeats || ''}
+        setNarrativeBeats={setNarrativeBeats}
+        characterRelationships={characterRelationships || ''}
+        setCharacterRelationships={setCharacterRelationships}
+        worldBuilding={generatedWorld || ''}
+        setWorldBuilding={setGeneratedWorld}
+        castProfiles={generatedCharacters || ''}
+        setCastProfiles={setGeneratedCharacters}
+        handleGenerate={handleGenerate}
+        handleMasterGenerate={handleMasterGenerate}
+        handleSaveCurrent={handleSaveCurrent}
+        isLoading={isLoading}
+        isSaving={isSaving}
+        generatedScript={generatedScript}
+        currentScriptId={currentScriptId}
+        user={user}
+        basePath={basePath}
+        navigate={navigate}
+        contentType={contentType}
+        theme={theme}
+        setTheme={setTheme}
+      />
     </div>
   );
 }

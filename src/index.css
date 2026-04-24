@@ -72,7 +72,7 @@
   @apply bg-[#080808]/40 backdrop-blur-xl border border-zinc-900 shadow-2xl relative overflow-hidden;
 }
 
-/* Production Script Markdown Overrides */
+/* Anime Script Markdown Overrides */
 .prose table {
   @apply w-full border-separate border-spacing-0 my-10 shadow-2xl rounded-3xl overflow-hidden border border-zinc-800/40 bg-zinc-950/10 backdrop-blur-md;
 }

@@ -11,7 +11,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - BACKEND_URL=http://fastapi:8000
+      - BACKEND_URL=http://fastapi:8001
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
@@ -31,7 +31,7 @@ services:
       dockerfile: backend/Dockerfile
     container_name: anime-script-fastapi
     ports:
-      - "8000:8000"
+      - "8001:8001"
     volumes:
       - ./backend:/app
     environment:
@@ -47,7 +47,7 @@ services:
     image: mathesar/mathesar:latest
     container_name: anime-script-mathesar
     ports:
-      - "8080:8000"
+      - "8080:8001"
     environment:
       # Use the Supabase connection string for your primary data
       - 'MATHESAR_DATABASES={"supabase": "${DATABASE_URL}"}'

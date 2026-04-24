@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
-  Users, 
   ArrowRight, 
   Activity, 
   LayoutGrid, 
@@ -10,18 +9,15 @@ import {
   ChevronRight, 
   FolderGit2,
   PlusSquare,
-  Globe,
-  Bell,
   Cpu,
   Calendar
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { cn } from '../lib/utils';
 import { createClient } from '../supabase/client';
-import { TodoWidget } from '../components/TodoWidget';
 import { useAuth } from '../hooks/useAuth';
+import { TodoWidget } from '../components/TodoWidget';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -65,13 +61,7 @@ export default function Dashboard() {
   return (
     <div className={cn("min-h-screen bg-[#050505] text-zinc-100 space-y-8 max-w-[1600px] mx-auto pt-4")}>
       {/* 1. TOP HEADER / NEURAL STATUS */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-900/50 border border-zinc-800 rounded-full">
-            <div className="w-2 h-2 rounded-full bg-[#bd4a4a] animate-pulse shadow-[0_0_8px_rgba(189,74,74,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#bd4a4a]">Node Synchronized</span>
-          </div>
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
       </div>
 
       {/* 2. CORE STATS BAR */}
@@ -123,7 +113,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             { name: 'Anime Studio', type: 'Anime', path: '/anime', color: 'border-[#bd4a4a]/20 text-white bg-[#bd4a4a]/5 hover:border-[#bd4a4a]/50', desc: 'Japanese style animation frames & lore.' },
-            { name: 'Concept Hub', type: 'Manhwa', path: '/world', color: 'border-zinc-800 text-zinc-400 bg-zinc-900/20 hover:border-zinc-700', desc: 'World building and narrative scaffolding.' },
+            { name: 'World Lore', type: 'Manhwa', path: '/world', color: 'border-zinc-800 text-zinc-400 bg-zinc-900/20 hover:border-zinc-700', desc: 'World building and narrative scaffolding.' },
             { name: 'Archive Room', type: 'Comic', path: '/projects', color: 'border-zinc-800 text-zinc-400 bg-zinc-900/20 hover:border-zinc-700', desc: 'Review and manage existing blueprint archives.' },
           ].map((studio) => (
             <button
@@ -157,7 +147,7 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                {[
-                 { title: 'New Blueprint', desc: 'Initialize a fresh project from scratch using AI guidance.', icon: PlusSquare, color: 'text-[#bd4a4a]', path: '/create/new' },
+                 { title: 'New Blueprint', desc: 'Initialize a fresh project from scratch using AI guidance.', icon: PlusSquare, color: 'text-[#bd4a4a]', path: '/projects/new' },
                  { title: 'Resume Script', desc: 'Contine refining your latest narrative transmissions.', icon: ScrollText, color: 'text-blue-500', path: '/anime/script' },
                  { title: 'Project Archive', desc: 'Access and switch between your production history.', icon: FolderGit2, color: 'text-zinc-400', path: '/projects' },
                ].map((item, idx) => (
@@ -226,46 +216,6 @@ export default function Dashboard() {
 
          <div className="space-y-8">
             <TodoWidget />
-            <Card className="bg-zinc-900/40 border-zinc-800 rounded-[2.5rem] p-8 space-y-8 flex flex-col items-center text-center relative overflow-hidden h-full shadow-2xl">
-               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#bd4a4a]/50 to-transparent" />
-               <div className="space-y-2">
-                 <h3 className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.3em]">COMMAND CENTER</h3>
-                 <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Rapid workspace navigation for advanced architects.</p>
-               </div>
-
-               <div className="w-full space-y-3">
-                 {[
-                   { label: 'Scripting Node', icon: ScrollText, path: '/anime/script' },
-                   { label: 'Cast Matrix', icon: Users, path: '/anime/cast' },
-                   { label: 'World Lore', icon: Globe, path: '/anime/world' },
-                   { label: 'Broadcasts', icon: Bell, path: '/notifications' },
-                 ].map((link, idx) => (
-                   <Button 
-                     key={idx}
-                     onClick={() => navigate(link.path)}
-                     variant="ghost" 
-                     className="w-full justify-between h-14 rounded-2xl bg-black/20 border border-zinc-800 hover:bg-zinc-900 hover:border-[#bd4a4a]/30 text-zinc-400 hover:text-white group px-5"
-                   >
-                     <div className="flex items-center gap-3">
-                        <link.icon className="w-4 h-4 text-zinc-600 group-hover:text-[#bd4a4a]" />
-                        <span className="text-[10px] font-black uppercase tracking-widest leading-none">{link.label}</span>
-                     </div>
-                     <ArrowRight className="w-4 h-4 text-zinc-800 group-hover:text-[#bd4a4a] transition-all opacity-0 group-hover:opacity-100" />
-                   </Button>
-                 ))}
-               </div>
-
-               <div className="mt-auto grid grid-cols-2 gap-4 w-full">
-                  <div className="bg-black/40 rounded-2xl p-4 border border-zinc-800">
-                     <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Total</p>
-                     <p className="text-2xl font-black text-white">{stats.total}</p>
-                  </div>
-                  <div className="bg-black/40 rounded-2xl p-4 border border-zinc-800">
-                     <p className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-1">Week</p>
-                     <p className="text-2xl font-black text-[#bd4a4a]">{stats.week}</p>
-                  </div>
-               </div>
-            </Card>
          </div>
       </div>
     </div>

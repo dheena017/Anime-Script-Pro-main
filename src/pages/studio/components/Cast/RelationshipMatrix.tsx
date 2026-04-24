@@ -9,7 +9,7 @@ import {
   Lock,
   Minus
 } from 'lucide-react';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
 import { 
   Tooltip,

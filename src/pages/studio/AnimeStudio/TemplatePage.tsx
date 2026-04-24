@@ -1,120 +1,111 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ScrollText, Search, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ScrollText, Search, Sword, Globe, Zap, Ghost, Brain, Flame, Heart, Trophy, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { useNavigate } from 'react-router-dom';
 
 // Sub-components
 import { TemplateCard } from '../components/Template/TemplateCard';
 import { TemplateDetailModal } from '../components/Template/TemplateDetailModal';
-import { StructureView } from '../components/Template/StructureView';
-import { VaultView } from '../components/Template/VaultView';
 
-// Constants
-import { CATEGORIES, QUICK_TEMPLATES, templateMarkdown } from '../templateConstants';
+// Icon Mapper
+const ICON_MAP: Record<string, any> = {
+  Sword, Globe, Zap, Ghost, Brain, Flame, Heart, Trophy, Hash, Search
+};
 
 export function TemplatePage() {
-  const [isLiked, setIsLiked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'prompts' | 'structure' | 'custom'>('prompts');
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
   const [showTemplateDetails, setShowTemplateDetails] = useState<string | null>(null);
-  
-  const { setPrompt } = useGenerator();
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    setPrompt,
+  } = useGenerator();
   const navigate = useNavigate();
+
+  // Fetch templates from the Database
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        const response = await fetch('http://localhost:8001/api/templates');
+        if (response.ok) {
+          const data = await response.json();
+          // Map string icons to Lucide components
+          const mappedData = data.map((t: any) => ({
+            ...t,
+            icon: ICON_MAP[t.icon] || Sword,
+            label: t.name // Aligning name with card expectations
+          }));
+          setTemplates(mappedData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch blueprints:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, []);
 
   const handleUsePrompt = (promptText: string) => {
     setPrompt(promptText);
     navigate('..', { relative: 'path' });
   };
 
-  const filteredTemplates = QUICK_TEMPLATES.filter(t => {
-    const matchesSearch = t.label.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          t.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || t.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const filteredTemplates = templates.filter(t => {
+    return t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.description.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  const selectedTemplateData = QUICK_TEMPLATES.find(t => t.id === showTemplateDetails);
+  const selectedTemplateData = templates.find(t => t.id === showTemplateDetails || t.id.toString() === showTemplateDetails);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-forge-library">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-2">
-          <h2 className="text-3xl font-black uppercase tracking-[0.2em] flex items-center gap-3 text-studio text-shadow-studio">
-            <ScrollText className="w-8 h-8 text-studio" /> Forge Library
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8" data-testid="marker-forge-library">
+      {/* HEADER SECTION WITH SEARCH */}
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 glass-panel p-6 rounded-[2rem] border-cyan-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="space-y-2 shrink-0">
+          <h2 className="text-4xl font-black uppercase tracking-[0.25em] flex items-center gap-3 text-white glow-text">
+            <ScrollText className="w-10 h-10 text-cyan-400" /> Forge Library
           </h2>
-          <p className="text-studio/60 font-bold uppercase tracking-[0.2em] text-[10px] bg-studio/10 px-3 py-1 rounded-full border border-studio/20 inline-block">
-            Production-Ready Frameworks & Blueprints
+          <p className="text-cyan-500/60 font-black uppercase tracking-[0.4em] text-[10px] bg-cyan-500/5 px-4 py-1.5 rounded-xl border border-cyan-500/20 inline-block shadow-[0_0_20px_rgba(34,211,238,0.05)]">
+            Production-Ready Frameworks & Global Standards
           </p>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 p-1 bg-[#0a0a0a] rounded-full border border-zinc-800 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-            {(['prompts', 'structure', 'custom'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  "px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
-                  activeTab === tab 
-                    ? `${tab === 'prompts' ? 'bg-studio' : tab === 'structure' ? 'bg-orange-500' : 'bg-studio shadow-studio'} text-white shadow-[0_0_15px_rgba(0,0,0,0.4)]` 
-                    : "text-zinc-500 hover:text-white"
-                )}
-              >
-                {tab === 'prompts' ? 'Blueprints' : tab === 'structure' ? 'Standard' : 'Vault'}
-              </button>
-            ))}
+
+        <div className="flex items-center gap-4 flex-1 justify-end">
+          {/* SEARCH ENGINE */}
+          <div className="relative group w-full md:w-96">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-500/60 group-focus-within:text-cyan-400 transition-colors" />
+            <Input
+              placeholder="Scan Blueprints..."
+              className="pl-12 h-12 bg-black/40 border-cyan-500/10 focus:border-cyan-500/40 text-xs rounded-xl neo-border transition-all w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
       </div>
 
-      {activeTab === 'prompts' && (
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between border-y border-zinc-800/50 py-4">
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0 max-w-full">
-              {CATEGORIES.map(cat => (
-                <Badge
-                  key={cat}
-                  variant="outline"
-                  className={cn(
-                    "cursor-pointer px-3 py-1 text-[9px] uppercase tracking-widest font-bold transition-all border-zinc-800",
-                    selectedCategory === cat ? "bg-studio/20 text-studio border-studio/50" : "text-zinc-500 hover:text-studio"
-                  )}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </Badge>
-              ))}
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Button 
-                size="sm" 
-                className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
-              >
-                <Sparkles className="w-3 h-3 mr-2" />
-                 Generate
-              </Button>
-              <div className="relative w-full md:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-studio/60" />
-                <Input 
-                  placeholder="Find Blueprint..."
-                  className="pl-10 h-9 bg-black/40 border-studio/10 focus:border-studio/40 text-[11px] rounded-full"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
+      <div className="space-y-8">
+        <div className="flex items-center justify-between px-4">
+          <div className="text-[10px] font-black text-cyan-500/40 uppercase tracking-[0.4em]">
+            {isLoading ? "Synchronizing Matrix..." : `Blueprints Available: ${filteredTemplates.length}`}
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* TEMPLATE GRID */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-4">
+            <div className="w-12 h-12 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-cyan-500/40 animate-pulse">Establishing Neural Link...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredTemplates.map((template, idx) => (
-              <TemplateCard 
+              <TemplateCard
                 key={template.id}
                 template={template}
                 idx={idx}
@@ -123,28 +114,18 @@ export function TemplatePage() {
               />
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <AnimatePresence>
         {showTemplateDetails && selectedTemplateData && (
-          <TemplateDetailModal 
+          <TemplateDetailModal
             template={selectedTemplateData}
             onClose={() => setShowTemplateDetails(null)}
             handleUsePrompt={handleUsePrompt}
           />
         )}
       </AnimatePresence>
-
-      {activeTab === 'structure' && (
-        <StructureView 
-          templateMarkdown={templateMarkdown}
-          isLiked={isLiked}
-          setIsLiked={setIsLiked}
-        />
-      )}
-
-      {activeTab === 'custom' && <VaultView />}
     </motion.div>
   );
 }

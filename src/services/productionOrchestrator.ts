@@ -9,6 +9,7 @@ import { callAI } from "./generators/core";
 
 export interface ProductionContext {
   prompt: string;
+  theme?: string;
   contentType: string;
   model: string;
   userId: string;
@@ -36,29 +37,40 @@ export class ProductionOrchestrator {
   }
 
   async executeFullCycle(onProgress?: (phase: string, data?: any) => void): Promise<OrchestrationResult> {
-    // PHASE 1: FOUNDATION (Global Variables)
-    if (onProgress) onProgress("PHASE 1: Initializing World Lore Source of Truth...");
-    const world = await this.initializeFoundation();
-    
-    // PHASE 2: ARCHITECTURE (Outer Loops: SESS & EP)
-    if (onProgress) onProgress("PHASE 2: Structuring Sessions and 60 Episode Beats...");
-    const { cast, series } = await this.buildArchitecture(world);
-    
-    // PHASE 3: GENERATION (Inner Loop: SCEN)
-    if (onProgress) onProgress("PHASE 3: Scaffolding 960 Scene Units (The Factory Floor)...");
-    const sequences = await this.scaffoldGeneration(series);
-    
-    // PHASE 4: DISTRIBUTION (Polish & SEO)
-    if (onProgress) onProgress("PHASE 4: Preparing Screening Room & SEO Metadata...");
-    await this.prepareDistribution();
+    try {
+      // PHASE 1: FOUNDATION (Global Variables)
+      if (onProgress) onProgress("PHASE 1: Initializing World Lore Source of Truth...");
+      const world = await this.initializeFoundation();
+      
+      // PHASE 2: ARCHITECTURE (Outer Loops: SESS & EP)
+      if (onProgress) onProgress("PHASE 2: Structuring Sessions and 60 Episode Beats...");
+      const { cast, series } = await this.buildArchitecture(world);
+      
+      // PHASE 3: GENERATION (Inner Loop: SCEN)
+      if (onProgress) onProgress("PHASE 3: Scaffolding 960 Scene Units (The Factory Floor)...");
+      const sequences = await this.scaffoldGeneration(series);
+      
+      // PHASE 4: DISTRIBUTION (Polish & SEO)
+      if (onProgress) onProgress("PHASE 4: Preparing Screening Room & SEO Metadata...");
+      await this.prepareDistribution();
 
-    return {
-      project: this.project,
-      world,
-      cast,
-      series,
-      sequences
-    };
+      return {
+        project: this.project,
+        world,
+        cast,
+        series,
+        sequences
+      };
+    } catch (error: any) {
+      const errorMsg = error?.message || "Unknown Orchestration Error";
+      console.error(`[ORCHESTRATOR-FAILURE] ${errorMsg}`, error);
+      if (onProgress) onProgress(`CRITICAL_FAILURE: ${errorMsg}`);
+      throw error; // Re-throw to let the UI handle the final notification
+    }
+  }
+
+  private getCombinedPrompt(): string {
+    return `${this.context.prompt}${this.context.theme ? `\n\nAesthetic Theme/Vibe: ${this.context.theme}` : ''}`;
   }
 
   private async initializeFoundation(): Promise<string> {
@@ -79,9 +91,19 @@ export class ProductionOrchestrator {
         }
       })
     });
+    
+    // Save production method to DB
+    await apiRequest("/api/methods", {
+      method: "POST",
+      body: JSON.stringify({
+        name: preset.name,
+        description: `Autonomous production vibe for project ${this.project.id}`
+      })
+    });
 
     // Generate and save global World Lore
-    const world = await generateWorld(this.context.prompt, this.context.model, this.context.contentType);
+    const worldPrompt = this.getCombinedPrompt();
+    const world = await generateWorld(worldPrompt, this.context.model, this.context.contentType);
     await apiRequest("/api/world-lore", {
       method: "POST",
       body: JSON.stringify({
@@ -95,8 +117,9 @@ export class ProductionOrchestrator {
   }
 
   private async buildArchitecture(world: string) {
+    const architecturePrompt = this.getCombinedPrompt();
     // 1. Generate Cast with Visual DNA (Global for all 960 units)
-    const rawCast = await generateCharacters(this.context.prompt, this.context.model, this.context.contentType, world);
+    const rawCast = await generateCharacters(architecturePrompt, this.context.model, this.context.contentType, world);
     
     // Process cast into a registry with "Visual DNA"
     const charactersList = (typeof rawCast !== 'string' && rawCast.characters) ? rawCast.characters : [];
@@ -120,7 +143,7 @@ export class ProductionOrchestrator {
     });
 
     // 3. Generate 60 Episode Narrative Beats (Series Plan)
-    const series = await generateSeriesPlan(this.context.prompt, this.context.model, this.context.contentType, 60);
+    const series = await generateSeriesPlan(architecturePrompt, this.context.model, this.context.contentType, 60);
     
     if (!Array.isArray(series)) throw new Error("Failed to generate series episodes.");
 
@@ -193,7 +216,7 @@ export class ProductionOrchestrator {
       ]
     `;
     const prompt = `World Lore: ${world}\n\nProject Concept: ${this.context.prompt}\n\nGenerate the 5 major sessions.`;
-    const orchestratorModel = this.context.model || "gemini-2.5-flash";
+    const orchestratorModel = this.context.model || "gemini-2.0-flash-exp";
     
     try {
       const result = await callAI(orchestratorModel, prompt, systemInstruction);
@@ -212,8 +235,39 @@ export class ProductionOrchestrator {
   }
 
   private async prepareDistribution() {
-    // Initialize SEO records or screening room metadata
-    // Placeholder for Phase 4 automation
+    console.log("[PHASE 4] Archiving Production Prompts and Initializing SEO Matrix...");
+    
+    // 1. Save SEO Metadata
+    await apiRequest("/api/seo_entries", {
+      method: "POST",
+      body: JSON.stringify({
+        keyword: `ANIME_${this.project.id}_${this.context.prompt.slice(0, 10).toUpperCase()}`,
+        description: `Autonomous production metadata for ${this.context.prompt}`
+      })
+    });
+
+    // 2. Initialize Screening Room
+    // We create a screening entry for the first script/episode
+    const scripts = await apiRequest<any[]>(`/api/scripts?project_id=${this.project.id}`);
+    if (scripts && scripts.length > 0) {
+      await apiRequest("/api/screening_room_entries", {
+        method: "POST",
+        body: JSON.stringify({
+          script_id: scripts[0].id,
+          feedback: "Awaiting Initial Production Review..."
+        })
+      });
+    }
+
+    // 3. Log the Master Prompt
+    await apiRequest("/api/prompts", {
+      method: "POST",
+      body: JSON.stringify({
+        text: this.context.prompt,
+        context: "MASTER_PRODUCTION_SEED"
+      })
+    });
+
     return true;
   }
 }

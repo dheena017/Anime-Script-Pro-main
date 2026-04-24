@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { useRealtimeLogs } from '@/hooks/useRealtimeLogs';
 import { Activity } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';

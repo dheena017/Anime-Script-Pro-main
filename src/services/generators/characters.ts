@@ -43,15 +43,18 @@ export interface GeneratedCast {
  */
 export async function generateCharacters(
   genre: string, 
-  model: string = "gemini-2.5-flash", 
+  model: string = "gemini-2.0-flash-exp", 
   contentType: string = "Anime",
   worldLore?: string,
+  narrativeBeats?: string,
   count: number = 3
 ): Promise<GeneratedCast | string> {
   
-  const contextInjected = worldLore 
-    ? `\nWORLD LORE CONTEXT: ${worldLore}\nCharacters MUST inhabit and reflect this world's logic and history.`
-    : "";
+  const contextInjected = `
+    ${worldLore ? `\nWORLD LORE CONTEXT: ${worldLore}\n` : ""}
+    ${narrativeBeats ? `\nNARRATIVE BEATS CONTEXT: ${narrativeBeats}\n` : ""}
+    Characters MUST inhabit and reflect the above context's logic, history, and planned plot points.
+  `;
 
   const systemInstruction = `
     You are an expert ${contentType} Character Designer and Story Consultant.
@@ -125,5 +128,47 @@ export async function generateCharacters(
     }
     console.error("Error generating characters:", error);
     return "Error: " + (error instanceof Error ? error.message : String(error));
+  }
+}
+
+/**
+ * generateRelationships
+ * Synthesizes a complex web of social friction and alliances between an existing cast.
+ */
+export async function generateRelationships(
+  genre: string,
+  cast: string,
+  model: string = "gemini-2.0-flash-exp",
+  contentType: string = "Anime"
+): Promise<GeneratedCast['relationships']> {
+  const systemInstruction = `
+    You are an expert Social Architect and Script Consultant.
+    Based on the provided cast of characters and the genre/prompt, generate a complex web of relationships.
+    
+    You MUST return a JSON array of objects, each with:
+    - "source": Name of character A
+    - "target": Name of character B
+    - "type": One of ["Ally", "Rival", "Enemy", "Love", "Secret", "Master/Apprentice", "Familial", "Betrayal", "Stalker"]
+    - "tension": A number from 1 to 10
+    - "description": A short, impactful sentence on their dynamic.
+    
+    Return ONLY the JSON array. No preamble.
+  `;
+  
+  try {
+    const prompt = `Generate a relationship matrix for the following characters in a ${genre} ${contentType}: ${cast}`;
+    const text = await callAI(model, prompt, systemInstruction);
+    
+    if (!text) return [];
+    
+    try {
+      return cleanJson(text) as GeneratedCast['relationships'];
+    } catch {
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      return jsonMatch ? JSON.parse(jsonMatch[0]) : [];
+    }
+  } catch (error) {
+    console.error("Error generating relationships:", error);
+    return [];
   }
 }

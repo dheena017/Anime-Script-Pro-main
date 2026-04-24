@@ -1,19 +1,25 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Layers, Sparkles, Box, ChevronRight, CheckCircle2, Milestone, Activity, Table, Heart } from 'lucide-react';
+import { CheckCircle2, Milestone, Activity, Table, ChevronRight, Volume2, Camera, Video, LayoutGrid } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { generateSeriesPlan } from '@/services/geminiService';
-import { cn } from '@/lib/utils';
 import { generateProductionSequences } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
 import { ManifestScaffolder } from '@/components/studio/ManifestArchitect';
+import { cn } from '@/lib/utils';
+
+// Sub-components
+import { SeriesHeader } from '../components/Series/SeriesHeader';
+import { SeriesToolbar } from '../components/Series/SeriesToolbar';
+import { SeriesEmptyState } from '../components/Series/SeriesEmptyState';
 
 export function SeriesPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
-  const [isLiked, setIsLiked] = React.useState(false);
   const [showScaffolder, setShowScaffolder] = React.useState(false);
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
@@ -23,7 +29,9 @@ export function SeriesPage() {
     setGeneratedSeriesPlan, 
     isGeneratingSeries, 
     setIsGeneratingSeries,
-    prompt,
+    isEditing,
+    setIsEditing,
+    prompt, 
     selectedModel,
     contentType,
     productionSequence,
@@ -31,8 +39,29 @@ export function SeriesPage() {
     session,
     episode,
     setSession,
-    setEpisode
+    setEpisode,
+    generatedWorld,
+    generatedCharacters,
+    narrativeBeats,
+    showNotification
   } = useGenerator();
+
+  const handleUpdateEpisode = (index: number, updates: any) => {
+    if (!generatedSeriesPlan) return;
+    const newPlan = [...generatedSeriesPlan];
+    newPlan[index] = { ...newPlan[index], ...updates };
+    setGeneratedSeriesPlan(newPlan);
+  };
+
+  const handleUpdateAssetMatrix = (index: number, updates: any) => {
+    if (!generatedSeriesPlan) return;
+    const newPlan = [...generatedSeriesPlan];
+    newPlan[index] = { 
+      ...newPlan[index], 
+      asset_matrix: { ...newPlan[index].asset_matrix, ...updates } 
+    };
+    setGeneratedSeriesPlan(newPlan);
+  };
 
   const totalEpisodesInManifest = React.useMemo(() => {
     // Unique list of Sess-Ep combinations
@@ -41,12 +70,23 @@ export function SeriesPage() {
   }, [productionSequence]);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim()) {
+      showNotification?.('Missing Core Parameter: Enter a production prompt to map the series.', 'error');
+      return;
+    }
     setIsGeneratingSeries(true);
-    const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodesInManifest);
-    setGeneratedSeriesPlan(plan);
-    setIsGeneratingSeries(false);
+    try {
+      const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodesInManifest, generatedWorld || undefined, generatedCharacters || undefined, narrativeBeats || undefined);
+      setGeneratedSeriesPlan(plan);
+      showNotification?.('Neural Synthesis Complete: Master Sequence Archived', 'success');
+    } catch (error: any) {
+      console.error(error);
+      showNotification?.('Synthesis Failure: ' + (error.message || 'Unknown Error'), 'error');
+    } finally {
+      setIsGeneratingSeries(false);
+    }
   };
+
 
   const applySequenceItem = (sess: number, ep: number) => {
     setSession(sess.toString());
@@ -92,30 +132,27 @@ export function SeriesPage() {
     }
   };
 
+  const [isLiked, setIsLiked] = React.useState(false);
+
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4" data-testid="marker-series-planning">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <h2 className="text-xl font-black uppercase tracking-widest flex items-center gap-3 text-studio text-shadow-studio">
-            <Layers className="w-6 h-6 text-studio" />
-            Series Plan
-          </h2>
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
-            <Box className="w-3 h-3 text-studio/50" />
-            <span className="text-[10px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
-            <span className="text-sm font-black text-white font-mono">S{session}-E{episode}</span>
-          </div>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => setShowScaffolder(!showScaffolder)}
-          className="border-studio/20 text-studio hover:bg-studio/10 uppercase tracking-widest text-[10px] font-black"
-        >
-          <Table className="w-3 h-3 mr-2" />
-          {showScaffolder ? 'Hide Scaffolder' : 'Batch Production Scaffolder'}
-        </Button>
-      </div>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-series-planning">
+      <SeriesHeader 
+        onRegenerate={handleGenerate}
+        isGenerating={isGeneratingSeries}
+        onNext={() => navigate('/studio/script')}
+        session={session}
+        episode={episode}
+        isLiked={isLiked}
+        setIsLiked={setIsLiked}
+      />
+
+      <SeriesToolbar 
+        session={session}
+        episode={episode}
+        status={generatedSeriesPlan ? 'active' : 'empty'}
+        onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
+        showScaffolder={showScaffolder}
+      />
 
       <AnimatePresence>
         {showScaffolder && (
@@ -176,42 +213,12 @@ export function SeriesPage() {
         )}
       </AnimatePresence>
 
-      <Card className="bg-[#050505]/50 border border-studio backdrop-blur-xl shadow-studio overflow-hidden min-h-[700px]">
-        <div className="p-4 border-b border-zinc-800/80 bg-[#0a0a0a]/80 flex items-center justify-between backdrop-blur-md">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-zinc-500">
-              <Layers className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Story Architecture</span>
-            </div>
-            <div className="w-[1px] h-4 bg-zinc-800" />
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-7 w-7 rounded-full transition-all duration-300",
-                isLiked ? "text-fuchsia-400 bg-fuchsia-500/10 shadow-[0_0_10px_rgba(217,70,239,0.2)]" : "text-zinc-600 hover:text-fuchsia-400 hover:bg-[#0a0a0a]"
-              )}
-              onClick={() => setIsLiked(!isLiked)}
-            >
-              <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-            </Button>
-          </div>
-          <Button 
-            size="sm" 
-            className="bg-studio hover:bg-studio/80 text-white font-black tracking-widest uppercase text-xs h-9 px-6 shadow-studio"
-            onClick={handleGenerate}
-            disabled={isGeneratingSeries || !prompt.trim()}
-          >
-            {isGeneratingSeries ? (
-              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
-            ) : (
-              <Sparkles className="w-3 h-3 mr-2" />
-            )}
-            {isGeneratingSeries ? 'Generating...' : 'Generate'}
-          </Button>
-        </div>
+      <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
+        <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
+        <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
+        
         <div className="w-full p-0">
-          <div className="p-12 max-w-4xl mx-auto">
+          <div className="p-12 max-w-[1400px] mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {isGeneratingSeries ? (
                 <div className="flex flex-col items-center justify-center h-[500px] text-studio">
@@ -220,16 +227,28 @@ export function SeriesPage() {
                 </div>
               ) : generatedSeriesPlan ? (
                 <div className="space-y-16">
-                  <div className="border-b border-zinc-800/80 pb-12 text-center space-y-4">
+                  <div className="border-b border-zinc-800/80 pb-12 text-center space-y-6">
                     <div className="inline-block px-3 py-1 bg-studio/10 border border-studio/30 rounded-full text-[10px] uppercase tracking-[0.3em] text-studio font-bold shadow-studio">
                       Production Roadmap
                     </div>
                     <h1 className="text-5xl font-black text-studio text-shadow-studio uppercase tracking-widest leading-tight">
                       Master Sequence Plan
                     </h1>
-                    <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
-                      {totalEpisodesInManifest} Episodes mapped across the active manifest structure.
-                    </p>
+                    <div className="flex flex-col items-center gap-6">
+                      <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
+                        {totalEpisodesInManifest} Episodes mapped across the active manifest structure.
+                      </p>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "h-12 px-10 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+                          isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
+                        )}
+                        onClick={() => setIsEditing(!isEditing)}
+                      >
+                        {isEditing ? "Save Roadmap Plan" : "Custom Manual Edit"}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-12">
@@ -241,19 +260,27 @@ export function SeriesPage() {
                         transition={{ delay: idx * 0.1 }}
                       >
                         <Card className="bg-black/40 border-studio/10 p-8 hover:border-studio/30 transition-all group relative overflow-hidden">
-                          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
                             <Milestone className="w-24 h-24 text-studio" />
                           </div>
                           
                           <div className="relative z-10 space-y-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center text-studio font-black text-xl">
+                              <div className="w-12 h-12 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center text-studio font-black text-xl shrink-0">
                                 {ep.episode}
                               </div>
-                              <div className="space-y-1">
-                                <h3 className="text-2xl font-black text-white uppercase tracking-wider group-hover:text-studio transition-colors">
-                                  {ep.title}
-                                </h3>
+                              <div className="space-y-1 flex-1">
+                                {isEditing ? (
+                                  <input 
+                                    className="w-full bg-black/60 border border-studio/20 rounded-xl px-4 py-2 text-xl font-black text-white uppercase focus:border-studio/50 focus:outline-none transition-all"
+                                    value={ep.title}
+                                    onChange={(e) => handleUpdateEpisode(idx, { title: e.target.value })}
+                                  />
+                                ) : (
+                                  <h3 className="text-2xl font-black text-white uppercase tracking-wider group-hover:text-studio transition-colors">
+                                    {ep.title}
+                                  </h3>
+                                )}
                                 <div className="flex items-center gap-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
                                   <Activity className="w-3 h-3" />
                                   Narrative Milestone
@@ -261,11 +288,81 @@ export function SeriesPage() {
                               </div>
                             </div>
 
-                            <div className="pl-16 space-y-4">
-                              <p className="text-zinc-400 text-sm leading-relaxed border-l-2 border-studio/10 pl-6 italic">
-                                {ep.hook}
-                              </p>
-                              
+                            <div className="pl-16 space-y-6">
+                              {isEditing ? (
+                                <textarea 
+                                  className="w-full bg-black/60 border border-studio/20 rounded-2xl p-6 text-[13px] text-zinc-300 leading-relaxed font-medium focus:border-studio/50 focus:outline-none transition-all min-h-[100px] resize-none"
+                                  value={ep.hook}
+                                  onChange={(e) => handleUpdateEpisode(idx, { hook: e.target.value })}
+                                />
+                              ) : (
+                                <p className="text-zinc-400 text-sm leading-relaxed border-l-2 border-studio/10 pl-6 italic">
+                                  {ep.hook}
+                                </p>
+                              )}
+                                
+                               {ep.asset_matrix && (
+                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pl-6 pt-4 border-t border-white/5">
+                                    <div className="space-y-1.5">
+                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                                        <Volume2 className="w-2.5 h-2.5" /> Sound
+                                      </p>
+                                      {isEditing ? (
+                                        <input 
+                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
+                                          value={ep.asset_matrix.sound}
+                                          onChange={(e) => handleUpdateAssetMatrix(idx, { sound: e.target.value })}
+                                        />
+                                      ) : (
+                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.sound}</p>
+                                      )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                                        <Camera className="w-2.5 h-2.5" /> Image
+                                      </p>
+                                      {isEditing ? (
+                                        <input 
+                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
+                                          value={ep.asset_matrix.image}
+                                          onChange={(e) => handleUpdateAssetMatrix(idx, { image: e.target.value })}
+                                        />
+                                      ) : (
+                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.image}</p>
+                                      )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                                        <Video className="w-2.5 h-2.5" /> Video
+                                      </p>
+                                      {isEditing ? (
+                                        <input 
+                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
+                                          value={ep.asset_matrix.video}
+                                          onChange={(e) => handleUpdateAssetMatrix(idx, { video: e.target.value })}
+                                        />
+                                      ) : (
+                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.video}</p>
+                                      )}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                                        <LayoutGrid className="w-2.5 h-2.5" /> Scenes
+                                      </p>
+                                      {isEditing ? (
+                                        <input 
+                                          type="number"
+                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
+                                          value={ep.asset_matrix.scene_count}
+                                          onChange={(e) => handleUpdateAssetMatrix(idx, { scene_count: parseInt(e.target.value) })}
+                                        />
+                                      ) : (
+                                        <p className="text-[10px] text-zinc-400 font-medium">{ep.asset_matrix.scene_count} Units</p>
+                                      )}
+                                    </div>
+                                 </div>
+                               )}
+
                               <div className="flex items-center gap-4 pt-4">
                                 <Button 
                                   variant="ghost" 
@@ -290,22 +387,10 @@ export function SeriesPage() {
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-[500px] text-zinc-600">
-                  <Layers className="w-16 h-16 mb-6 opacity-10" />
-                  <p className="mb-8 font-sans font-bold uppercase tracking-widest text-[10px]">Plan your series arc to see it here.</p>
-                  <Button 
-                    className="bg-studio hover:bg-studio/80 text-white border-none shadow-studio font-black tracking-[0.2em] uppercase text-xs h-12 px-8 rounded-full transition-all hover:scale-105 active:scale-95"
-                    onClick={handleGenerate}
-                    disabled={isGeneratingSeries || !prompt.trim()}
-                  >
-                    {isGeneratingSeries ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-3" />
-                    ) : (
-                      <Sparkles className="w-4 h-4 mr-3" />
-                    )}
-                    Build Series Plan
-                  </Button>
-                </div>
+                <SeriesEmptyState 
+                  onLaunch={handleGenerate}
+                  isGenerating={isGeneratingSeries}
+                />
               )}
             </div>
           </div>

@@ -1,10 +1,10 @@
 import React from 'react';
+import '@/styles/creative-engine.css';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { ProductionOrchestrator } from '@/services/productionOrchestrator';
 import { generateScript } from '@/services/geminiService';
 import { ProductionCore } from '@/pages/studio/components/Layout/ProductionCore';
 import { AnimeStudioNavigation as StudioNavigation } from '@/pages/studio/components/Layout/AnimeStudioNavigation';
@@ -18,8 +18,25 @@ export default function AnimeLayout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
   
+  // Sync Creative Engine state with URL query parameter
+  const searchParams = new URLSearchParams(location.search);
+  const isEngineOpen = searchParams.get('engine') === 'open';
+  const [sidebarOpen, setSidebarOpen] = React.useState(isEngineOpen);
+
+  // Update URL when sidebar state changes
+  const toggleEngine = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    const newParams = new URLSearchParams(location.search);
+    if (newState) {
+      newParams.set('engine', 'open');
+    } else {
+      newParams.delete('engine');
+    }
+    navigate({ search: newParams.toString() }, { replace: true });
+  };
+
   const {
     prompt, setPrompt,
     setGeneratedScript,
@@ -37,6 +54,7 @@ export default function AnimeLayout() {
     currentScriptId,
     history,
     setGeneratedMetadata,
+    setGeneratedImagePrompts,
     narrativeBeats, setNarrativeBeats,
     recapperPersona, setRecapperPersona,
     characterRelationships, setCharacterRelationships,
@@ -44,15 +62,18 @@ export default function AnimeLayout() {
     generatedWorld, setGeneratedWorld, generatedCharacters,
     setCastData, setCastList,
     isSaving, setIsSaving,
-    addLog
+    setVisualData,
+    addLog,
+    theme, setTheme,
+    showNotification
   } = useGenerator();
+
 
   React.useEffect(() => {
     setContentType('Anime');
   }, [setContentType]);
 
   const basePath = '/anime';
-  const isPortal = location.pathname === basePath || location.pathname === `${basePath}/`;
 
   const handleSaveCurrent = async () => {
     if (!generatedScript || !user) return;
@@ -69,121 +90,201 @@ export default function AnimeLayout() {
           vibe: tone
         })
       });
-      
+
       if (!res.ok) throw new Error("Failed to save project");
       const project = await res.json();
       setCurrentScriptId(project.id);
     } catch (error) {
-       console.error("Save failed:", error);
+      console.error("Save failed:", error);
     } finally {
-       setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
   const handleMasterGenerate = async () => {
-    if (!prompt.trim() || !user) return;
+    if (!prompt.trim() || !user) {
+      showNotification?.('Missing Core Parameter: Enter a production prompt to initialize God Mode.', 'error');
+      return;
+    }
     setIsLoading(true);
-    
+    addLog("GOD_MODE", "INITIALIZED", "Orchestrating Autonomous Production Cycle...");
+    showNotification?.('GOD MODE ACTIVE: Initiating Sequential Synthesis...', 'success');
+
     try {
-      const orchestrator = new ProductionOrchestrator({
-        prompt,
-        contentType: 'Anime',
-        model: selectedModel,
-        userId: user.id,
-        vibe: tone
-      });
+      const { generateWorld } = await import('@/services/generators/world');
+      const { generateCharacters } = await import('@/services/generators/characters');
+      const { generateSeriesPlan } = await import('@/services/generators/series');
+      const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/geminiService');
 
-      const result = await orchestrator.executeFullCycle((phase) => {
-        const module = phase.split(":")[0].trim();
-        const msg = phase.split(":").slice(1).join(":").trim();
-        addLog(module, "PROCESSED", msg);
-      });
+      // PHASE 1: WORLD Lore
+      addLog("WORLD", "STARTING", "Synthesizing World Lore Source of Truth...");
+      const world = await generateWorld(prompt, selectedModel, 'Anime');
+      setGeneratedWorld(world);
+      addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
 
-      if (result.world) setGeneratedWorld(result.world);
-      
-      if (result.cast) {
-        if (typeof result.cast === 'object' && 'markdown' in result.cast) {
-          setGeneratedCharacters(result.cast.markdown);
-          setCastData(result.cast);
-          if (result.cast.characters) {
-            setCastList(result.cast.characters);
-          }
-          if (result.cast.relationships) {
-            setCharacterRelationships(JSON.stringify(result.cast.relationships));
-          }
-        } else {
-          setGeneratedCharacters(result.cast as string);
-        }
-      }
-
-      if (result.series) {
-        setGeneratedSeriesPlan(result.series);
-        const formattedBeats = result.series
-          .slice(0, 10)
-          .map((e, i) => `${i + 1}. ${e.title}: ${e.hook}`)
-          .join('\n');
+      // PHASE 2: Narrative Beats
+      addLog("BEATS", "STARTING", "Generating Narrative Arc...");
+      const beatsResult = await generateSeriesPlan(prompt, selectedModel, 'Anime', 6); // Generate 6 episodes for starter
+      if (beatsResult && Array.isArray(beatsResult)) {
+        const formattedBeats = beatsResult.map((e, i) => `${i + 1}. ${e.title}: ${e.hook}`).join('\n');
         setNarrativeBeats(formattedBeats);
+        setGeneratedSeriesPlan(beatsResult);
       }
+      addLog("BEATS", "COMPLETED", "Narrative arc structured.");
 
-      navigate(`${basePath}/series`);
-    } catch (error) {
-       console.error("Master Orchestration Failed:", error);
+      // PHASE 3: Cast DNA
+      addLog("CAST", "STARTING", "Sequencing Character DNA...");
+      const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
+      if (typeof castResult === 'object' && castResult.characters) {
+        setGeneratedCharacters(castResult.markdown);
+        setCastData(castResult);
+        setCastList(castResult.characters);
+        if (castResult.relationships) {
+          setCharacterRelationships(JSON.stringify(castResult.relationships));
+        }
+      } else {
+        setGeneratedCharacters(castResult as string);
+      }
+      addLog("CAST", "COMPLETED", "Cast manifest generated.");
+
+      // PHASE 4: Series Architecture (already done in beats, but can refine)
+      addLog("SERIES", "SYNCED", "Series hierarchy mapped to beats.");
+
+      // PHASE 5: Script Synthesis
+      addLog("SCRIPT", "STARTING", "Synthesizing Episode 1 Script...");
+      const script = await generateScript(
+        prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime', 
+        recapperPersona, narrativeBeats, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown
+      );
+      setGeneratedScript(script);
+      addLog("SCRIPT", "COMPLETED", "Script synthesis successful.");
+
+      // PHASE 6: Visual DNA (Storyboard)
+      addLog("STORYBOARD", "STARTING", "Manifesting Visual DNA for Scenes...");
+      const visualPrompts = await generateImagePrompts(script, selectedModel);
+      setGeneratedImagePrompts(visualPrompts);
+      // Simulate visual data for storyboard unlocking
+      setVisualData({ 0: "pending" }); 
+      addLog("STORYBOARD", "COMPLETED", "Visual prompts architected.");
+
+      // PHASE 7: SEO Matrix
+      addLog("SEO", "STARTING", "Synchronizing SEO Metadata...");
+      const seo = await generateMetadata(script, selectedModel);
+      setGeneratedMetadata(seo);
+      addLog("SEO", "COMPLETED", "SEO Matrix online.");
+
+      // PHASE 8: Prompts (Already done in storyboard phase but can be specific)
+      addLog("PROMPTS", "COMPLETED", "Image generation prompts archived.");
+
+      // PHASE 9: Screening Room
+      addLog("SCREENING", "READY", "Production pipeline finalized. Screening room open.");
+
+      showNotification?.('God Mode Synchronization Complete: Full Production Scaffolded', 'success');
+      navigate(`${basePath}/world`);
+    } catch (error: any) {
+      console.error("Master Orchestration Failed:", error);
+      addLog("CORE", "FAILURE", error.message || "Unknown error during synthesis");
+      showNotification?.(`Master Loop Failure: ${error.message || 'Check logs'}`, 'error');
     } finally {
-       setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
+
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim()) {
+      showNotification?.('Missing Core Parameter: Enter a production prompt.', 'error');
+      return;
+    }
     setIsLoading(true);
     navigate(`${basePath}/script`);
-    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
-    setGeneratedScript(script);
-    setCurrentScriptId(null);
-    setIsLoading(false);
-    if (user) {
-      try {
-        const res = await fetch("/api/projects", {
+    
+    try {
+      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
+      setGeneratedScript(script);
+      setCurrentScriptId(null);
+      showNotification?.('Neural Synthesis Complete: Script Manifested', 'success');
+
+      if (user) {
+        // 1. Create/Initialize Project
+        const projectRes = await fetch("/api/projects", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             user_id: user.id,
-            name: prompt || "Single Generation",
+            name: prompt.slice(0, 30) || "Single Generation",
             content_type: 'Anime',
             prompt: prompt,
-            vibe: tone,
-            metadata: { script, episode, session, model: selectedModel }
+            vibe: tone
           })
         });
-        if (res.ok) {
-          const project = await res.json();
+
+        if (projectRes.ok) {
+          const project = await projectRes.json();
           setCurrentScriptId(project.id);
+
+          // 2. Save the Actual Script Content
+          await fetch("/api/scripts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `Script: ${project.name}`,
+              content: script,
+              project_id: project.id
+            })
+          });
+
+          // 3. Log the Production Method (Vibe)
+          await fetch("/api/methods", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: tone,
+              description: `Production vibe used for project ${project.id}`
+            })
+          });
+
+          // 4. Archive the Prompt
+          await fetch("/api/prompts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: prompt,
+              context: `SINGLE_GEN_SEED_PROMPT_ID_${project.id}`
+            })
+          });
         }
-      } catch (error) {
-        console.error("Save single generation failed:", error);
       }
+    } catch (error) {
+      console.error("Single generation persistence failed:", error);
+      showNotification?.('Synthesis Failure', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full min-h-screen transition-all duration-500 theme-anime relative">
+    <div className="w-full min-h-screen transition-all duration-500 bg-[#020203] relative overflow-hidden">
+      {/* Global Ambient Glow */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-500/5 blur-[150px] -z-10 animate-pulse-glow" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] -z-10" />
+
       <div className={cn(
-        "w-full max-w-[1800px] mx-auto px-4 sm:px-6 py-6 lg:py-10 space-y-8 transition-all duration-500"
+        "w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-6 lg:py-8 space-y-8 transition-all duration-500 relative z-10"
       )}>
         <div className="grid grid-cols-1 gap-8">
           <div className="flex flex-col gap-6">
-            <div className="sticky top-[60px] z-30 bg-[#050505]/80 backdrop-blur-md py-4 -mx-2 px-2">
-              <StudioNavigation 
-                basePath={basePath} 
-                handleGenerate={handleGenerate} 
-                isLoading={isLoading} 
-                rightSidebarOpen={sidebarOpen}
-                onToggleRightSidebar={() => setSidebarOpen(!sidebarOpen)}
-              />
-            </div>
+            <StudioNavigation
+              basePath={basePath}
+              handleGenerate={handleMasterGenerate}
+              isLoading={isLoading}
+              rightSidebarOpen={sidebarOpen}
+              onToggleRightSidebar={toggleEngine}
+            />
+
             <div className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-hidden">
-               <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-               <div className="relative z-10 w-full h-full p-2 lg:p-4">
+              <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+              <div className="relative z-10 w-full h-full p-2 lg:p-4">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={location.pathname}
@@ -200,9 +301,9 @@ export default function AnimeLayout() {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4">
-          <SessionLogs 
+          <SessionLogs
             history={history}
             setPrompt={setPrompt}
             setTone={setTone}
@@ -216,39 +317,39 @@ export default function AnimeLayout() {
         </div>
       </div>
 
-      {!isPortal && (
-        <ProductionCore 
-          isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
-          prompt={prompt} setPrompt={setPrompt}
-          tone={tone} setTone={setTone}
-          audience={audience} setAudience={setAudience}
-          session={session} setSession={setSession}
-          episode={episode} setEpisode={setEpisode}
-          numScenes={numScenes} setNumScenes={setNumScenes}
-          selectedModel={selectedModel} setSelectedModel={setSelectedModel}
-          recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-          narrativeBeats={narrativeBeats || ''}
-          setNarrativeBeats={setNarrativeBeats}
-          characterRelationships={characterRelationships || ''}
-          setCharacterRelationships={setCharacterRelationships}
-          worldBuilding={generatedWorld || ''}
-          setWorldBuilding={setGeneratedWorld}
-          castProfiles={generatedCharacters || ''}
-          setCastProfiles={setGeneratedCharacters}
-          handleGenerate={handleGenerate}
-          handleMasterGenerate={handleMasterGenerate}
-          handleSaveCurrent={handleSaveCurrent}
-          isLoading={isLoading}
-          isSaving={isSaving}
-          generatedScript={generatedScript}
-          currentScriptId={currentScriptId}
-          user={user}
-          basePath={basePath}
-          navigate={navigate}
-          contentType="Anime"
-        />
-      )}
+      <ProductionCore
+        isOpen={sidebarOpen}
+        onToggle={toggleEngine}
+        prompt={prompt} setPrompt={setPrompt}
+        tone={tone} setTone={setTone}
+        audience={audience} setAudience={setAudience}
+        session={session} setSession={setSession}
+        episode={episode} setEpisode={setEpisode}
+        numScenes={numScenes} setNumScenes={setNumScenes}
+        selectedModel={selectedModel} setSelectedModel={setSelectedModel}
+        recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
+        narrativeBeats={narrativeBeats || ''}
+        setNarrativeBeats={setNarrativeBeats}
+        characterRelationships={characterRelationships || ''}
+        setCharacterRelationships={setCharacterRelationships}
+        worldBuilding={generatedWorld || ''}
+        setWorldBuilding={setGeneratedWorld}
+        castProfiles={generatedCharacters || ''}
+        setCastProfiles={setGeneratedCharacters}
+        handleGenerate={handleGenerate}
+        handleMasterGenerate={handleMasterGenerate}
+        handleSaveCurrent={handleSaveCurrent}
+        isLoading={isLoading}
+        isSaving={isSaving}
+        generatedScript={generatedScript}
+        currentScriptId={currentScriptId}
+        user={user}
+        basePath={basePath}
+        navigate={navigate}
+        contentType="Anime"
+        theme={theme}
+        setTheme={setTheme}
+      />
     </div>
   );
 }

@@ -6,10 +6,9 @@ import {
   Database, 
   Cpu,
   CreditCard,
-  LogOut
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 import { cn } from '../lib/utils';
 import { ScrollArea } from '../components/ui/scroll-area';
 
@@ -30,23 +29,12 @@ const SETTINGS_TABS = [
   { id: 'billing', icon: CreditCard, label: 'Billing' },
 ];
 
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
+
 
 export function SettingsPage() {
-  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth', { replace: true });
-    }
-  }, [user, navigate]);
-
-  if (!user) {
-    return null; // Optionally, show a spinner or message
-  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -88,16 +76,7 @@ export function SettingsPage() {
               {item.label}
             </Button>
           ))}
-          <div className="pt-6 mt-6 border-t border-zinc-800/50">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-red-500 hover:text-red-400 hover:bg-red-500/10 h-11"
-              onClick={() => signOut()}
-            >
-              <LogOut className="w-4 h-4 mr-3" />
-              Sign Out
-            </Button>
-          </div>
+          {/* Sign Out button removed */}
         </div>
 
         {/* Content Area */}

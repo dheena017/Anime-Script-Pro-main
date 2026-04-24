@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 
 export interface Tutorial {
   id: number;
@@ -15,7 +15,7 @@ export interface Tutorial {
 export const tutorialService = {
   async getTutorials(): Promise<Tutorial[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/tutorials`);
+      const response = await axios.get(`${API_BASE_URL}/api/tutorials`);
       return response.data;
     } catch (e) {
       console.error("Error fetching tutorials:", e);
@@ -25,7 +25,7 @@ export const tutorialService = {
 
   async seedTutorials() {
     try {
-      const response = await axios.post(`${API_BASE_URL}/tutorials/seed`);
+      const response = await axios.post(`${API_BASE_URL}/api/tutorials/seed`);
       return response.data;
     } catch (e) {
       console.error("Error seeding tutorials:", e);

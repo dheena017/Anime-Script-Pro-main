@@ -1,4 +1,4 @@
-import { useGenerator } from '@/contexts/GeneratorContext';
+import { useGenerator } from '@/hooks/useGenerator';
 import { History, Cpu, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -57,13 +57,18 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
                     <span className="text-zinc-600 shrink-0">[{new Date(log.created_at).toLocaleTimeString([], { hour12: false })}]</span>
                     <span className="text-cyan-500 font-bold uppercase tracking-tighter shrink-0">{log.module}:</span>
                     <span className={cn(
-                      "font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded-sm text-[9px]",
-                      log.status === 'Success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                      log.status === 'Generating' || log.status === 'Synthesizing' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 animate-pulse' :
-                      'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                      "font-semibold uppercase tracking-[0.2em] px-2 py-0.5 rounded-md text-[8px] border transition-all duration-300",
+                      log.status === 'COMPLETED' || log.status === 'SUCCESS' || log.status === 'READY' || log.status === 'SYNCED' 
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]' :
+                      log.status === 'STARTING' || log.status === 'INITIALIZED' || log.status === 'GENERATING' || log.status === 'SYNTHESIZING' || log.status === 'PROCESSED'
+                        ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.1)]' :
+                      log.status === 'FAILURE' || log.status === 'ERROR'
+                        ? 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]' :
+                      'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'
                     )}>
                       {log.status}
                     </span>
+                    <span className="text-zinc-300 font-medium tracking-wide flex-1 line-clamp-1">{log.message}</span>
                     {log.model_used && <span className="text-zinc-500 italic truncate opacity-50 text-[8px]">{log.model_used}</span>}
                   </div>
                 ))}
@@ -72,6 +77,7 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
           </ScrollArea>
         </CardContent>
       </Card>
+
 
       {/* 2. PRODUCTION HISTORY */}
       <Card className="bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl relative">

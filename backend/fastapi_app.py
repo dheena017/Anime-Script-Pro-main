@@ -3,13 +3,13 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from datetime import datetime
 from dotenv import load_dotenv
-from fastapi import Depends, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, Query, WebSocket, WebSocketDisconnect, Body
 from fastapi import FastAPI, HTTPException, status, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, constr
-from typing import List, Optional
+from typing import List, Optional, Dict
 from sqlmodel import SQLModel, Session, create_engine, select
-from models import Template, Method, WorldLore, NarrativeBeat, CastMember, Series, Script, Storyboard, SEOEntry, Prompt, ScreeningRoomEntry, UserSettings, UserProfile, UserBalance, MediaAsset, UserFavorite, SavedPrompt, ReusableCharacter, Tutorial, Project, ProductionSession, Episode, Scene, Category, PromptLibrary
+from models import Template, WorldLore, NarrativeBeat, CastMember, Series, Script, Storyboard, SEOEntry, Prompt, ScreeningRoomEntry, UserSettings, UserProfile, UserBalance, MediaAsset, UserFavorite, SavedPrompt, ReusableCharacter, Tutorial, Project, ProductionSession, Episode, Scene, Category, PromptLibrary, CommunityPost, ScriptVersion
 
 # --- FastAPI app and engine definitions (must be before any usage) ---
 app = FastAPI(
@@ -18,7 +18,7 @@ app = FastAPI(
     description="Backend API for Anime Script Pro. Provides authentication, project, and AI endpoints.",
     contact={
         "name": "Anime Script Pro Team",
-        "email": "support@animescriptpro.com",
+        "email": "[EMAIL_ADDRESS]",
     },
 )
 
@@ -46,7 +46,7 @@ async def health():
 async def favicon():
     return Response(status_code=204)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./anime_script_pro.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/anime_script_pro.db")
 engine = create_engine(DATABASE_URL, echo=True)
 from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import JWTStrategy, AuthenticationBackend, BearerTransport
@@ -98,6 +98,11 @@ from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
 from fastapi import APIRouter
 from slowapi import Limiter, _rate_limit_exceeded_handler
+
+@app.on_event("startup")
+async def on_startup():
+    # Create tables
+    SQLModel.metadata.create_all(engine)
 from slowapi.util import get_remote_address
 from loguru import logger
 
@@ -119,15 +124,39 @@ TEMPLATE_TAG = ["Templates"]
 
 from pydantic import BaseModel
 
-# --- User Model for Auth ---
+# --- Template Models for API ---
 class TemplateIn(BaseModel):
     name: str
-    description: str | None = None
+    description: Optional[str] = None
+    category: str = "All"
+    icon: str = "Sword"
+    thumbnail: Optional[str] = None
+    prompt: str = ""
+    color: str = "text-cyan-500"
+    border: str = "border-cyan-500/50"
+    bg: str = "bg-cyan-500/10"
+    shadow: str = "shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+    elements: List[str] = []
+    vibe: str = "Standard"
+    stats: Dict = {}
 
 class TemplateOut(BaseModel):
     id: int
     name: str
-    description: str | None = None
+    description: Optional[str] = None
+    category: str
+    icon: str
+    thumbnail: Optional[str] = None
+    prompt: str
+    color: str
+    border: str
+    bg: str
+    shadow: str
+    elements: List[str]
+    vibe: str
+    stats: Dict
+    created_at: datetime
+    is_active: bool
 class User(SQLModelBaseUserDB, table=True):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
@@ -185,6 +214,42 @@ app.include_router(
 )
 
 current_active_user = fastapi_users.current_user(active=True)
+
+import httpx
+async def get_current_user_id(request: Request):
+    """
+    Dependency that extracts user ID from either FastAPI-Users or Supabase JWT.
+    """
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Try Supabase verification if it looks like a Supabase token or if we want to bridge
+    if auth_header.startswith("Bearer "):
+        url = f"{os.getenv('VITE_SUPABASE_URL')}/auth/v1/user"
+        headers = {
+            "apikey": os.getenv("VITE_SUPABASE_ANON_KEY"),
+            "Authorization": auth_header
+        }
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url, headers=headers)
+                if response.status_code == 200:
+                    user_data = response.json()
+                    return str(user_data["id"])
+        except Exception as e:
+            logger.error(f"Supabase auth failed: {e}")
+
+    # Fallback/Default: FastAPI-Users (if already logged in there)
+    try:
+        user = await fastapi_users.current_user(active=True)(request)
+        if user:
+            return str(user.id)
+    except:
+        pass
+        
+    raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
 # --- More Relationship Endpoints ---
 @app.get("/api/series/{series_id}/cast", response_model=List[CastMember])
 def get_cast_for_series(series_id: int):
@@ -216,8 +281,7 @@ async def on_startup_async():
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-ASYNC_DATABASE_URL = "sqlite+aiosqlite:///./anime_script_pro.db"
-async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=True)
+# async_engine is already defined above using the correct dynamic path
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -244,11 +308,15 @@ async def log_requests(request: Request, call_next):
 @limiter.limit("5/minute")
 async def create_template(request: Request, template: TemplateIn, user=Depends(current_active_user)):
     async with AsyncSession(async_engine) as session:
-        db_template = Template(name=template.name, description=template.description)
+        db_template = Template(**template.model_dump())
         session.add(db_template)
         await session.commit()
         await session.refresh(db_template)
         return db_template
+
+@app.get("/api/templates_public")
+async def get_templates_public():
+    return {"message": "Public access works"}
 
 @app.get(
     "/api/templates",
@@ -259,17 +327,16 @@ async def create_template(request: Request, template: TemplateIn, user=Depends(c
     response_description="A list of template objects."
 )
 async def get_templates(
-    user=Depends(current_active_user),
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
     name: str | None = Query(None)
 ):
     async with AsyncSession(async_engine) as session:
-        query = select(Template)
+        query = select(Template).where(Template.is_active == True)
         if name:
             query = query.where(Template.name.contains(name))
-        results = (await session.exec(query.offset(offset).limit(limit))).all()
-        return results
+        results = await session.exec(query.offset(offset).limit(limit))
+        return results.all()
 
 @app.get(
     "/api/templates/{template_id}",
@@ -279,7 +346,7 @@ async def get_templates(
     description="Retrieve a template by its unique ID.",
     response_description="The template object."
 )
-async def get_template(template_id: int, user=Depends(current_active_user)):
+async def get_template(template_id: int):
     async with AsyncSession(async_engine) as session:
         template = await session.get(Template, template_id)
         if not template:
@@ -299,8 +366,12 @@ async def update_template(template_id: int, template: TemplateIn, user=Depends(c
         db_template = await session.get(Template, template_id)
         if not db_template:
             raise HTTPException(status_code=404, detail="Template not found")
-        db_template.name = template.name
-        db_template.description = template.description
+        
+        data = template.model_dump(exclude_unset=True)
+        for key, value in data.items():
+            setattr(db_template, key, value)
+            
+        db_template.updated_at = datetime.utcnow()
         session.add(db_template)
         await session.commit()
         await session.refresh(db_template)
@@ -323,217 +394,157 @@ async def delete_template(template_id: int, user=Depends(current_active_user)):
         return {"ok": True}
 
 
-# --- CRUD for Method (DB) ---
-@app.get("/api/methods", response_model=List[Method])
-def get_methods(user=Depends(current_active_user)):
-    """Get all methods."""
-    with Session(engine) as session:
-        return session.exec(select(Method)).all()
-
-@app.post("/api/methods", response_model=Method)
-def create_method(method: Method, user=Depends(current_active_user)):
-    """Create a new method."""
-    with Session(engine) as session:
-        session.add(method)
-        session.commit()
-        session.refresh(method)
-        return method
-
-@app.get("/api/methods/{method_id}", response_model=Method)
-def get_method(method_id: int, user=Depends(current_active_user)):
-    """Get a method by ID."""
-    with Session(engine) as session:
-        method = session.get(Method, method_id)
-        if not method:
-            raise HTTPException(status_code=404, detail="Method not found")
-        return method
-
-@app.put("/api/methods/{method_id}", response_model=Method)
-def update_method(method_id: int, method: Method, user=Depends(current_active_user)):
-    """Update a method by ID."""
-    with Session(engine) as session:
-        db_method = session.get(Method, method_id)
-        if not db_method:
-            raise HTTPException(status_code=404, detail="Method not found")
-        db_method.name = method.name
-        db_method.description = method.description
-        session.add(db_method)
-        session.commit()
-        session.refresh(db_method)
-        return db_method
-
-@app.delete("/api/methods/{method_id}")
-def delete_method(method_id: int, user=Depends(current_active_user)):
-    """Delete a method by ID."""
-    with Session(engine) as session:
-        method = session.get(Method, method_id)
-        if not method:
-            raise HTTPException(status_code=404, detail="Method not found")
-        session.delete(method)
-        session.commit()
-        return {"ok": True}
-
 
 # --- CRUD for WorldLore (DB) ---
 @app.post("/api/world-lore")
-def create_worldlore(worldlore: WorldLore):
+async def create_worldlore(request: Request):
     """Create or update world lore."""
-    with Session(engine) as session:
-        session.add(worldlore)
-        session.commit()
-        session.refresh(worldlore)
-        return worldlore
+    data = await request.json()
+    project_id = data.get("project_id")
+    content = data.get("markdown_content")
+    
+    async with AsyncSession(async_engine) as session:
+        statement = select(WorldLore).where(WorldLore.id == project_id)
+        result = await session.exec(statement)
+        db_lore = result.first()
+        
+        if db_lore:
+            db_lore.content = content
+            db_lore.updated_at = datetime.utcnow()
+        else:
+            db_lore = WorldLore(id=project_id, title=f"World Lore for {project_id}", content=content)
+            
+        session.add(db_lore)
+        await session.commit()
+        await session.refresh(db_lore)
+        return db_lore
 
 @app.get("/api/world-lore/{project_id}")
-def get_worldlore(project_id: int):
+async def get_worldlore(project_id: int):
     """Get world lore for a project."""
-    with Session(engine) as session:
-        return session.exec(select(WorldLore).where(WorldLore.id == project_id)).first() # Simplification for now
+    async with AsyncSession(async_engine) as session:
+        statement = select(WorldLore).where(WorldLore.id == project_id)
+        result = await session.exec(statement)
+        return result.first()
 
 
 # --- CRUD for NarrativeBeat (DB) ---
 @app.get("/api/narrativebeats", response_model=List[NarrativeBeat])
-def get_narrativebeats():
-    """Get all narrative beats."""
-    with Session(engine) as session:
-        return session.exec(select(NarrativeBeat)).all()
+async def get_narrativebeats():
+    async with AsyncSession(async_engine) as session:
+        results = await session.exec(select(NarrativeBeat))
+        return results.all()
 
 @app.post("/api/narrativebeats", response_model=NarrativeBeat)
-def create_narrativebeat(narrativebeat: NarrativeBeat):
-    """Create a new narrative beat."""
-    with Session(engine) as session:
+async def create_narrativebeat(narrativebeat: NarrativeBeat):
+    async with AsyncSession(async_engine) as session:
         session.add(narrativebeat)
-        session.commit()
-        session.refresh(narrativebeat)
+        await session.commit()
+        await session.refresh(narrativebeat)
         return narrativebeat
-
-@app.get("/api/narrativebeats/{narrativebeat_id}", response_model=NarrativeBeat)
-def get_narrativebeat(narrativebeat_id: int):
-    """Get a narrative beat by ID."""
-    with Session(engine) as session:
-        narrativebeat = session.get(NarrativeBeat, narrativebeat_id)
-        if not narrativebeat:
-            raise HTTPException(status_code=404, detail="NarrativeBeat not found")
-        return narrativebeat
-
-@app.put("/api/narrativebeats/{narrativebeat_id}", response_model=NarrativeBeat)
-def update_narrativebeat(narrativebeat_id: int, narrativebeat: NarrativeBeat):
-    """Update a narrative beat by ID."""
-    with Session(engine) as session:
-        db_narrativebeat = session.get(NarrativeBeat, narrativebeat_id)
-        if not db_narrativebeat:
-            raise HTTPException(status_code=404, detail="NarrativeBeat not found")
-        db_narrativebeat.label = narrativebeat.label
-        db_narrativebeat.description = narrativebeat.description
-        db_narrativebeat.duration = narrativebeat.duration
-        session.add(db_narrativebeat)
-        session.commit()
-        session.refresh(db_narrativebeat)
-        return db_narrativebeat
-
-@app.delete("/api/narrativebeats/{narrativebeat_id}")
-def delete_narrativebeat(narrativebeat_id: int):
-    """Delete a narrative beat by ID."""
-    with Session(engine) as session:
-        narrativebeat = session.get(NarrativeBeat, narrativebeat_id)
-        if not narrativebeat:
-            raise HTTPException(status_code=404, detail="NarrativeBeat not found")
-        session.delete(narrativebeat)
-        session.commit()
-        return {"ok": True}
 
 
 # --- CRUD for CastMember / AI Characters (DB) ---
-@app.get("/api/cast", response_model=List[CastMember])
-def get_cast(project_id: Optional[int] = None):
-    """Get cast members, optionally filtered by project_id."""
-    with Session(engine) as session:
-        statement = select(CastMember).where(CastMember.is_active == True)
-        if project_id:
-            statement = statement.where(CastMember.project_id == project_id)
-        return session.exec(statement).all()
-
 @app.post("/api/characters")
-def batch_create_characters(payload: dict):
+async def batch_create_characters(payload: dict):
     """Batch create characters for a project."""
-    project_id = payload.get("project_id")
-    characters = payload.get("characters", [])
-    
-    with Session(engine) as session:
-        created = []
-        for c in characters:
-            db_member = CastMember(
-                name=c.get("name"),
-                role=c.get("archetype", "Main"),
-                archetype=c.get("archetype"),
-                personality=c.get("personality"),
-                appearance=c.get("appearance"),
-                visual_prompt=c.get("visualPrompt") or c.get("visual_dna"),
-                conflict=c.get("conflict"),
-                goal=c.get("goal"),
-                flaw=c.get("flaw"),
-                speaking_style=c.get("speakingStyle"),
-                secret=c.get("secret"),
-                description=c.get("personality"),
-                project_id=project_id
-            )
-            session.add(db_member)
-            created.append(db_member)
-        session.commit()
-        for c in created:
-            session.refresh(c)
-        return created
+    try:
+        project_id = payload.get("project_id")
+        characters = payload.get("characters", [])
+        
+        async with AsyncSession(async_engine) as session:
+            created = []
+            for c in characters:
+                db_member = CastMember(
+                    name=c.get("name"),
+                    role=c.get("role", "MAIN"),
+                    archetype=c.get("archetype"),
+                    personality=c.get("personality"),
+                    appearance=c.get("appearance"),
+                    visual_prompt=c.get("visual_dna"),
+                    description=c.get("description"),
+                    project_id=project_id
+                )
+                session.add(db_member)
+                created.append(db_member)
+            await session.commit()
+            return {"status": "ok", "count": len(created)}
+    except Exception as e:
+        logger.error(f"Batch character creation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to synthesize character cast")
 
 @app.get("/api/cast/{castmember_id}", response_model=CastMember)
-def get_castmember(castmember_id: int):
-    """Get a cast member by ID."""
-    with Session(engine) as session:
-        castmember = session.get(CastMember, castmember_id)
-        if not castmember:
-            raise HTTPException(status_code=404, detail="CastMember not found")
-        return castmember
-
-@app.put("/api/cast/{castmember_id}", response_model=CastMember)
-def update_castmember(castmember_id: int, castmember: CastMember):
-    """Update a cast member by ID."""
-    with Session(engine) as session:
-        db_castmember = session.get(CastMember, castmember_id)
-        if not db_castmember:
-            raise HTTPException(status_code=404, detail="CastMember not found")
-        data = castmember.dict(exclude_unset=True)
-        for key, value in data.items():
-            setattr(db_castmember, key, value)
-        session.add(db_castmember)
-        session.commit()
-        session.refresh(db_castmember)
-        return db_castmember
-
-@app.delete("/api/cast/{castmember_id}")
-def delete_castmember(castmember_id: int):
-    """Delete a cast member by ID."""
-    with Session(engine) as session:
-        castmember = session.get(CastMember, castmember_id)
-        if not castmember:
-            raise HTTPException(status_code=404, detail="CastMember not found")
-        session.delete(castmember)
-        session.commit()
-        return {"ok": True}
+async def get_castmember(castmember_id: int):
+    try:
+        async with AsyncSession(async_engine) as session:
+            castmember = await session.get(CastMember, castmember_id)
+            if not castmember:
+                raise HTTPException(status_code=404, detail="Character not found")
+            return castmember
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fetch character {castmember_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Character record retrieval failed")
 
 # --- CRUD for Projects (DB) ---
-@app.get("/api/projects", response_model=List[Project])
-def get_projects(user_id: str):
-    """Get projects for a user."""
-    with Session(engine) as session:
-        return session.exec(select(Project).where(Project.user_id == user_id)).all()
+@app.get("/api/projects", response_model=List[Project], tags=["Projects"])
+async def get_projects(user=Depends(current_active_user)):
+    """Get all active projects for the authenticated user."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(Project).where(Project.user_id == str(user.id), Project.is_active == True)
+            results = await session.exec(statement)
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch projects for user {user.id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Production archive retrieval failed")
 
-@app.post("/api/projects", response_model=Project)
-def create_project(project: Project):
-    """Create a new project."""
-    with Session(engine) as session:
-        session.add(project)
-        session.commit()
-        session.refresh(project)
-        return project
+@app.get("/api/projects/{project_id}", response_model=Project, tags=["Projects"])
+async def get_project(project_id: int, user=Depends(current_active_user)):
+    """Retrieve a specific project by ID."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            project = await session.get(Project, project_id)
+            if not project or project.user_id != str(user.id):
+                raise HTTPException(status_code=404, detail="Production project not found")
+            return project
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fetch project {project_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Production record retrieval failed")
+
+@app.post("/api/projects", response_model=Project, status_code=201, tags=["Projects"])
+async def create_project(project: Project, user=Depends(current_active_user)):
+    """Initialize a new production project."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            project.user_id = str(user.id)
+            session.add(project)
+            await session.commit()
+            await session.refresh(project)
+            return project
+    except Exception as e:
+        logger.error(f"Failed to initialize project: {str(e)}")
+        raise HTTPException(status_code=500, detail="Neural production initialization failed")
+
+@app.delete("/api/projects/{project_id}", tags=["Projects"])
+async def delete_project(project_id: int, user=Depends(current_active_user)):
+    """Purge a project from the archive."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            project = await session.get(Project, project_id)
+            if not project or project.user_id != str(user.id):
+                raise HTTPException(status_code=404, detail="Production project not found")
+            await session.delete(project)
+            await session.commit()
+            return {"ok": True, "message": "Production record purged successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to delete project {project_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Production purge failed")
 
 
 # --- CRUD for Series (DB) ---
@@ -1297,6 +1308,299 @@ async def seed_tutorials():
         logger.error(f"Failed to seed tutorials: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to initialize tutorial database.")
 
+from ai_engine import ai_engine
+
+@app.post("/api/projects", response_model=Project, tags=["Projects"])
+async def create_project(project: Project, user_id: str = Depends(get_current_user_id)):
+    async with AsyncSession(async_engine) as session:
+        project.user_id = user_id
+        project.created_at = datetime.now()
+        project.updated_at = datetime.now()
+        session.add(project)
+        await session.commit()
+        await session.refresh(project)
+        return project
+
+@app.get("/api/projects", response_model=List[Project], tags=["Projects"])
+async def get_projects(user_id: str = Depends(get_current_user_id)):
+    async with AsyncSession(async_engine) as session:
+        statement = select(Project).where(Project.user_id == user_id).order_by(Project.updated_at.desc())
+        results = await session.exec(statement)
+        return results.all()
+
+@app.get("/api/projects/{project_id}", response_model=Project, tags=["Projects"])
+async def get_project(project_id: int, user_id: str = Depends(get_current_user_id)):
+    async with AsyncSession(async_engine) as session:
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Project not found")
+        return project
+
+@app.delete("/api/projects/{project_id}", tags=["Projects"])
+async def delete_project(project_id: int, user_id: str = Depends(get_current_user_id)):
+    async with AsyncSession(async_engine) as session:
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Project not found")
+        await session.delete(project)
+        await session.commit()
+        return {"status": "deleted"}
+
+@app.post("/api/generate/god-mode/{project_id}", tags=["AI Generation"])
+async def initialize_god_mode(project_id: int, user_id: str = Depends(get_current_user_id)):
+    """
+    MASTER GENERATION LOOP: 
+    1. Generates World Lore
+    2. Designs a Core Cast
+    3. Scaffolds the Pilot Narrative Beats
+    """
+    async with AsyncSession(async_engine) as session:
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        try:
+            # Phase 1: Neural Lore Architecture
+            try:
+                lore_raw = await ai_engine.generate_lore(project.title, project.description or "A new creative production.")
+                project.prod_metadata["world_lore"] = lore_raw
+            except Exception as e:
+                logger.error(f"Lore Synthesis Failed for project {project_id}: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Phase 1 (Lore) failed: {str(e)}")
+            
+            # Phase 2: Character DNA Synthesis
+            try:
+                cast_raw = await ai_engine.generate_characters(lore_raw)
+                project.prod_metadata["cast_dna"] = cast_raw
+            except Exception as e:
+                logger.error(f"Character Synthesis Failed for project {project_id}: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Phase 2 (Cast) failed: {str(e)}")
+            
+            # Phase 3: Narrative Beat Scaffolding
+            try:
+                beats_raw = await ai_engine.generate_script_beats(project.title, lore_raw, cast_raw)
+                project.prod_metadata["narrative_scaffolding"] = beats_raw
+            except Exception as e:
+                logger.error(f"Beat Synthesis Failed for project {project_id}: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Phase 3 (Beats) failed: {str(e)}")
+            
+            project.status = "INITIALIZED"
+            session.add(project)
+            await session.commit()
+            
+            return {
+                "status": "READY",
+                "project_id": project_id,
+                "workflow": "GOD_MODE_SYNC_COMPLETE"
+            }
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"God Mode Global Failure for project {project_id}: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Global neural synthesis failed: {str(e)}")
+
+# --- CRUD for Storyboard (DB) ---
+@app.get("/api/storyboards", response_model=List[Storyboard])
+async def get_storyboards(script_id: Optional[int] = None):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(Storyboard)
+            if script_id:
+                statement = statement.where(Storyboard.script_id == script_id)
+            results = await session.exec(statement)
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch storyboards: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve storyboard assets")
+
+@app.post("/api/storyboards", response_model=Storyboard)
+async def create_storyboard(storyboard: Storyboard):
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(storyboard)
+            await session.commit()
+            await session.refresh(storyboard)
+            return storyboard
+    except Exception as e:
+        logger.error(f"Failed to create storyboard: {str(e)}")
+        raise HTTPException(status_code=500, detail="Storyboard generation log failed")
+
+# --- CRUD for SEOEntry (DB) ---
+@app.get("/api/seo_entries", response_model=List[SEOEntry])
+async def get_seo_entries():
+    try:
+        async with AsyncSession(async_engine) as session:
+            results = await session.exec(select(SEOEntry))
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch SEO entries: {str(e)}")
+        raise HTTPException(status_code=500, detail="SEO strategy retrieval failed")
+
+@app.post("/api/seo_entries", response_model=SEOEntry)
+async def create_seo_entry(seo: SEOEntry):
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(seo)
+            await session.commit()
+            await session.refresh(seo)
+            return seo
+    except Exception as e:
+        logger.error(f"Failed to create SEO entry: {str(e)}")
+        raise HTTPException(status_code=500, detail="SEO strategy persistence failed")
+
+# --- CRUD for Prompt (DB) ---
+@app.get("/api/prompts", response_model=List[Prompt])
+async def get_prompts():
+    try:
+        async with AsyncSession(async_engine) as session:
+            results = await session.exec(select(Prompt))
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch prompts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prompt archive retrieval failed")
+
+@app.post("/api/prompts", response_model=Prompt)
+async def create_prompt(prompt: Prompt):
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(prompt)
+            await session.commit()
+            await session.refresh(prompt)
+            return prompt
+    except Exception as e:
+        logger.error(f"Failed to archive prompt: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prompt archival failed")
+
+# --- CRUD for ScreeningRoomEntry (DB) ---
+@app.get("/api/screening_room_entries", response_model=List[ScreeningRoomEntry])
+async def get_screening_room_entries(script_id: Optional[int] = None):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(ScreeningRoomEntry)
+            if script_id:
+                statement = statement.where(ScreeningRoomEntry.script_id == script_id)
+            results = await session.exec(statement)
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch screening entries: {str(e)}")
+        raise HTTPException(status_code=500, detail="Screening room history retrieval failed")
+
+@app.post("/api/screening_room_entries", response_model=ScreeningRoomEntry)
+async def create_screening_room_entry(entry: ScreeningRoomEntry):
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(entry)
+            await session.commit()
+            await session.refresh(entry)
+            return entry
+    except Exception as e:
+        logger.error(f"Failed to log screening entry: {str(e)}")
+        raise HTTPException(status_code=500, detail="Screening room persistence failed")
+
+# --- CRUD for CommunityPost (DB) ---
+@app.get("/api/community", response_model=List[CommunityPost])
+async def get_community_posts(limit: int = 20, offset: int = 0):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(CommunityPost).where(CommunityPost.is_active == True).order_by(CommunityPost.created_at.desc())
+            results = await session.exec(statement.offset(offset).limit(limit))
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch community feed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Collective hub retrieval failed")
+
+@app.post("/api/community", response_model=CommunityPost)
+async def create_community_post(post: CommunityPost, user=Depends(current_active_user)):
+    try:
+        async with AsyncSession(async_engine) as session:
+            post.user_id = str(user.id)
+            session.add(post)
+            await session.commit()
+            await session.refresh(post)
+            return post
+    except Exception as e:
+        logger.error(f"Failed to publish community post: {str(e)}")
+        raise HTTPException(status_code=500, detail="Collective hub broadcast failed")
+
+@app.post("/api/community/{post_id}/like")
+async def like_community_post(post_id: int):
+    try:
+        async with AsyncSession(async_engine) as session:
+            post = await session.get(CommunityPost, post_id)
+            if not post:
+                raise HTTPException(status_code=404, detail="Collective post not found")
+            post.likes += 1
+            session.add(post)
+            await session.commit()
+            return {"status": "ok", "likes": post.likes}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to like post {post_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Interaction synchronization failed")
+
+# --- CRUD for Tutorials (DB) ---
+@app.get("/api/tutorials", response_model=List[Tutorial])
+async def get_tutorials():
+    try:
+        async with AsyncSession(async_engine) as session:
+            results = await session.exec(select(Tutorial).where(Tutorial.is_active == True))
+            return results.all()
+    except Exception as e:
+        logger.error(f"Failed to fetch tutorials: {str(e)}")
+        raise HTTPException(status_code=500, detail="Could not retrieve tutorial library")
+
+@app.post("/api/tutorials", response_model=Tutorial)
+async def create_tutorial(tutorial: Tutorial):
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(tutorial)
+            await session.commit()
+            await session.refresh(tutorial)
+            return tutorial
+    except Exception as e:
+        logger.error(f"Failed to create tutorial: {str(e)}")
+        raise HTTPException(status_code=500, detail="Tutorial creation failed")
+
+# --- CRUD for ScriptVersion (DB) ---
+@app.get("/api/scripts/{script_id}/versions", response_model=List[ScriptVersion])
+async def get_script_versions(script_id: int):
+    try:
+        async with AsyncSession(async_engine) as session:
+            # Check if script exists first
+            script = await session.get(Script, script_id)
+            if not script:
+                raise HTTPException(status_code=404, detail="Script not found")
+                
+            statement = select(ScriptVersion).where(ScriptVersion.script_id == script_id).order_by(ScriptVersion.created_at.desc())
+            results = await session.exec(statement)
+            return results.all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fetch script versions for {script_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve version history")
+
+@app.post("/api/scripts/{script_id}/versions", response_model=ScriptVersion)
+async def create_script_version(script_id: int, content: str = Body(..., embed=True)):
+    try:
+        async with AsyncSession(async_engine) as session:
+            # Validate script existence
+            script = await session.get(Script, script_id)
+            if not script:
+                raise HTTPException(status_code=404, detail="Script not found")
+                
+            version = ScriptVersion(script_id=script_id, content=content)
+            session.add(version)
+            await session.commit()
+            await session.refresh(version)
+            return version
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to save script version for {script_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to archive script version")
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8001, reload=True)

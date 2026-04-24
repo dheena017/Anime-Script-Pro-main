@@ -7,6 +7,7 @@ import { GeneratorProvider } from './contexts/GeneratorContext';
 import { AppProvider } from './context/AppContext';
 
 // Core Pages (Lazy)
+
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const LibraryPage = lazy(() => import('./pages/Library').then(m => ({ default: m.LibraryPage })));
 const CommunityPage = lazy(() => import('./pages/Community').then(m => ({ default: m.CommunityPage })));
@@ -14,11 +15,11 @@ const DiscoverPage = lazy(() => import('./pages/DiscoverPage').then(m => ({ defa
 const SettingsPage = lazy(() => import('./pages/Settings').then(m => ({ default: m.SettingsPage })));
 const TutorialsPage = lazy(() => import('./pages/Tutorials'));
 const NotificationsPage = lazy(() => import('./pages/Notifications'));
-const ProjectsPage = lazy(() => import('./pages/Projects'));
-const ProjectWizard = lazy(() => import('./pages/ProjectWizard'));
+const CreateProject = lazy(() => import('./pages/CreateProject'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
+const AuthPage = lazy(() => import('./pages/Auth'));
 const PricingPage = lazy(() => import('./pages/Pricing'));
 
 
@@ -29,15 +30,13 @@ const AnimeScript = lazy(() => import('./pages/studio/AnimeStudio/ScriptPage').t
 const AnimeCast = lazy(() => import('./pages/studio/AnimeStudio/CastPage').then(m => ({ default: m.CastPage })));
 const AnimeSeries = lazy(() => import('./pages/studio/AnimeStudio/SeriesPage').then(m => ({ default: m.SeriesPage })));
 const AnimeStoryboard = lazy(() => import('./pages/studio/AnimeStudio/StoryboardPage').then(m => ({ default: m.StoryboardPage })));
-const AnimeSEO = lazy(() => import('./pages/studio/AnimeStudio/SEOPage').then(m => ({ default: m.SEOPage })));
-const AnimePrompts = lazy(() => import('./pages/studio/AnimeStudio/PromptsPage').then(m => ({ default: m.PromptsPage })));
+const AnimeAssets = lazy(() => import('./pages/studio/AnimeStudio/AssetsPage').then(m => ({ default: m.AssetsPage })));
 const AnimeScreening = lazy(() => import('./pages/studio/AnimeStudio/ScreeningRoom').then(m => ({ default: m.ScreeningRoom })));
 const AnimeTemplate = lazy(() => import('./pages/studio/AnimeStudio/TemplatePage').then(m => ({ default: m.TemplatePage })));
-const AnimeFramework = lazy(() => import('./pages/studio/AnimeStudio/FrameworkPage').then(m => ({ default: m.FrameworkPage })));
+
 const AnimeBeats = lazy(() => import('./pages/studio/AnimeStudio/NarrativeBeatsPage').then(m => ({ default: m.NarrativeBeatsPage })));
 const AnimeWorld = lazy(() => import('./pages/studio/AnimeStudio/WorldPage').then(m => ({ default: m.WorldPage })));
-const AnimeRelations = lazy(() => import('./pages/studio/AnimeStudio/RelationshipPage').then(m => ({ default: m.RelationshipPage })));
-const AnimeConcept = lazy(() => import('./pages/studio/AnimeStudio/ConceptPage'));
+
 
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -63,49 +62,47 @@ export default function App() {
       <AppProvider>
         <GeneratorProvider>
           <TooltipProvider>
-          <Router>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
+            <Router>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/auth" element={<AuthPage />} />
 
-                <Route element={<Layout />}>
-                  <Route path="/anime" element={<AnimeLayout />}>
-                    <Route index element={<AnimePortal />} />
-                    <Route path="concept" element={<AnimeConcept />} />
-                    <Route path="script" element={<AnimeScript />} />
-                    <Route path="cast" element={<AnimeCast />} />
-                    <Route path="relations" element={<AnimeRelations />} />
-                    <Route path="series" element={<AnimeSeries />} />
-                    <Route path="storyboard" element={<AnimeStoryboard />} />
-                    <Route path="seo" element={<AnimeSEO />} />
-                    <Route path="prompts" element={<AnimePrompts />} />
-                    <Route path="example" element={<AnimeScreening />} />
-                    <Route path="template" element={<AnimeTemplate />} />
-                    <Route path="framework" element={<AnimeFramework />} />
-                    <Route path="beats" element={<AnimeBeats />} />
-                    <Route path="world" element={<AnimeWorld />} />
+                  <Route element={<Layout />}>
+                    <Route path="/anime" element={<AnimeLayout />}>
+                      <Route index element={<AnimePortal />} />
+
+                      <Route path="script" element={<AnimeScript />} />
+                      <Route path="cast" element={<AnimeCast />} />
+                      <Route path="series" element={<AnimeSeries />} />
+                      <Route path="storyboard" element={<AnimeStoryboard />} />
+                      <Route path="seo" element={<AnimeAssets />} />
+                      <Route path="prompts" element={<AnimeAssets />} />
+                      <Route path="screening" element={<AnimeScreening />} />
+                      <Route path="template" element={<AnimeTemplate />} />
+                      <Route path="beats" element={<AnimeBeats />} />
+                      <Route path="world" element={<AnimeWorld />} />
+                    </Route>
+
+
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/library" element={<LibraryPage />} />
+                    <Route path="/discover" element={<DiscoverPage />} />
+                    <Route path="/community" element={<CommunityPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/tutorials" element={<TutorialsPage />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/create-project" element={<CreateProject />} />
                   </Route>
-
-
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/library" element={<LibraryPage />} />
-                  <Route path="/discover" element={<DiscoverPage />} />
-                  <Route path="/community" element={<CommunityPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/tutorials" element={<TutorialsPage />} />
-                  <Route path="/notifications" element={<NotificationsPage />} />
-                  <Route path="/projects" element={<ProjectsPage />} />
-                  <Route path="/pricing" element={<PricingPage />} />
-                  <Route path="/create/new" element={<ProjectWizard />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </Router>
-        </TooltipProvider>
-      </GeneratorProvider>
-     </AppProvider>
+                </Routes>
+              </Suspense>
+            </Router>
+          </TooltipProvider>
+        </GeneratorProvider>
+      </AppProvider>
     </ErrorBoundary>
   );
 }

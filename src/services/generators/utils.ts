@@ -1,6 +1,6 @@
 import { callAI } from "./core";
 
-export async function enhanceNarration(narration: string, model: string = "gemini-2.5-flash") {
+export async function enhanceNarration(narration: string, model: string = "gemini-2.0-flash-exp") {
   const systemInstruction = `
     You are an expert Voice Director and Scriptwriter.
     Your task is to take a basic line of dialogue or narration and add evocative delivery details in parentheses before the spoken text.
@@ -19,7 +19,7 @@ export async function enhanceNarration(narration: string, model: string = "gemin
   }
 }
 
-export async function suggestDuration(narration: string, model: string = "gemini-2.5-flash") {
+export async function suggestDuration(narration: string, model: string = "gemini-2.0-flash-exp") {
   const systemInstruction = `
     You are an expert Production Manager and Script timing expert.
     Based on the provided narration text, estimate the duration in seconds for reading it. 

@@ -1,6 +1,6 @@
 import { callAI } from "./core";
 
-export async function generateVideoPrompts(script: string, model: string = "gemini-2.5-flash", contentType: string = "Anime") {
+export async function generateVideoPrompts(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
   const systemInstruction = `
     You are a Neural Video Prompt Architect specializing in high-end AI Video engines (Luma, Kling, Runway, Sora).
     Your task is to take a production script and generate 5-10 highly optimized ${contentType} video prompts that describe cinematic motion, camera choreography, and atmospheric lighting.

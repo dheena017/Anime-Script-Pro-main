@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createClient } from '../supabase/client';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8001';
 const supabase = createClient();
 
 // Fallback user ID for development/local environments where Supabase session might be missing

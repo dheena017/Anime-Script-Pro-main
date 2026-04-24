@@ -15,7 +15,7 @@ Launch the entire studio environment (Orchestrator, AI Backend, and Mathesar Adm
 docker compose up -d
 ```
 - **Studio Interface**: [http://localhost:3000](http://localhost:3000)
-- **AI Intelligence Layer**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **AI Intelligence Layer**: [http://localhost:8001/docs](http://localhost:8001/docs)
 - **Mathesar Database Admin**: [http://localhost:8080](http://localhost:8080)
 
 ---
@@ -40,8 +40,8 @@ npm run dev
 
 ### 2. Python AI Backend (Manual Start)
 ```bash
-cd backend
-uvicorn fastapi_app:app --reload --port 8000
+.\backend\venv\Scripts\activate
+uvicorn backend.fastapi_app:app --reload --port 8001
 ```
 
 ### 3. Environment Configuration (`.env`)
