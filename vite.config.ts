@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     define: {
       'process.env.GEMINI_API_KEY': envString('GEMINI_API_KEY'),
+      'import.meta.env.VITE_GEMINI_API_KEY': envString('VITE_GEMINI_API_KEY'),
       'process.env.OPENAI_API_KEY': envString('OPENAI_API_KEY'),
       'process.env.ANTHROPIC_API_KEY': envString('ANTHROPIC_API_KEY'),
       'process.env.HF_API_KEY': envString('HF_API_KEY'),
@@ -45,6 +46,18 @@ export default defineConfig(({ mode }) => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8001',
+          changeOrigin: true,
+          secure: false,
+        },
+        '/auth': {
+          target: 'http://localhost:8001',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
     // Add more Vite options here as needed
   } satisfies UserConfigExport;

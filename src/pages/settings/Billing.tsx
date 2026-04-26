@@ -1,6 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { CreditCard, Rocket, Check, Zap, Grip, TerminalSquare, Leaf, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -8,14 +6,7 @@ import { cn } from '../../lib/utils';
 import { settingsService } from '../../services/settingsService';
 
 export function BillingSettings() {
-   const { user } = useAuth();
-   const navigate = useNavigate();
-   useEffect(() => {
-      if (!user) {
-         navigate('/auth');
-      }
-   }, [user, navigate]);
-   if (!user) return null;
+
   const [carbonOffset, setCarbonOffset] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

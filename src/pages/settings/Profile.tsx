@@ -1,20 +1,15 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
-import { Camera, Sparkles, Eye, Loader2, Save } from 'lucide-react';
+import { Camera, Sparkles, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { settingsService } from '../../services/settingsService';
+import { StudioLoading } from '../../components/studio/StudioLoading';
+
 
 export function ProfileSettings() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-    }
-  }, [user, navigate]);
-  if (!user) return null;
+
   const [displayName, setDisplayName] = useState(user?.user_metadata?.full_name || user?.user_metadata?.display_name || '');
   const [role, setRole] = useState('Executive Producer');
   const [timezone, setTimezone] = useState('GMT-8 (Pacific Studio Time)');
@@ -23,6 +18,7 @@ export function ProfileSettings() {
   
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
 
   useEffect(() => {
     async function hydrate() {
@@ -56,8 +52,9 @@ export function ProfileSettings() {
   }, [displayName, role, timezone, vision, publicVisible]);
 
   if (loading) {
-     return <div className="w-full h-64 flex items-center justify-center"><Loader2 className="w-10 h-10 text-red-500 animate-spin" /></div>;
+     return <StudioLoading fullPage={false} message="Hydrating Profile..." submessage="Syncing identity metadata with the production cloud..." />;
   }
+
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">

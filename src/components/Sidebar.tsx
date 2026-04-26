@@ -17,20 +17,22 @@ import {
   Play,
   UserPlus,
   Zap,
-  Globe
+  Globe,
+  Activity,
+  MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: Zap, label: 'Anime Studio', path: '/anime' },
   { icon: History, label: 'My Library', path: '/library' },
   { icon: Compass, label: 'Discover', path: '/discover' },
   { icon: Users, label: 'Community', path: '/community' },
   { icon: BookOpen, label: 'Tutorials', path: '/tutorials' },
   { icon: Settings2, label: 'Settings', path: '/settings' },
 ];
+
 
 
 
@@ -118,41 +120,86 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     </div>
   );
 
+  const isStudioMode = location.pathname.startsWith('/anime') || 
+                      location.pathname.startsWith('/manhwa') || 
+                      location.pathname.startsWith('/comic');
+
   const content = (
     <div className="flex flex-col h-full bg-[#050505]">
       <div className="flex-1 overflow-y-auto hide-scrollbar pb-10">
         <nav className="p-4">
-          <div className="space-y-1 mb-8">
-            <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Core Hub</p>
-            {navItems.map((item) => (
+          {!isStudioMode ? (
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Core Hub</p>
+                {navItems.map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={onClose}
+                    className={({ isActive }) => cn(
+                      "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
+                      isActive
+                        ? "bg-zinc-800 text-zinc-100 border border-zinc-700 shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                        : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
+                    )}
+                  >
+                    <item.icon className={cn(
+                      "w-4 h-4 text-zinc-600 group-hover:text-zinc-200",
+                      "group-hover:scale-110 transition-transform"
+                    )} />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+
+              <div className="space-y-1">
+                <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">System & Support</p>
+                {[
+                  { icon: BookOpen, label: 'Docs', path: '/documentation' },
+                  { icon: Activity, label: 'System Health', path: '/status' },
+                  { icon: History, label: 'Changelog', path: '/changelog' },
+                  { icon: MessageSquare, label: 'Feedback', path: '/feedback' },
+                ].map((item) => (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={onClose}
+                    className={({ isActive }) => cn(
+                      "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
+                      isActive
+                        ? "bg-zinc-800 text-zinc-100 border border-zinc-700 shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                        : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
+                    )}
+                  >
+                    <item.icon className={cn(
+                      "w-4 h-4 text-zinc-600 group-hover:text-zinc-200",
+                      "group-hover:scale-110 transition-transform"
+                    )} />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1 mb-8">
+              <p className="px-4 text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-3">Studio Environment</p>
               <NavLink
-                key={item.path}
-                to={item.path}
+                to="/dashboard"
                 onClick={onClose}
-                className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest",
-                  isActive
-                    ? "bg-zinc-800 text-zinc-100 border border-zinc-700"
-                    : "text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
-                )}
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 group uppercase tracking-widest text-zinc-500 hover:text-zinc-100 hover:bg-zinc-800/50"
               >
-                <item.icon className={cn(
-                  "w-4 h-4 text-zinc-600 group-hover:text-zinc-200",
-                  "group-hover:scale-110 transition-transform"
-                )} />
-                {item.label}
+                <LayoutDashboard className="w-4 h-4 text-zinc-600 group-hover:text-zinc-200" />
+                Return to Hub
               </NavLink>
-            ))}
-          </div>
-
-          {/* Live Modes section removed */}
-
-          <div className="h-[1px] bg-zinc-900 mx-4 my-6" />
-
-          {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
-          {renderNavGroup(architectureItems, "PHASE 2: ARCHITECTURE")}
-          {renderNavGroup(generationItems, "PHASE 3: GENERATION")}
-          {renderNavGroup(distributionItems, "PHASE 4: DISTRIBUTION")}
+              <div className="h-[1px] bg-zinc-900 mx-4 my-6" />
+              
+              {renderNavGroup(foundationItems, "PHASE 1: FOUNDATION")}
+              {renderNavGroup(architectureItems, "PHASE 2: ARCHITECTURE")}
+              {renderNavGroup(generationItems, "PHASE 3: GENERATION")}
+              {renderNavGroup(distributionItems, "PHASE 4: DISTRIBUTION")}
+            </div>
+          )}
         </nav>
       </div>
 

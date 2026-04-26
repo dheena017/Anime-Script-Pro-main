@@ -44,6 +44,7 @@ export async function createServer() {
   // --- AI GENERATION ENGINE (Native Node.js) ---
   app.post("/api/generate", asyncHandler(async (req: Request, res: Response) => {
     const { model, prompt, systemInstruction } = req.body;
+    console.log(`[Backend AI] Received request for model: "${model}" (Prompt length: ${prompt?.length})`);
 
     if (!model || !prompt) {
       return res.status(400).json({ error: "Missing model or prompt" });
@@ -85,22 +86,48 @@ export async function createServer() {
       return res.json({ text: response.choices[0].message.content });
     }
 
-    res.status(400).json({ error: "Unsupported or unconfigured model." });
+    const modelStr = String(model || "").toLowerCase();
+    if (modelStr.includes("gemini")) {
+      const apiKey = process.env.VITE_GEMINI_API_KEY || "";
+      if (!apiKey) throw new Error("Gemini API Key not configured.");
+      
+      const cleanModel = modelStr.replace("models/", "");
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${apiKey}`;
+      console.log(`[Backend AI] Forwarding to Google API: ${cleanModel}`);
+      
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          generationConfig: { temperature: 0.9, maxOutputTokens: 4096 }
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error(`[Backend AI] Google API Error:`, error);
+        throw new Error(error.error?.message || "Gemini API Error");
+      }
+
+      const data = await response.json();
+      return res.json({ text: data.candidates?.[0]?.content?.parts?.[0]?.text });
+    }
+
+    res.status(400).json({ error: `Unsupported or unconfigured model: ${model}` });
   }));
 
   // Python Backend Proxy (Phase 2 & 3 Migration)
-  // This forwards all /api requests (except /api/generate) to the FastAPI server on port 8001
-  app.use("/api", createProxyMiddleware({
+  // Mounted at root to prevent prefix stripping, with filter to catch /api EXCEPT /api/generate
+  app.use(createProxyMiddleware({
     target: process.env.BACKEND_URL || "http://localhost:8001",
     changeOrigin: true,
-    pathFilter: (path: string) => !path.startsWith('/api/generate'),
+    pathFilter: (path: string) => path.startsWith('/api') && !path.startsWith('/api/generate'),
     on: {
       error: (err: any, _req: any, res: any) => {
         console.error('[PROXY ERROR] Backend unreachable:', err.message);
-        // Using @ts-ignore for stubborn environment-specific type checks on res
-        // @ts-ignore
         if (res && res.status && !res.headersSent) {
-          // @ts-ignore
           res.status(502).json({ error: "Backend service unreachable", details: err.message });
         }
       }
@@ -164,6 +191,10 @@ async function startServer() {
     console.log("====================================================");
     console.log(`[STATUS] Studio Server: Running on http://localhost:${PORT}`);
     console.log(`[ENV]    Environment:   ${process.env.NODE_ENV || "development"}`);
+    console.log(`[PORT]   Server Port:   ${PORT}`);
+    console.log(`[To stop the server, press CTRL+C in this terminal.`);
+    console.log(`[INFO]   To stop the backend, press CTRL+C in the backend terminal.`);
+    
 
     // Core Services Check
     const services = [
@@ -187,6 +218,7 @@ async function startServer() {
       } else {
         console.warn(`[WARNING] FastAPI Backend: REJECTING OR NOT FOUND (Status: ${response?.status || 'No Response'})`);
         console.warn(`          Ensure backend is running: "uvicorn backend.fastapi_app:app --port 8001"`);
+        console.warn(`(Or run: .\backend\venv\Scripts\activate)`);
       }
     } catch (e) {
       console.warn(`[ERROR] Backend Connectivity Failed. Proxy will return 502 for migrated routes.`);
@@ -195,6 +227,7 @@ async function startServer() {
     console.log("====================================================");
     console.log(" 🚀 READY FOR PRODUCTION TRAFFIC");
     console.log("====================================================");
+    console.log(`[INFO] To stop the server, press CTRL+C in this terminal.`);
   });
 }
 

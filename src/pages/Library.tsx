@@ -42,6 +42,8 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { StudioLoading } from '@/components/studio/StudioLoading';
+
 
 interface Script {
   id: string;
@@ -64,7 +66,7 @@ interface ScriptVersion {
 }
 
 export function LibraryPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [scripts, setScripts] = React.useState<Script[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
   
@@ -92,7 +94,21 @@ export function LibraryPage() {
   ];
 
   React.useEffect(() => {
-    if (!user) return;
+    // Failsafe: force yield to UI after 8 seconds
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn("Library failsafe triggered: forcing isLoading to false");
+        setIsLoading(false);
+      }
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [isLoading]);
+
+  React.useEffect(() => {
+    if (!user) {
+      if (!authLoading) setIsLoading(false);
+      return;
+    }
 
     const fetchLibrary = async () => {
       setIsLoading(true);
@@ -312,11 +328,8 @@ export function LibraryPage() {
           ))}
         </div>
 
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-40 space-y-6">
-            <div className="w-12 h-12 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-500/60 animate-pulse">Synchronizing Archive...</p>
-          </div>
+        {authLoading || (user && isLoading) ? (
+          <StudioLoading fullPage={false} message="Synchronizing Archive..." submessage="Accessing production vaults and script versions..." />
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-40 space-y-6 bg-red-500/5 rounded-[3rem] border border-red-500/20">
             <div className="p-5 bg-red-500/10 rounded-full">

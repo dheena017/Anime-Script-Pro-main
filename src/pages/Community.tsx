@@ -1,30 +1,40 @@
 import React from 'react';
-import { TrendingUp, Users, Share2, ArrowRight, AlertCircle } from 'lucide-react';
+import { TrendingUp, Users, Share2, ArrowRight, AlertCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { communityService, CommunityPost } from '@/services/communityService';
+import { StudioLoading } from '@/components/studio/StudioLoading';
+
 
 export function CommunityPage() {
-  const [posts, setPosts] = React.useState<any[]>([]);
+  const [posts, setPosts] = React.useState<CommunityPost[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  const fetchPosts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await communityService.getPosts();
+      setPosts(data);
+    } catch (e: any) {
+      console.error("Failed to fetch community posts:", e);
+      setError(e.message || "Failed to synchronize with the collective");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   React.useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("http://localhost:8001/api/community");
-        if (!res.ok) throw new Error("Collective hub is currently offline");
-        const data = await res.json();
-        setPosts(data);
-      } catch (e: any) {
-        console.error("Failed to fetch community posts:", e);
-        setError(e.message || "Failed to synchronize with the collective");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchPosts();
   }, []);
+
+  const handleLike = async (postId: number) => {
+    const result = await communityService.likePost(postId);
+    if (result) {
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: result.likes } : p));
+    }
+  };
+
 
   return (
     <div className="p-10 max-w-7xl mx-auto space-y-12">
@@ -83,10 +93,11 @@ export function CommunityPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {loading ? (
-              <div className="col-span-full py-20 flex justify-center">
-                <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+              <div className="col-span-full">
+                <StudioLoading fullPage={false} message="Syncing Collective..." submessage="Establishing secure social node connection..." />
               </div>
             ) : error ? (
+
               <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed border-red-900/30 rounded-[3rem] bg-red-900/5">
                  <AlertCircle className="w-12 h-12 text-red-500 mb-6" />
                  <h3 className="text-sm font-black text-red-500 uppercase tracking-[0.3em] mb-2">Network Failure</h3>
@@ -109,9 +120,13 @@ export function CommunityPage() {
                   </p>
                   <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
                     <div className="flex gap-4">
-                      <span className="text-[9px] font-black text-zinc-500 flex items-center gap-1.5 uppercase">
-                        <TrendingUp className="w-3 h-3 text-orange-500" /> {post.likes} Likes
-                      </span>
+                      <button 
+                        onClick={() => handleLike(post.id)}
+                        className="text-[9px] font-black text-zinc-500 flex items-center gap-1.5 uppercase hover:text-red-500 transition-colors group/like"
+                      >
+                        <Heart className={`w-3 h-3 ${post.likes > 0 ? 'text-red-500 fill-red-500' : 'text-zinc-500'} group-hover/like:scale-110 transition-transform`} /> 
+                        {post.likes} Likes
+                      </button>
                       <span className="text-[9px] font-black text-zinc-500 flex items-center gap-1.5 uppercase">
                         <Users className="w-3 h-3 text-cyan-500" /> {post.views} Views
                       </span>

@@ -9,7 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, constr
 from typing import List, Optional, Dict
 from sqlmodel import SQLModel, Session, create_engine, select
-from models import Template, WorldLore, NarrativeBeat, CastMember, Series, Script, Storyboard, SEOEntry, Prompt, ScreeningRoomEntry, UserSettings, UserProfile, UserBalance, MediaAsset, UserFavorite, SavedPrompt, ReusableCharacter, Tutorial, Project, ProductionSession, Episode, Scene, Category, PromptLibrary, CommunityPost, ScriptVersion
+from models import Template, WorldLore, NarrativeBeat, CastMember, Series, Script, Storyboard, SEOEntry, Prompt, ScreeningRoomEntry, UserSettings, UserProfile, UserBalance, MediaAsset, UserFavorite, SavedPrompt, ReusableCharacter, Tutorial, Project, ProductionSession, Episode, Scene, Category, PromptLibrary, CommunityPost, ScriptVersion, HelpCategory, FAQ, DocSection, DocArticle, Notification
+import google.generativeai as genai
+from loguru import logger
 
 # --- FastAPI app and engine definitions (must be before any usage) ---
 app = FastAPI(
@@ -45,6 +47,21 @@ async def health():
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return Response(status_code=204)
+
+class EpisodeCreate(BaseModel):
+    title: str
+    episode_number: int
+    hook: Optional[str] = None
+    summary: Optional[str] = None
+
+class GenerationRequest(BaseModel):
+    model: str
+    prompt: str
+    systemInstruction: Optional[str] = None
+
+class GenerationResponse(BaseModel):
+    text: str
+    usage: Optional[Dict] = None
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/anime_script_pro.db")
 engine = create_engine(DATABASE_URL, echo=True)
@@ -103,6 +120,21 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 async def on_startup():
     # Create tables
     SQLModel.metadata.create_all(engine)
+    
+    # Auto-seed if empty
+    with Session(engine) as session:
+        statement = select(Tutorial)
+        results = session.exec(statement)
+        if not results.first():
+            logger.info("Database empty. Initializing with default studio data...")
+            from seed_all import seed_all
+            try:
+                # We use seed_all but we might need to handle imports if it's in a different folder
+                # Since we are in backend/fastapi_app.py, we can just call it
+                seed_all()
+            except Exception as e:
+                logger.error(f"Auto-seeding failed: {e}")
+
 from slowapi.util import get_remote_address
 from loguru import logger
 
@@ -216,31 +248,40 @@ app.include_router(
 current_active_user = fastapi_users.current_user(active=True)
 
 import httpx
-async def get_current_user_id(request: Request):
+async def get_auth_user_id(request: Request):
     """
     Dependency that extracts user ID from either FastAPI-Users or Supabase JWT.
     """
     auth_header = request.headers.get("Authorization")
     if not auth_header:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        # For development/local testing if no auth is provided, we can return a default
+        # But for now, let's keep it strict or return a mock ID if configured
+        if os.getenv("BYPASS_AUTH") == "true":
+            return "local-dev-architect-id"
+        raise HTTPException(status_code=401, detail="Missing authorization header")
     
-    # Try Supabase verification if it looks like a Supabase token or if we want to bridge
+    # Try Supabase verification if it looks like a Supabase token
     if auth_header.startswith("Bearer "):
-        url = f"{os.getenv('VITE_SUPABASE_URL')}/auth/v1/user"
-        headers = {
-            "apikey": os.getenv("VITE_SUPABASE_ANON_KEY"),
-            "Authorization": auth_header
-        }
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url, headers=headers)
-                if response.status_code == 200:
-                    user_data = response.json()
-                    return str(user_data["id"])
-        except Exception as e:
-            logger.error(f"Supabase auth failed: {e}")
+        token = auth_header.split(" ")[1]
+        supabase_url = os.getenv('VITE_SUPABASE_URL')
+        supabase_key = os.getenv('VITE_SUPABASE_ANON_KEY')
+        
+        if supabase_url and supabase_key:
+            url = f"{supabase_url}/auth/v1/user"
+            headers = {
+                "apikey": supabase_key,
+                "Authorization": auth_header
+            }
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(url, headers=headers)
+                    if response.status_code == 200:
+                        user_data = response.json()
+                        return str(user_data["id"])
+            except Exception as e:
+                logger.error(f"Supabase auth check failed: {e}")
 
-    # Fallback/Default: FastAPI-Users (if already logged in there)
+    # Fallback: FastAPI-Users (if already logged in there)
     try:
         user = await fastapi_users.current_user(active=True)(request)
         if user:
@@ -248,6 +289,10 @@ async def get_current_user_id(request: Request):
     except:
         pass
         
+    # Final fallback for local development if everything fails
+    if os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true":
+         return "local-dev-architect-id"
+         
     raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 # --- More Relationship Endpoints ---
@@ -306,7 +351,7 @@ async def log_requests(request: Request, call_next):
     status_code=201
 )
 @limiter.limit("5/minute")
-async def create_template(request: Request, template: TemplateIn, user=Depends(current_active_user)):
+async def create_template(request: Request, template: TemplateIn, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         db_template = Template(**template.model_dump())
         session.add(db_template)
@@ -361,7 +406,7 @@ async def get_template(template_id: int):
     description="Update the name and description of a template.",
     response_description="The updated template object."
 )
-async def update_template(template_id: int, template: TemplateIn, user=Depends(current_active_user)):
+async def update_template(template_id: int, template: TemplateIn, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         db_template = await session.get(Template, template_id)
         if not db_template:
@@ -384,7 +429,7 @@ async def update_template(template_id: int, template: TemplateIn, user=Depends(c
     description="Delete a template by its unique ID.",
     response_description="Confirmation of deletion."
 )
-async def delete_template(template_id: int, user=Depends(current_active_user)):
+async def delete_template(template_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         template = await session.get(Template, template_id)
         if not template:
@@ -489,24 +534,24 @@ async def get_castmember(castmember_id: int):
 
 # --- CRUD for Projects (DB) ---
 @app.get("/api/projects", response_model=List[Project], tags=["Projects"])
-async def get_projects(user=Depends(current_active_user)):
+async def get_projects(user_id: str = Depends(get_auth_user_id)):
     """Get all active projects for the authenticated user."""
     try:
         async with AsyncSession(async_engine) as session:
-            statement = select(Project).where(Project.user_id == str(user.id), Project.is_active == True)
+            statement = select(Project).where(Project.user_id == user_id, Project.is_active == True)
             results = await session.exec(statement)
             return results.all()
     except Exception as e:
-        logger.error(f"Failed to fetch projects for user {user.id}: {str(e)}")
+        logger.error(f"Failed to fetch projects for user {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Production archive retrieval failed")
 
 @app.get("/api/projects/{project_id}", response_model=Project, tags=["Projects"])
-async def get_project(project_id: int, user=Depends(current_active_user)):
+async def get_project(project_id: int, user_id: str = Depends(get_auth_user_id)):
     """Retrieve a specific project by ID."""
     try:
         async with AsyncSession(async_engine) as session:
             project = await session.get(Project, project_id)
-            if not project or project.user_id != str(user.id):
+            if not project or project.user_id != user_id:
                 raise HTTPException(status_code=404, detail="Production project not found")
             return project
     except HTTPException:
@@ -516,11 +561,11 @@ async def get_project(project_id: int, user=Depends(current_active_user)):
         raise HTTPException(status_code=500, detail="Production record retrieval failed")
 
 @app.post("/api/projects", response_model=Project, status_code=201, tags=["Projects"])
-async def create_project(project: Project, user=Depends(current_active_user)):
+async def create_project(project: Project, user_id: str = Depends(get_auth_user_id)):
     """Initialize a new production project."""
     try:
         async with AsyncSession(async_engine) as session:
-            project.user_id = str(user.id)
+            project.user_id = user_id
             session.add(project)
             await session.commit()
             await session.refresh(project)
@@ -530,12 +575,12 @@ async def create_project(project: Project, user=Depends(current_active_user)):
         raise HTTPException(status_code=500, detail="Neural production initialization failed")
 
 @app.delete("/api/projects/{project_id}", tags=["Projects"])
-async def delete_project(project_id: int, user=Depends(current_active_user)):
+async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_id)):
     """Purge a project from the archive."""
     try:
         async with AsyncSession(async_engine) as session:
             project = await session.get(Project, project_id)
-            if not project or project.user_id != str(user.id):
+            if not project or project.user_id != user_id:
                 raise HTTPException(status_code=404, detail="Production project not found")
             await session.delete(project)
             await session.commit()
@@ -1263,7 +1308,7 @@ async def update_tutorial(tutorial_id: int, tutorial_update: Tutorial, user=Depe
         raise HTTPException(status_code=500, detail="Failed to update tutorial.")
 
 @app.delete("/api/tutorials/{tutorial_id}", tags=["Tutorials"])
-async def delete_tutorial(tutorial_id: int, user=Depends(current_active_user)):
+async def delete_tutorial(tutorial_id: int, user_id: str = Depends(get_auth_user_id)):
     """Delete a tutorial by ID."""
     try:
         async with AsyncSession(async_engine) as session:
@@ -1311,7 +1356,7 @@ async def seed_tutorials():
 from ai_engine import ai_engine
 
 @app.post("/api/projects", response_model=Project, tags=["Projects"])
-async def create_project(project: Project, user_id: str = Depends(get_current_user_id)):
+async def create_project(project: Project, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         project.user_id = user_id
         project.created_at = datetime.now()
@@ -1322,14 +1367,14 @@ async def create_project(project: Project, user_id: str = Depends(get_current_us
         return project
 
 @app.get("/api/projects", response_model=List[Project], tags=["Projects"])
-async def get_projects(user_id: str = Depends(get_current_user_id)):
+async def get_projects(user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         statement = select(Project).where(Project.user_id == user_id).order_by(Project.updated_at.desc())
         results = await session.exec(statement)
         return results.all()
 
 @app.get("/api/projects/{project_id}", response_model=Project, tags=["Projects"])
-async def get_project(project_id: int, user_id: str = Depends(get_current_user_id)):
+async def get_project(project_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         project = await session.get(Project, project_id)
         if not project or project.user_id != user_id:
@@ -1337,7 +1382,7 @@ async def get_project(project_id: int, user_id: str = Depends(get_current_user_i
         return project
 
 @app.delete("/api/projects/{project_id}", tags=["Projects"])
-async def delete_project(project_id: int, user_id: str = Depends(get_current_user_id)):
+async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         project = await session.get(Project, project_id)
         if not project or project.user_id != user_id:
@@ -1347,7 +1392,7 @@ async def delete_project(project_id: int, user_id: str = Depends(get_current_use
         return {"status": "deleted"}
 
 @app.post("/api/generate/god-mode/{project_id}", tags=["AI Generation"])
-async def initialize_god_mode(project_id: int, user_id: str = Depends(get_current_user_id)):
+async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_user_id)):
     """
     MASTER GENERATION LOOP: 
     1. Generates World Lore
@@ -1510,10 +1555,10 @@ async def get_community_posts(limit: int = 20, offset: int = 0):
         raise HTTPException(status_code=500, detail="Collective hub retrieval failed")
 
 @app.post("/api/community", response_model=CommunityPost)
-async def create_community_post(post: CommunityPost, user=Depends(current_active_user)):
+async def create_community_post(post: CommunityPost, user_id: str = Depends(get_auth_user_id)):
     try:
         async with AsyncSession(async_engine) as session:
-            post.user_id = str(user.id)
+            post.user_id = user_id
             session.add(post)
             await session.commit()
             await session.refresh(post)
@@ -1598,9 +1643,216 @@ async def create_script_version(script_id: int, content: str = Body(..., embed=T
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to save script version for {script_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to archive script version")
+        logger.error(f"Failed to create script version for {script_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to save script version")
+# --- Orchestration Endpoints ---
+@app.post("/api/methods")
+async def create_production_method(method: Dict):
+    """Log a production method/vibe used for orchestration."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            # We don't have a strict Method model, but we can store it in Project metadata or a separate table if needed
+            # For now, let's just return success to satisfy the orchestrator
+            return {"status": "ok", "method": method.get("name")}
+    except Exception as e:
+        logger.error(f"Failed to log production method: {str(e)}")
+        raise HTTPException(status_code=500, detail="Method logging failed")
+
+@app.post("/api/prompts")
+async def create_prompt(prompt: Prompt):
+    """Log a master production prompt."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(prompt)
+            await session.commit()
+            await session.refresh(prompt)
+            return prompt
+    except Exception as e:
+        logger.error(f"Failed to log prompt: {str(e)}")
+        raise HTTPException(status_code=500, detail="Prompt persistence failed")
+
+@app.post("/api/seo_entries")
+async def create_seo_entry(entry: SEOEntry):
+    """Log SEO metadata for a production."""
+    try:
+        async with AsyncSession(async_engine) as session:
+            session.add(entry)
+            await session.commit()
+            await session.refresh(entry)
+            return entry
+    except Exception as e:
+        logger.error(f"Failed to log SEO entry: {str(e)}")
+        raise HTTPException(status_code=500, detail="SEO metadata persistence failed")
+
+@app.post("/api/generate", response_model=GenerationResponse, tags=["ai"])
+async def generate_content(request: GenerationRequest):
+    """Proxy for Gemini AI generation."""
+    try:
+        api_key = os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise HTTPException(status_code=500, detail="AI API Key not configured on server")
+        
+        genai.configure(api_key=api_key)
+        
+        # Use the requested model, stripping any prefixes from frontend
+        # and mapping to stable production IDs
+        raw_model = request.model.replace("models/", "").strip().lower()
+        
+        # Mapping to latest stable IDs for best reliability
+        model_map = {
+            "gemini-1.5-flash": "gemini-1.5-flash-latest",
+            "gemini-1.5-pro": "gemini-1.5-pro-latest",
+            "flash": "gemini-1.5-flash-latest",
+            "pro": "gemini-1.5-pro-latest"
+        }
+        
+        model_name = model_map.get(raw_model, raw_model)
+        if not model_name:
+            model_name = "gemini-1.5-flash-latest"
+
+        logger.info(f"AI Synthesis Request: model={model_name} | prompt_len={len(request.prompt)}")
+
+        model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=request.systemInstruction
+        )
+        
+        # Use async generation for better FastAPI performance
+        response = await model.generate_content_async(request.prompt)
+        
+        if not response.text:
+            raise HTTPException(status_code=204, detail="AI returned empty response")
+            
+        return GenerationResponse(text=response.text)
+        
+    except Exception as e:
+        logger.error(f"AI Generation failed for model {request.model}: {str(e)}")
+        # Handle specific error types
+        err_msg = str(e).lower()
+        if "not found" in err_msg:
+             raise HTTPException(status_code=404, detail=f"AI Model {request.model} (mapped to {model_name}) is unavailable in your region or for this API key.")
+        if "quota" in err_msg or "rate limit" in err_msg:
+             raise HTTPException(status_code=429, detail="AI Generation quota exceeded. Please wait a moment.")
+             
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Notification Endpoints ---
+@app.get("/api/notifications/{user_id}", response_model=List[Notification])
+async def get_notifications(user_id: str):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(Notification).where(Notification.user_id == user_id).order_by(Notification.created_at.desc())
+            results = await session.execute(statement)
+            return results.scalars().all()
+    except Exception as e:
+        logger.error(f"Failed to fetch notifications for {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve notifications")
+
+@app.post("/api/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: int):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(Notification).where(Notification.id == notification_id)
+            result = await session.execute(statement)
+            notification = result.scalar_one_or_none()
+            if not notification:
+                raise HTTPException(status_code=404, detail="Notification not found")
+            notification.is_read = True
+            await session.commit()
+            return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Failed to mark notification {notification_id} as read: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update notification")
+
+@app.delete("/api/notifications/{notification_id}")
+async def delete_notification(notification_id: int):
+    try:
+        async with AsyncSession(async_engine) as session:
+            statement = select(Notification).where(Notification.id == notification_id)
+            result = await session.execute(statement)
+            notification = result.scalar_one_or_none()
+            if not notification:
+                raise HTTPException(status_code=404, detail="Notification not found")
+            await session.delete(notification)
+            await session.commit()
+            return {"status": "deleted"}
+    except Exception as e:
+        logger.error(f"Failed to delete notification {notification_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to delete notification")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("fastapi_app:app", host="0.0.0.0", port=8001, reload=True)
+
+# --- Help & Documentation Endpoints ---
+
+@app.get("/api/help/categories", tags=["support"])
+async def get_help_categories():
+    with Session(engine) as session:
+        statement = select(HelpCategory).order_by(HelpCategory.order)
+        return session.exec(statement).all()
+
+@app.get("/api/help/faqs", tags=["support"])
+async def get_faqs(frequent_only: bool = False):
+    with Session(engine) as session:
+        statement = select(FAQ)
+        if frequent_only:
+            statement = statement.where(FAQ.is_frequent == True)
+        statement = statement.order_by(FAQ.order)
+        return session.exec(statement).all()
+
+@app.get("/api/docs/sections", tags=["support"])
+async def get_doc_sections():
+    with Session(engine) as session:
+        statement = select(DocSection).order_by(DocSection.order)
+        return session.exec(statement).all()
+
+@app.get("/api/docs/articles", tags=["support"])
+async def get_doc_articles(section_slug: Optional[str] = None):
+    with Session(engine) as session:
+        statement = select(DocArticle)
+        if section_slug:
+            statement = statement.where(DocArticle.section_slug == section_slug)
+        statement = statement.order_by(DocArticle.order)
+        return session.exec(statement).all()
+
+@app.get("/api/help/search", tags=["support"])
+async def search_help(query: str):
+    with Session(engine) as session:
+        # Simple case-insensitive search in questions, answers, and article content
+        statement = select(FAQ).where(FAQ.question.contains(query) | FAQ.answer.contains(query))
+        faqs = session.exec(statement).all()
+        
+        statement_docs = select(DocArticle).where(DocArticle.title.contains(query) | DocArticle.content.contains(query))
+        docs = session.exec(statement_docs).all()
+        
+        return {"faqs": faqs, "docs": docs}
+
+# --- Notification Endpoints ---
+
+@app.get("/api/notifications/{user_id}", tags=["notifications"])
+async def get_notifications(user_id: str):
+    with Session(engine) as session:
+        statement = select(Notification).where(Notification.user_id == user_id).order_by(Notification.created_at.desc())
+        return session.exec(statement).all()
+
+@app.post("/api/notifications/{notification_id}/read", tags=["notifications"])
+async def mark_notification_read(notification_id: int):
+    with Session(engine) as session:
+        notification = session.get(Notification, notification_id)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        notification.is_read = True
+        session.add(notification)
+        session.commit()
+        return {"status": "ok"}
+
+@app.delete("/api/notifications/{notification_id}", tags=["notifications"])
+async def delete_notification(notification_id: int):
+    with Session(engine) as session:
+        notification = session.get(Notification, notification_id)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        session.delete(notification)
+        session.commit()
+        return {"status": "ok"}

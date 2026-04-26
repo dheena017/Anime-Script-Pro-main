@@ -1,20 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { Cpu, BrainCircuit, Activity, DatabaseZap, Sparkles, Wand2, Mic, Image as ImageIcon, BoxSelect, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import { settingsService } from '../../services/settingsService';
 
 export function AIModelSettings() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-    }
-  }, [user, navigate]);
-  if (!user) return null;
+
   const [model, setModel] = useState('gemini-flash');
   const [temperature, setTemperature] = useState(0.85);
   const [swarmMode, setSwarmMode] = useState(false);

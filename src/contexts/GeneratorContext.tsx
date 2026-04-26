@@ -122,7 +122,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState('1');
   const [numScenes, setNumScenes] = useState('6');
   const [contentType, setContentType] = useState('Anime');
-  const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash-exp');
+  const [selectedModel, setSelectedModel] = useState('gemini-1.5-flash');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
   const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
@@ -150,9 +150,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
 
     const fetchHistory = async () => {
+      if (!user?.id) return; // Defensive check
       try {
         const projects = await apiRequest<any[]>(`/api/projects?user_id=${user.id}`);
-        setHistory(projects.map(p => ({
+        setHistory((projects || []).map(p => ({
           id: p.id,
           title: p.name || 'Untitled',
           date: new Date(p.created_at).toLocaleDateString(),

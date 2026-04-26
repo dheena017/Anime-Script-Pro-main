@@ -11,12 +11,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { fetchTemplates, ProductionTemplate } from '@/services/templateService';
+import { StudioLoading } from '@/components/studio/StudioLoading';
+
 
 const categories = ["All", "Shonen", "Isekai", "Cyberpunk", "Horror", "Romance", "Mecha"];
 
 export function DiscoverPage() {
   const navigate = useNavigate();
-  const [protocols, setProtocols] = React.useState<any[]>([]);
+  const [protocols, setProtocols] = React.useState<ProductionTemplate[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -25,9 +28,7 @@ export function DiscoverPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("http://localhost:8001/api/templates");
-        if (!res.ok) throw new Error("Neural matrix is currently recalibrating");
-        const data = await res.json();
+        const data = await fetchTemplates();
         setProtocols(data);
       } catch (e: any) {
         console.error("Failed to fetch discovery protocols:", e);
@@ -38,6 +39,7 @@ export function DiscoverPage() {
     };
     fetchProtocols();
   }, []);
+
 
   return (
     <div className="p-10 max-w-7xl mx-auto space-y-12">
@@ -121,10 +123,11 @@ export function DiscoverPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {loading ? (
-            <div className="col-span-full py-20 flex justify-center">
-              <div className="w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            <div className="col-span-full">
+              <StudioLoading fullPage={false} message="Discovering Protocols..." submessage="Syncing with the Blueprint Forge..." />
             </div>
           ) : error ? (
+
             <div className="col-span-full py-20 flex flex-col items-center justify-center border-2 border-dashed border-red-900/30 rounded-[3rem] bg-red-900/5">
                <AlertCircle className="w-12 h-12 text-red-500 mb-6" />
                <h3 className="text-sm font-black text-red-500 uppercase tracking-[0.3em] mb-2">Discovery Offline</h3>

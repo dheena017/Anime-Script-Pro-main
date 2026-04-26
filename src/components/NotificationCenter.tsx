@@ -2,14 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, ExternalLink, X } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import { createClient } from '../supabase/client';
+import { notificationService } from '../services/notificationService';
 import { Link } from 'react-router-dom';
 
 export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const { notifications, unreadCount, refreshAppData } = useApp();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -21,21 +20,16 @@ export function NotificationCenter() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const markAsRead = async (id: string) => {
-    await supabase.from('notifications').update({ read: true }).eq('id', id);
+  const markAsRead = async (id: number) => {
+    await notificationService.markAsRead(id);
     refreshAppData();
   };
 
   const markAllAsRead = async () => {
-    if (notifications.length === 0) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('user_id', user.id)
-      .eq('read', false);
+    // For simplicity, we loop through and mark each as read
+    // In a real app, you'd have a bulk mark as read endpoint
+    const unread = notifications.filter(n => !n.is_read);
+    await Promise.all(unread.map(n => notificationService.markAsRead(n.id)));
     refreshAppData();
   };
 
@@ -90,10 +84,10 @@ export function NotificationCenter() {
                   {notifications.map((notif) => (
                     <div 
                       key={notif.id}
-                      className={`p-4 transition-colors relative group hover:bg-white/[0.02] ${notif.read ? 'opacity-60' : 'bg-[#bd4a4a]/[0.02]'}`}
+                      className={`p-4 transition-colors relative group hover:bg-white/[0.02] ${notif.is_read ? 'opacity-60' : 'bg-[#bd4a4a]/[0.02]'}`}
                     >
                       <div className="flex gap-4">
-                        <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${notif.read ? 'bg-zinc-800' : 'bg-[#bd4a4a]'}`} />
+                        <div className={`mt-1 w-2 h-2 rounded-full shrink-0 ${notif.is_read ? 'bg-zinc-800' : 'bg-[#bd4a4a]'}`} />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2 mb-0.5">
                             <h4 className="text-xs font-bold text-zinc-200 truncate">{notif.title}</h4>

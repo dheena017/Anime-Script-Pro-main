@@ -23,6 +23,10 @@ export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
 
+  const isStudioMode = location.pathname.startsWith('/anime') || 
+                      location.pathname.startsWith('/manhwa') || 
+                      location.pathname.startsWith('/comic');
+
   return (
     <div className="min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30 overflow-x-hidden">
       {/* Background Accents - Atmospheric */}
@@ -56,15 +60,17 @@ export function Layout() {
                 </Link>
               )}
 
-              {/* Project Selector */}
-              <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline", !isSidebarOpen ? "ml-8" : "ml-2")}>
-                <FolderGit2 className="w-4 h-4 text-[#bd4a4a]" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest leading-none">Architect</span>
-                  <span className="text-xs font-bold text-white leading-tight">{currentProject?.title || 'Production'}</span>
-                </div>
-                <ChevronDown className="w-3 h-3 text-zinc-500 group-hover:text-white transition-colors ml-2" />
-              </Link>
+              {/* Project Selector - Studio Only */}
+              {isStudioMode && (
+                <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline", !isSidebarOpen ? "ml-8" : "ml-2")}>
+                  <FolderGit2 className="w-4 h-4 text-[#bd4a4a]" />
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest leading-none">Architect</span>
+                    <span className="text-xs font-bold text-white leading-tight">{currentProject?.title || 'Production'}</span>
+                  </div>
+                  <ChevronDown className="w-3 h-3 text-zinc-500 group-hover:text-white transition-colors ml-2" />
+                </Link>
+              )}
             </div>
 
             {/* Global Search Bar */}
@@ -105,14 +111,17 @@ export function Layout() {
 
               {/* Quick Actions */}
               <div className="hidden sm:flex items-center gap-4 border-r border-zinc-800 pr-6 mr-2">
-                <Link to="/create-project" className="bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/30 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 no-underline">
-                  New Production
-                </Link>
-                <Link to="/tutorials" className="text-zinc-400 hover:text-white transition-colors" title="Documentation">
+                {!isStudioMode && (
+                  <Link to="/create-project" className="bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/30 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 no-underline">
+                    New Production
+                  </Link>
+                )}
+                <Link to="/help" className="text-zinc-400 hover:text-white transition-colors" title="Help Hub">
                   <HelpCircle className="w-5 h-5" />
                 </Link>
                 <NotificationCenter />
               </div>
+
 
               <Link to="/profile" className="flex items-center justify-center p-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-[#bd4a4a]/50 hover:shadow-[0_0_15px_rgba(189,74,74,0.2)] transition-all group" title="Architect Profile">
                 <User className="w-5 h-5 group-hover:scale-110 transition-transform" />

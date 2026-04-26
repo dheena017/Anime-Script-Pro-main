@@ -1,5 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { createClient } from '../supabase/client';
+import { notificationService } from '../services/notificationService';
+import { projectService } from '../services/projectService';
+
+const LOCAL_USER_ID = 'local-dev-architect-id';
 
 interface AppContextType {
   currentProject: any | null;
@@ -15,50 +18,31 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentProject, setCurrentProject] = useState<any | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [userTier, setUserTier] = useState<string>('Free Architect');
-  const supabase = createClient();
+  const [userTier] = useState<string>('God Mode'); // Default to seeded tier
 
   const refreshAppData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    // 1. Fetch Notifications from FastAPI
+    const notifs = await notificationService.getNotifications(LOCAL_USER_ID);
+    setNotifications(notifs);
 
-    // Fetch User Tier (Mocking logic for now, usually would be a profiles table)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('tier')
-      .eq('id', user.id)
-      .single();
-    
-    if (profile?.tier) setUserTier(profile.tier);
-
-    // Fetch Notifications
-    const { data: notifs } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(10);
-    
-    if (notifs) setNotifications(notifs);
-
-    // Fetch Projects
-    const { data: projects } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
-      .limit(1);
-    
-    if (projects && projects.length > 0 && !currentProject) {
-      setCurrentProject(projects[0]);
+    // 2. Fetch Projects from FastAPI
+    try {
+      const projects = await projectService.getProjects();
+      if (projects && projects.length > 0 && !currentProject) {
+        setCurrentProject(projects[0]);
+      }
+    } catch (e) {
+      console.error("Failed to fetch projects in context:", e);
     }
+
+    // Note: Profile/Tier logic can also be migrated to FastAPI in the future
   };
 
   useEffect(() => {
     refreshAppData();
   }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
     <AppContext.Provider value={{ 

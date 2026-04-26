@@ -33,6 +33,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '../hooks/useAuth';
+import { StudioLoading } from '../components/studio/StudioLoading';
+
 
 // Custom GitHub Icon SVG since Lucide-react doesn't include brand icons
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -50,7 +52,7 @@ const GithubIcon = ({ className }: { className?: string }) => (
 );
 
 export function ProfilePage() {
-   const { user, signOut } = useAuth();
+   const { user, loading: authLoading, signOut } = useAuth();
    const [loading, setLoading] = useState(true);
    const [saving, setSaving] = useState(false);
    const [activeTab, setActiveTab] = useState<'generations' | 'library' | 'config' | 'security'>('generations');
@@ -88,7 +90,10 @@ export function ProfilePage() {
 
    useEffect(() => {
       const fetchEverything = async () => {
-         if (!user) return;
+         if (!user) {
+            if (!authLoading) setLoading(false);
+            return;
+         }
          try {
             const [profileRes, balanceRes, assetsRes, favRes, promptsRes, charsRes, settingsRes] = await Promise.all([
                fetch(`http://localhost:8001/api/profiles/${user.id}`),
@@ -206,13 +211,11 @@ export function ProfilePage() {
       }
    };
 
-   if (loading) {
-      return (
-         <div className="min-h-[80vh] flex items-center justify-center bg-[#050505] dark">
-            <Loader2 className="w-12 h-12 text-[#bd4a4a] animate-spin" />
-         </div>
-      );
+   if (authLoading || (user && loading)) {
+      return <StudioLoading message="Syncing Architect Node..." submessage="Establishing secure neural link and retrieving vault data..." />;
    }
+
+
 
    const tabs = [
       { id: 'generations', label: 'Vault', icon: Grid },

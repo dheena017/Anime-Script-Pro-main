@@ -1,20 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { Database, RefreshCw, ArchiveX, FolderSync, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { settingsService } from '../../services/settingsService';
 
 export function DataStorageSettings() {
-   const { user } = useAuth();
-   const navigate = useNavigate();
-   useEffect(() => {
-      if (!user) {
-         navigate('/auth');
-      }
-   }, [user, navigate]);
-   if (!user) return null;
+
   const [frequency, setFrequency] = useState('Batch Save Every 1 minute');
   const [pruning, setPruning] = useState('Keep last 100 timeline records');
   

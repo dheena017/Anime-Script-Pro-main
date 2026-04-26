@@ -6,8 +6,6 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { generateNarrativeBeats, refineSingleBeat } from '@/services/geminiService';
 import { BeatsHeader } from '../components/Beats/BeatsHeader';
 import { BeatsEmptyState } from '../components/Beats/BeatsEmptyState';
-import { MastermindCore } from '../components/Beats/MastermindCore';
-import { TensionMap } from '../components/Beats/TensionMap';
 import { BeatsArchitectureList } from '../components/Beats/BeatsArchitectureList';
 import { BeatsToolbar } from '../components/Beats/BeatsToolbar';
 
@@ -27,7 +25,6 @@ export function NarrativeBeatsPage() {
   const [selectedBeatKey, setSelectedBeatKey] = React.useState<string | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [aiBeats, setAiBeats] = React.useState<any[] | null>(null);
-  const [viewMode, setViewMode] = React.useState<'grid' | 'timeline' | 'mastermind'>('mastermind');
   const [activeBeatIndex, setActiveBeatIndex] = React.useState<number | null>(null);
 
   const currentBeats = selectedBeatKey === 'AI_GENERATED' ? aiBeats : null;
@@ -99,8 +96,6 @@ export function NarrativeBeatsPage() {
         session={session}
         episode={episode}
         isContextLocked={isContextLocked}
-        viewMode={viewMode}
-        setViewMode={setViewMode}
         onGenerate={handleGenerateAIBeats}
         isGenerating={isGenerating}
         canGenerate={!!prompt.trim()}
@@ -129,22 +124,6 @@ export function NarrativeBeatsPage() {
                 />
               ) : (
                 <div className="space-y-12">
-                  {viewMode === 'mastermind' && (
-                    <MastermindCore 
-                      aiBeats={aiBeats}
-                      isGenerating={isGenerating}
-                      onGenerate={handleGenerateAIBeats}
-                    />
-                  )}
-
-                  {viewMode === 'timeline' && currentBeats && (
-                    <TensionMap 
-                      currentBeats={currentBeats}
-                      activeBeatIndex={activeBeatIndex}
-                      setActiveBeatIndex={setActiveBeatIndex}
-                    />
-                  )}
-
                   <AnimatePresence mode="wait">
                     {selectedBeatKey && currentBeats && (
                       <motion.div

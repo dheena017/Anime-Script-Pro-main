@@ -297,9 +297,9 @@ class Project(SQLModel, table=True):
     is_active: bool = Field(default=True, index=True)
 
     def __repr__(self):
-        return f"<Project(id={self.id}, name={self.name})>"
+        return f"<Project(id={self.id}, title={self.title})>"
     def __str__(self):
-        return self.name
+        return self.title
 
 class Category(SQLModel, table=True):
     __tablename__ = "categories"
@@ -359,3 +359,51 @@ class ScriptVersion(SQLModel, table=True):
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
+
+class HelpCategory(SQLModel, table=True):
+    __tablename__ = "help_categories"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    slug: str = Field(unique=True, index=True)
+    label: str
+    sub: str
+    icon: str
+    color: str
+    order: int = Field(default=0)
+
+class FAQ(SQLModel, table=True):
+    __tablename__ = "faqs"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    question: str
+    answer: str
+    category_slug: Optional[str] = Field(default=None, index=True)
+    is_frequent: bool = Field(default=True)
+    order: int = Field(default=0)
+
+class DocSection(SQLModel, table=True):
+    __tablename__ = "doc_sections"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    slug: str = Field(unique=True, index=True)
+    label: str
+    icon: str
+    order: int = Field(default=0)
+
+class DocArticle(SQLModel, table=True):
+    __tablename__ = "doc_articles"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    section_slug: str = Field(index=True)
+    slug: str = Field(unique=True, index=True)
+    title: str
+    content: str # Markdown content
+    protocol_id: Optional[str] = None
+    order: int = Field(default=0)
+    article_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+
+class Notification(SQLModel, table=True):
+    __tablename__ = "notifications"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    title: str
+    message: str
+    type: str = Field(default="INFO") # INFO, ALERT, SUCCESS, WARNING
+    is_read: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow)

@@ -1,5 +1,6 @@
-import React from 'react';
-import { Play, Cpu, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Cpu, Zap, Hash } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,7 @@ interface ScreeningViewportProps {
   activeSession: number;
   sceneCount: number;
   videoPrompts: string | null;
+  generatedScript?: string | null;
 }
 
 export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
@@ -23,19 +25,74 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
   onRender,
   activeSession,
   sceneCount,
-  videoPrompts
+  videoPrompts,
+  generatedScript
 }) => {
+  const [currentSubtitle, setCurrentSubtitle] = useState<string>("");
+  const [subIndex, setSubIndex] = useState(0);
+
+  useEffect(() => {
+    if (videoUrl && generatedScript) {
+      const lines = generatedScript.split('\n')
+        .filter(l => l.includes('|') && !l.includes('---') && !l.includes('Scene #'))
+        .map(l => l.split('|')[4]?.trim())
+        .filter(Boolean);
+      
+      if (lines.length > 0) {
+        const interval = setInterval(() => {
+          setSubIndex(prev => (prev + 1) % lines.length);
+          setCurrentSubtitle(lines[subIndex]);
+        }, 4000);
+        return () => clearInterval(interval);
+      }
+    }
+  }, [videoUrl, generatedScript, subIndex]);
+
   return (
     <div className="lg:col-span-3 space-y-6">
       <Card className="aspect-video bg-black border-studio/20 relative overflow-hidden group shadow-2xl rounded-3xl">
         {videoUrl ? (
-          <video 
-            src={videoUrl} 
-            controls 
-            autoPlay 
-            className="w-full h-full object-cover"
-            poster="https://vjs.zencdn.net/v/oceans.png"
-          />
+          <div className="relative w-full h-full">
+            <video 
+              src={videoUrl} 
+              autoPlay 
+              loop
+              muted
+              className="w-full h-full object-cover brightness-75 contrast-125"
+            />
+            {/* Cinematic Overlays */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+            <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_2px,3px_100%]" />
+            
+            {/* Subtitle Engine */}
+            <div className="absolute bottom-20 left-10 right-10 flex flex-col items-center justify-center text-center space-y-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={subIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5 }}
+                  className="max-w-2xl"
+                >
+                  <p className="text-white text-xl font-black uppercase tracking-tight text-shadow-studio drop-shadow-2xl">
+                    {currentSubtitle}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Neural Watermark */}
+            <div className="absolute top-8 left-8 flex items-center gap-3">
+              <div className="w-8 h-8 rounded bg-studio flex items-center justify-center">
+                <Hash className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">Neural Unit-01</span>
+                <span className="text-[8px] font-bold text-studio/60 uppercase tracking-widest mt-1">Status: Masterpiece Premiere</span>
+              </div>
+            </div>
+          </div>
         ) : (
           <>
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />

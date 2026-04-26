@@ -15,48 +15,69 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/card';
 import { cn } from '../lib/utils';
-import { createClient } from '../supabase/client';
 import { useAuth } from '../hooks/useAuth';
 import { TodoWidget } from '../components/TodoWidget';
+import { projectService, Project } from '../services/projectService';
+import { StudioLoading } from '../components/studio/StudioLoading';
+
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const supabase = createClient();
-  const [stats, setStats] = useState({ total: 0, week: 0, recent: null as any });
+  const [stats, setStats] = useState({ total: 0, week: 0, recent: null as Project | null });
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    // Failsafe: if the orchestrator is stuck for more than 8 seconds, force yield to UI
+    const timeout = setTimeout(() => {
+      if (dataLoading) {
+        console.warn("Dashboard failsafe triggered: forcing dataLoading to false");
+        setDataLoading(false);
+      }
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [dataLoading]);
 
   const fetchStats = async () => {
-    if (!user) return;
+    if (authLoading) return;
     
-    // Total Projects
-    const { count: total } = await supabase
-      .from('projects')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
+    if (!user) {
+      setDataLoading(false);
+      return;
+    }
 
-    // Recent Projects
-    const { data: recentItems } = await supabase
-      .from('projects')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false })
-      .limit(5);
+    setDataLoading(true);
+    try {
+      const projects = await projectService.getProjects();
+      
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      
+      const weekCount = projects.filter(p => new Date(p.updated_at) > weekAgo).length;
 
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    
-    const weekCount = recentItems?.filter(i => new Date(i.updated_at) > weekAgo).length || 0;
-
-    setStats({
-      total: total || 0,
-      week: weekCount,
-      recent: recentItems?.[0] || null
-    });
+      setStats({
+        total: projects.length,
+        week: weekCount,
+        recent: projects[0] || null
+      });
+    } catch (e) {
+      console.error("Dashboard fetchStats error:", e);
+    } finally {
+      setDataLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchStats();
-  }, [user]);
+    if (!authLoading) {
+      fetchStats();
+    }
+  }, [user, authLoading]);
+
+  if (authLoading || (user && dataLoading)) {
+    return <StudioLoading message="Initializing Orchestrator..." submessage="Syncing neural status and production nodes..." />;
+  }
+
+
 
   return (
     <div className={cn("min-h-screen bg-[#050505] text-zinc-100 space-y-8 max-w-[1600px] mx-auto pt-4")}>

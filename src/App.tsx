@@ -21,6 +21,11 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ defaul
 const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const AuthPage = lazy(() => import('./pages/Auth'));
 const PricingPage = lazy(() => import('./pages/Pricing'));
+const HelpPage = lazy(() => import('./pages/Help'));
+const DocumentationPage = lazy(() => import('./pages/Documentation'));
+const SystemStatus = lazy(() => import('./pages/SystemStatus'));
+const Changelog = lazy(() => import('./pages/Changelog'));
+const FeedbackPage = lazy(() => import('./pages/Feedback'));
 
 
 // Anime Studio Components (Lazy)
@@ -33,6 +38,7 @@ const AnimeStoryboard = lazy(() => import('./pages/studio/AnimeStudio/Storyboard
 const AnimeAssets = lazy(() => import('./pages/studio/AnimeStudio/AssetsPage').then(m => ({ default: m.AssetsPage })));
 const AnimeScreening = lazy(() => import('./pages/studio/AnimeStudio/ScreeningRoom').then(m => ({ default: m.ScreeningRoom })));
 const AnimeTemplate = lazy(() => import('./pages/studio/AnimeStudio/TemplatePage').then(m => ({ default: m.TemplatePage })));
+const AnimeEngine = lazy(() => import('./pages/studio/AnimeStudio/EnginePage').then(m => ({ default: m.EnginePage })));
 
 const AnimeBeats = lazy(() => import('./pages/studio/AnimeStudio/NarrativeBeatsPage').then(m => ({ default: m.NarrativeBeatsPage })));
 const AnimeWorld = lazy(() => import('./pages/studio/AnimeStudio/WorldPage').then(m => ({ default: m.WorldPage })));
@@ -83,6 +89,7 @@ export default function App() {
                       <Route path="template" element={<AnimeTemplate />} />
                       <Route path="beats" element={<AnimeBeats />} />
                       <Route path="world" element={<AnimeWorld />} />
+                      <Route path="engine" element={<AnimeEngine />} />
                     </Route>
 
 
@@ -95,7 +102,13 @@ export default function App() {
                     <Route path="/tutorials" element={<TutorialsPage />} />
                     <Route path="/notifications" element={<NotificationsPage />} />
                     <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/help" element={<HelpPage />} />
+                    <Route path="/documentation" element={<DocumentationPage />} />
+                    <Route path="/status" element={<SystemStatus />} />
+                    <Route path="/changelog" element={<Changelog />} />
+                    <Route path="/feedback" element={<FeedbackPage />} />
                     <Route path="/create-project" element={<CreateProject />} />
+                    <Route path="/projects/new" element={<CreateProject />} />
                   </Route>
                 </Routes>
               </Suspense>

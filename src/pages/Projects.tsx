@@ -18,6 +18,8 @@ import { motion } from 'motion/react';
 import { createClient } from '../supabase/client';
 import { useApp } from '../context/AppContext';
 import { API_BASE_URL, apiRequest } from '../lib/api-utils';
+import { StudioLoading } from '../components/studio/StudioLoading';
+
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -129,10 +131,11 @@ export default function ProjectsPage() {
           </div>
 
           {loading ? (
-            [1, 2, 3].map(i => (
-              <div key={i} className="h-48 bg-zinc-900/50 border border-zinc-800 rounded-3xl animate-pulse" />
-            ))
+            <div className="col-span-full">
+               <StudioLoading fullPage={false} message="Scanning Archives..." submessage="Syncing production metadata and neural fragments..." />
+            </div>
           ) : filteredProjects.length === 0 ? (
+
             <div className="md:col-span-3 py-20 text-center">
               <FolderGit2 className="w-16 h-16 text-zinc-800 mx-auto mb-4" />
               <h2 className="text-xl font-bold text-white mb-2 uppercase tracking-tighter">NO PROJECTS FOUND</h2>

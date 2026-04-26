@@ -1,20 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
 import { RadioTower, MonitorPlay, MessageSquareWarning, Users, Smartphone, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import { settingsService } from '../../services/settingsService';
 
 export function NotificationSettings() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth');
-    }
-  }, [user, navigate]);
-  if (!user) return null;
+
   const [channels, setChannels] = useState({
     render: true, alerts: true, collab: true, mobile: true
   });

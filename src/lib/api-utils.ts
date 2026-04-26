@@ -18,18 +18,36 @@ export function cleanJson(content: string): any {
 
 export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
 
+async function getAuthToken(): Promise<string | null> {
+  try {
+    // Try to get from localStorage (Supabase standard)
+    const sbKey = Object.keys(localStorage).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    if (sbKey) {
+      const tokenData = JSON.parse(localStorage.getItem(sbKey) || '{}');
+      return tokenData.access_token || null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function apiRequest<T>(url: string, options?: RequestInit & { timeout?: number }): Promise<T> {
   const { timeout = 30000, ...fetchOptions } = options || {};
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
+  const finalUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+  const token = await getAuthToken();
+
   try {
-    const response = await fetch(url, {
+    const response = await fetch(finalUrl, {
       ...fetchOptions,
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         ...options?.headers,
       },
     });

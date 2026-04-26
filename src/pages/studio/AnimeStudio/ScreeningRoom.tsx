@@ -180,6 +180,7 @@ export function ScreeningRoom() {
                           activeSession={activeSession}
                           sceneCount={scenes.length}
                           videoPrompts={videoPrompts}
+                          generatedScript={generatedScript}
                         />
                       </div>
 

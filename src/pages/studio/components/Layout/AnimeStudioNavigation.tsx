@@ -4,7 +4,6 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
 import {
   ScrollText,
   UserPlus,
@@ -19,7 +18,7 @@ import {
   LayoutGrid,
   Search,
   ImageIcon,
-  Lock
+  Settings
 } from 'lucide-react';
 
 const STUDIO_NAV = [
@@ -32,58 +31,21 @@ const STUDIO_NAV = [
   { id: 'seo', icon: Search, label: 'SEO', path: '/seo' },
   { id: 'prompts', icon: ImageIcon, label: 'Prompts', path: '/prompts' },
   { id: 'screening', icon: Play, label: 'Screening', path: '/screening' },
+  { id: 'engine', icon: Settings, label: 'Engine', path: '/engine' },
 ];
 
 export const AnimeStudioNavigation: React.FC<{
   basePath: string;
   handleGenerate?: () => void;
   isLoading?: boolean;
-  rightSidebarOpen?: boolean;
-  onToggleRightSidebar?: () => void;
 }> = ({
   basePath,
   handleGenerate,
-  isLoading,
-  rightSidebarOpen,
-  onToggleRightSidebar
+  isLoading
 }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const location = useLocation();
-    const { 
-      generatedWorld, 
-      narrativeBeats, 
-      generatedCharacters, 
-      generatedSeriesPlan, 
-      generatedScript, 
-      visualData, 
-      generatedMetadata, 
-      generatedImagePrompts,
-      showNotification
-    } = useGenerator();
-
-    const checkStepStatus = (id: string) => {
-      switch (id) {
-        case 'world': return true; // First step always open
-        case 'beats': return !!generatedWorld;
-        case 'cast': return !!narrativeBeats;
-        case 'series': return !!generatedCharacters;
-        case 'script': return !!generatedSeriesPlan && generatedSeriesPlan.length > 0;
-        case 'storyboard': return !!generatedScript;
-        case 'seo': return Object.keys(visualData || {}).length > 0;
-        case 'prompts': return !!generatedMetadata;
-        case 'screening': return !!generatedImagePrompts;
-        default: return false;
-      }
-    };
-
     const activeItem = STUDIO_NAV.find(item => location.pathname.endsWith(item.path)) || STUDIO_NAV[0];
-
-    const handleNavClick = (e: React.MouseEvent, item: typeof STUDIO_NAV[0]) => {
-      if (!checkStepStatus(item.id)) {
-        e.preventDefault();
-        showNotification?.(`Access Restricted: Complete the previous phase to unlock ${item.label}.`, 'error');
-      }
-    };
 
     return (
       <div className="w-full px-4 pt-4 pb-2 relative z-[100]">
@@ -95,25 +57,19 @@ export const AnimeStudioNavigation: React.FC<{
             {/* DESKTOP NAVIGATION (Hidden on Mobile) */}
             <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
               {STUDIO_NAV.map((item) => {
-                const isUnlocked = checkStepStatus(item.id);
                 return (
                   <NavLink
                     key={item.path}
-                    to={isUnlocked ? `${basePath}${item.path}` : '#'}
-                    onClick={(e) => handleNavClick(e, item)}
+                    to={`${basePath}${item.path}`}
                     end={item.path === ''}
                     className={({ isActive }) => cn(
                       "relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
-                      isActive ? "text-cyan-400" : isUnlocked ? "text-zinc-500 hover:text-zinc-300 hover:bg-white/5" : "text-zinc-800 cursor-not-allowed"
+                      isActive ? "text-cyan-400" : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
                     )}
                   >
                     {({ isActive }) => (
                       <>
-                        {!isUnlocked ? (
-                          <Lock className="w-3.5 h-3.5 text-zinc-800" />
-                        ) : (
-                          <item.icon className={cn("w-3.5 h-3.5", isActive ? "text-cyan-400" : "text-zinc-600")} />
-                        )}
+                        <item.icon className={cn("w-3.5 h-3.5", isActive ? "text-cyan-400" : "text-zinc-600")} />
                         <span className="relative z-10">{item.label}</span>
                         {isActive && (
                           <motion.div
@@ -148,21 +104,6 @@ export const AnimeStudioNavigation: React.FC<{
 
             {/* ACTION BUTTONS (Always Visible) */}
             <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4 border-l border-white/10 ml-2">
-              {onToggleRightSidebar && (
-                <button
-                  onClick={onToggleRightSidebar}
-                  className={cn(
-                    "flex items-center gap-2 px-3 lg:px-4 py-2 rounded-xl transition-all duration-300 group",
-                    rightSidebarOpen
-                      ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"
-                      : "text-zinc-500 hover:text-zinc-300 border border-transparent"
-                  )}
-                >
-                  {rightSidebarOpen ? <PanelRightClose className="w-4 h-4 lg:w-4 lg:h-4" /> : <PanelRightOpen className="w-4 h-4 lg:w-4 lg:h-4" />}
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden xl:inline">Engine</span>
-                </button>
-              )}
-
               <Button
                 variant="default"
                 size="sm"
@@ -204,27 +145,23 @@ export const AnimeStudioNavigation: React.FC<{
                 <div className="grid grid-cols-2 gap-3">
                   {STUDIO_NAV.map((item) => {
                     const isActive = location.pathname.endsWith(item.path);
-                    const isUnlocked = checkStepStatus(item.id);
                     return (
                       <NavLink
                         key={item.path}
-                        to={isUnlocked ? `${basePath}${item.path}` : '#'}
-                        onClick={(e) => {
-                          handleNavClick(e, item);
-                          if (isUnlocked) setIsMobileMenuOpen(false);
-                        }}
+                        to={`${basePath}${item.path}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300",
                           isActive
                             ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-                            : isUnlocked ? "bg-white/5 border-transparent text-zinc-500" : "bg-black/20 border-white/5 text-zinc-800 cursor-not-allowed"
+                            : "bg-white/5 border-transparent text-zinc-500"
                         )}
                       >
                         <div className={cn(
                           "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-                          isActive ? "bg-cyan-500/20 border-cyan-500/40" : isUnlocked ? "bg-black/40 border-white/5" : "bg-black/20 border-white/5"
+                          isActive ? "bg-cyan-500/20 border-cyan-500/40" : "bg-black/40 border-white/5"
                         )}>
-                          {!isUnlocked ? <Lock className="w-5 h-5 text-zinc-800" /> : <item.icon className="w-5 h-5" />}
+                          <item.icon className="w-5 h-5" />
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
                       </NavLink>

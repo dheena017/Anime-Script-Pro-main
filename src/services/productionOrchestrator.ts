@@ -1,6 +1,7 @@
 import { generateWorld } from "./generators/world";
 import { generateCharacters } from "./generators/characters";
 import { generateSeriesPlan } from "./generators/series";
+import { generateScript } from "./generators/script";
 import { generateProductionSequences, ProductionUnit } from "../lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
@@ -38,21 +39,45 @@ export class ProductionOrchestrator {
 
   async executeFullCycle(onProgress?: (phase: string, data?: any) => void): Promise<OrchestrationResult> {
     try {
-      // PHASE 1: FOUNDATION (Global Variables)
-      if (onProgress) onProgress("PHASE 1: Initializing World Lore Source of Truth...");
+      // STATE 01: WORLD Lore
+      if (onProgress) onProgress("STATE 01: Initializing Anime World Lore...");
       const world = await this.initializeFoundation();
       
-      // PHASE 2: ARCHITECTURE (Outer Loops: SESS & EP)
-      if (onProgress) onProgress("PHASE 2: Structuring Sessions and 60 Episode Beats...");
-      const { cast, series } = await this.buildArchitecture(world);
+      // STATE 02: Narrative SCALPEL
+      if (onProgress) onProgress("STATE 02: Structuring 60 Episode Beats...");
+      const { series } = await this.buildSeries(world);
+
+      // STATE 03: CHARACTER DNA
+      if (onProgress) onProgress("STATE 03: Synthesizing Cast Visual DNA...");
+      const cast = await this.buildCast(world);
+
+      // STATE 04: SERIES Roadmap
+      if (onProgress) onProgress("STATE 04: Architecting Series Roadmap...");
+      await this.saveSeriesPlan(series);
       
-      // PHASE 3: GENERATION (Inner Loop: SCEN)
-      if (onProgress) onProgress("PHASE 3: Scaffolding 960 Scene Units (The Factory Floor)...");
+      // STATE 05: SCRIPT Engine
+      if (onProgress) onProgress("STATE 05: Initializing Script Engine Pilot...");
+      const pilotScript = await this.materializePilot(world, cast, series[0]);
+      
+      // STATE 06: VISUAL Manifest
+      if (onProgress) onProgress("STATE 06: Scaffolding 960 Scene Storyboards...");
       const sequences = await this.scaffoldGeneration(series);
       
-      // PHASE 4: DISTRIBUTION (Polish & SEO)
-      if (onProgress) onProgress("PHASE 4: Preparing Screening Room & SEO Metadata...");
-      await this.prepareDistribution();
+      // STATE 07: GLOBAL Reach
+      if (onProgress) onProgress("STATE 07: Optimizing SEO Metadata...");
+      await this.prepareSEO();
+
+      // STATE 08: ASSET Synthesis
+      if (onProgress) onProgress("STATE 08: Refining Visual Prompts...");
+      await this.preparePrompts();
+
+      // STATE 09: PREMIERE Hub
+      if (onProgress) onProgress("STATE 09: Initializing Screening Room Premiere...");
+      await this.prepareScreening(pilotScript);
+
+      // STATE 10: CORE Logic
+      if (onProgress) onProgress("STATE 10: Finalizing Studio Engine Parameters...");
+      await new Promise(r => setTimeout(r, 1000)); // Final engine sync
 
       return {
         project: this.project,
@@ -81,7 +106,7 @@ export class ProductionOrchestrator {
       method: "POST",
       body: JSON.stringify({
         user_id: this.context.userId,
-        name: `Production: ${this.context.prompt.slice(0, 30)}...`,
+        title: `Production: ${this.context.prompt.slice(0, 30)}...`,
         content_type: this.context.contentType,
         prompt: this.context.prompt,
         vibe: preset.name,
@@ -116,9 +141,27 @@ export class ProductionOrchestrator {
     return world;
   }
 
-  private async buildArchitecture(world: string) {
+  private async buildSeries(world: string) {
     const architecturePrompt = this.getCombinedPrompt();
-    // 1. Generate Cast with Visual DNA (Global for all 960 units)
+    // 1. Generate 5 Major Sessions (Arcs) dynamically via AI
+    const sessions = await this.generateSessions(world);
+
+    const savedSessions = await apiRequest<any[]>("/api/sessions", {
+      method: "POST",
+      body: JSON.stringify({ project_id: this.project.id, sessions })
+    });
+
+    // 2. Generate 60 Episode Narrative Beats (Series Plan)
+    const series = await generateSeriesPlan(architecturePrompt, this.context.model, this.context.contentType, 60);
+    
+    if (!Array.isArray(series)) throw new Error("Failed to generate series episodes.");
+
+    return { series, savedSessions };
+  }
+
+  private async buildCast(world: string) {
+    const architecturePrompt = this.getCombinedPrompt();
+    // Generate Cast with Visual DNA (Global for all 960 units)
     const rawCast = await generateCharacters(architecturePrompt, this.context.model, this.context.contentType, world);
     
     // Process cast into a registry with "Visual DNA"
@@ -133,22 +176,15 @@ export class ProductionOrchestrator {
       method: "POST",
       body: JSON.stringify({ project_id: this.project.id, characters: cast })
     });
-    
-    // 2. Generate 5 Major Sessions (Arcs) dynamically via AI
-    const sessions = await this.generateSessions(world);
 
-    const savedSessions = await apiRequest<any[]>("/api/sessions", {
-      method: "POST",
-      body: JSON.stringify({ project_id: this.project.id, sessions })
-    });
+    return cast;
+  }
 
-    // 3. Generate 60 Episode Narrative Beats (Series Plan)
-    const series = await generateSeriesPlan(architecturePrompt, this.context.model, this.context.contentType, 60);
-    
-    if (!Array.isArray(series)) throw new Error("Failed to generate series episodes.");
+  private async saveSeriesPlan(series: any[]) {
+    // Fetch sessions created in buildSeries
+    const savedSessions = await apiRequest<any[]>(`/api/sessions?project_id=${this.project.id}`);
 
     // Save Episodes to DB, linking them to their respective sessions
-    // (A session has 12 episodes: 12 * 5 = 60)
     for (const session of savedSessions) {
       const epStart = (session.session_number - 1) * 12;
       const epBatch = series.slice(epStart, epStart + 12);
@@ -167,8 +203,6 @@ export class ProductionOrchestrator {
         })
       });
     }
-
-    return { cast, series };
   }
 
   private async scaffoldGeneration(_series: any[]): Promise<ProductionUnit[]> {
@@ -234,10 +268,7 @@ export class ProductionOrchestrator {
     }
   }
 
-  private async prepareDistribution() {
-    console.log("[PHASE 4] Archiving Production Prompts and Initializing SEO Matrix...");
-    
-    // 1. Save SEO Metadata
+  private async prepareSEO() {
     await apiRequest("/api/seo_entries", {
       method: "POST",
       body: JSON.stringify({
@@ -245,9 +276,19 @@ export class ProductionOrchestrator {
         description: `Autonomous production metadata for ${this.context.prompt}`
       })
     });
+  }
 
-    // 2. Initialize Screening Room
-    // We create a screening entry for the first script/episode
+  private async preparePrompts() {
+    await apiRequest("/api/prompts", {
+      method: "POST",
+      body: JSON.stringify({
+        text: this.context.prompt,
+        context: "MASTER_PRODUCTION_SEED"
+      })
+    });
+  }
+
+  private async prepareScreening(scriptMarkdown: string) {
     const scripts = await apiRequest<any[]>(`/api/scripts?project_id=${this.project.id}`);
     if (scripts && scripts.length > 0) {
       await apiRequest("/api/screening_room_entries", {
@@ -258,16 +299,46 @@ export class ProductionOrchestrator {
         })
       });
     }
+  }
 
-    // 3. Log the Master Prompt
-    await apiRequest("/api/prompts", {
+  private async materializePilot(world: string, cast: any, firstEpisode: any) {
+    const scriptPrompt = `PILOT_PILOT: ${this.context.prompt}\n\nEPISODE_GOAL: ${firstEpisode.title} - ${firstEpisode.summary || firstEpisode.hook}`;
+    
+    // Convert cast to string if it's an array
+    const castProfiles = Array.isArray(cast) 
+      ? cast.map(c => `${c.name} (${c.role}): ${c.personality}`).join('\n')
+      : JSON.stringify(cast);
+
+    const scriptMarkdown = await generateScript(
+      scriptPrompt,
+      this.context.vibe || "Energetic",
+      "Anime Fans",
+      "1",
+      "1",
+      "8", // 8 scenes for the pilot starter
+      this.context.model,
+      this.context.contentType,
+      "SHOGUN_AI",
+      firstEpisode.summary || firstEpisode.hook,
+      null,
+      world,
+      castProfiles
+    );
+
+    // Save Pilot Script to DB
+    const dbEpisodes = await apiRequest<any[]>(`/api/episodes?project_id=${this.project.id}`);
+    const firstEp = dbEpisodes.find(e => e.episode_number === 1);
+
+    await apiRequest("/api/scripts", {
       method: "POST",
       body: JSON.stringify({
-        text: this.context.prompt,
-        context: "MASTER_PRODUCTION_SEED"
+        project_id: this.project.id,
+        episode_id: firstEp?.id,
+        title: `PILOT: ${firstEpisode.title}`,
+        content: scriptMarkdown
       })
     });
 
-    return true;
+    return scriptMarkdown;
   }
 }

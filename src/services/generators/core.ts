@@ -1,89 +1,230 @@
 import { GoogleGenAI } from "@google/genai";
 
-export class RateLimitError extends Error {
-  retryAfter: number;
-  constructor(message: string, retryAfter: number = 20) {
+/**
+ * Custom Error Classes for AI Operations
+ */
+export class AIError extends Error {
+  status?: number;
+  details?: any;
+  retryable: boolean;
+  constructor(message: string, status?: number, details?: any, retryable: boolean = false) {
     super(message);
+    this.name = "AIError";
+    this.status = status;
+    this.details = details;
+    this.retryable = retryable;
+  }
+}
+
+export class RateLimitError extends AIError {
+  retryAfter: number;
+  constructor(message: string, retryAfter: number = 25) {
+    super(message, 429, null, true);
     this.name = "RateLimitError";
     this.retryAfter = retryAfter;
   }
 }
 
+export class ContentFilterError extends AIError {
+  constructor(message: string, details?: any) {
+    super(message, 400, details, false);
+    this.name = "ContentFilterError";
+  }
+}
+
+export class AuthenticationError extends AIError {
+  constructor(message: string) {
+    super(message, 401, null, false);
+    this.name = "AuthenticationError";
+  }
+}
+
+export class ModelNotFoundError extends AIError {
+  constructor(message: string) {
+    super(message, 404, null, false);
+    this.name = "ModelNotFoundError";
+  }
+}
+
+export class ValidationError extends AIError {
+  constructor(message: string) {
+    super(message, 400, null, false);
+    this.name = "ValidationError";
+  }
+}
+
+export class NetworkError extends AIError {
+  constructor(message: string) {
+    super(message, 0, null, true);
+    this.name = "NetworkError";
+  }
+}
+
+export class TimeoutError extends AIError {
+  constructor(message: string = "Request timed out") {
+    super(message, 408, null, true);
+    this.name = "TimeoutError";
+  }
+}
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function callAI(model: string, prompt: string, systemInstruction: string, retries: number = 3) {
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
-  const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
+/**
+ * Robust AI Call Utility with built-in retries, timeouts, and error handling.
+ */
+export async function callAI(
+  model: string, 
+  prompt: string, 
+  systemInstruction: string, 
+  retries: number = 3,
+  timeoutMs: number = 60000 // 60 second default timeout
+) {
+  // 1. Pre-flight checks
+  if (!prompt?.trim()) {
+    throw new ValidationError("Prompt is required for AI generation.");
+  }
 
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
   if (!API_KEY) {
-    throw new Error("VITE_GEMINI_API_KEY is missing.");
+    console.error("[AI Core] CRITICAL: VITE_GEMINI_API_KEY is missing.");
+    throw new AuthenticationError("AI Configuration Missing: Gemini API Key is required.");
   }
 
   let attempt = 0;
   let currentModel = model.replace("models/", "").toLowerCase().trim();
   
-  // Map display names or short IDs to stable API IDs
-  if (currentModel.includes("gemini-1.5-flash")) currentModel = "gemini-1.5-flash";
-  else if (currentModel.includes("gemini-1.5-pro")) currentModel = "gemini-1.5-pro";
-  else if (currentModel.includes("gemini-2.0-flash")) currentModel = "gemini-2.0-flash-exp";
-  else if (currentModel.includes("gemini-2.0-pro")) currentModel = "gemini-2.0-pro-exp-02-05";
-  else if (currentModel === "gemini-pro-latest") currentModel = "gemini-1.5-pro";
-  else if (currentModel === "gemini-flash-latest") currentModel = "gemini-1.5-flash";
-  else if (currentModel.includes("gemini-2.0-flash-exp")) currentModel = "gemini-2.0-flash-exp"; // Fallback for typo in codebase
+  // Robust Model Mapping to Stable API IDs
+  const getStableModel = (id: string) => {
+    const mappings: Record<string, string> = {
+      "gemini-2.0-flash": "gemini-2.0-flash-exp",
+      "gemini-2.0-pro": "gemini-2.0-pro-exp-02-05",
+      "gemini-1.5-pro": "gemini-1.5-pro",
+      "gemini-1.5-flash": "gemini-1.5-flash",
+      "gemini-pro-latest": "gemini-1.5-pro",
+      "gemini-flash-latest": "gemini-1.5-flash",
+      "pro": "gemini-1.5-pro",
+      "flash": "gemini-1.5-flash",
+      "gpt-4": "gpt-4o", // Just in case of cross-platform model IDs
+      "gpt-3.5": "gpt-3.5-turbo"
+    };
 
+    for (const [key, value] of Object.entries(mappings)) {
+      if (id.includes(key)) return value;
+    }
+    return id.replace(/\s+/g, "-");
+  };
 
-  // If it still has spaces, replace them with dashes as a last resort
-  currentModel = currentModel.replace(/\s+/g, "-");
+  currentModel = getStableModel(currentModel);
+  
+  while (attempt < retries + 1) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  while (attempt < retries) {
     try {
-      console.log(`[AI Core] Requesting: ${currentModel} (Attempt ${attempt + 1})`);
+      console.log(`[AI Core] [Attempt ${attempt + 1}] Requesting: ${currentModel}`);
       
-      const response = await fetch(`${BASE_URL}/${currentModel}:generateContent`, {
+      const response = await fetch("/api/generate", {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-goog-api-key": API_KEY // Use the header format from your successful curl
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            role: "user",
-            parts: [{ text: prompt }]
-          }],
-          systemInstruction: {
-            parts: [{ text: systemInstruction }]
-          },
-          generationConfig: {
-            temperature: 0.9,
-            maxOutputTokens: 4096,
-          }
+          model: currentModel,
+          prompt: prompt,
+          systemInstruction: systemInstruction
         }),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error(`[AI Core] Error ${response.status}:`, errorData);
-        if (response.status === 404) throw new Error("MODEL_NOT_FOUND");
-        throw new Error(errorData.error?.message || "API Error");
+        let errorData: any = {};
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          const text = await response.text().catch(() => "Unknown backend error");
+          errorData = { error: text };
+        }
+
+        const msg = errorData.error?.message || errorData.error?.details || errorData.error || response.statusText || "Generation Failed";
+        const msgLower = String(msg).toLowerCase();
+
+        console.error(`[AI Core] Backend Error (${response.status}):`, errorData);
+
+        // 1. Rate Limiting / Quota
+        if (response.status === 429 || msgLower.includes("quota") || msgLower.includes("too many requests")) {
+           const retryAfter = errorData.retryAfter || 25;
+           throw new RateLimitError(msg, retryAfter);
+        }
+        
+        // 2. Authentication Errors
+        if (response.status === 401 || response.status === 403) {
+           throw new AuthenticationError(`Authentication failed: ${msg}`);
+        }
+
+        // 3. Model Not Found (Fallback Logic)
+        if (response.status === 404 || msgLower.includes("not found")) {
+           if (attempt === 0 && currentModel !== "gemini-1.5-flash") {
+             console.warn(`[AI Core] Model ${currentModel} not found. Falling back to gemini-1.5-flash.`);
+             currentModel = "gemini-1.5-flash";
+             attempt++;
+             continue; 
+           }
+           throw new ModelNotFoundError(`Model ${currentModel} is unavailable.`);
+        }
+
+        // 4. Content Filtering (Safety)
+        if (msgLower.includes("safety") || msgLower.includes("filtered") || msgLower.includes("blocked")) {
+          throw new ContentFilterError("Response blocked by AI safety filters.", errorData);
+        }
+
+        // 5. Server Errors (Retryable)
+        if (response.status >= 500) {
+          throw new AIError(`Server error (${response.status}): ${msg}`, response.status, null, true);
+        }
+
+        throw new AIError(msg, response.status, null, false);
       }
 
       const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = data.text;
       
-      if (!text) throw new Error("EMPTY_RESPONSE");
+      if (!text) throw new AIError("AI returned an empty response.", 204, null, true);
       return text;
 
     } catch (error: any) {
+      clearTimeout(timeoutId);
       attempt++;
-      console.warn(`[AI Core] Attempt ${attempt} failed:`, error.message);
 
-      if (attempt < retries) {
-        if (error.message.includes("MODEL_NOT_FOUND")) {
-          currentModel = "gemini-flash-latest";
+      if (error.name === 'AbortError') {
+        console.error(`[AI Core] Request Timed Out after ${timeoutMs}ms`);
+        if (attempt <= retries) {
+          const backoff = Math.pow(2, attempt) * 1000;
+          await sleep(backoff);
+          continue;
         }
-        await sleep(2000);
+        throw new TimeoutError();
+      }
+
+      // If it's already an AIError, respect its retryable flag
+      const isRetryable = error instanceof AIError ? error.retryable : true;
+
+      console.warn(`[AI Core] Attempt ${attempt} failed: ${error.message} (Retryable: ${isRetryable})`);
+
+      if (attempt <= retries && isRetryable) {
+        if (error instanceof RateLimitError) {
+          const waitTime = error.retryAfter * 1000;
+          console.log(`[AI Core] Quota Hit. Cooling down for ${error.retryAfter}s...`);
+          await sleep(waitTime);
+          continue;
+        }
+
+        // Exponential Backoff
+        const backoff = Math.pow(2, attempt) * 1000;
+        console.log(`[AI Core] Retrying in ${backoff}ms...`);
+        await sleep(backoff);
         continue;
       }
+      
       throw error;
     }
   }
@@ -93,3 +234,5 @@ export const getAIClient = () => new GoogleGenAI({
   apiKey: import.meta.env.VITE_GEMINI_API_KEY || "",
   apiVersion: 'v1beta'
 });
+
+

@@ -19,6 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { Button } from '../components/ui/button';
 import { motion } from 'motion/react';
 import { tutorialService, Tutorial } from '../services/tutorialService';
+import { StudioLoading } from '../components/studio/StudioLoading';
+
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Sparkles,
@@ -93,10 +95,9 @@ export default function TutorialsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#bd4a4a]"></div>
-        </div>
+        <StudioLoading fullPage={false} message="Synchronizing Curriculum..." submessage="Initializing masterclass protocols and neural datasets..." />
       ) : error ? (
+
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

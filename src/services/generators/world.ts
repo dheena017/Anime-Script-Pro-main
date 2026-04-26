@@ -24,23 +24,17 @@ export async function generateWorld(prompt: string, model: string = "gemini-2.0-
 
   try {
     const text = await callAI(model, prompt, systemInstruction);
-    return text || "Failed to generate world lore.";
+    if (!text) throw new Error("Synthesis produced no data.");
+    return text;
   } catch (error: any) {
-    const errorStr = error?.toString() || "";
-    const errorMsg = error?.message || "";
+    console.error("Error generating world:", error);
     
-    const isRateLimit = error instanceof RateLimitError || 
-                       errorStr.includes("429") || 
-                       errorMsg.includes("429") ||
-                       errorStr.includes("RESOURCE_EXHAUSTED") ||
-                       errorMsg.includes("RESOURCE_EXHAUSTED") ||
-                       error?.status === 429;
-                       
-    if (isRateLimit) {
-      console.warn("[World Lab] API Quota Exceeded. Injecting Local Synthesis Failover.");
+    // If all retries fail, return mock data as a last resort to keep the UI functional
+    if (error instanceof RateLimitError || error?.status === 429) {
+      console.warn("[World Lab] API Exhausted after retries. Injecting Local Synthesis Failover.");
       return MOCK_WORLD;
     }
-    console.error("Error generating world:", error);
+    
     return "Error: " + (error instanceof Error ? error.message : String(error));
   }
 }

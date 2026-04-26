@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Zap, Wand2, Volume2, LockIcon } from 'lucide-react';
+import { Layers, Zap, Wand2, Volume2, Cloud } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArchitectureCard } from './ArchitectureCard';
@@ -133,7 +133,7 @@ export const BeatsArchitectureList: React.FC<BeatsArchitectureListProps> = ({
 
          <Card className="border-dashed border-zinc-800 bg-transparent flex flex-col items-center justify-center p-10 space-y-6 group hover:border-fuchsia-500/30 transition-all rounded-[2rem]">
             <div className="p-4 bg-zinc-900/50 rounded-2xl border border-zinc-800 group-hover:border-fuchsia-500/30 transition-all shadow-xl">
-              <LockIcon className="w-8 h-8 text-zinc-700 group-hover:text-fuchsia-400 transition-all" />
+              <Cloud className="w-8 h-8 text-zinc-700 group-hover:text-fuchsia-400 transition-all" />
             </div>
             <div className="text-center space-y-2">
                <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 group-hover:text-fuchsia-300">Neural Archive Node</p>
