@@ -28,7 +28,7 @@ interface Scene {
 interface SceneCardProps {
   scene: Scene;
   index: number;
-  visualData: Record<number, string>;
+  visualData: Record<number, string[]>;
   promptList: string[]; // Add this
   editingSceneId: string | null;
   editForm: Partial<Scene>;
@@ -38,6 +38,8 @@ interface SceneCardProps {
   isSuggestingDuration: boolean;
   setEditForm: React.Dispatch<React.SetStateAction<Partial<Scene>>>;
   handleGenerateVisual: (idx: number, visuals: string) => void;
+  videoData?: Record<number, string>;
+  handleGenerateVideo?: (idx: number, imageUrl: string, prompt: string) => void;
   startEditing: (scene: Scene) => void;
   cancelEditing: () => void;
   saveSceneEdits: () => void;
@@ -65,6 +67,8 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   isSuggestingDuration,
   setEditForm,
   handleGenerateVisual,
+  videoData,
+  handleGenerateVideo,
   startEditing,
   cancelEditing,
   saveSceneEdits,
@@ -107,20 +111,40 @@ export const SceneCard: React.FC<SceneCardProps> = ({
         
         {/* Scene Image Area */}
         <div className="aspect-video bg-[#030303] flex items-center justify-center border-b border-white/5 relative overflow-hidden z-10">
-          {visualData[scene.originalIndex] === 'loading' ? (
+          {videoData?.[scene.originalIndex] && videoData[scene.originalIndex] !== 'loading' ? (
+            <div className="relative w-full h-full">
+              <video 
+                src={videoData[scene.originalIndex]} 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-full object-cover rounded-xl"
+              />
+            </div>
+          ) : videoData?.[scene.originalIndex] === 'loading' ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-studio" />
+              <p className="text-[10px] text-studio uppercase tracking-[0.3em] font-black animate-pulse">Rendering Video Frame...</p>
+            </div>
+          ) : visualData[scene.originalIndex]?.[0] === 'loading' ? (
             <div className="flex flex-col items-center gap-4">
               <div className="w-10 h-10 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-studio" />
               <p className="text-[10px] text-studio uppercase tracking-[0.3em] font-black animate-pulse">Initializing Frame...</p>
             </div>
-          ) : visualData[scene.originalIndex] ? (
-            <div className="relative w-full h-full group/img">
-              <img 
-                src={visualData[scene.originalIndex]} 
-                alt={`Scene ${index + 1}`} 
-                className="w-full h-full object-cover opacity-80 group-hover/img:opacity-100 transition-all duration-1000 group-hover:scale-110"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60" />
+          ) : visualData[scene.originalIndex] && visualData[scene.originalIndex].length > 0 ? (
+            <div className="relative w-full h-full group/img grid grid-cols-2 grid-rows-2 gap-1 p-1 bg-black">
+              {visualData[scene.originalIndex].slice(0,4).map((imgUrl, i) => (
+                <div key={i} className="relative w-full h-full overflow-hidden rounded-xl border border-white/5 hover:border-studio transition-colors">
+                  <img 
+                    src={imgUrl} 
+                    alt={`Scene ${index + 1} Variation ${i + 1}`} 
+                    className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-all duration-1000 hover:scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              ))}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 pointer-events-none" />
             </div>
           ) : (
             <div className="p-10 text-center">
@@ -149,14 +173,25 @@ export const SceneCard: React.FC<SceneCardProps> = ({
             <span className="text-white font-mono">{String(index + 1).padStart(2, '0')}</span>
           </div>
 
-          {visualData[scene.originalIndex] && visualData[scene.originalIndex] !== 'loading' && (
-            <button 
-              onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
-              className="absolute top-4 right-4 h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-studio hover:border-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-2xl z-20 flex items-center justify-center"
-              title="Regenerate Visual"
-            >
-              <Wand2 className="w-4 h-4" />
-            </button>
+          {visualData[scene.originalIndex] && visualData[scene.originalIndex]?.[0] !== 'loading' && !videoData?.[scene.originalIndex] && (
+            <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+              <button 
+                onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
+                className="h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-studio hover:border-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-2xl flex items-center justify-center"
+                title="Regenerate Visual"
+              >
+                <Wand2 className="w-4 h-4" />
+              </button>
+              {handleGenerateVideo && (
+                <button 
+                  onClick={() => handleGenerateVideo(scene.originalIndex, visualData[scene.originalIndex][0], scene.linkedPrompt || scene.visuals)}
+                  className="h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-purple-500 hover:border-purple-500 text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-x-4 group-hover:translate-x-0 shadow-2xl flex items-center justify-center"
+                  title="Animate Frame (Video)"
+                >
+                  <Zap className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           )}
 
           <div className="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-y-4 group-hover:translate-y-0">
@@ -213,7 +248,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                       size="sm" 
                       className="h-7 w-7 p-0 text-studio hover:bg-studio/10 rounded-lg transition-all"
                       onClick={() => handleGenerateVisual(scene.originalIndex, editForm.linkedPrompt || editForm.visuals || scene.visuals)}
-                      disabled={visualData[scene.originalIndex] === 'loading'}
+                      disabled={visualData[scene.originalIndex]?.[0] === 'loading'}
                     >
                       <ImageIcon className="w-3.5 h-3.5" />
                     </Button>
@@ -355,7 +390,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                       size="sm" 
                       className="h-7 px-3 text-[9px] text-studio hover:bg-studio/10 uppercase tracking-widest font-black opacity-0 group-hover/visual:opacity-100 transition-all duration-500"
                       onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
-                      disabled={visualData[scene.originalIndex] === 'loading'}
+                      disabled={visualData[scene.originalIndex]?.[0] === 'loading'}
                     >
                       Generate
                     </Button>

@@ -6,6 +6,6 @@ export * from "./generators/series";
 export * from "./generators/characters";
 export * from "./generators/utils";
 export * from "./generators/world";
-export * from "./generators/beats";
+
 export * from "./generators/video";
 export * from "./generators/sceneGenerator";

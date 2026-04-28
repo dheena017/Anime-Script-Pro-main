@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { SeriesHeader } from '../components/Series/SeriesHeader';
 import { SeriesToolbar } from '../components/Series/SeriesToolbar';
 import { SeriesEmptyState } from '../components/Series/SeriesEmptyState';
+import { SeriesView } from '../components/Series/SeriesView';
 
 export function SeriesPage() {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ export function SeriesPage() {
     setEpisode,
     generatedWorld,
     generatedCharacters,
-    narrativeBeats,
+
     showNotification
   } = useGenerator();
 
@@ -76,7 +77,7 @@ export function SeriesPage() {
     }
     setIsGeneratingSeries(true);
     try {
-      const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodesInManifest, generatedWorld || undefined, generatedCharacters || undefined, narrativeBeats || undefined);
+      const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodesInManifest, generatedWorld || undefined, generatedCharacters || undefined);
       setGeneratedSeriesPlan(plan);
       showNotification?.('Neural Synthesis Complete: Master Sequence Archived', 'success');
     } catch (error: any) {
@@ -251,134 +252,16 @@ export function SeriesPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-12">
-                    {generatedSeriesPlan.map((ep, idx) => (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                      >
-                        <Card className="bg-black/40 border-studio/10 p-8 hover:border-studio/30 transition-all group relative overflow-hidden">
-                          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-                            <Milestone className="w-24 h-24 text-studio" />
-                          </div>
-                          
-                          <div className="relative z-10 space-y-6">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center text-studio font-black text-xl shrink-0">
-                                {ep.episode}
-                              </div>
-                              <div className="space-y-1 flex-1">
-                                {isEditing ? (
-                                  <input 
-                                    className="w-full bg-black/60 border border-studio/20 rounded-xl px-4 py-2 text-xl font-black text-white uppercase focus:border-studio/50 focus:outline-none transition-all"
-                                    value={ep.title}
-                                    onChange={(e) => handleUpdateEpisode(idx, { title: e.target.value })}
-                                  />
-                                ) : (
-                                  <h3 className="text-2xl font-black text-white uppercase tracking-wider group-hover:text-studio transition-colors">
-                                    {ep.title}
-                                  </h3>
-                                )}
-                                <div className="flex items-center gap-2 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                                  <Activity className="w-3 h-3" />
-                                  Narrative Milestone
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="pl-16 space-y-6">
-                              {isEditing ? (
-                                <textarea 
-                                  className="w-full bg-black/60 border border-studio/20 rounded-2xl p-6 text-[13px] text-zinc-300 leading-relaxed font-medium focus:border-studio/50 focus:outline-none transition-all min-h-[100px] resize-none"
-                                  value={ep.hook}
-                                  onChange={(e) => handleUpdateEpisode(idx, { hook: e.target.value })}
-                                />
-                              ) : (
-                                <p className="text-zinc-400 text-sm leading-relaxed border-l-2 border-studio/10 pl-6 italic">
-                                  {ep.hook}
-                                </p>
-                              )}
-                                
-                               {ep.asset_matrix && (
-                                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pl-6 pt-4 border-t border-white/5">
-                                    <div className="space-y-1.5">
-                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-                                        <Volume2 className="w-2.5 h-2.5" /> Sound
-                                      </p>
-                                      {isEditing ? (
-                                        <input 
-                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
-                                          value={ep.asset_matrix.sound}
-                                          onChange={(e) => handleUpdateAssetMatrix(idx, { sound: e.target.value })}
-                                        />
-                                      ) : (
-                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.sound}</p>
-                                      )}
-                                    </div>
-                                    <div className="space-y-1.5">
-                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-                                        <Camera className="w-2.5 h-2.5" /> Image
-                                      </p>
-                                      {isEditing ? (
-                                        <input 
-                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
-                                          value={ep.asset_matrix.image}
-                                          onChange={(e) => handleUpdateAssetMatrix(idx, { image: e.target.value })}
-                                        />
-                                      ) : (
-                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.image}</p>
-                                      )}
-                                    </div>
-                                    <div className="space-y-1.5">
-                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-                                        <Video className="w-2.5 h-2.5" /> Video
-                                      </p>
-                                      {isEditing ? (
-                                        <input 
-                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
-                                          value={ep.asset_matrix.video}
-                                          onChange={(e) => handleUpdateAssetMatrix(idx, { video: e.target.value })}
-                                        />
-                                      ) : (
-                                        <p className="text-[10px] text-zinc-400 font-medium truncate">{ep.asset_matrix.video}</p>
-                                      )}
-                                    </div>
-                                    <div className="space-y-1.5">
-                                      <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
-                                        <LayoutGrid className="w-2.5 h-2.5" /> Scenes
-                                      </p>
-                                      {isEditing ? (
-                                        <input 
-                                          type="number"
-                                          className="w-full bg-black/40 border border-white/5 rounded-lg px-2 py-1 text-[10px] text-zinc-400 focus:outline-none"
-                                          value={ep.asset_matrix.scene_count}
-                                          onChange={(e) => handleUpdateAssetMatrix(idx, { scene_count: parseInt(e.target.value) })}
-                                        />
-                                      ) : (
-                                        <p className="text-[10px] text-zinc-400 font-medium">{ep.asset_matrix.scene_count} Units</p>
-                                      )}
-                                    </div>
-                                 </div>
-                               )}
-
-                              <div className="flex items-center gap-4 pt-4">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  onClick={() => setEpisode(parseInt(ep.episode).toString())}
-                                  className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-studio hover:bg-studio/10"
-                                >
-                                  Focus Episode <ChevronRight className="w-3 h-3 ml-2" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </div>
+                  <SeriesView
+                    plan={generatedSeriesPlan}
+                    isEditing={isEditing}
+                    onUpdateEpisode={handleUpdateEpisode}
+                    onUpdateAssetMatrix={handleUpdateAssetMatrix}
+                    onFocusEpisode={(epNum) => {
+                      setEpisode(epNum);
+                      navigate(`/${contentType.toLowerCase()}/script`);
+                    }}
+                  />
 
                   <div className="mt-24 pt-12 border-t border-zinc-800/50 text-center">
                     <p className="text-[10px] text-zinc-500/50 uppercase tracking-[0.5em] font-bold">

@@ -7,7 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
 import { createProxyMiddleware } from 'http-proxy-middleware';
-
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -41,89 +41,17 @@ export async function createServer() {
     ? new Groq({ apiKey: process.env.GROQ_API_KEY })
     : null;
 
-  // --- AI GENERATION ENGINE (Native Node.js) ---
-  app.post("/api/generate", asyncHandler(async (req: Request, res: Response) => {
-    const { model, prompt, systemInstruction } = req.body;
-    console.log(`[Backend AI] Received request for model: "${model}" (Prompt length: ${prompt?.length})`);
-
-    if (!model || !prompt) {
-      return res.status(400).json({ error: "Missing model or prompt" });
-    }
-
-    if (model.startsWith("gpt")) {
-      if (!openai) throw new Error("OpenAI API Key not configured.");
-      const response = await openai.chat.completions.create({
-        model: model,
-        messages: [
-          { role: "system", content: systemInstruction },
-          { role: "user", content: prompt }
-        ],
-      });
-      return res.json({ text: response.choices[0].message.content });
-    }
-
-    if (model.startsWith("claude")) {
-      if (!anthropic) throw new Error("Anthropic API Key not configured.");
-      const response = await anthropic.messages.create({
-        model: model,
-        max_tokens: 4096,
-        system: systemInstruction,
-        messages: [{ role: "user", content: prompt }],
-      });
-      // @ts-ignore
-      return res.json({ text: response.content[0].text });
-    }
-
-    if (model.includes("llama") || model.includes("mixtral") || model.includes("gemma")) {
-      if (!groq) throw new Error("Groq API Key not configured.");
-      const response = await groq.chat.completions.create({
-        model: model,
-        messages: [
-          { role: "system", content: systemInstruction },
-          { role: "user", content: prompt }
-        ],
-      });
-      return res.json({ text: response.choices[0].message.content });
-    }
-
-    const modelStr = String(model || "").toLowerCase();
-    if (modelStr.includes("gemini")) {
-      const apiKey = process.env.VITE_GEMINI_API_KEY || "";
-      if (!apiKey) throw new Error("Gemini API Key not configured.");
-      
-      const cleanModel = modelStr.replace("models/", "");
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${cleanModel}:generateContent?key=${apiKey}`;
-      console.log(`[Backend AI] Forwarding to Google API: ${cleanModel}`);
-      
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          generationConfig: { temperature: 0.9, maxOutputTokens: 4096 }
-        })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error(`[Backend AI] Google API Error:`, error);
-        throw new Error(error.error?.message || "Gemini API Error");
-      }
-
-      const data = await response.json();
-      return res.json({ text: data.candidates?.[0]?.content?.parts?.[0]?.text });
-    }
-
-    res.status(400).json({ error: `Unsupported or unconfigured model: ${model}` });
-  }));
-
+  // AI Generation is now handled by the Python FastAPI backend for superior stability and fallback logic.
+  // The Node.js handler has been retired.
+  
   // Python Backend Proxy (Phase 2 & 3 Migration)
-  // Mounted at root to prevent prefix stripping, with filter to catch /api EXCEPT /api/generate
+  // Mounted at root to handle all /api routes including /api/generate
   app.use(createProxyMiddleware({
     target: process.env.BACKEND_URL || "http://localhost:8001",
     changeOrigin: true,
-    pathFilter: (path: string) => path.startsWith('/api') && !path.startsWith('/api/generate'),
+    pathFilter: '/api',
+    proxyTimeout: 90000,
+    timeout: 90000,
     on: {
       error: (err: any, _req: any, res: any) => {
         console.error('[PROXY ERROR] Backend unreachable:', err.message);
@@ -194,7 +122,7 @@ async function startServer() {
     console.log(`[PORT]   Server Port:   ${PORT}`);
     console.log(`[To stop the server, press CTRL+C in this terminal.`);
     console.log(`[INFO]   To stop the backend, press CTRL+C in the backend terminal.`);
-    
+
 
     // Core Services Check
     const services = [

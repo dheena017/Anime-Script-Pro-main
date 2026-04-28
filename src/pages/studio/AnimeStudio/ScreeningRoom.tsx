@@ -26,7 +26,7 @@ export function ScreeningRoom() {
   const [renderPhases, setRenderPhases] = React.useState<RenderPhase[]>([
     { id: 'lore', label: 'Lore Vault Integration', status: 'pending' },
     { id: 'cast', label: 'Character DNA Sync', status: 'pending' },
-    { id: 'beats', label: 'Narrative Scaffolding', status: 'pending' },
+
     { id: 'script', label: 'Dialogue Synthesis', status: 'pending' },
     { id: 'visuals', label: 'Cinematic Rendering', status: 'pending' },
     { id: 'integrity', label: 'Manifest Integrity Check', status: 'pending' },

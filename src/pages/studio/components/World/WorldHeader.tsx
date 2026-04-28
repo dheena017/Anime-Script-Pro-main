@@ -100,15 +100,16 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
 
             <Button 
               className={cn(
-                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
-                "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 gap-3 overflow-hidden group/next border-none",
+                "bg-studio text-black hover:bg-white hover:text-black",
+                "hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
               )}
               onClick={onNext}
             >
               <span className="relative z-10 flex items-center gap-2">
                 Next: Cast DNA <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000 ease-in-out" />
             </Button>
           </div>
         </div>

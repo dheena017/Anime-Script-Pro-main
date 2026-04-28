@@ -13,12 +13,10 @@ export function StudioLayout({ type }: { type?: string }) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const {
     prompt, setPrompt,
     setGeneratedScript,
-    setGeneratedCharacters,
-    setGeneratedSeriesPlan,
     tone, setTone,
     audience, setAudience,
     episode, setEpisode,
@@ -26,20 +24,13 @@ export function StudioLayout({ type }: { type?: string }) {
     contentType, setContentType,
     selectedModel, setSelectedModel,
     isLoading, setIsLoading,
-    generatedScript,
-    isSaving, setIsSaving,
     setCurrentScriptId,
-    currentScriptId,
     history,
-    setGeneratedMetadata,
-    narrativeBeats, setNarrativeBeats,
-    recapperPersona, setRecapperPersona,
-    characterRelationships, setCharacterRelationships,
-    numScenes, setNumScenes,
-    generatedWorld, setGeneratedWorld, generatedCharacters,
-    setCastData, setCastList,
-    addLog,
-    theme, setTheme
+    recapperPersona,
+    characterRelationships,
+    numScenes,
+    generatedWorld, generatedCharacters,
+    setGeneratedMetadata
   } = useGenerator();
 
   React.useEffect(() => {
@@ -52,7 +43,7 @@ export function StudioLayout({ type }: { type?: string }) {
     if (!prompt.trim()) return;
     setIsLoading(true);
     navigate(`${basePath}/script`);
-    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
+    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters);
     setGeneratedScript(script);
     setCurrentScriptId(null);
     setIsLoading(false);

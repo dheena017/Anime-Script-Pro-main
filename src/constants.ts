@@ -4,14 +4,7 @@ export const NARRATIVE_TEMPLATES = {
   "Mystery/Thriller": ""
 };
 
-export const COMPOUND_BEATS: Record<string, any> = {
-  "Standard Blueprint": {
-    genre: "Generic",
-    intensity: 5,
-    thumbnail: "",
-    beats: []
-  }
-};
+
 
 export const SCRIPT_TEMPLATE = `
 | Section | Duration | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues |

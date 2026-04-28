@@ -69,7 +69,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   ];
 
   const architectureItems = [
-    { icon: Zap, label: 'Narrative Beats', path: 'beats' },
+
     { icon: UserPlus, label: 'Cast', path: 'cast' },
     { icon: Layers, label: 'Series', path: 'series' },
   ];

@@ -22,7 +22,7 @@ export const SceneTimeline: React.FC<SceneTimelineProps> = ({ scenes }) => {
         <div className="flex items-center gap-4 text-[9px] font-bold text-studio/60 uppercase tracking-widest">
            <span>Total: {scenes.reduce((acc, s) => acc + (parseInt(s.duration) || 5), 0)}s Estimated</span>
            <div className="w-[1px] h-3 bg-zinc-800" />
-           <span>6 Master Beats</span>
+           <span>60 Episode Series Plan</span>
         </div>
       </div>
 

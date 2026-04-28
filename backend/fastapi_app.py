@@ -10,8 +10,9 @@ from pydantic import BaseModel, constr
 from typing import List, Optional, Dict
 from sqlmodel import SQLModel, Session, create_engine, select
 from models import Template, WorldLore, NarrativeBeat, CastMember, Series, Script, Storyboard, SEOEntry, Prompt, ScreeningRoomEntry, UserSettings, UserProfile, UserBalance, MediaAsset, UserFavorite, SavedPrompt, ReusableCharacter, Tutorial, Project, ProductionSession, Episode, Scene, Category, PromptLibrary, CommunityPost, ScriptVersion, HelpCategory, FAQ, DocSection, DocArticle, Notification
-import google.generativeai as genai
 from loguru import logger
+from google import genai
+from google.genai import types
 
 # --- FastAPI app and engine definitions (must be before any usage) ---
 app = FastAPI(
@@ -20,7 +21,7 @@ app = FastAPI(
     description="Backend API for Anime Script Pro. Provides authentication, project, and AI endpoints.",
     contact={
         "name": "Anime Script Pro Team",
-        "email": "[EMAIL_ADDRESS]",
+        "email": "team@animescriptpro.com",
     },
 )
 
@@ -192,6 +193,9 @@ class TemplateOut(BaseModel):
 class User(SQLModelBaseUserDB, table=True):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}
+    
+    failed_login_attempts: int = Field(default=0, nullable=False)
+    locked_until: Optional[datetime] = Field(default=None)
 
 class UserCreate(fa_schemas.BaseUserCreate):
     pass
@@ -339,6 +343,74 @@ async def log_requests(request: Request, call_next):
     response = await call_next(request)
     logger.info(f"Response status: {response.status_code}")
     return response
+
+from auth_utils import verify_password, create_access_token, create_refresh_token
+from datetime import timezone, timedelta
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+MAX_FAILED_ATTEMPTS = 5
+LOCKOUT_MINUTES = 30
+
+@app.post("/api/auth/login", tags=["auth"])
+@limiter.limit("5/minute")
+async def secure_login(
+    request: Request,
+    response: Response,
+    login_data: LoginRequest
+):
+    async with AsyncSession(async_engine) as db:
+        result = await db.exec(select(User).where(User.email == login_data.email))
+        user = result.first()
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
+            
+        if user.locked_until and user.locked_until.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account temporarily locked due to multiple failed login attempts."
+            )
+            
+        if not verify_password(login_data.password, user.hashed_password):
+            user.failed_login_attempts += 1
+            if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
+                user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_MINUTES)
+            db.add(user)
+            await db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid credentials"
+            )
+            
+        user.failed_login_attempts = 0
+        user.locked_until = None
+        db.add(user)
+        await db.commit()
+        
+        access_token = create_access_token(data={"sub": str(user.id)})
+        refresh_token = create_refresh_token(data={"sub": str(user.id)})
+        
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="strict",
+            max_age=7 * 24 * 60 * 60
+        )
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": 15 * 60
+        }
+
 
 @app.post(
     "/api/templates",
@@ -1686,51 +1758,92 @@ async def create_seo_entry(entry: SEOEntry):
 
 @app.post("/api/generate", response_model=GenerationResponse, tags=["ai"])
 async def generate_content(request: GenerationRequest):
-    """Proxy for Gemini AI generation."""
+    """Proxy for Gemini AI generation with deep trace logging."""
     try:
         api_key = os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
         if not api_key:
+            logger.error("[AI Core] CRITICAL: No API Key found in environment.")
             raise HTTPException(status_code=500, detail="AI API Key not configured on server")
         
-        genai.configure(api_key=api_key)
+        logger.info(f"[AI Core] Initializing Client (Key ends in: ...{api_key[-4:]})")
+        client = genai.Client(api_key=api_key)
         
-        # Use the requested model, stripping any prefixes from frontend
-        # and mapping to stable production IDs
+        # Mapping to latest stable IDs
         raw_model = request.model.replace("models/", "").strip().lower()
-        
-        # Mapping to latest stable IDs for best reliability
         model_map = {
-            "gemini-1.5-flash": "gemini-1.5-flash-latest",
+            "gemini-2.0-flash-lite-001": "gemini-1.5-flash-latest",
+            "gemini-2.0-flash": "gemini-1.5-flash-latest",
+            "gemini-2.5-flash": "gemini-1.5-flash-latest",
             "gemini-1.5-pro": "gemini-1.5-pro-latest",
             "flash": "gemini-1.5-flash-latest",
-            "pro": "gemini-1.5-pro-latest"
+            "pro": "gemini-1.5-pro-latest",
+            "imagen-3.0-generate-001": "imagen-3.0-generate-001"
         }
         
         model_name = model_map.get(raw_model, raw_model)
-        if not model_name:
+        if not model_name or ("gemini" not in model_name and "imagen" not in model_name):
             model_name = "gemini-1.5-flash-latest"
 
-        logger.info(f"AI Synthesis Request: model={model_name} | prompt_len={len(request.prompt)}")
+        logger.info(f"[AI Core] Route: {model_name} | Prompt Len: {len(request.prompt)}")
 
-        model = genai.GenerativeModel(
-            model_name=model_name,
+        # 1. Handle Image Generation
+        if "imagen" in model_name:
+            logger.info(f"[AI Core] Launching Image Synthesis: {model_name}")
+            response = await client.aio.models.generate_content(
+                model=model_name,
+                contents=request.prompt
+            )
+            # Base64 extraction
+            for part in response.candidates[0].content.parts:
+                if part.inline_data:
+                    base64_data = base64.b64encode(part.inline_data.data).decode('utf-8')
+                    return GenerationResponse(text=f"data:image/png;base64,{base64_data}")
+            raise HTTPException(status_code=204, detail="No image data returned")
+
+        # 2. Handle Text Generation
+        config = types.GenerateContentConfig(
             system_instruction=request.systemInstruction
-        )
+        ) if request.systemInstruction else None
         
-        # Use async generation for better FastAPI performance
-        response = await model.generate_content_async(request.prompt)
+        logger.info(f"[AI Core] Sending Request to Google SDK (Model: {model_name})...")
+        
+        try:
+            # Wrap in a 75-second safety timeout to prevent backend hanging
+            import asyncio
+            response = await asyncio.wait_for(
+                client.aio.models.generate_content(
+                    model=model_name,
+                    contents=request.prompt,
+                    config=config
+                ),
+                timeout=75.0
+            )
+        except asyncio.TimeoutError:
+            logger.error(f"[AI Core] Google SDK timed out after 75s")
+            raise HTTPException(status_code=504, detail="AI Engine Timeout: Google is taking too long.")
+        except Exception as e:
+            logger.warning(f"[AI Core] Primary Model Failed: {str(e)}")
+            # Fallback
+            logger.info("[AI Core] Attempting Emergency Fallback to gemini-1.5-flash-latest...")
+            response = await client.aio.models.generate_content(
+                model="gemini-1.5-flash-latest",
+                contents=request.prompt,
+                config=config
+            )
         
         if not response.text:
+            logger.error("[AI Core] Empty Response")
             raise HTTPException(status_code=204, detail="AI returned empty response")
             
+        logger.success(f"[AI Core] Synthesis Complete: {model_name}")
         return GenerationResponse(text=response.text)
         
     except Exception as e:
-        logger.error(f"AI Generation failed for model {request.model}: {str(e)}")
+        logger.error(f"[AI Core] Fatal Error: {str(e)}")
         # Handle specific error types
         err_msg = str(e).lower()
         if "not found" in err_msg:
-             raise HTTPException(status_code=404, detail=f"AI Model {request.model} (mapped to {model_name}) is unavailable in your region or for this API key.")
+             raise HTTPException(status_code=404, detail=f"AI Model {request.model} is unavailable in your region or for this API key.")
         if "quota" in err_msg or "rate limit" in err_msg:
              raise HTTPException(status_code=429, detail="AI Generation quota exceeded. Please wait a moment.")
              

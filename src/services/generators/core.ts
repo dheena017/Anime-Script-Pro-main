@@ -73,11 +73,11 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
  * Robust AI Call Utility with built-in retries, timeouts, and error handling.
  */
 export async function callAI(
-  model: string, 
-  prompt: string, 
-  systemInstruction: string, 
-  retries: number = 3,
-  timeoutMs: number = 60000 // 60 second default timeout
+  model: string,
+  prompt: string,
+  systemInstruction: string,
+  retries: number = 0,
+  timeoutMs: number = 90000 // 90 second timeout for faster response cycles
 ) {
   // 1. Pre-flight checks
   if (!prompt?.trim()) {
@@ -92,37 +92,17 @@ export async function callAI(
 
   let attempt = 0;
   let currentModel = model.replace("models/", "").toLowerCase().trim();
-  
-  // Robust Model Mapping to Stable API IDs
-  const getStableModel = (id: string) => {
-    const mappings: Record<string, string> = {
-      "gemini-2.0-flash": "gemini-2.0-flash-exp",
-      "gemini-2.0-pro": "gemini-2.0-pro-exp-02-05",
-      "gemini-1.5-pro": "gemini-1.5-pro",
-      "gemini-1.5-flash": "gemini-1.5-flash",
-      "gemini-pro-latest": "gemini-1.5-pro",
-      "gemini-flash-latest": "gemini-1.5-flash",
-      "pro": "gemini-1.5-pro",
-      "flash": "gemini-1.5-flash",
-      "gpt-4": "gpt-4o", // Just in case of cross-platform model IDs
-      "gpt-3.5": "gpt-3.5-turbo"
-    };
 
-    for (const [key, value] of Object.entries(mappings)) {
-      if (id.includes(key)) return value;
-    }
-    return id.replace(/\s+/g, "-");
-  };
+  // Pass the requested model to the backend and let the Stability Layer handle mapping
+  // This allows the backend to optimize for speed/quota dynamically.
 
-  currentModel = getStableModel(currentModel);
-  
-  while (attempt < retries + 1) {
+  while (attempt < (retries ?? 0) + 1) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       console.log(`[AI Core] [Attempt ${attempt + 1}] Requesting: ${currentModel}`);
-      
+
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,31 +125,31 @@ export async function callAI(
           errorData = { error: text };
         }
 
-        const msg = errorData.error?.message || errorData.error?.details || errorData.error || response.statusText || "Generation Failed";
+        const msg = errorData.details || errorData.error?.message || errorData.error?.details || (typeof errorData.error === 'string' ? errorData.error : response.statusText) || "Generation Failed";
         const msgLower = String(msg).toLowerCase();
 
         console.error(`[AI Core] Backend Error (${response.status}):`, errorData);
 
         // 1. Rate Limiting / Quota
         if (response.status === 429 || msgLower.includes("quota") || msgLower.includes("too many requests")) {
-           const retryAfter = errorData.retryAfter || 25;
-           throw new RateLimitError(msg, retryAfter);
+          const retryAfter = errorData.retryAfter || 25;
+          throw new RateLimitError(msg, retryAfter);
         }
-        
+
         // 2. Authentication Errors
         if (response.status === 401 || response.status === 403) {
-           throw new AuthenticationError(`Authentication failed: ${msg}`);
+          throw new AuthenticationError(`Authentication failed: ${msg}`);
         }
 
         // 3. Model Not Found (Fallback Logic)
         if (response.status === 404 || msgLower.includes("not found")) {
-           if (attempt === 0 && currentModel !== "gemini-1.5-flash") {
-             console.warn(`[AI Core] Model ${currentModel} not found. Falling back to gemini-1.5-flash.`);
-             currentModel = "gemini-1.5-flash";
-             attempt++;
-             continue; 
-           }
-           throw new ModelNotFoundError(`Model ${currentModel} is unavailable.`);
+          if (attempt === 0 && currentModel !== "gemini-2.0-flash-lite-001") {
+            console.warn(`[AI Core] Model ${currentModel} not found. Falling back to gemini-2.0-flash-lite-001.`);
+            currentModel = "gemini-2.0-flash-lite-001";
+            attempt++;
+            continue;
+          }
+          throw new ModelNotFoundError(`Model ${currentModel} is unavailable.`);
         }
 
         // 4. Content Filtering (Safety)
@@ -187,7 +167,7 @@ export async function callAI(
 
       const data = await response.json();
       const text = data.text;
-      
+
       if (!text) throw new AIError("AI returned an empty response.", 204, null, true);
       return text;
 
@@ -197,7 +177,7 @@ export async function callAI(
 
       if (error.name === 'AbortError') {
         console.error(`[AI Core] Request Timed Out after ${timeoutMs}ms`);
-        if (attempt <= retries) {
+        if (attempt <= (retries ?? 0)) {
           const backoff = Math.pow(2, attempt) * 1000;
           await sleep(backoff);
           continue;
@@ -210,7 +190,7 @@ export async function callAI(
 
       console.warn(`[AI Core] Attempt ${attempt} failed: ${error.message} (Retryable: ${isRetryable})`);
 
-      if (attempt <= retries && isRetryable) {
+      if (attempt <= (retries ?? 0) && isRetryable) {
         if (error instanceof RateLimitError) {
           const waitTime = error.retryAfter * 1000;
           console.log(`[AI Core] Quota Hit. Cooling down for ${error.retryAfter}s...`);
@@ -218,19 +198,19 @@ export async function callAI(
           continue;
         }
 
-        // Exponential Backoff
-        const backoff = Math.pow(2, attempt) * 1000;
-        console.log(`[AI Core] Retrying in ${backoff}ms...`);
+        // Fast Backoff
+        const backoff = Math.pow(1.5, attempt) * 500;
+        console.log(`[AI Core] Retrying in ${Math.round(backoff)}ms...`);
         await sleep(backoff);
         continue;
       }
-      
+
       throw error;
     }
   }
 }
 
-export const getAIClient = () => new GoogleGenAI({ 
+export const getAIClient = () => new GoogleGenAI({
   apiKey: import.meta.env.VITE_GEMINI_API_KEY || "",
   apiVersion: 'v1beta'
 });

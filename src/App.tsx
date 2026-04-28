@@ -40,7 +40,7 @@ const AnimeScreening = lazy(() => import('./pages/studio/AnimeStudio/ScreeningRo
 const AnimeTemplate = lazy(() => import('./pages/studio/AnimeStudio/TemplatePage').then(m => ({ default: m.TemplatePage })));
 const AnimeEngine = lazy(() => import('./pages/studio/AnimeStudio/EnginePage').then(m => ({ default: m.EnginePage })));
 
-const AnimeBeats = lazy(() => import('./pages/studio/AnimeStudio/NarrativeBeatsPage').then(m => ({ default: m.NarrativeBeatsPage })));
+
 const AnimeWorld = lazy(() => import('./pages/studio/AnimeStudio/WorldPage').then(m => ({ default: m.WorldPage })));
 
 
@@ -53,7 +53,7 @@ const LoadingSpinner = () => (
 export default function App() {
   React.useEffect(() => {
     console.log(
-      `%c ⚡ GOD MODE ENGINE v2.0 %c INITIALIZED %c\n%c\n> World Lore: ACTIVE\n> Character DNA: SYNCED\n> Narrative Beats: 60 UNITS\n> Scene Scaffolding: 960 UNITS\n\n%cANIME STUDIO ARCHITECT IS READY.%c\n`,
+      `%c ⚡ GOD MODE ENGINE v2.0 %c INITIALIZED %c\n%c\n> World Lore: ACTIVE\n> Character DNA: SYNCED\n> Scene Scaffolding: 960 UNITS\n\n%cANIME STUDIO ARCHITECT IS READY.%c\n`,
       "background: #dc2626; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px 0 0 4px;",
       "background: #18181b; color: #dc2626; font-weight: bold; padding: 4px 8px; border-radius: 0 4px 4px 0;",
       "",
@@ -87,7 +87,7 @@ export default function App() {
                       <Route path="prompts" element={<AnimeAssets />} />
                       <Route path="screening" element={<AnimeScreening />} />
                       <Route path="template" element={<AnimeTemplate />} />
-                      <Route path="beats" element={<AnimeBeats />} />
+
                       <Route path="world" element={<AnimeWorld />} />
                       <Route path="engine" element={<AnimeEngine />} />
                     </Route>

@@ -8,7 +8,7 @@ interface EmptyStateProps {
 
 export const EmptyState: React.FC<EmptyStateProps> = ({ handleAddScene }) => {
   const features = [
-    { icon: Sparkles, title: 'Visual Synthesis', description: 'AI maps narrative beats to cinematic frames' },
+    { icon: Sparkles, title: 'Visual Synthesis', description: 'AI maps script sequences to cinematic frames' },
     { icon: Zap, title: 'Neural Flow', description: 'Ensures visual continuity across sequences' },
     { icon: Box, title: 'Asset Injection', description: 'Seamlessly integrates custom visual assets' }
   ];

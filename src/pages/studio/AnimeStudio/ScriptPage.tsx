@@ -31,7 +31,8 @@ export function ScriptPage() {
     setEpisode, setSession,
     recapperPersona,
     tone, audience, prompt, episode, session, contentType, numScenes,
-    generatedWorld, generatedCharacters, narrativeBeats, characterRelationships,
+    generatedWorld, generatedCharacters, characterRelationships,
+    generatedSeriesPlan,
     showNotification
   } = useGenerator();
 
@@ -85,7 +86,8 @@ export function ScriptPage() {
     }
     let nextEp = parseInt(episode) + 1;
     let nextSess = parseInt(session);
-    if (nextEp > 12) {
+    const maxEpisodes = generatedSeriesPlan ? generatedSeriesPlan.length : 12;
+    if (nextEp > maxEpisodes) {
       nextEp = 1;
       nextSess += 1;
     }
@@ -96,7 +98,9 @@ export function ScriptPage() {
     setVisualData({});
     setIsLoading(true);
     try {
-      const script = await generateScript(prompt, tone, audience, nextSess.toString(), nextEp.toString(), numScenes, selectedModel, contentType, recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
+      const currentEpisodePlan = generatedSeriesPlan?.find(ep => parseInt(ep.episode) === nextEp);
+      const targetSceneCount = currentEpisodePlan?.asset_matrix?.scene_count?.toString() || numScenes;
+      const script = await generateScript(prompt, tone, audience, nextSess.toString(), nextEp.toString(), targetSceneCount, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
       setGeneratedScript(script);
       if (user) {
         await apiRequest("/api/scripts", {
@@ -118,6 +122,65 @@ export function ScriptPage() {
     }
   };
 
+  const handlePrevEpisode = async () => {
+    let prevEp = parseInt(episode) - 1;
+    let prevSess = parseInt(session);
+    if (prevEp < 1) {
+      if (prevSess > 1) {
+        prevSess -= 1;
+        const maxEpisodes = generatedSeriesPlan ? generatedSeriesPlan.length : 12;
+        prevEp = maxEpisodes;
+      } else {
+        showNotification?.('Already at the first episode.', 'info');
+        return;
+      }
+    }
+
+    setEpisode(prevEp.toString());
+    setSession(prevSess.toString());
+    setGeneratedScript(null);
+    setCurrentScriptId(null);
+    setVisualData({});
+    setIsLoading(true);
+    
+    try {
+      if (user) {
+        const scripts = await apiRequest<any[]>("/api/scripts");
+        const foundScript = scripts.find(s => s.title === `EPISODE_${prevEp}`);
+        if (foundScript) {
+          setGeneratedScript(foundScript.content);
+          setCurrentScriptId(foundScript.id);
+          showNotification?.(`Loaded Episode ${prevEp} from Archives`, 'success');
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // If not found in DB or no user, generate it using the series plan
+      const currentEpisodePlan = generatedSeriesPlan?.find(ep => parseInt(ep.episode) === prevEp);
+      const targetSceneCount = currentEpisodePlan?.asset_matrix?.scene_count?.toString() || numScenes;
+      const script = await generateScript(prompt, tone, audience, prevSess.toString(), prevEp.toString(), targetSceneCount, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
+      setGeneratedScript(script);
+      if (user) {
+        await apiRequest("/api/scripts", {
+          method: 'POST',
+          body: JSON.stringify({ 
+            user_id: user.id, 
+            title: `EPISODE_${prevEp}`,
+            content: script,
+            metadata: { prompt, tone, audience, episode: prevEp.toString(), session: prevSess.toString(), contentType, model: selectedModel }
+          })
+        });
+      }
+      showNotification?.(`Episode ${prevEp} Synchronized`, 'success');
+    } catch (error: any) {
+      console.error("Failed to load prev episode:", error);
+      showNotification?.('Failed to load previous episode.', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleGenerateScript = async () => {
     if (!prompt.trim()) {
@@ -126,7 +189,9 @@ export function ScriptPage() {
     }
     setIsLoading(true);
     try {
-      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
+      const currentEpisodePlan = generatedSeriesPlan?.find(ep => parseInt(ep.episode) === parseInt(episode));
+      const targetSceneCount = currentEpisodePlan?.asset_matrix?.scene_count?.toString() || numScenes;
+      const script = await generateScript(prompt, tone, audience, session, episode, targetSceneCount, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
       setGeneratedScript(script);
       setCurrentScriptId(null);
       if (user) {
@@ -183,10 +248,8 @@ export function ScriptPage() {
     if (!generatedScript) return;
     setIsGeneratingVisuals(true);
     try {
-      // Logic for visuals generation (storyboard)
-      // For now, we simulate success or use a dedicated service if exists
-      await new Promise(r => setTimeout(r, 2000));
-      showNotification?.('Storyboard manifest synchronized', 'success');
+      showNotification?.('Navigating to Storyboard Generator...', 'success');
+      window.location.href = '/studio/storyboard';
     } catch (e: any) {
       showNotification?.('Storyboard failure: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -228,6 +291,7 @@ export function ScriptPage() {
         onRegenerate={handleGenerateScript}
         isGenerating={isLoading}
         onNext={handleNextEpisode}
+        onPrev={parseInt(episode) > 1 || parseInt(session) > 1 ? handlePrevEpisode : undefined}
         session={session}
         episode={episode}
         isLiked={isLiked}

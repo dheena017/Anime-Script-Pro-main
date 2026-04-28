@@ -1,15 +1,18 @@
 import os
 import json
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
+from loguru import logger
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Explicitly pass the API key since the .env file uses the VITE_ prefix
+api_key = os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key)
 
 class AIEngine:
-    def __init__(self, model_name="gemini-1.5-flash"):
-        self.model = genai.GenerativeModel(model_name)
+    def __init__(self, model_name="gemini-1.5-flash-latest"):
+        self.model_name = model_name
 
     async def generate_lore(self, title: str, description: str):
         prompt = f"""
@@ -26,7 +29,11 @@ class AIEngine:
 
         Return only a JSON object.
         """
-        response = self.model.generate_content(prompt)
+        logger.info(f"[AI Engine] Synthesizing Lore for: {title}")
+        response = await client.aio.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+        )
         return response.text
 
     async def generate_characters(self, lore: str, count=3):
@@ -45,7 +52,11 @@ class AIEngine:
 
         Return only a JSON array of objects.
         """
-        response = self.model.generate_content(prompt)
+        logger.info(f"[AI Engine] Sequencing Character DNA...")
+        response = await client.aio.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+        )
         return response.text
 
     async def generate_script_beats(self, title: str, lore: str, characters: str):
@@ -64,7 +75,11 @@ class AIEngine:
 
         Return only a JSON array of objects.
         """
-        response = self.model.generate_content(prompt)
+        logger.info(f"[AI Engine] Scripting Pilot Beats...")
+        response = await client.aio.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+        )
         return response.text
 
 ai_engine = AIEngine()

@@ -1,6 +1,6 @@
 import { callAI } from "./core";
 
-export async function generateScene(prompt: string, beatDescription: string, model: string = "gemini-2.0-flash-exp"): Promise<{ narration: string; visuals: string; sound: string }> {
+export async function generateScene(prompt: string, beatDescription: string, model: string = "gemini-1.5-flash-latest"): Promise<{ narration: string; visuals: string; sound: string }> {
   const systemInstruction = `
     You are an expert ${prompt.includes('Anime') ? 'Anime' : 'Screenplay'} Writer.
     Based on the context, generate a detailed scene with narration, visuals, and sound.
@@ -12,7 +12,7 @@ export async function generateScene(prompt: string, beatDescription: string, mod
   try {
     const result = await callAI(model, `Overall Context: ${prompt}\nBeat: ${beatDescription}`, systemInstruction);
 
-    
+
     if (!result) {
       throw new Error("No response from AI");
     }

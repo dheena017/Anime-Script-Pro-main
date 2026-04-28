@@ -1,6 +1,6 @@
 import { callAI, getAIClient } from "./core";
 
-export async function generateImagePrompts(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
+export async function generateImagePrompts(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
   const systemInstruction = `
     You are an AI Image Prompt Engineer.
     Based on the "Visual/Cinematic Direction" column of the provided ${contentType} script, generate 5-8 highly detailed cinematic image prompts for a storyboard.
@@ -23,7 +23,7 @@ export async function generateImagePrompts(script: string, model: string = "gemi
   }
 }
 
-export async function enhanceSceneVisuals(visuals: string, narration: string, model: string = "gemini-2.0-flash-exp") {
+export async function enhanceSceneVisuals(visuals: string, narration: string, model: string = "gemini-1.5-flash-latest") {
   const systemInstruction = `
     You are an award-winning Cinematic Director and Visual Storyteller.
     Your task is to take a basic scene description and rewrite it into a highly evocative, cinematic storyboard description.
@@ -47,29 +47,13 @@ export async function enhanceSceneVisuals(visuals: string, narration: string, mo
   }
 }
 
-export async function generateSceneImage(prompt: string, model: string = "gemini-2.0-flash-exp"): Promise<string | null> {
+export async function generateSceneImage(prompt: string, model: string = "imagen-3.0-generate-001"): Promise<string | null> {
   try {
-    const response = await getAIClient().models.generateContent({
-      model,
-      contents: [{
-        role: "user",
-        parts: [{ text: `Cinematic anime style, high quality, detailed storyboard frame: ${prompt}` }]
-      }],
-      config: {
-        //@ts-ignore - Some experimental models use specific config names
-        imageConfig: { aspectRatio: "16:9" }
-      }
-    });
-
-    const parts = response.candidates?.[0]?.content?.parts || [];
-    for (const part of parts) {
-      if (part.inlineData) {
-        return `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
-      }
-    }
-    return null;
+    // Route image generation through our stable proxy
+    const imageData = await callAI(model, prompt, "Generate a cinematic anime storyboard frame.");
+    return imageData; // The backend returns the full data URI
   } catch (error) {
-    console.error("Error generating image:", error);
+    console.error("Error generating image via proxy:", error);
     return null;
   }
 }

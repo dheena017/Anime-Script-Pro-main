@@ -42,9 +42,9 @@ export class ProductionOrchestrator {
       // STATE 01: WORLD Lore
       if (onProgress) onProgress("STATE 01: Initializing Anime World Lore...");
       const world = await this.initializeFoundation();
-      
+
       // STATE 02: Narrative SCALPEL
-      if (onProgress) onProgress("STATE 02: Structuring 60 Episode Beats...");
+      if (onProgress) onProgress("STATE 02: Structuring 60 Episode Series Plan...");
       const { series } = await this.buildSeries(world);
 
       // STATE 03: CHARACTER DNA
@@ -54,15 +54,15 @@ export class ProductionOrchestrator {
       // STATE 04: SERIES Roadmap
       if (onProgress) onProgress("STATE 04: Architecting Series Roadmap...");
       await this.saveSeriesPlan(series);
-      
+
       // STATE 05: SCRIPT Engine
       if (onProgress) onProgress("STATE 05: Initializing Script Engine Pilot...");
-      const pilotScript = await this.materializePilot(world, cast, series[0]);
-      
+      await this.materializePilot(world, cast, series[0]);
+
       // STATE 06: VISUAL Manifest
       if (onProgress) onProgress("STATE 06: Scaffolding 960 Scene Storyboards...");
       const sequences = await this.scaffoldGeneration(series);
-      
+
       // STATE 07: GLOBAL Reach
       if (onProgress) onProgress("STATE 07: Optimizing SEO Metadata...");
       await this.prepareSEO();
@@ -73,7 +73,7 @@ export class ProductionOrchestrator {
 
       // STATE 09: PREMIERE Hub
       if (onProgress) onProgress("STATE 09: Initializing Screening Room Premiere...");
-      await this.prepareScreening(pilotScript);
+      await this.prepareScreening();
 
       // STATE 10: CORE Logic
       if (onProgress) onProgress("STATE 10: Finalizing Studio Engine Parameters...");
@@ -100,7 +100,7 @@ export class ProductionOrchestrator {
 
   private async initializeFoundation(): Promise<string> {
     const preset = VIBE_LIBRARY[this.context.vibe?.toLowerCase() || ""] || VIBE_LIBRARY["ufotable-noir"];
-    
+
     // initialize project in PostgreSQL
     this.project = await apiRequest("/api/projects", {
       method: "POST",
@@ -116,7 +116,7 @@ export class ProductionOrchestrator {
         }
       })
     });
-    
+
     // Save production method to DB
     await apiRequest("/api/methods", {
       method: "POST",
@@ -151,9 +151,9 @@ export class ProductionOrchestrator {
       body: JSON.stringify({ project_id: this.project.id, sessions })
     });
 
-    // 2. Generate 60 Episode Narrative Beats (Series Plan)
+    // 2. Generate 60 Episode Narrative Flow (Series Plan)
     const series = await generateSeriesPlan(architecturePrompt, this.context.model, this.context.contentType, 60);
-    
+
     if (!Array.isArray(series)) throw new Error("Failed to generate series episodes.");
 
     return { series, savedSessions };
@@ -163,7 +163,7 @@ export class ProductionOrchestrator {
     const architecturePrompt = this.getCombinedPrompt();
     // Generate Cast with Visual DNA (Global for all 960 units)
     const rawCast = await generateCharacters(architecturePrompt, this.context.model, this.context.contentType, world);
-    
+
     // Process cast into a registry with "Visual DNA"
     const charactersList = (typeof rawCast !== 'string' && rawCast.characters) ? rawCast.characters : [];
     const cast = charactersList.map((c: any) => ({
@@ -188,7 +188,7 @@ export class ProductionOrchestrator {
     for (const session of savedSessions) {
       const epStart = (session.session_number - 1) * 12;
       const epBatch = series.slice(epStart, epStart + 12);
-      
+
       await apiRequest("/api/episodes", {
         method: "POST",
         body: JSON.stringify({
@@ -207,17 +207,17 @@ export class ProductionOrchestrator {
 
   private async scaffoldGeneration(_series: any[]): Promise<ProductionUnit[]> {
     console.log("[PHASE 3] Starting Initial Scaffolding for 960 Skeletons...");
-    
+
     // 1. Generate the 960 units blueprint (5 SESS * 12 EP * 16 SCEN)
     const sequences = generateProductionSequences(5, 12, 16);
-    
+
     // Group sequences by episode to batch insert
     // This simulates the "bulkCreate" requested
     const dbEpisodes = await apiRequest<any[]>(`/api/episodes?project_id=${this.project.id}`);
 
     for (const ep of dbEpisodes) {
       const epSequences = sequences.filter(s => s.sess === Math.ceil(ep.episode_number / 12) && s.ep === ((ep.episode_number - 1) % 12) + 1);
-      
+
       await apiRequest("/api/scenes", {
         method: "POST",
         body: JSON.stringify({
@@ -233,7 +233,7 @@ export class ProductionOrchestrator {
     }
 
     console.log(`[ORCHESTRATOR] Successfully scaffolded 960 scene records with visual variance markers.`);
-    
+
     return sequences;
   }
 
@@ -251,7 +251,7 @@ export class ProductionOrchestrator {
     `;
     const prompt = `World Lore: ${world}\n\nProject Concept: ${this.context.prompt}\n\nGenerate the 5 major sessions.`;
     const orchestratorModel = this.context.model || "gemini-2.0-flash-exp";
-    
+
     try {
       const result = await callAI(orchestratorModel, prompt, systemInstruction);
       const cleanJson = result.replace(/```json|```/g, "").trim();
@@ -288,7 +288,7 @@ export class ProductionOrchestrator {
     });
   }
 
-  private async prepareScreening(scriptMarkdown: string) {
+  private async prepareScreening() {
     const scripts = await apiRequest<any[]>(`/api/scripts?project_id=${this.project.id}`);
     if (scripts && scripts.length > 0) {
       await apiRequest("/api/screening_room_entries", {
@@ -303,9 +303,9 @@ export class ProductionOrchestrator {
 
   private async materializePilot(world: string, cast: any, firstEpisode: any) {
     const scriptPrompt = `PILOT_PILOT: ${this.context.prompt}\n\nEPISODE_GOAL: ${firstEpisode.title} - ${firstEpisode.summary || firstEpisode.hook}`;
-    
+
     // Convert cast to string if it's an array
-    const castProfiles = Array.isArray(cast) 
+    const castProfiles = Array.isArray(cast)
       ? cast.map(c => `${c.name} (${c.role}): ${c.personality}`).join('\n')
       : JSON.stringify(cast);
 
@@ -319,8 +319,7 @@ export class ProductionOrchestrator {
       this.context.model,
       this.context.contentType,
       "SHOGUN_AI",
-      firstEpisode.summary || firstEpisode.hook,
-      null,
+      null, // characterRelationships
       world,
       castProfiles
     );

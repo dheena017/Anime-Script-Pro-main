@@ -152,7 +152,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                   <Sparkles className="w-3.5 h-3.5" />
                   QUICK TEMPLATES
                 </label>
-                <Select 
+                <Select
                   key={prompt}
                   onValueChange={(value) => {
                     if (!value) return;
@@ -212,7 +212,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 border-cyan-500/20 text-cyan-400">
                       <SelectItem value="gemini-2.0-pro-exp-02-05">G2.0 Pro (Elite Intelligence)</SelectItem>
-                      <SelectItem value="gemini-2.0-flash-exp">G2.0 Flash (Next-Gen Hub)</SelectItem>
+                      <SelectItem value="Gemini-2.5-Flash">G2.0 Flash (Next-Gen Hub)</SelectItem>
                       <SelectItem value="gemini-1.5-pro">G1.5 Pro (Legacy Elite)</SelectItem>
                     </SelectContent>
                   </Select>

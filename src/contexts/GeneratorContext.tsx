@@ -22,10 +22,11 @@ interface GeneratorContextType {
   setGeneratedDescription: (d: string | null) => void;
   generatedWorld: string | null;
   setGeneratedWorld: (w: string | null) => void;
-  visualData: Record<number, string>;
-  setVisualData: React.Dispatch<React.SetStateAction<Record<number, string>>>;
-  narrativeBeats: string | null;
-  setNarrativeBeats: (b: string | null) => void;
+  visualData: Record<number, string[]>;
+  setVisualData: React.Dispatch<React.SetStateAction<Record<number, string[]>>>;
+  videoData: Record<number, string>;
+  setVideoData: React.Dispatch<React.SetStateAction<Record<number, string>>>;
+
   castProfiles: string | null;
   setCastProfiles: (c: string | null) => void;
   castData: any | null;
@@ -97,8 +98,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<any[] | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
   const [generatedWorld, setGeneratedWorld] = useState<string | null>(null);
-  const [visualData, setVisualData] = useState<Record<number, string>>({});
-  const [narrativeBeats, setNarrativeBeats] = useState<string | null>(null);
+  const [visualData, setVisualData] = useState<Record<number, string[]>>({});
+  const [videoData, setVideoData] = useState<Record<number, string>>({});
+
   const [castProfiles, setCastProfiles] = useState<string | null>(null);
   const [castData, setCastData] = useState<any | null>(null);
   const [castList, setCastList] = useState<any[]>([]);
@@ -122,7 +124,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState('1');
   const [numScenes, setNumScenes] = useState('6');
   const [contentType, setContentType] = useState('Anime');
-  const [selectedModel, setSelectedModel] = useState('gemini-1.5-flash');
+  const [selectedModel, setSelectedModel] = useState('Gemini-2.5-Flash');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
   const [isGeneratingMetadata, setIsGeneratingMetadata] = useState(false);
@@ -184,7 +186,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       generatedImagePrompts, setGeneratedImagePrompts,
       generatedSeriesPlan, setGeneratedSeriesPlan,
       generatedDescription, setGeneratedDescription,
-      narrativeBeats, setNarrativeBeats,
+
       castProfiles, setCastProfiles,
       castData, setCastData,
       castList, setCastList,
@@ -213,22 +215,21 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       history,
       productionSequence, setProductionSequence,
       visualData, setVisualData,
+      videoData, setVideoData,
       generatedWorld, setGeneratedWorld,
       notification, showNotification
     }}>
       {children}
       {notification && (
-        <div className={`fixed bottom-8 right-8 z-[100] p-4 rounded-2xl border backdrop-blur-xl animate-in slide-in-from-right-10 duration-500 shadow-2xl ${
-          notification.type === 'error' ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' :
+        <div className={`fixed bottom-8 right-8 z-[100] p-4 rounded-2xl border backdrop-blur-xl animate-in slide-in-from-right-10 duration-500 shadow-2xl ${notification.type === 'error' ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' :
           notification.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-500 shadow-emerald-500/20' :
-          'bg-cyan-500/10 border-cyan-500/50 text-cyan-500 shadow-cyan-500/20'
-        }`}>
+            'bg-cyan-500/10 border-cyan-500/50 text-cyan-500 shadow-cyan-500/20'
+          }`}>
           <div className="flex items-center gap-3">
-            <div className={`w-2 h-2 rounded-full animate-pulse ${
-              notification.type === 'error' ? 'bg-red-500' :
+            <div className={`w-2 h-2 rounded-full animate-pulse ${notification.type === 'error' ? 'bg-red-500' :
               notification.type === 'success' ? 'bg-emerald-500' :
-              'bg-cyan-500'
-            }`} />
+                'bg-cyan-500'
+              }`} />
             <p className="text-[10px] font-black uppercase tracking-widest">{notification.message}</p>
           </div>
         </div>

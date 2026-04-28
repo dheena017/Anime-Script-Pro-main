@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Activity, Calendar, ListChecks, Network, Share2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Box, Activity, Calendar, ListChecks, Network, Share2, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SeriesToolbarProps {
@@ -17,6 +17,28 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   onToggleScaffolder,
   showScaffolder
 }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error("Error toggling fullscreen:", err);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-4 bg-black/40 border border-zinc-800/50 rounded-2xl mb-8">
       <div className="flex items-center gap-6">
@@ -53,6 +75,14 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
         <button className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
           <Share2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
           <span className="text-[10px] font-black uppercase tracking-widest">Export</span>
+        </button>
+        <div className="w-[1px] h-4 bg-zinc-800" />
+        <button 
+          onClick={toggleFullscreen}
+          className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group"
+        >
+          {isFullscreen ? <Minimize className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" /> : <Maximize className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />}
+          <span className="text-[10px] font-black uppercase tracking-widest">{isFullscreen ? 'Exit' : 'Fullscreen'}</span>
         </button>
       </div>
     </div>

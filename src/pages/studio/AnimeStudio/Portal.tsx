@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
   Zap, 
   Sword, 
@@ -12,7 +12,9 @@ import {
   Globe,
   LayoutGrid,
   Search,
-  ImageIcon
+  ImageIcon,
+  Box,
+  TrendingUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -87,7 +89,7 @@ export default function AnimePortal() {
 
   const phases = [
     { id: 'world', label: 'Anime World', desc: 'Neural foundation and power systems.', icon: Globe, state: 'STATE 01: WORLD Lore', color: 'text-orange-500' },
-    { id: 'beats', label: 'Narrative Beats', desc: 'Unit-by-unit plot point tracking.', icon: Zap, state: 'STATE 02: Narrative SCALPEL', color: 'text-yellow-500' },
+
     { id: 'cast', label: 'Cast Studio', desc: 'Visual DNA and psychological profiles.', icon: Users, state: 'STATE 03: CHARACTER DNA', color: 'text-orange-500' },
     { id: 'series', label: 'Series Roadmap', desc: 'Full-season episodic mapping.', icon: Layers, state: 'STATE 04: SERIES Roadmap', color: 'text-yellow-500' },
     { id: 'script', label: 'Script Engine', desc: 'Dialogue and action synthesis.', icon: ScrollText, state: 'STATE 05: SCRIPT Engine', color: 'text-orange-500' },

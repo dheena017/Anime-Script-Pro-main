@@ -216,7 +216,7 @@ export default function Dashboard() {
                   <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">FAST LANE</h3>
                   <div className="space-y-3">
                     {[
-                      { label: 'Narrative Beats', path: '/anime/beats' },
+
                       { label: 'Character Cast', path: '/anime/cast' },
                       { label: 'Storyboard Gallery', path: '/anime/storyboard' },
                       { label: 'Studio Wiki', path: '/tutorials' },

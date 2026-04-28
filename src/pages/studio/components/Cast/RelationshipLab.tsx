@@ -1,16 +1,13 @@
 import React from 'react';
-import { motion } from 'motion/react';
 import { 
   Plus, 
-  ArrowRight, 
-  Trash2, 
+  ArrowRight,
   Users, 
   Heart, 
   Swords, 
   Shield, 
   Zap, 
   Lock,
-  MessageSquare,
   Sparkles,
   Loader2
 } from 'lucide-react';
@@ -31,6 +28,7 @@ interface Connection {
 }
 
 import { RelationshipMatrix } from './RelationshipMatrix';
+import { RelationshipCard } from './RelationshipCard';
 
 export function RelationshipLab() {
   const { 
@@ -170,24 +168,32 @@ export function RelationshipLab() {
         <div className="flex flex-col md:flex-row gap-6 mb-12 items-end">
            <div className="flex-1 space-y-2">
               <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Member A</label>
-               <Input 
-                placeholder="Identity A"
+              <select
                 value={newConn.source || ''}
                 onChange={e => setNewConn({...newConn, source: e.target.value})}
-                className="bg-zinc-950/50 border-zinc-800 rounded-xl h-12 text-zinc-100 focus:border-fuchsia-500/50 transition-all"
-              />
+                className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl h-12 px-3 text-zinc-100 focus:border-fuchsia-500/50 focus:outline-none transition-all appearance-none"
+              >
+                <option value="" disabled>Select Character A</option>
+                {castList?.map((c, i) => (
+                  <option key={i} value={c.name}>{c.name}</option>
+                ))}
+              </select>
            </div>
            <div className="flex items-center pb-3">
               <ArrowRight className="text-zinc-800" />
            </div>
            <div className="flex-1 space-y-2">
               <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Identity B</label>
-              <Input 
-                placeholder="Identity B"
+              <select
                 value={newConn.target || ''}
                 onChange={e => setNewConn({...newConn, target: e.target.value})}
-                className="bg-zinc-950/50 border-zinc-800 rounded-xl h-12 text-zinc-100 focus:border-fuchsia-500/50 transition-all"
-              />
+                className="w-full bg-zinc-950/50 border border-zinc-800 rounded-xl h-12 px-3 text-zinc-100 focus:border-fuchsia-500/50 focus:outline-none transition-all appearance-none"
+              >
+                <option value="" disabled>Select Character B</option>
+                {castList?.map((c, i) => (
+                  <option key={i} value={c.name}>{c.name}</option>
+                ))}
+              </select>
            </div>
            <div className="flex-[2] space-y-2">
               <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest ml-1">Dynamic Complexity</label>
@@ -252,61 +258,11 @@ export function RelationshipLab() {
         ) : (
           <div className="space-y-4">
             {connections.map((conn) => (
-              <motion.div 
-                layout
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                key={conn.id}
-                className="flex items-center justify-between p-6 bg-zinc-950/50 border border-zinc-900 rounded-[1.5rem] group hover:border-fuchsia-500/30 transition-all"
-              >
-                  <div className="flex items-center gap-8">
-                    <div className="flex items-center gap-4">
-                        <div className="text-lg font-black text-white uppercase tracking-tighter">{conn.source}</div>
-                        <div className="flex flex-col items-center gap-1 opacity-20">
-                          <div className="h-0.5 w-8 bg-zinc-500" />
-                          {getTypeIcon(conn.type)}
-                          <div className="h-0.5 w-8 bg-zinc-500" />
-                        </div>
-                        <div className="text-lg font-black text-white uppercase tracking-tighter">{conn.target}</div>
-                    </div>
-
-                    <div className="h-10 w-[1px] bg-zinc-800 hidden md:block" />
-
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded", {
-                              'bg-emerald-500/10 text-emerald-500': conn.type === 'Ally',
-                              'bg-orange-500/10 text-orange-500': conn.type === 'Rival',
-                              'bg-red-500/10 text-red-500': conn.type === 'Enemy',
-                              'bg-fuchsia-500/10 text-fuchsia-500': conn.type === 'Love',
-                              'bg-zinc-800 text-zinc-400': conn.type === 'Secret',
-                          })}>
-                            {conn.type}
-                          </span>
-                          <div className="flex gap-0.5">
-                              {[...Array(10)].map((_, i) => (
-                                <div key={i} className={cn("w-1.5 h-3 rounded-sm", i < conn.tension ? "bg-fuchsia-500/40" : "bg-zinc-800")} />
-                              ))}
-                          </div>
-                        </div>
-                        <p className="text-xs text-zinc-500 font-medium italic">"{conn.description}"</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" className="hover:bg-zinc-900 text-zinc-600 hover:text-cyan-400">
-                        <MessageSquare className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="hover:bg-red-500/10 text-zinc-600 hover:text-red-500"
-                      onClick={() => removeConnection(conn.id)}
-                    >
-                        <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-              </motion.div>
+              <RelationshipCard 
+                key={conn.id} 
+                connection={conn as any} 
+                onRemove={removeConnection} 
+              />
             ))}
 
             {connections.length === 0 && (

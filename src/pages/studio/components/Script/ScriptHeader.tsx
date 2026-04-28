@@ -11,6 +11,7 @@ interface ScriptHeaderProps {
   episode: string;
   isLiked: boolean;
   setIsLiked: (liked: boolean) => void;
+  onPrev?: () => void;
 }
 
 export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
@@ -20,7 +21,8 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
   session,
   episode,
   isLiked,
-  setIsLiked
+  setIsLiked,
+  onPrev
 }) => {
   return (
     <div className="relative group">
@@ -86,6 +88,18 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
+            {onPrev && (
+              <Button 
+                variant="outline" 
+                className="relative h-11 px-4 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/prev"
+                onClick={onPrev}
+                disabled={isGenerating}
+              >
+                <ChevronRight className="w-4 h-4 group-hover/prev:-translate-x-1 transition-transform rotate-180 mr-1" />
+                Prev
+              </Button>
+            )}
+
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
@@ -102,9 +116,10 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
               )}
               onClick={onNext}
+              disabled={isGenerating}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Next: Storyboard <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                Manifest Next Episode <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
             </Button>

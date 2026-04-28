@@ -10,7 +10,7 @@ interface ScriptViewProps {
   session: string;
   episode: string;
   audience: string;
-  visualData?: Record<number, string>;
+  visualData?: Record<number, string[]>;
 }
 
 export const ScriptView: React.FC<ScriptViewProps> = ({
@@ -50,14 +50,26 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="rounded-xl overflow-hidden border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] bg-black/40 p-1"
+                        className="rounded-xl overflow-hidden border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] bg-black/40 p-1 grid grid-cols-2 gap-1"
                       >
-                        <img 
-                          src={visualData[sceneNum]} 
-                          alt={`Scene ${sceneNum} Visual`} 
-                          className="w-full h-auto object-cover rounded-lg"
-                          referrerPolicy="no-referrer"
-                        />
+                        {Array.isArray(visualData[sceneNum]) ? (
+                          visualData[sceneNum].map((url, i) => (
+                            <img 
+                              key={i}
+                              src={url} 
+                              alt={`Scene ${sceneNum} Variation ${i+1}`} 
+                              className="w-full h-full object-cover rounded-md aspect-video"
+                              referrerPolicy="no-referrer"
+                            />
+                          ))
+                        ) : (
+                          <img 
+                            src={visualData[sceneNum] as unknown as string} 
+                            alt={`Scene ${sceneNum} Visual`} 
+                            className="w-full h-full object-cover rounded-md aspect-video col-span-2"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
                       </motion.div>
                     </div>
                   </td>

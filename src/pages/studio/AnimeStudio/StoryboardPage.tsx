@@ -9,7 +9,8 @@ import {
   generateSceneImage, 
   enhanceNarration, 
   rewriteForTension, 
-  suggestDuration
+  suggestDuration,
+  generateSceneVideo
 } from '@/services/geminiService';
 
 // Sub-components
@@ -38,6 +39,7 @@ export function StoryboardPage() {
   const { 
     generatedScript, setGeneratedScript, 
     visualData, setVisualData, 
+    videoData, setVideoData,
     generatedImagePrompts, 
     session, episode,
     selectedModel,
@@ -174,19 +176,32 @@ export function StoryboardPage() {
   };
 
   const handleGenerateVisual = async (originalIndex: number, visualsDescription: string) => {
-    setVisualData(prev => ({ ...prev, [originalIndex]: 'loading' }));
+    setVisualData(prev => ({ ...prev, [originalIndex]: ['loading'] }));
     try {
-      const imageUrl = await generateSceneImage(visualsDescription, selectedModel);
-      if (imageUrl) {
-        setVisualData(prev => ({ ...prev, [originalIndex]: imageUrl }));
-      } else {
-        const seed = encodeURIComponent(visualsDescription.slice(0, 50));
-        setVisualData(prev => ({ ...prev, [originalIndex]: `https://picsum.photos/seed/${seed}-${originalIndex}/800/450` }));
-      }
+      const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${visualsDescription} Variation ${i+1}`, selectedModel));
+      const results = await Promise.all(promises);
+      const images = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(visualsDescription.slice(0, 50))}-${originalIndex}-${i}/800/450`);
+      setVisualData(prev => ({ ...prev, [originalIndex]: images }));
     } catch (error) {
       console.error("Failed to generate image:", error);
       const seed = encodeURIComponent(visualsDescription.slice(0, 50));
-      setVisualData(prev => ({ ...prev, [originalIndex]: `https://picsum.photos/seed/${seed}-${originalIndex}/800/450` }));
+      const fallbacks = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${seed}-${originalIndex}-${i}/800/450`);
+      setVisualData(prev => ({ ...prev, [originalIndex]: fallbacks }));
+    }
+  };
+
+  const handleGenerateVideo = async (originalIndex: number, imageUrl: string, prompt: string) => {
+    setVideoData(prev => ({ ...prev, [originalIndex]: 'loading' }));
+    try {
+      const videoUrl = await generateSceneVideo(imageUrl, prompt, selectedModel);
+      if (videoUrl) {
+        setVideoData(prev => ({ ...prev, [originalIndex]: videoUrl }));
+      } else {
+        setVideoData(prev => ({ ...prev, [originalIndex]: "https://vjs.zencdn.net/v/oceans.mp4" }));
+      }
+    } catch (error) {
+      console.error("Failed to generate video:", error);
+      setVideoData(prev => ({ ...prev, [originalIndex]: "https://vjs.zencdn.net/v/oceans.mp4" }));
     }
   };
 
@@ -194,15 +209,16 @@ export function StoryboardPage() {
     setIsGeneratingVisuals(true);
     const newVisualData = { ...visualData };
     for (const scene of scenes) {
-      if (!newVisualData[scene.originalIndex] || newVisualData[scene.originalIndex] === 'loading') {
-        setVisualData(prev => ({ ...prev, [scene.originalIndex]: 'loading' }));
+      if (!newVisualData[scene.originalIndex] || newVisualData[scene.originalIndex].length === 0 || newVisualData[scene.originalIndex][0] === 'loading') {
+        setVisualData(prev => ({ ...prev, [scene.originalIndex]: ['loading'] }));
         try {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          const imageUrl = await generateSceneImage(promptToUse, selectedModel);
-          newVisualData[scene.originalIndex] = imageUrl || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}/800/450`;
+          const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${promptToUse} Variation ${i+1}`, selectedModel));
+          const results = await Promise.all(promises);
+          newVisualData[scene.originalIndex] = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${i}/800/450`);
         } catch (error) {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          newVisualData[scene.originalIndex] = `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}/800/450`;
+          newVisualData[scene.originalIndex] = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${i}/800/450`);
         }
         setVisualData(prev => ({ ...prev, [scene.originalIndex]: newVisualData[scene.originalIndex] }));
       }
@@ -346,6 +362,8 @@ export function StoryboardPage() {
                                   isSuggestingDuration={isSuggestingDuration}
                                   setEditForm={setEditForm}
                                   handleGenerateVisual={handleGenerateVisual}
+                                  handleGenerateVideo={handleGenerateVideo}
+                                  videoData={videoData}
                                   startEditing={startEditing}
                                   cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
                                   saveSceneEdits={saveSceneEdits}

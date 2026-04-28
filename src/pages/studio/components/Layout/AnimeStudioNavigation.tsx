@@ -11,8 +11,6 @@ import {
   Play,
   Globe,
   Zap,
-  PanelRightOpen,
-  PanelRightClose,
   ChevronDown,
   Loader2,
   LayoutGrid,
@@ -23,7 +21,7 @@ import {
 
 const STUDIO_NAV = [
   { id: 'world', icon: Globe, label: 'Anime World', path: '/world' },
-  { id: 'beats', icon: Zap, label: 'Beats', path: '/beats' },
+
   { id: 'cast', icon: UserPlus, label: 'Cast', path: '/cast' },
   { id: 'series', icon: Layers, label: 'Series', path: '/series' },
   { id: 'script', icon: ScrollText, label: 'Script', path: '/script' },

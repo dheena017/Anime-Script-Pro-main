@@ -41,6 +41,7 @@ export default function AnimeLayout() {
     prompt, setPrompt,
     setGeneratedScript,
     setGeneratedCharacters,
+    generatedSeriesPlan,
     setGeneratedSeriesPlan,
     tone, setTone,
     audience, setAudience,
@@ -55,7 +56,7 @@ export default function AnimeLayout() {
     history,
     setGeneratedMetadata,
     setGeneratedImagePrompts,
-    narrativeBeats, setNarrativeBeats,
+
     recapperPersona, setRecapperPersona,
     characterRelationships, setCharacterRelationships,
     numScenes, setNumScenes,
@@ -122,15 +123,7 @@ export default function AnimeLayout() {
       setGeneratedWorld(world);
       addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
 
-      // PHASE 2: Narrative Beats
-      addLog("BEATS", "STARTING", "Generating Narrative Arc...");
-      const beatsResult = await generateSeriesPlan(prompt, selectedModel, 'Anime', 6); // Generate 6 episodes for starter
-      if (beatsResult && Array.isArray(beatsResult)) {
-        const formattedBeats = beatsResult.map((e, i) => `${i + 1}. ${e.title}: ${e.hook}`).join('\n');
-        setNarrativeBeats(formattedBeats);
-        setGeneratedSeriesPlan(beatsResult);
-      }
-      addLog("BEATS", "COMPLETED", "Narrative arc structured.");
+
 
       // PHASE 3: Cast DNA
       addLog("CAST", "STARTING", "Sequencing Character DNA...");
@@ -147,14 +140,18 @@ export default function AnimeLayout() {
       }
       addLog("CAST", "COMPLETED", "Cast manifest generated.");
 
-      // PHASE 4: Series Architecture (already done in beats, but can refine)
-      addLog("SERIES", "SYNCED", "Series hierarchy mapped to beats.");
+      // PHASE 4: Series Architecture
+      addLog("SERIES", "STARTING", "Architecting Series Hierarchy...");
+      const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
+      setGeneratedSeriesPlan(seriesPlan);
+      addLog("SERIES", "COMPLETED", "Series hierarchy mapped to beats.");
 
       // PHASE 5: Script Synthesis
       addLog("SCRIPT", "STARTING", "Synthesizing Episode 1 Script...");
+      const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       const script = await generateScript(
         prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime', 
-        recapperPersona, narrativeBeats, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown
+        recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null
       );
       setGeneratedScript(script);
       addLog("SCRIPT", "COMPLETED", "Script synthesis successful.");
@@ -200,7 +197,8 @@ export default function AnimeLayout() {
     navigate(`${basePath}/script`);
     
     try {
-      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, narrativeBeats, characterRelationships, generatedWorld, generatedCharacters);
+      const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
+      const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
       setGeneratedScript(script);
       setCurrentScriptId(null);
       showNotification?.('Neural Synthesis Complete: Script Manifested', 'success');
@@ -328,8 +326,7 @@ export default function AnimeLayout() {
         numScenes={numScenes} setNumScenes={setNumScenes}
         selectedModel={selectedModel} setSelectedModel={setSelectedModel}
         recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-        narrativeBeats={narrativeBeats || ''}
-        setNarrativeBeats={setNarrativeBeats}
+
         characterRelationships={characterRelationships || ''}
         setCharacterRelationships={setCharacterRelationships}
         worldBuilding={generatedWorld || ''}

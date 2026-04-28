@@ -93,7 +93,7 @@ def seed_all():
                 user_id=LOCAL_USER_ID, title="Neon Ghost 2099", content_type="Anime", 
                 genre="Sci-Fi", art_style="Cyberpunk Noir", episode_length="22 min",
                 description="A rogue AI hunter discovers their own neural origin.",
-                status="in_progress", model_used="gemini-2.0-flash-exp",
+                status="in_progress", model_used="gemini-3-flash-preview",
                 prod_metadata={"script": "Rain slicked streets of Neo-Tokyo reflect the neon pulse...", "episode": 3, "session": 5}
             )
             session.add(p1)

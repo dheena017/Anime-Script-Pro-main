@@ -2,21 +2,22 @@ import { callAI, RateLimitError } from "./core";
 import { MOCK_SCRIPT } from "./mockData";
 
 export async function generateScript(
-    prompt: string, 
-    tone: string = "Hype/Energetic", 
-    audience: string = "General Fans", 
-    session: string = "1", 
-    episode: string = "1", 
-    numScenes: string = "6",
-    model: string = "gemini-2.0-flash-exp", 
-    contentType: string = "Anime",
-    recapperPersona: string = "",
-    narrativeBeats: string | null = null,
-    characterRelationships: string | null = null,
-    worldBuilding: string | null = null,
-    castProfiles: string | null = null
+  prompt: string,
+  tone: string = "Hype/Energetic",
+  audience: string = "General Fans",
+  session: string = "1",
+  episode: string = "1",
+  numScenes: string = "6",
+  model: string = "gemini-1.5-flash-latest",
+  contentType: string = "Anime",
+  recapperPersona: string = "",
+
+  characterRelationships: string | null = null,
+  worldBuilding: string | null = null,
+  castProfiles: string | null = null,
+  episodePlan: string | null = null
 ) {
-    const systemInstruction = `
+  const systemInstruction = `
     You are the Prime Synthesis Architect and the Transcendent Showrunner.
     You are manifests a living reality for a ${contentType} production.
     
@@ -26,7 +27,7 @@ export async function generateScript(
     - PLACEMENT: Session ${session}, Episode ${episode}
     - VOLUME: Generate exactly ${numScenes} scenes.
     
-    ${narrativeBeats ? `NARRATIVE ARCHITECTURE:\n${narrativeBeats}\n` : ""}
+    ${episodePlan ? `EPISODE MASTER BLUEPRINT:\n${episodePlan}\n` : ""}
     ${worldBuilding ? `WORLD LORE SOURCE OF TRUTH:\n${worldBuilding}\n` : ""}
     ${castProfiles ? `CHARACTER DNA REGISTRY:\n${castProfiles}\n` : ""}
     ${characterRelationships ? `INTERPERSONAL DYNAMICS:\n${characterRelationships}\n` : ""}
@@ -62,14 +63,14 @@ export async function generateScript(
   } catch (error: any) {
     const errorStr = error?.toString() || "";
     const errorMsg = error?.message || "";
-    
-    const isRateLimit = error instanceof RateLimitError || 
-                       errorStr.includes("429") || 
-                       errorMsg.includes("429") ||
-                       errorStr.includes("RESOURCE_EXHAUSTED") ||
-                       errorMsg.includes("RESOURCE_EXHAUSTED") ||
-                       error?.status === 429;
-                       
+
+    const isRateLimit = error instanceof RateLimitError ||
+      errorStr.includes("429") ||
+      errorMsg.includes("429") ||
+      errorStr.includes("RESOURCE_EXHAUSTED") ||
+      errorMsg.includes("RESOURCE_EXHAUSTED") ||
+      error?.status === 429;
+
     if (isRateLimit) {
       console.warn("[Script Lab] API Quota Exceeded. Injecting Local Synthesis Failover.");
       return MOCK_SCRIPT;
@@ -79,7 +80,7 @@ export async function generateScript(
   }
 }
 
-export async function continueScript(currentScript: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
+export async function continueScript(currentScript: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
   const systemInstruction = `
     You are the Prime Synthesis Architect continuing a cosmic blueprint for a ${contentType} production.
     Synthesize the next 3 scenes with Supreme 11-Column depth.
@@ -99,7 +100,7 @@ export async function continueScript(currentScript: string, model: string = "gem
   }
 }
 
-export async function rewriteForTension(sceneDescription: string, model: string = "gemini-2.0-flash-exp") {
+export async function rewriteForTension(sceneDescription: string, model: string = "gemini-1.5-flash-latest") {
   const systemInstruction = `
     You are an expert Dramatic Scriptwriter.
     Your task is to take a scene description and rewrite it specifically to MAXIMIZE TENSION.

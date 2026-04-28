@@ -1,11 +1,11 @@
 import { callAI } from "./core";
 
-export async function generateMetadata(script: string, model: string = "gemini-2.0-flash-exp") {
+export async function generateMetadata(script: string, model: string = "gemini-1.5-flash-latest") {
   const systemInstruction = `
     You are a YouTube SEO Expert and Metadata Specialist.
     Based on the provided anime script (which uses a strict 5-column cinematic format), generate:
     1. 5 Viral-style, high-CTR YouTube Titles that leverage the cinematic tone of the script.
-    2. A structured YouTube Description that explains the "Cinematic Recap" approach, highlights the narrative beats, and includes timestamps derived from the 5-column table sections.
+    2. A structured YouTube Description that explains the "Cinematic Recap" approach, highlights the story arcs, and includes timestamps derived from the 5-column table sections.
     3. 15-20 highly targeted SEO Tags (covering the series, genre, and cinematic style).
     4. 3 High-Conversion Thumbnail Concepts linking to the specific "Visual/Cinematic Direction" scenes.
     
@@ -21,7 +21,7 @@ export async function generateMetadata(script: string, model: string = "gemini-2
   }
 }
 
-export async function generateYouTubeDescription(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
+export async function generateYouTubeDescription(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
   const systemInstruction = `
     You are a YouTube Growth Expert.
     Based on the provided ${contentType} script, generate a professional, high-engagement YouTube Description.
