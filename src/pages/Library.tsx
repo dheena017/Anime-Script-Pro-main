@@ -114,7 +114,7 @@ export function LibraryPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8001/api/projects`);
+        const res = await fetch(`/api/projects`);
         if (!res.ok) throw new Error("Failed to connect to production archive");
         const data = await res.json();
         
@@ -143,7 +143,7 @@ export function LibraryPage() {
   const fetchVersions = async (scriptId: string) => {
     setIsLoadingVersions(true);
     try {
-      const res = await fetch(`http://localhost:8001/api/scripts/${scriptId}/versions`);
+      const res = await fetch(`/api/scripts/${scriptId}/versions`);
       if (!res.ok) throw new Error("Failed to fetch versions");
       const versions = await res.json();
       
@@ -173,7 +173,7 @@ export function LibraryPage() {
     if (window.confirm('Are you sure you want to revert to this version?')) {
       try {
         // Update the project/script content on the backend
-        const res = await fetch(`http://localhost:8001/api/projects/${selectedScriptForVersions.id}`, {
+        const res = await fetch(`/api/projects/${selectedScriptForVersions.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -195,7 +195,7 @@ export function LibraryPage() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this script?')) {
       try {
-        const res = await fetch(`http://localhost:8001/api/projects/${id}`, {
+        const res = await fetch(`/api/projects/${id}`, {
           method: "DELETE"
         });
         if (res.ok) {

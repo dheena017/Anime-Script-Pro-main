@@ -2,7 +2,6 @@ import ReactMarkdown from 'react-markdown';
 import { motion } from 'motion/react';
 import { Zap } from 'lucide-react';
 import { WORLD_VIEWER_PROSE_CLASSES } from './ViewerStyles';
-import { ViewerToolbar } from './ViewerToolbar';
 import { TableOfContents } from './TableOfContents';
 
 interface WorldOutputViewerProps {

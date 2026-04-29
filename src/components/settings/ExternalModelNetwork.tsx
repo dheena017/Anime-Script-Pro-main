@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   ExternalLink, 
   Sparkles, 
@@ -7,9 +6,7 @@ import {
   Globe, 
   ShieldCheck, 
   Zap, 
-  Terminal,
-  Cpu,
-  Layers
+  Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

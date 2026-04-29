@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8001/api';
+import { apiRequest } from '@/lib/api-utils';
 
 export interface HelpCategory {
   id: number;
@@ -43,8 +41,7 @@ export interface DocArticle {
 export const supportService = {
   async getHelpCategories(): Promise<HelpCategory[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/help/categories`);
-      return response.data;
+      return await apiRequest<HelpCategory[]>('/api/help/categories');
     } catch (e) {
       console.error("Error fetching help categories:", e);
       return [];
@@ -53,8 +50,7 @@ export const supportService = {
 
   async getFAQs(frequentOnly = false): Promise<FAQ[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/help/faqs`, { params: { frequent_only: frequentOnly } });
-      return response.data;
+      return await apiRequest<FAQ[]>(`/api/help/faqs?frequent_only=${frequentOnly}`);
     } catch (e) {
       console.error("Error fetching FAQs:", e);
       return [];
@@ -63,8 +59,7 @@ export const supportService = {
 
   async getDocSections(): Promise<DocSection[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/docs/sections`);
-      return response.data;
+      return await apiRequest<DocSection[]>('/api/docs/sections');
     } catch (e) {
       console.error("Error fetching doc sections:", e);
       return [];
@@ -73,8 +68,8 @@ export const supportService = {
 
   async getDocArticles(sectionSlug?: string): Promise<DocArticle[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/docs/articles`, { params: { section_slug: sectionSlug } });
-      return response.data;
+      const url = sectionSlug ? `/api/docs/articles?section_slug=${sectionSlug}` : '/api/docs/articles';
+      return await apiRequest<DocArticle[]>(url);
     } catch (e) {
       console.error("Error fetching doc articles:", e);
       return [];
@@ -83,8 +78,7 @@ export const supportService = {
 
   async searchHelp(query: string): Promise<{ faqs: FAQ[], docs: DocArticle[] }> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/help/search`, { params: { query } });
-      return response.data;
+      return await apiRequest<{ faqs: FAQ[], docs: DocArticle[] }>(`/api/help/search?query=${query}`);
     } catch (e) {
       console.error("Error searching help:", e);
       return { faqs: [], docs: [] };

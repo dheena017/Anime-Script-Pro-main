@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'motion/react';
 import { Milestone, Activity, Volume2, Camera, Video, LayoutGrid,  PlayCircle, MapPin, Clock, Users, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -46,16 +45,22 @@ export function SeriesCard({
       transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
       className="relative z-10"
     >
-      <Card className="bg-[#050505]/80 backdrop-blur-2xl border-studio/10 p-8 hover:border-studio/40 transition-all duration-500 group relative overflow-hidden rounded-[2rem] shadow-[0_0_0_rgba(6,182,212,0)] hover:shadow-[0_10px_40px_-10px_rgba(6,182,212,0.15)]">
+      <Card className="bg-[#050505]/40 backdrop-blur-3xl border-studio/10 p-8 hover:border-studio/40 transition-all duration-700 group relative overflow-hidden rounded-[3rem] shadow-[0_0_0_rgba(6,182,212,0)] hover:shadow-[0_40px_80px_-20px_rgba(6,182,212,0.3)] border-t border-l border-white/10 group/card_inner">
+        
+        {/* Cinematic Scanning Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] pointer-events-none" />
         
         {/* Animated Background Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-studio/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-        <div className="absolute -top-32 -right-32 w-64 h-64 bg-studio/10 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000 group-hover:translate-x-10 group-hover:translate-y-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="absolute -top-32 -right-32 w-80 h-80 bg-studio/10 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-all duration-1000 group-hover:translate-x-12 group-hover:translate-y-12" />
 
-        {/* Floating Watermark Icon */}
-        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.08] transition-all duration-700 pointer-events-none transform group-hover:scale-110 group-hover:rotate-6">
-          <Milestone className="w-32 h-32 text-studio" />
-        </div>
+        {/* Floating Watermark Icon - Holographic Mode */}
+          <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-[0.15] transition-all duration-1000 pointer-events-none transform group-hover:scale-125 group-hover:rotate-12 blur-[1px] group-hover:blur-0">
+            <div className="flex flex-col items-end">
+              <Milestone className="w-40 h-40 text-studio" />
+              <div className="mt-[-20px] text-[12px] font-black uppercase tracking-[1em] text-studio/60 drop-shadow-studio">SYSTEM // 0X-N7</div>
+            </div>
+          </div>
         
         <div className="relative z-10 flex flex-col md:flex-row gap-8">
           
@@ -84,13 +89,13 @@ export function SeriesCard({
               
               {isEditing ? (
                 <input 
-                  className="w-full bg-black/60 border border-studio/30 rounded-xl px-4 py-3 text-2xl font-black text-white uppercase focus:border-studio focus:ring-1 focus:ring-studio/50 focus:outline-none transition-all shadow-inner"
+                  className="w-full bg-black/80 border border-studio/30 rounded-2xl px-6 py-4 text-3xl font-black text-white uppercase focus:border-studio focus:ring-2 focus:ring-studio/20 focus:outline-none transition-all shadow-studio"
                   value={ep.title}
                   onChange={(e) => onUpdateEpisode(idx, { title: e.target.value })}
                   placeholder="Episode Title"
                 />
               ) : (
-                <h3 className="text-3xl font-black text-white uppercase tracking-wider group-hover:text-studio transition-colors duration-500">
+                <h3 className="text-4xl font-black text-white uppercase tracking-tighter group-hover:text-studio group-hover:tracking-[0.02em] transition-all duration-700 leading-tight">
                   {ep.title}
                 </h3>
               )}
@@ -154,72 +159,72 @@ export function SeriesCard({
                )}
             </div>
               
-            {/* Asset Matrix Data */}
+            {/* Asset Matrix Data - Cyber Grid Mode */}
             {ep.asset_matrix && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 bg-black/40 rounded-2xl border border-white/5 group-hover:border-studio/10 transition-colors">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-0 rounded-3xl border border-white/10 overflow-hidden bg-white/[0.02] backdrop-blur-md">
                 
                 {/* Sound */}
-                <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2 group-hover:text-cyan-400 transition-colors">
-                    <Volume2 className="w-3 h-3" /> Audio Profile
+                <div className="p-5 border-r border-b md:border-b-0 border-white/10 hover:bg-studio/5 transition-colors group/asset">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 group-hover/asset:text-studio transition-colors">
+                    <Volume2 className="w-3 h-3" /> Audio Forge
                   </p>
                   {isEditing ? (
                     <input 
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
+                      className="mt-2 w-full bg-black/50 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
                       value={ep.asset_matrix.sound}
                       onChange={(e) => onUpdateAssetMatrix(idx, { sound: e.target.value })}
                     />
                   ) : (
-                    <p className="text-xs text-zinc-300 font-medium truncate" title={ep.asset_matrix.sound}>{ep.asset_matrix.sound}</p>
+                    <p className="mt-1 text-[11px] text-zinc-300 font-bold truncate">{ep.asset_matrix.sound}</p>
                   )}
                 </div>
 
                 {/* Image */}
-                <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2 group-hover:text-purple-400 transition-colors">
-                    <Camera className="w-3 h-3" /> Visual Style
+                <div className="p-5 border-b md:border-r md:border-b-0 border-white/10 hover:bg-purple-500/5 transition-colors group/asset">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 group-hover/asset:text-purple-400 transition-colors">
+                    <Camera className="w-3 h-3" /> Visual DNA
                   </p>
                   {isEditing ? (
                     <input 
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
+                      className="mt-2 w-full bg-black/50 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
                       value={ep.asset_matrix.image}
                       onChange={(e) => onUpdateAssetMatrix(idx, { image: e.target.value })}
                     />
                   ) : (
-                    <p className="text-xs text-zinc-300 font-medium truncate" title={ep.asset_matrix.image}>{ep.asset_matrix.image}</p>
+                    <p className="mt-1 text-[11px] text-zinc-300 font-bold truncate">{ep.asset_matrix.image}</p>
                   )}
                 </div>
 
                 {/* Video */}
-                <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2 group-hover:text-blue-400 transition-colors">
-                    <Video className="w-3 h-3" /> Motion
+                <div className="p-5 border-r border-white/10 hover:bg-blue-500/5 transition-colors group/asset">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 group-hover/asset:text-blue-400 transition-colors">
+                    <Video className="w-3 h-3" /> Motion Engine
                   </p>
                   {isEditing ? (
                     <input 
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
+                      className="mt-2 w-full bg-black/50 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
                       value={ep.asset_matrix.video}
                       onChange={(e) => onUpdateAssetMatrix(idx, { video: e.target.value })}
                     />
                   ) : (
-                    <p className="text-xs text-zinc-300 font-medium truncate" title={ep.asset_matrix.video}>{ep.asset_matrix.video}</p>
+                    <p className="mt-1 text-[11px] text-zinc-300 font-bold truncate">{ep.asset_matrix.video}</p>
                   )}
                 </div>
 
                 {/* Scenes */}
-                <div className="space-y-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.15em] text-zinc-500 flex items-center gap-2 group-hover:text-emerald-400 transition-colors">
-                    <LayoutGrid className="w-3 h-3" /> Structure
+                <div className="p-5 hover:bg-amber-500/5 transition-colors group/asset">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2 group-hover/asset:text-amber-400 transition-colors">
+                    <LayoutGrid className="w-3 h-3" /> Units
                   </p>
                   {isEditing ? (
                     <input 
                       type="number"
-                      className="w-full bg-black border border-white/10 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
+                      className="mt-2 w-full bg-black/50 border border-white/5 rounded-lg px-3 py-2 text-xs text-zinc-300 focus:border-studio/50 focus:outline-none transition-all"
                       value={ep.asset_matrix.scene_count}
                       onChange={(e) => onUpdateAssetMatrix(idx, { scene_count: parseInt(e.target.value) || 0 })}
                     />
                   ) : (
-                    <p className="text-xs text-emerald-400 font-bold">{ep.asset_matrix.scene_count} Units Planned</p>
+                    <p className="mt-1 text-[11px] text-amber-500 font-black tracking-tighter">{ep.asset_matrix.scene_count} SCENES SYNCED</p>
                   )}
                 </div>
               </div>

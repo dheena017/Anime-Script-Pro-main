@@ -17,7 +17,7 @@ import {
 import { motion } from 'motion/react';
 import { createClient } from '../supabase/client';
 import { useApp } from '../context/AppContext';
-import { API_BASE_URL, apiRequest } from '../lib/api-utils';
+import { apiRequest } from '../lib/api-utils';
 import { StudioLoading } from '../components/studio/StudioLoading';
 
 
@@ -48,7 +48,7 @@ export default function ProjectsPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const data = await apiRequest<any[]>(`${API_BASE_URL}/api/projects`, {
+      const data = await apiRequest<any[]>('/api/projects', {
         headers: { Authorization: `Bearer ${session.access_token}` }
       });
       if (data) setProjects(data);
@@ -68,7 +68,7 @@ export default function ProjectsPage() {
     if (!confirm('Are you sure you want to purge this project data?')) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      await apiRequest(`${API_BASE_URL}/api/projects/${id}`, {
+      await apiRequest(`/api/projects/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session?.access_token}` }
       });

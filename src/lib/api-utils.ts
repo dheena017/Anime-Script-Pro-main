@@ -16,7 +16,10 @@ export function cleanJson(content: string): any {
   }
 }
 
-export const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8001';
+const trimTrailingSlash = (value: string) => value.replace(/\/+$|^\s+|\s+$/g, '');
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? trimTrailingSlash(import.meta.env.VITE_API_BASE_URL)
+  : '';
 
 async function getAuthToken(): Promise<string | null> {
   try {
@@ -38,7 +41,9 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
 
-  const finalUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+  const finalUrl = url.startsWith('http')
+    ? url
+    : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
   const token = await getAuthToken();
 
   try {

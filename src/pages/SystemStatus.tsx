@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Activity, 
   Cpu, 
-  Database, 
-  Globe, 
+  Globe,
   CheckCircle2, 
   AlertTriangle, 
   Zap, 
@@ -16,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function SystemStatus() {
-  const [uptime, setUptime] = useState('99.98%');
+  const [uptime] = useState('99.98%');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const services = [

@@ -46,7 +46,7 @@ export function SettingsPage() {
       try {
         const [balanceData, healthRes] = await Promise.all([
           settingsService.getBalance(),
-          fetch('http://localhost:8001/health').catch(() => ({ ok: false }))
+          fetch('/api/health').catch(() => ({ ok: false }))
         ]);
         
         setBalance(balanceData);

@@ -13,7 +13,7 @@ async def test():
     try:
         response = await asyncio.wait_for(
             client.aio.models.generate_content(
-                model="gemini-1.5-flash-latest",
+                model="gemini-2.5-flash",
                 contents="hello"
             ),
             timeout=10.0

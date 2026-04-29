@@ -4,6 +4,11 @@ from fastapi import status
 from backend.fastapi_app import app, engine
 from sqlmodel import SQLModel
 
+
+def assert_success(response, allowed=(status.HTTP_200_OK, status.HTTP_201_CREATED)):
+    assert response.status_code in allowed, f"Expected success status, got {response.status_code}: {response.text}"
+
+
 @pytest.mark.asyncio
 async def test_production_creation_flow():
     """
@@ -32,14 +37,18 @@ async def test_production_creation_flow():
         assert project["name"] == project_data["name"]
 
         # 2. Add World Lore
+        lore_content = "The Umbra Realm coexists with the light."
         lore_data = {
             "project_id": project_id,
-            "title": "System Foundation",
-            "content": "The Umbra Realm coexists with the light.",
-            "prod_metadata": {"source": "AI"}
+            "markdown_content": lore_content,
         }
         resp = await ac.post("/api/world-lore", json=lore_data)
-        assert resp.status_code == 201 or resp.status_code == 200
+        assert_success(resp)
+        assert resp.json()["content"] == lore_content
+
+        world_resp = await ac.get(f"/api/world-lore/{project_id}")
+        assert_success(world_resp)
+        assert world_resp.json()["content"] == lore_content
 
         # 3. Add Characters (Cast Profiles)
         cast_data = {
@@ -50,7 +59,8 @@ async def test_production_creation_flow():
             ]
         }
         resp = await ac.post("/api/characters", json=cast_data)
-        assert resp.status_code == 201 or resp.status_code == 200
+        assert_success(resp)
+        assert resp.json()["count"] == 2
 
         # 4. Add Sessions
         session_data = {
@@ -61,9 +71,13 @@ async def test_production_creation_flow():
             ]
         }
         resp = await ac.post("/api/sessions", json=session_data)
-        assert resp.status_code == 201 or resp.status_code == 200
+        assert_success(resp)
         sessions = resp.json()
         assert len(sessions) == 2
+
+        sessions_resp = await ac.get(f"/api/sessions?project_id={project_id}")
+        assert_success(sessions_resp)
+        assert len(sessions_resp.json()) == 2
 
         # 5. Add Episodes linked to a Session
         episode_data = {
@@ -75,8 +89,13 @@ async def test_production_creation_flow():
             ]
         }
         resp = await ac.post("/api/episodes", json=episode_data)
-        assert resp.status_code == 201 or resp.status_code == 200
+        assert_success(resp)
         episodes = resp.json()
+        assert len(episodes) == 2
+
+        episodes_resp = await ac.get(f"/api/episodes?project_id={project_id}")
+        assert_success(episodes_resp)
+        assert len(episodes_resp.json()) >= 2
 
         # 6. Add Scenes linked to an Episode
         scene_data = {
@@ -88,6 +107,12 @@ async def test_production_creation_flow():
             ]
         }
         resp = await ac.post("/api/scenes", json=scene_data)
-        assert resp.status_code == 201 or resp.status_code == 200
+        assert_success(resp)
+        scenes = resp.json()
+        assert len(scenes) == 2
+
+        scenes_resp = await ac.get(f"/api/scenes?project_id={project_id}")
+        assert_success(scenes_resp)
+        assert any(scene["prompt"] == "Intro" for scene in scenes_resp.json())
         
         print(f"\n[Backend Audit] Full production lifecycle verified for Project {project_id}")

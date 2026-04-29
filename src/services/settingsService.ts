@@ -1,10 +1,9 @@
-import axios from 'axios';
 import { createClient } from '../supabase/client';
+import { apiRequest } from '@/lib/api-utils';
 
-const API_BASE_URL = 'http://localhost:8001/api';
 const supabase = createClient();
 
-// Fallback user ID for development/local environments where Supabase session might be missing
+// Fallback user ID for development
 const LOCAL_STRATEGIC_USER = "local-dev-architect-id";
 
 export interface UserProfile {
@@ -35,6 +34,28 @@ export interface MediaAsset {
   created_at: string;
 }
 
+export interface AIModelSettings {
+  primary_engine?: string;
+  temperature?: number;
+  swarm_mode?: boolean;
+  cinematic_enforcer?: boolean;
+  system_prompt?: string;
+  gemini_api_key?: string;
+  [key: string]: any;
+}
+
+export interface UserSettingsPayload {
+  id?: number;
+  user_id?: string;
+  profile?: any;
+  security?: any;
+  notifications?: any;
+  ai_models?: AIModelSettings;
+  storage?: any;
+  billing?: any;
+  [key: string]: any;
+}
+
 export const settingsService = {
   async getUserId() {
     const { data: { session } } = await supabase.auth.getSession();
@@ -42,22 +63,23 @@ export const settingsService = {
   },
 
   // --- User Settings ---
-  async getSettings() {
+  async getSettings(): Promise<UserSettingsPayload | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.get(`${API_BASE_URL}/settings/${user_id}`);
-      return response.data;
+      return await apiRequest<UserSettingsPayload>(`/api/settings/${user_id}`);
     } catch (e) {
       console.error("Error fetching settings:", e);
       return null;
     }
   },
 
-  async updateSettings(payload: any) {
+  async updateSettings(payload: any): Promise<UserSettingsPayload | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.post(`${API_BASE_URL}/settings/${user_id}`, payload);
-      return response.data;
+      return await apiRequest<UserSettingsPayload>(`/api/settings/${user_id}`, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
     } catch (e) {
       console.error("Error updating settings:", e);
       return null;
@@ -68,8 +90,7 @@ export const settingsService = {
   async getProfile(): Promise<UserProfile | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.get(`${API_BASE_URL}/profiles/${user_id}`);
-      return response.data;
+      return await apiRequest<UserProfile>(`/api/profiles/${user_id}`);
     } catch (e) {
       console.error("Error fetching profile:", e);
       return null;
@@ -79,8 +100,10 @@ export const settingsService = {
   async updateProfile(payload: Partial<UserProfile>): Promise<UserProfile | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.post(`${API_BASE_URL}/profiles/${user_id}`, payload);
-      return response.data;
+      return await apiRequest<UserProfile>(`/api/profiles/${user_id}`, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
     } catch (e) {
       console.error("Error updating profile:", e);
       return null;
@@ -91,8 +114,7 @@ export const settingsService = {
   async getBalance(): Promise<UserBalance | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.get(`${API_BASE_URL}/balances/${user_id}`);
-      return response.data;
+      return await apiRequest<UserBalance>(`/api/balances/${user_id}`);
     } catch (e) {
       console.error("Error fetching balance:", e);
       return null;
@@ -103,9 +125,8 @@ export const settingsService = {
   async getAssets(type?: string): Promise<MediaAsset[]> {
     try {
       const user_id = await this.getUserId();
-      const params = type ? { asset_type: type } : {};
-      const response = await axios.get(`${API_BASE_URL}/assets/${user_id}`, { params });
-      return response.data;
+      const url = type ? `/api/assets/${user_id}?asset_type=${type}` : `/api/assets/${user_id}`;
+      return await apiRequest<MediaAsset[]>(url);
     } catch (e) {
       console.error("Error fetching assets:", e);
       return [];
@@ -115,8 +136,7 @@ export const settingsService = {
   async getFavorites(): Promise<MediaAsset[]> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.get(`${API_BASE_URL}/favorites/${user_id}`);
-      return response.data;
+      return await apiRequest<MediaAsset[]>(`/api/favorites/${user_id}`);
     } catch (e) {
       console.error("Error fetching favorites:", e);
       return [];
@@ -126,11 +146,11 @@ export const settingsService = {
   async toggleFavorite(asset_id: string): Promise<boolean> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.post(`${API_BASE_URL}/favorites`, {
-        user_id,
-        asset_id
+      const response = await apiRequest<any>(`/api/favorites`, {
+        method: 'POST',
+        body: JSON.stringify({ user_id, asset_id })
       });
-      return response.data.status === "added";
+      return response.status === "added";
     } catch (e) {
       console.error("Error toggling favorite:", e);
       return false;

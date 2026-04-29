@@ -154,14 +154,18 @@ export function EnginePage() {
                         <Settings className="w-4 h-4" />
                         NEURAL SYNTH ENGINE
                       </label>
-                      <Select value={selectedModel} onValueChange={(val) => setSelectedModel(val)}>
+                      <Select value={selectedModel} onValueChange={(val) => setSelectedModel(val || 'Gemini-2.5-Flash')}>
                         <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-zinc-950 border-zinc-800">
-                          <SelectItem value="gemini-2.0-pro-exp-02-05" className="text-cyan-400">G2.0 Pro (Elite Intelligence)</SelectItem>
-                          <SelectItem value="Gemini-2.5-Flash" className="text-cyan-300">G2.0 Flash (Next-Gen Hub)</SelectItem>
-                          <SelectItem value="gemini-1.5-pro" className="text-zinc-400">G1.5 Pro (Legacy Elite)</SelectItem>
+                          <SelectItem value="gemini-3.1-pro" className="text-fuchsia-400 font-bold">G3.1 Pro (Ultra-Gen Intelligence)</SelectItem>
+                          <SelectItem value="gemini-3.1-flash" className="text-cyan-400 font-bold">G3.1 Flash (Hyper-Speed Lite)</SelectItem>
+                          <SelectItem value="gemini-3-pro" className="text-fuchsia-300">G3.0 Pro (Advanced Reasoning)</SelectItem>
+                          <SelectItem value="gemini-3-flash" className="text-cyan-300">G3.0 Flash (Rapid Production)</SelectItem>
+                          <SelectItem value="gemini-2.0-pro-exp-02-05" className="text-zinc-300">G2.0 Pro (Elite Intelligence)</SelectItem>
+                          <SelectItem value="Gemini-2.5-Flash" className="text-zinc-400">G2.0 Flash (Next-Gen Hub)</SelectItem>
+                          <SelectItem value="gemini-1.5-pro" className="text-zinc-500">G1.5 Pro (Legacy Elite)</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">Connected to Global Production Infrastructure.</p>

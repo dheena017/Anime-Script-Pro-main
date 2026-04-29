@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { Camera, Sparkles, Eye } from 'lucide-react';
+import { Camera, Sparkles, Eye, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { settingsService } from '../../services/settingsService';

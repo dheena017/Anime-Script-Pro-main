@@ -38,7 +38,7 @@ export async function simulateVideoRender(prompt: string) {
   });
 }
 
-export async function generateSceneVideo(imageUrl: string, prompt: string, model: string = "veo-2.0-generate-001"): Promise<string | null> {
+export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001"): Promise<string | null> {
   // Try to use Veo or simulate it if the API is unsupported
   console.log(`[Video Engine] Initiating Image-to-Video using ${model} for prompt: ${prompt}`);
   

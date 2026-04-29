@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Milestone, Activity, Table, ChevronRight, Volume2, Camera, Video, LayoutGrid } from 'lucide-react';
+import { CheckCircle2, Table, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -136,7 +136,13 @@ export function SeriesPage() {
   const [isLiked, setIsLiked] = React.useState(false);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-series-planning">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 relative" data-testid="marker-series-planning">
+      {/* Cinematic Background Elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.05)_0%,transparent_50%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[length:100px_100px]" />
+      </div>
+
       <SeriesHeader 
         onRegenerate={handleGenerate}
         isGenerating={isGeneratingSeries}
@@ -229,11 +235,11 @@ export function SeriesPage() {
               ) : generatedSeriesPlan ? (
                 <div className="space-y-16">
                   <div className="border-b border-zinc-800/80 pb-12 text-center space-y-6">
-                    <div className="inline-block px-3 py-1 bg-studio/10 border border-studio/30 rounded-full text-[10px] uppercase tracking-[0.3em] text-studio font-bold shadow-studio">
-                      Production Roadmap
+                    <div className="inline-block px-4 py-1.5 bg-studio/10 border border-studio/30 rounded-full text-[10px] uppercase tracking-[0.4em] text-studio font-black shadow-studio backdrop-blur-md">
+                      Production Roadmap // Classic Node v4.2
                     </div>
-                    <h1 className="text-5xl font-black text-studio text-shadow-studio uppercase tracking-widest leading-tight">
-                      Master Sequence Plan
+                    <h1 className="text-7xl font-black text-white uppercase tracking-tighter leading-tight drop-shadow-[0_0_30px_rgba(6,182,212,0.3)]">
+                      Master Scene <span className="text-studio">Manifest</span>
                     </h1>
                     <div className="flex flex-col items-center gap-6">
                       <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">

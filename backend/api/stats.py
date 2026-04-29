@@ -1,20 +1,26 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import select, Session
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List
 from backend.models import Category, Scene
-from backend.database import engine
+from backend.database import async_engine
 
 router = APIRouter(prefix="/api", tags=["Stats"])
 
 @router.get("/categories", response_model=List[Category])
-def get_categories():
-    with Session(engine) as session:
-        return session.exec(select(Category).order_by(Category.name)).all()
+async def get_categories():
+    async with AsyncSession(async_engine) as session:
+        statement = select(Category).order_by(Category.name)
+        results = await session.exec(statement)
+        return results.all()
 
 @router.get("/stats/progress")
-def get_stats_progress(project_id: int):
-    with Session(engine) as session:
-        scenes = session.exec(select(Scene).where(Scene.project_id == project_id)).all()
+async def get_stats_progress(project_id: int):
+    async with AsyncSession(async_engine) as session:
+        statement = select(Scene).where(Scene.project_id == project_id)
+        results = await session.exec(statement)
+        scenes = results.all()
+        
         stats = {}
         for s in scenes:
             sess_idx = (s.scene_number - 1) // 192 + 1

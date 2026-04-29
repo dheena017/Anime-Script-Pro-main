@@ -50,6 +50,8 @@ const LoadingSpinner = () => (
   </div>
 );
 
+import { AITelemetryOverlay } from './components/AITelemetryOverlay';
+
 export default function App() {
   React.useEffect(() => {
     // Application initialized
@@ -62,7 +64,9 @@ export default function App() {
           <TooltipProvider>
             <Router>
               <Suspense fallback={<LoadingSpinner />}>
+                <AITelemetryOverlay />
                 <Routes>
+
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/auth" element={<AuthPage />} />

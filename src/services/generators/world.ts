@@ -1,7 +1,7 @@
 import { callAI, RateLimitError } from "./core";
 import { MOCK_WORLD } from "./mockData";
 
-export async function generateWorld(prompt: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
+export async function generateWorld(prompt: string, model: string = "gemini-2.5-flash", contentType: string = "Anime") {
   const systemInstruction = ` 
     You are an expert ${contentType} World Builder and Lore Architect.
     Based on the provided prompt, design a comprehensive world setting for a ${contentType} series.

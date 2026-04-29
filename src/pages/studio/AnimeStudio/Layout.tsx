@@ -161,7 +161,7 @@ export default function AnimeLayout() {
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
       // Simulate visual data for storyboard unlocking
-      setVisualData({ 0: "pending" }); 
+      setVisualData({ 0: ["pending"] }); 
       addLog("STORYBOARD", "COMPLETED", "Visual prompts architected.");
 
       // PHASE 7: SEO Matrix

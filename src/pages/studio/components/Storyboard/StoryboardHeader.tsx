@@ -20,6 +20,9 @@ interface StoryboardHeaderProps {
   session: string;
   episode: string;
   onNext?: () => void;
+  handleFullProductionLoop?: () => void;
+  isProductionLoopActive?: boolean;
+  productionProgress?: number;
 }
 
 export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
@@ -38,7 +41,10 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
   isEnhancingAllNarration,
   session,
   episode,
-  onNext
+  onNext,
+  handleFullProductionLoop,
+  isProductionLoopActive,
+  productionProgress = 0
 }) => {
   return (
     <div className="space-y-6">
@@ -145,6 +151,30 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   <ImageIcon className="w-4 h-4 mr-2" />
                 )}
                 <span className="relative z-10">Synthesize Frames</span>
+              </Button>
+
+              <Button 
+                className={cn(
+                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/loop border",
+                  isProductionLoopActive 
+                    ? "bg-fuchsia-900/50 border-fuchsia-800 text-fuchsia-400" 
+                    : "bg-fuchsia-500/10 hover:bg-fuchsia-500 text-fuchsia-500 hover:text-black border-fuchsia-500/40 hover:border-fuchsia-500 shadow-fuchsia-500/20"
+                )}
+                onClick={handleFullProductionLoop}
+                disabled={isProductionLoopActive || isGeneratingVisuals}
+              >
+                {isProductionLoopActive ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4 mr-2" />
+                )}
+                <span className="relative z-10">Ignite Production Loop</span>
+                {isProductionLoopActive && (
+                  <div 
+                    className="absolute bottom-0 left-0 h-1 bg-fuchsia-400 transition-all duration-500" 
+                    style={{ width: `${productionProgress}%` }} 
+                  />
+                )}
               </Button>
 
               {onNext && (

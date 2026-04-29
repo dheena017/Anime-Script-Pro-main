@@ -14,38 +14,41 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from backend.database import async_engine
 from backend.models import Project
 from backend.deps import get_auth_user_id
-from backend.ai_engine import ai_engine
+from backend.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
 
-router = APIRouter(prefix="/api/ai", tags=["AI Engine"])
+router = APIRouter(prefix="/api", tags=["AI Engine"])
 
 MODEL_MAP = {
-    # 3.0 Series (Preview/Live)
-    "gemini-3-flash-live": "gemini-flash-latest",
-    "gemini 3 flash live": "gemini-flash-latest", 
+    # 3.1 Series (Current)
+    "gemini-3.1-flash": "gemini-3.1-flash-lite-preview",
+    "gemini-3.1-pro": "gemini-3.1-pro-preview",
+    
+    # 3.0 Series
     "gemini-3-flash": "gemini-3-flash-preview",
     "gemini-3-pro": "gemini-3-pro-preview",
     
     # 2.5 Series
-    "gemini-2.5-flash": "gemini-flash-latest", # Diverting to stable latest
-    "gemini-2.5-flash-lite": "gemini-flash-lite-latest",
-    "gemini-2.5-pro": "gemini-pro-latest",
+    "gemini-2.5-flash": "gemini-2.5-flash",
+    "gemini-2.5-pro": "gemini-2.5-pro",
     
-    # Standard Aliases
-    "gemini-flash-latest": "gemini-flash-latest",
-    "gemini-pro-latest": "gemini-pro-latest",
-    "gemini-flash": "gemini-flash-latest",
-    "gemini-pro": "gemini-pro-latest",
+    # 2.0 Series
+    "gemini-2.0-flash": "gemini-2.0-flash",
+    "gemini-2.0-pro": "gemini-2.5-pro", # Mapping 2.0 Pro to 2.5 Pro as per current availability
+    "gemini-2.0-pro-exp-02-05": "gemini-2.5-pro",
     
-    # Legacy/Compatibility
-    "gemini-1.5-flash": "gemini-flash-latest",
-    "gemini-1.5-pro": "gemini-pro-latest",
+    # Legacy/Standard Aliases
+    "gemini-flash-latest": "gemini-2.5-flash",
+    "gemini-pro-latest": "gemini-2.5-pro",
+    "gemini-1.5-flash": "gemini-2.0-flash",
+    "gemini-1.5-pro": "gemini-2.5-pro",
 }
 
 @router.post("/generate", response_model=GenerationResponse)
-async def generate_content(request: GenerationRequest):
+async def generate_content(request: GenerationRequest, user_id: str = Depends(get_auth_user_id)):
     """
     Unified AI generation endpoint with robust model mapping and fallback.
+    Prioritizes user-provided API keys from their settings.
     """
     raw_model = request.model.lower().strip()
     normalized_model = raw_model.replace(" ", "-")
@@ -58,56 +61,195 @@ async def generate_content(request: GenerationRequest):
         target_model = MODEL_MAP[target_model]
     
     # Final safety check against the known stable registry
-    STABLE_MODELS = ["gemini-flash-latest", "gemini-pro-latest", "gemini-2.0-flash", "gemini-flash-lite-latest"]
-    if target_model not in STABLE_MODELS and not target_model.endswith("-preview"):
-        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-flash-latest.")
-        target_model = "gemini-flash-latest"
+    STABLE_MODELS = [
+        "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
+        "gemini-3-flash-preview", "gemini-3-pro-preview",
+        "gemini-3.1-flash-lite-preview"
+    ]
+    if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
+        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.0-flash.")
+        target_model = "gemini-2.0-flash"
     
-    logger.info(f"AI Request: {request.model} -> Resolved to: {target_model}")
+    if target_model.startswith("models/"):
+        target_model = target_model.replace("models/", "")
 
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="AI Engine API key not configured. Please add GOOGLE_API_KEY or VITE_GEMINI_API_KEY to your .env file.")
-        
+    logger.info(f"SYNTHESIS: Request for '{request.model}' resolved to target model: <cyan>{target_model}</cyan>")
+
+    # --- API Key Strategy ---
+    # 1. Try to fetch user-provided key from database settings
+    user_api_key = None
     try:
-        client = genai.Client(api_key=api_key)
-        
-        config = {}
-        if request.systemInstruction:
-            config["system_instruction"] = request.systemInstruction
-            
-        response = client.models.generate_content(
-            model=target_model,
-            contents=request.prompt,
-            config=types.GenerateContentConfig(**config) if config else None
-        )
-        
-        # Extract text and handle potential response structures
-        output_text = response.text if hasattr(response, "text") else str(response)
-        
-        # Convert usage metadata to dict if possible
-        usage_dict = {}
-        if hasattr(response, "usage_metadata") and response.usage_metadata:
-            try:
-                # The new SDK objects often have a model_dump or can be converted to dict
-                usage_dict = {
-                    "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
-                    "candidates_tokens": getattr(response.usage_metadata, "candidates_token_count", 0),
-                    "total_tokens": getattr(response.usage_metadata, "total_token_count", 0)
-                }
-            except Exception:
-                usage_dict = {}
-
-        return GenerationResponse(
-            text=output_text,
-            model_used=request.model,
-            finish_reason="STOP", # Simplified for now
-            usage=usage_dict
-        )
+        from backend.models.user import UserSettings
+        async with AsyncSession(async_engine) as session:
+            statement = select(UserSettings).where(UserSettings.user_id == user_id)
+            result = await session.exec(statement)
+            settings = result.first()
+            if settings and settings.ai_models:
+                user_api_key = settings.ai_models.get("gemini_api_key")
     except Exception as e:
-        logger.error(f"AI Generation failed: {e}")
-        # Custom message to verify if this code is actually running
-        raise HTTPException(status_code=500, detail=f"AI Engine Error (V2): {str(e)}")
+        logger.warning(f"Failed to fetch user settings for key retrieval: {e}")
+
+    # 2. Fallback to environment variables
+    api_key = user_api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+    
+    if not api_key:
+        raise HTTPException(status_code=500, detail="AI Engine API key not configured. Please add your key in Settings or contact the administrator.")
+
+        
+    # --- Ultra-Fallback Logic ---
+    # Exhaustive sequence of models to try if the primary one fails
+    FALLBACK_MODELS = [
+        target_model, # Try requested first
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-3.1-flash-lite-preview",
+        "gemini-2.5-pro",
+        "gemini-3.1-pro-preview",
+        "gemini-3-flash-preview",
+        "gemini-3-pro-preview",
+        "gemini-2.0-flash-lite",
+        "gemini-2.5-flash-lite",
+    ]
+    
+    # Remove duplicates while preserving order
+    unique_fallbacks = []
+    for m in FALLBACK_MODELS:
+        if m not in unique_fallbacks:
+            unique_fallbacks.append(m)
+
+    client = build_genai_client(api_key=api_key)
+    import time
+    start_time = time.perf_counter()
+    last_error = None
+    attempted_fallbacks = []
+
+    for current_model in unique_fallbacks:
+        try:
+            is_fallback = current_model != target_model
+            if is_fallback:
+                attempted_fallbacks.append(current_model)
+                logger.warning(f"RECOVERY: Primary model failed or exhausted. Attempting fallback: <yellow>{current_model}</yellow>")
+            
+            key_source = "User-Provided" if user_api_key else "System-Global"
+            logger.info(f"PROCESS: [🧠] Neural Synthesis via {current_model} ({key_source} Key)")
+            config = {}
+            if request.systemInstruction:
+                config["system_instruction"] = request.systemInstruction
+                
+            # Use AIO (Async) client to prevent blocking the event loop
+            response = await client.aio.models.generate_content(
+                model=current_model,
+                contents=request.prompt,
+                config=types.GenerateContentConfig(**config) if config else None
+            )
+            
+            # --- Content Blocking & Safety Checks ---
+            if not response or not hasattr(response, "text"):
+                # Check for candidates and finish reasons
+                if hasattr(response, "candidates") and response.candidates:
+                    candidate = response.candidates[0]
+                    finish_reason = getattr(candidate, "finish_reason", "UNKNOWN")
+                    if finish_reason == "SAFETY":
+                        logger.warning(f"Synthesis blocked by Safety Filters for model {current_model}")
+                        raise HTTPException(
+                            status_code=400, 
+                            detail="Synthesis blocked by safety filters. Please refine your prompt to avoid restricted content (e.g., extreme violence, explicit adult themes)."
+                        )
+                raise ValueError("Gemini returned an empty or malformed response.")
+
+            output_text = response.text
+            
+            # Extract usage metadata
+            usage_dict = {}
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                try:
+                    usage_dict = {
+                        "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", 0),
+                        "candidates_tokens": getattr(response.usage_metadata, "candidates_token_count", 0),
+                        "total_tokens": getattr(response.usage_metadata, "total_token_count", 0)
+                    }
+                except Exception: pass
+
+            latency_ms = (time.perf_counter() - start_time) * 1000
+            
+            # Professional Success Report
+            logger.success(f"COMPLETED: [✅] Synthesis Successful | Model: {current_model} | Latency: {latency_ms:.2f}ms")
+            
+            if usage_dict:
+                tokens = usage_dict.get('total_tokens', 0)
+                logger.info(f"METRICS: [📊] Usage: {tokens} tokens | Efficiency: {(tokens/(latency_ms/1000)):.1f} tps")
+
+            preview = output_text[:120].replace("\n", " ")
+            logger.info(f"PREVIEW: [📝] \"{preview}...\" ({len(output_text)} chars generated)")
+            
+            return GenerationResponse(
+                text=output_text,
+                model_used=current_model,
+                finish_reason="STOP",
+                usage=usage_dict,
+                latency_ms=latency_ms,
+                fallbacks=attempted_fallbacks[:-1] if attempted_fallbacks else []
+            )
+
+        except HTTPException:
+            # Re-raise explicit HTTPExceptions (like Safety blocks)
+            raise
+        except Exception as e:
+            last_error = e
+            err_msg = str(e).upper()
+            
+            # Log the specific failure for backend diagnostics
+            logger.warning(f"Model {current_model} failed: {str(e)}")
+            
+            # Handle Authentication issues (401)
+            if any(term in err_msg for term in ["401", "UNAUTHENTICATED", "API_KEY_INVALID", "INVALID_ARGUMENT", "API KEY NOT VALID"]):
+                # If the key is invalid, there's no point in trying fallbacks
+                logger.error("Invalid Gemini API Key detected. Aborting fallbacks.")
+                raise HTTPException(
+                    status_code=401, 
+                    detail="Invalid AI Credentials. Please verify your Gemini API key in Settings."
+                )
+            
+            # Handle Rate Limiting (429) - continue to fallback
+            if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+                logger.warning(f"Model {current_model} hit rate limits.")
+                continue
+                
+            # Handle Invalid Arguments (400) - usually prompt too long or invalid model
+            if "400" in err_msg or "INVALID_ARGUMENT" in err_msg:
+                logger.error(f"Invalid request for {current_model}: {str(e)}")
+                continue
+
+            # Handle Timeouts / Deadline Exceeded (504)
+            if "504" in err_msg or "DEADLINE_EXCEEDED" in err_msg:
+                logger.warning(f"Model {current_model} timed out.")
+                continue
+
+            continue # General retry/fallback
+
+    # --- Final Error Aggregation ---
+    logger.error(f"[AI SYNTHESIS] -> CRITICAL FAILURE: All fallback models exhausted.")
+    logger.error(f"Last observed error: {last_error}")
+
+    err_msg = str(last_error).upper()
+    
+    if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+        raise HTTPException(
+            status_code=429, 
+            detail="Neural Network Overloaded: All Gemini models have reached their quota. Please wait 60 seconds and try again."
+        )
+    
+    if "INTERNAL" in err_msg or "500" in err_msg:
+        raise HTTPException(
+            status_code=502, 
+            detail="Google AI Services are currently experiencing an internal outage. Check the Gemini Status page."
+        )
+
+    raise HTTPException(
+        status_code=500, 
+        detail=f"Neural Engine Synthesis Failed: {str(last_error)}"
+    )
+
 
 @router.post("/generate/god-mode/{project_id}")
 async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_user_id)):
@@ -124,16 +266,17 @@ async def initialize_god_mode(project_id: int, user_id: str = Depends(get_auth_u
 
         try:
             # Phase 1: Neural Lore Architecture
-            lore_raw = await ai_engine.generate_lore(project.title, project.description or "A new creative production.")
+            lore_raw = await ai_engine.generate_lore(project.title, project.description or "A new creative production.", user_id=user_id)
             project.prod_metadata["world_lore"] = lore_raw
             
             # Phase 2: Character DNA Synthesis
-            cast_raw = await ai_engine.generate_characters(lore_raw)
+            cast_raw = await ai_engine.generate_characters(lore_raw, user_id=user_id)
             project.prod_metadata["cast_dna"] = cast_raw
             
             # Phase 3: Narrative Beat Scaffolding
-            beats_raw = await ai_engine.generate_script_beats(project.title, lore_raw, cast_raw)
+            beats_raw = await ai_engine.generate_script_beats(project.title, lore_raw, cast_raw, user_id=user_id)
             project.prod_metadata["narrative_scaffolding"] = beats_raw
+
             
             project.status = "INITIALIZED"
             project.updated_at = datetime.utcnow()

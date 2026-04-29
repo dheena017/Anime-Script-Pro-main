@@ -4,7 +4,7 @@
     "baseUrl": ".",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "module": "ESNext",
+    "module": "ES2022",
     "lib": [
       "ES2022",
       "DOM",

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Brain, RefreshCw, ChevronRight, Sparkles, Heart, Cpu } from 'lucide-react';
+import { Brain, ChevronRight, Sparkles, Heart, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 

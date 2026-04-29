@@ -17,6 +17,9 @@ class GenerationResponse(BaseModel):
     text: str
     model_used: Optional[str] = None
     usage: Optional[Dict] = None
+    latency_ms: Optional[float] = None
+    fallbacks: Optional[List[str]] = None
+
 
 class TemplateIn(BaseModel):
     name: str

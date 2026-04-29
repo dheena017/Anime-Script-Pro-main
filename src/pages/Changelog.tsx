@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   History, 
   Sparkles, 
@@ -12,7 +11,7 @@ import {
   Layers
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function Changelog() {
   const updates = [

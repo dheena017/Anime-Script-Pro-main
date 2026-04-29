@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@/supabase/client';
+import { supabase } from '@/supabase/client';
 
 export interface GenerationLog {
   id: string;
@@ -14,12 +14,10 @@ export interface GenerationLog {
 
 export const useRealtimeLogs = () => {
   const [logs, setLogs] = useState<GenerationLog[]>([]);
-  const supabase = createClient();
 
   useEffect(() => {
     // Initial fetch of the latest 20 logs
     const fetchLogs = async () => {
-      // Graceful exit if Supabase is not configured
       const { url } = supabase as any;
       if (!url || url.includes('placeholder-project')) {
         return;

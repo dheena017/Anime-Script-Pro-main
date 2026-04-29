@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8001';
+import { apiRequest } from '@/lib/api-utils';
 
 export interface Tutorial {
   id: number;
@@ -15,21 +13,19 @@ export interface Tutorial {
 export const tutorialService = {
   async getTutorials(): Promise<Tutorial[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/tutorials`);
-      return response.data;
+      return await apiRequest<Tutorial[]>('/api/tutorials');
     } catch (e) {
       console.error("Error fetching tutorials:", e);
-      throw new Error(axios.isAxiosError(e) ? (e.response?.data?.detail || "Failed to fetch tutorials") : "Unknown network error");
+      return [];
     }
   },
 
   async seedTutorials() {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/tutorials/seed`);
-      return response.data;
+      return await apiRequest('/api/tutorials/seed', { method: 'POST' });
     } catch (e) {
       console.error("Error seeding tutorials:", e);
-      throw new Error(axios.isAxiosError(e) ? (e.response?.data?.detail || "Failed to seed tutorials") : "Failed to connect to backend for seeding");
+      return { status: "error", message: String(e) };
     }
   }
 };

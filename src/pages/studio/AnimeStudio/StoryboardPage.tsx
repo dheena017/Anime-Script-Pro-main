@@ -63,6 +63,8 @@ export function StoryboardPage() {
   const [isSuggestingDuration, setIsSuggestingDuration] = useState(false);
   const [isEnhancingAllNarration, setIsEnhancingAllNarration] = useState(false);
   const [isEnhancingAllVisuals, setIsEnhancingAllVisuals] = useState(false);
+  const [isProductionLoopActive, setIsProductionLoopActive] = useState(false);
+  const [productionProgress, setProductionProgress] = useState(0);
 
   const isGlobalEnhancing = isEnhancingAllNarration || isEnhancingAllVisuals;
   const lastScriptRef = React.useRef<string | null>(null);
@@ -190,10 +192,10 @@ export function StoryboardPage() {
     }
   };
 
-  const handleGenerateVideo = async (originalIndex: number, imageUrl: string, prompt: string) => {
+  const handleGenerateVideo = async (originalIndex: number, _imageUrl: string, prompt: string) => {
     setVideoData(prev => ({ ...prev, [originalIndex]: 'loading' }));
     try {
-      const videoUrl = await generateSceneVideo(imageUrl, prompt, selectedModel);
+      const videoUrl = await generateSceneVideo(prompt, selectedModel);
       if (videoUrl) {
         setVideoData(prev => ({ ...prev, [originalIndex]: videoUrl }));
       } else {
@@ -208,22 +210,51 @@ export function StoryboardPage() {
   const handleGenerateAll = async () => {
     setIsGeneratingVisuals(true);
     const newVisualData = { ...visualData };
-    for (const scene of scenes) {
+    for (let i = 0; i < scenes.length; i++) {
+      const scene = scenes[i];
       if (!newVisualData[scene.originalIndex] || newVisualData[scene.originalIndex].length === 0 || newVisualData[scene.originalIndex][0] === 'loading') {
         setVisualData(prev => ({ ...prev, [scene.originalIndex]: ['loading'] }));
         try {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${promptToUse} Variation ${i+1}`, selectedModel));
+          const promises = Array(4).fill(0).map((_, idx) => generateSceneImage(`${promptToUse} Variation ${idx+1}`, selectedModel));
           const results = await Promise.all(promises);
-          newVisualData[scene.originalIndex] = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${i}/800/450`);
+          newVisualData[scene.originalIndex] = results.map((url, idx) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
         } catch (error) {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          newVisualData[scene.originalIndex] = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${i}/800/450`);
+          newVisualData[scene.originalIndex] = Array(4).fill(0).map((_, idx) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
         }
         setVisualData(prev => ({ ...prev, [scene.originalIndex]: newVisualData[scene.originalIndex] }));
       }
     }
     setIsGeneratingVisuals(false);
+  };
+
+  const handleFullProductionLoop = async () => {
+    setIsProductionLoopActive(true);
+    setProductionProgress(0);
+    
+    try {
+      // Phase 1: Synthesize All Images
+      for (let i = 0; i < scenes.length; i++) {
+        const scene = scenes[i];
+        setProductionProgress(((i + 0.5) / scenes.length) * 50);
+        await handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals);
+      }
+      
+      // Phase 2: Ignite All Motion Engines (Video)
+      for (let i = 0; i < scenes.length; i++) {
+        const scene = scenes[i];
+        setProductionProgress(50 + ((i + 0.5) / scenes.length) * 50);
+        const currentVisuals = visualData[scene.originalIndex] || [];
+        const imageUrl = currentVisuals[0] && currentVisuals[0] !== 'loading' ? currentVisuals[0] : `https://picsum.photos/seed/scene-${scene.originalIndex}/800/450`;
+        await handleGenerateVideo(scene.originalIndex, imageUrl, scene.linkedPrompt || scene.visuals);
+      }
+    } catch (error) {
+      console.error("Full Production Loop failed:", error);
+    } finally {
+      setIsProductionLoopActive(false);
+      setProductionProgress(100);
+    }
   };
 
   const handleEnhanceAllNarration = async () => {
@@ -327,6 +358,9 @@ export function StoryboardPage() {
         session={session}
         episode={episode}
         onNext={() => navigate('/studio/seo')}
+        handleFullProductionLoop={handleFullProductionLoop}
+        isProductionLoopActive={isProductionLoopActive}
+        productionProgress={productionProgress}
       />
 
       <AnimatePresence>

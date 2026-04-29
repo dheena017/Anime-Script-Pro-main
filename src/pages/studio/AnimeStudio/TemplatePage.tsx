@@ -29,7 +29,7 @@ export function TemplatePage() {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch('http://localhost:8001/api/templates');
+        const response = await fetch('/api/templates');
         if (response.ok) {
           const data = await response.json();
           // Map string icons to Lucide components

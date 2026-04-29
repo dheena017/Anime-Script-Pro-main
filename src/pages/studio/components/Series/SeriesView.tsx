@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { SeriesCard, SeriesEpisode, SeriesAssetMatrix } from './SeriesCard';
 
 interface SeriesViewProps {
@@ -17,8 +18,22 @@ export function SeriesView({
 }: SeriesViewProps) {
   return (
     <div className="relative py-8">
-      {/* Master Timeline Connector */}
-      <div className="absolute left-[38px] md:left-[5.5rem] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-studio/20 to-transparent pointer-events-none hidden sm:block" />
+      {/* Master Timeline Connector with Neural Pulse */}
+      <div className="absolute left-[38px] md:left-[5.5rem] top-0 bottom-0 w-px bg-zinc-800 pointer-events-none hidden sm:block overflow-hidden">
+        <motion.div 
+          animate={{ 
+            top: ["-20%", "100%"],
+            opacity: [0, 1, 0]
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+          className="absolute w-full h-[300px] bg-gradient-to-b from-transparent via-studio/80 to-transparent shadow-[0_0_15px_rgba(6,182,212,0.5)]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-studio/10 to-transparent" />
+      </div>
       
       <div className="flex flex-col gap-12 relative z-10">
         {plan.map((ep, idx) => (

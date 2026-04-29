@@ -16,7 +16,6 @@ import {
   Layout as LayoutIcon,
   Play,
   UserPlus,
-  Zap,
   Globe,
   Activity,
   MessageSquare

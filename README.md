@@ -1,7 +1,6 @@
-<div align="center">
-  <img alt="Anime Script Pro - God Mode" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" width="100%" />
-  <h1>🌌 Anime Script Pro: God Mode Engine</h1>
-  <p><i>The Final Frontier of Autonomous Anime Production</i></p>
+🌌 Anime Script Pro: God Mode Engine
+</h1>
+  <p><i>The Final Frontier of Autonomous Multimodal Production</i></p>
 </div>
 
 ---
@@ -9,24 +8,24 @@
 ## 🎭 The Studio Core
 Welcome to the most advanced AI-driven anime production suite. **Anime Script Pro** orchestrates a full-stack creative pipeline—from the initial spark of world lore to high-fidelity screening metadata—using a "God Mode" one-prompt construction loop.
 
-### 3. Full-Stack Studio Deploy (Docker)
-Launch the entire studio environment (Orchestrator, AI Backend, and Mathesar Admin) in seconds:
-```bash
-docker compose up -d
-```
-- **Studio Interface**: [http://localhost:3000](http://localhost:3000)
-- **AI Intelligence Layer**: [http://localhost:8001/docs](http://localhost:8001/docs)
-- **Mathesar Database Admin**: [http://localhost:8080](http://localhost:8080)
+### 🏛️ Engineering Manifest
+For deep-dive technical documentation on our multimodal synthesis engine and cinematic design system, refer to the [Studio Architect Guide](./STUDIO_ARCHITECT_GUIDE.md).
+
+---
+
+## 🚀 Multimodal Synthesis Engine
+The studio has been modernized to handle a complex **Image-to-Video** pipeline:
+- **Neural DNA Synthesis**: Generates persistent visual storyboard frames.
+- **Motion Engine Ignition**: Transforms static frames into cinematic 5s production clips.
+- **Async Backend Protocols**: High-concurrency production handled via FastAPI + AsyncSession.
 
 ---
 
 ## 🛠️ Integrated Tech Stack
-- **Frontend**: React + Vite + Tailwind (Noir Design System)
-- **Orchestrator**: Node.js + Express (AI Proxy & Lifecycle Management)
-- **Intelligence**: FastAPI + Python (SQLModel & Logic persistence)
-- **Models**: Multi-Model Swarm (Gemini 2.0 Flash, GPT-4o, Claude 3.5 Sonnet)
-- **Persistence**: PostgreSQL + Mathesar Visual Admin
-- **Verification**: Playwright E2E "Atomic" Audit Suite
+- **Frontend**: React + Vite + Cinematic Noir Design (Glassmorphism & Neural Pulse)
+- **Intelligence Layer**: FastAPI + Python (100% Async / SQLModel)
+- **Neural Models**: Multi-Model Swarm (Gemini 2.5 Pro / Flash, Imagen-3, Veo-2.0)
+- **Verification**: Playwright E2E + Backend Unit/Integration Suite
 
 ---
 
@@ -60,18 +59,20 @@ MATHESAR_SECRET_KEY=long_random_string
 ---
 
 ## 🛡️ Sovereign Audit & Quality Assurance
-We maintain a strict **Atomic Integrity** standard. Every module is protected by our automated audit suite.
+Our validation suite is now organized into specialized technical sectors:
 
 ### Run Full Studio Audit
 ```bash
 npm run test
 ```
 
-### Diagnostic Reports
-View high-fidelity videos and traces of every production module:
-```bash
-npx playwright show-report
-```
+### 🛡️ Test Manifest
+| Sector | Purpose | Location |
+| :--- | :--- | :--- |
+| **Unit** | AI Connectivity & REST Protocols | `backend/tests/unit/` |
+| **Integration** | Production Workflow Logic | `backend/tests/integration/` |
+| **E2E** | User Production Flows (Playwright) | `tests/e2e/` |
+| **Service** | Multi-Agent Orchestration | `tests/backend_services/` |
 
 ---
 

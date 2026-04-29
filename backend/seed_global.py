@@ -3,6 +3,7 @@ import os
 import sys
 from sqlmodel import Session, create_engine, select, SQLModel
 from datetime import datetime
+from loguru import logger
 
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -51,19 +52,19 @@ def seed_global():
     
     with Session(engine) as session:
         # 1. Seed Tutorials
-        print("Cleaning up old tutorials...")
+        logger.info("Cleaning up old tutorials...")
         existing_tuts = session.exec(select(Tutorial)).all()
         for e in existing_tuts:
             session.delete(e)
         session.commit()
         
-        print(f"Injecting {len(TUTORIALS_DATA)} tutorials...")
+        logger.info(f"Injecting {len(TUTORIALS_DATA)} tutorials...")
         for t in TUTORIALS_DATA:
             tut = Tutorial(**t)
             session.add(tut)
         
         # 2. Seed Community Posts (Dummy Data for now)
-        print("Initializing Community Feed...")
+        logger.info("Initializing Community Feed...")
         existing_posts = session.exec(select(CommunityPost)).all()
         for e in existing_posts:
             session.delete(e)
@@ -81,7 +82,7 @@ def seed_global():
         session.add(post)
         
         session.commit()
-        print(f"✅ Success: Global Ecosystem (Tutorials & Community) is now Live.")
+        logger.success("Global Ecosystem (Tutorials & Community) is now Live.")
 
 if __name__ == "__main__":
     seed_global()

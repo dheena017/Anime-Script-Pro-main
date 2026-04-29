@@ -2,6 +2,7 @@ import os
 import sys
 from sqlmodel import Session, create_engine, select, SQLModel
 from datetime import datetime, timedelta
+from loguru import logger
 
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,13 +20,13 @@ engine = create_engine(DATABASE_URL)
 LOCAL_USER_ID = "local-dev-architect-id"
 
 def seed_all():
-    print("Initializing Full Studio Ecosystem...")
+    logger.info("Initializing Full Studio Ecosystem...")
     SQLModel.metadata.create_all(engine)
     
     with Session(engine) as session:
         # 1. Seed Tutorials
         if not session.exec(select(Tutorial)).first():
-            print("Injecting Learning Center protocols...")
+            logger.info("Injecting Learning Center protocols...")
             tutorials = [
                 Tutorial(
                     title="Mastering the Neural Forge",
@@ -50,7 +51,7 @@ def seed_all():
 
         # 2. Seed Templates (Blueprints)
         if not session.exec(select(Template)).first():
-            print("Forging Blueprint Library...")
+            logger.info("Forging Blueprint Library...")
             templates = [
                 Template(
                     name="Shonen Catalyst", category="Action", icon="Sword", vibe="Kinetic & High-Retention",
@@ -81,7 +82,7 @@ def seed_all():
 
         # 3. Seed Projects (My Library)
         if not session.exec(select(Project)).first():
-            print("Archiving Sample Productions...")
+            logger.info("Archiving Sample Productions...")
             p1 = Project(
                 user_id=LOCAL_USER_ID, title="Solo Leveling: Reborn", content_type="Manhwa", 
                 genre="Action", art_style="Digital Webtoon", episode_length="24 min",
@@ -100,7 +101,7 @@ def seed_all():
             session.add(p2)
             session.commit()
 
-            print("Generating Production Narratives...")
+            logger.info("Generating Production Narratives...")
             series = Series(title="Solo Leveling Saga", summary="The ascent of the world's weakest hunter.")
             session.add(series)
             session.commit()
@@ -114,7 +115,7 @@ def seed_all():
 
         # 4. Seed Community Posts
         if not session.exec(select(CommunityPost)).first():
-            print("Broadcasting Social Hub transmissions...")
+            logger.info("Broadcasting Social Hub transmissions...")
             posts = [
                 CommunityPost(
                     user_id="SYSTEM_ARCHITECT", title="NEON SYNDICATE: The Full Pilot Arc",
@@ -131,7 +132,7 @@ def seed_all():
 
         # 5. Seed Media Assets
         if not session.exec(select(MediaAsset)).first():
-            print("Indexing Visual DNA...")
+            logger.info("Indexing Visual DNA...")
             assets = [
                 MediaAsset(user_id=LOCAL_USER_ID, name="Jin-Woo Main Profile", url="assets/jinwoo_01.png", asset_type="IMAGE"),
                 MediaAsset(user_id=LOCAL_USER_ID, name="Neo-Tokyo Skyline", url="assets/city_skyline.png", asset_type="IMAGE"),
@@ -141,7 +142,7 @@ def seed_all():
 
         # 6. Seed User Data
         if not session.exec(select(UserProfile).where(UserProfile.user_id == LOCAL_USER_ID)).first():
-            print("Initializing Architect Credentials...")
+            logger.info("Initializing Architect Credentials...")
             profile = UserProfile(
                 user_id=LOCAL_USER_ID, display_name="Lead Studio Architect",
                 bio="Architect of the Anime Script Pro production environment.",
@@ -153,7 +154,7 @@ def seed_all():
 
         # 7. Seed Notifications
         if not session.exec(select(Notification)).first():
-            print("Dispatching System Transmissions...")
+            logger.info("Dispatching System Transmissions...")
             notifs = [
                 Notification(user_id=LOCAL_USER_ID, title="Neural Engine Update", message="Gemini 2.0 Pro Experimental is now the default orchestrator.", type="INFO"),
                 Notification(user_id=LOCAL_USER_ID, title="Production Sync Successful", message="Your 'Neon Ghost 2099' project is now synced with the cloud.", type="SUCCESS"),
@@ -163,7 +164,7 @@ def seed_all():
 
         # 8. Seed Help & Documentation
         if not session.exec(select(HelpCategory)).first():
-            print("Populating Help Hub and Documentation Archive...")
+            logger.info("Populating Help Hub and Documentation Archive...")
             
             # Categories
             categories = [
@@ -210,7 +211,7 @@ def seed_all():
             for a in articles: session.add(a)
 
         session.commit()
-    print("Full Studio Ecosystem successfully seeded.")
+    logger.success("Full Studio Ecosystem successfully seeded.")
 
 if __name__ == "__main__":
     seed_all()

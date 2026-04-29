@@ -35,6 +35,7 @@ async def create_project(project: Project, user_id: str = Depends(get_auth_user_
         session.add(project)
         await session.commit()
         await session.refresh(project)
+        logger.info(f"[PROJECT] Production Initialized: {project.title}")
         return project
 
 @router.delete("/projects/{project_id}")
@@ -46,63 +47,68 @@ async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_i
             raise HTTPException(status_code=404, detail="Production project not found")
         await session.delete(project)
         await session.commit()
+        logger.warning(f"[PROJECT] Production Purged: {project_id}")
         return {"ok": True, "message": "Production record purged successfully"}
 
 # --- Series ---
 @router.get("/series", response_model=List[Series])
-def get_series():
-    with Session(engine) as session:
-        return session.exec(select(Series)).all()
+async def get_series():
+    async with AsyncSession(async_engine) as session:
+        statement = select(Series)
+        results = await session.exec(statement)
+        return results.all()
 
 @router.post("/series", response_model=Series)
-def create_series(series: Series):
-    with Session(engine) as session:
+async def create_series(series: Series):
+    async with AsyncSession(async_engine) as session:
         session.add(series)
-        session.commit()
-        session.refresh(series)
+        await session.commit()
+        await session.refresh(series)
         return series
 
 @router.get("/series/{series_id}", response_model=Series)
-def get_series_item(series_id: int):
-    with Session(engine) as session:
-        series = session.get(Series, series_id)
+async def get_series_item(series_id: int):
+    async with AsyncSession(async_engine) as session:
+        series = await session.get(Series, series_id)
         if not series:
             raise HTTPException(status_code=404, detail="Series not found")
         return series
 
 @router.put("/series/{series_id}", response_model=Series)
-def update_series(series_id: int, series: Series):
-    with Session(engine) as session:
-        db_series = session.get(Series, series_id)
+async def update_series(series_id: int, series: Series):
+    async with AsyncSession(async_engine) as session:
+        db_series = await session.get(Series, series_id)
         if not db_series:
             raise HTTPException(status_code=404, detail="Series not found")
         db_series.title = series.title
         db_series.summary = series.summary
         session.add(db_series)
-        session.commit()
-        session.refresh(db_series)
+        await session.commit()
+        await session.refresh(db_series)
         return db_series
 
 @router.get("/series/{series_id}/scripts", response_model=List[Script])
-def get_scripts_for_series(series_id: int):
-    with Session(engine) as session:
-        from backend.models import Script
-        return session.exec(select(Script).where(Script.series_id == series_id)).all()
+async def get_scripts_for_series(series_id: int):
+    async with AsyncSession(async_engine) as session:
+        statement = select(Script).where(Script.series_id == series_id)
+        results = await session.exec(statement)
+        return results.all()
 
 @router.get("/series/{series_id}/cast", response_model=List[CastMember])
-def get_cast_for_series(series_id: int):
-    with Session(engine) as session:
-        from backend.models import CastMember
-        return session.exec(select(CastMember).where(CastMember.series_id == series_id)).all()
+async def get_cast_for_series(series_id: int):
+    async with AsyncSession(async_engine) as session:
+        statement = select(CastMember).where(CastMember.series_id == series_id)
+        results = await session.exec(statement)
+        return results.all()
 
 # --- Sessions ---
 @router.post("/sessions")
-def batch_create_sessions(payload: dict):
+async def batch_create_sessions(payload: dict):
     project_id = payload.get("project_id")
     if not project_id:
         raise HTTPException(status_code=400, detail="project_id is required")
     sessions_data = payload.get("sessions", [])
-    with Session(engine) as session:
+    async with AsyncSession(async_engine) as session:
         created = []
         for s in sessions_data:
             db_session = ProductionSession(
@@ -114,26 +120,27 @@ def batch_create_sessions(payload: dict):
             )
             session.add(db_session)
             created.append(db_session)
-        session.commit()
-        for s in created:
-            session.refresh(s)
+        await session.commit()
+        logger.info(f"[SESSIONS] Batch generated for project {project_id}")
         return created
 
 @router.get("/sessions")
-def get_sessions(project_id: int):
-    with Session(engine) as session:
-        return session.exec(select(ProductionSession).where(ProductionSession.project_id == project_id)).all()
+async def get_sessions(project_id: int):
+    async with AsyncSession(async_engine) as session:
+        statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
+        results = await session.exec(statement)
+        return results.all()
 
 # --- Episodes ---
 @router.post("/episodes")
-def batch_create_episodes(payload: dict):
+async def batch_create_episodes(payload: dict):
     project_id = payload.get("project_id")
     episodes_data = payload.get("episodes", [])
     session_id = payload.get("session_id")
     if project_id is None:
         raise HTTPException(status_code=400, detail="project_id is required")
     
-    with Session(engine) as session:
+    async with AsyncSession(async_engine) as session:
         created = []
         for e in episodes_data:
             db_episode = Episode(
@@ -146,20 +153,21 @@ def batch_create_episodes(payload: dict):
             )
             session.add(db_episode)
             created.append(db_episode)
-        session.commit()
-        for e in created:
-            session.refresh(e)
+        await session.commit()
+        logger.info(f"[EPISODES] Batch synchronized for session {session_id}")
         return created
 
 @router.get("/episodes")
-def get_episodes(project_id: int):
+async def get_episodes(project_id: int):
     """Get episodes for a project."""
-    with Session(engine) as session:
-        return session.exec(select(Episode).where(Episode.project_id == project_id)).all()
+    async with AsyncSession(async_engine) as session:
+        statement = select(Episode).where(Episode.project_id == project_id)
+        results = await session.exec(statement)
+        return results.all()
 
 # --- Scenes ---
 @router.post("/scenes")
-def batch_create_scenes(payload: dict):
+async def batch_create_scenes(payload: dict):
     """Batch create or update scenes."""
     project_id = payload.get("project_id")
     scenes_data = payload.get("scenes", [])
@@ -167,7 +175,7 @@ def batch_create_scenes(payload: dict):
     if project_id is None or episode_id is None:
         raise HTTPException(status_code=400, detail="project_id and episode_id are required")
 
-    with Session(engine) as session:
+    async with AsyncSession(async_engine) as session:
         created = []
         for s in scenes_data:
             from backend.models import Scene
@@ -182,23 +190,23 @@ def batch_create_scenes(payload: dict):
             )
             session.add(db_scene)
             created.append(db_scene)
-        session.commit()
-        for s in created:
-            session.refresh(s)
+        await session.commit()
+        logger.info(f"[SCENES] 960-unit scaffold sync for episode {episode_id}")
         return created
 
 @router.get("/scenes")
-def get_scenes(project_id: int):
+async def get_scenes(project_id: int):
     """Get scenes for a project."""
-    with Session(engine) as session:
+    async with AsyncSession(async_engine) as session:
         from backend.models import Scene
-        return session.exec(select(Scene).where(Scene.project_id == project_id)).all()
+        statement = select(Scene).where(Scene.project_id == project_id)
+        results = await session.exec(statement)
+        return results.all()
 
 @router.post("/prompt-library")
-def create_prompt_library_entry(entry: PromptLibrary):
-    with Session(engine) as session:
-        from backend.models import PromptLibrary
+async def create_prompt_library_entry(entry: PromptLibrary):
+    async with AsyncSession(async_engine) as session:
         session.add(entry)
-        session.commit()
-        session.refresh(entry)
+        await session.commit()
+        await session.refresh(entry)
         return entry

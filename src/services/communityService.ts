@@ -1,7 +1,6 @@
-import axios from 'axios';
 import { createClient } from '../supabase/client';
+import { apiRequest } from '@/lib/api-utils';
 
-const API_BASE_URL = 'http://localhost:8001/api';
 const supabase = createClient();
 
 // Fallback user ID for development
@@ -26,10 +25,7 @@ export const communityService = {
 
   async getPosts(limit: number = 20, offset: number = 0): Promise<CommunityPost[]> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/community`, {
-        params: { limit, offset }
-      });
-      return response.data;
+      return await apiRequest<CommunityPost[]>(`/api/community?limit=${limit}&offset=${offset}`);
     } catch (e) {
       console.error("Error fetching community posts:", e);
       return [];
@@ -39,12 +35,10 @@ export const communityService = {
   async createPost(title: string, content: string): Promise<CommunityPost | null> {
     try {
       const user_id = await this.getUserId();
-      const response = await axios.post(`${API_BASE_URL}/community`, {
-        title,
-        content,
-        user_id
+      return await apiRequest<CommunityPost>('/api/community', {
+        method: 'POST',
+        body: JSON.stringify({ title, content, user_id })
       });
-      return response.data;
     } catch (e) {
       console.error("Error creating community post:", e);
       return null;
@@ -53,8 +47,9 @@ export const communityService = {
 
   async likePost(postId: number): Promise<{ status: string; likes: number } | null> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/community/${postId}/like`);
-      return response.data;
+      return await apiRequest<{ status: string; likes: number }>(`/api/community/${postId}/like`, {
+        method: 'POST'
+      });
     } catch (e) {
       console.error("Error liking community post:", e);
       return null;

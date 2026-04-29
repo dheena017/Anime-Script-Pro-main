@@ -3,6 +3,7 @@ import os
 import sys
 from sqlmodel import Session, create_engine, select, SQLModel
 from datetime import datetime
+from loguru import logger
 
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -168,18 +169,18 @@ QUICK_TEMPLATES = [
 
 def seed():
     # Force table creation
-    print("Ensuring tables are created...")
+    logger.info("Ensuring tables are created...")
     SQLModel.metadata.create_all(engine)
     
     with Session(engine) as session:
         # Clear existing templates
-        print("Cleaning up old blueprints...")
+        logger.info("Cleaning up old blueprints...")
         existing = session.exec(select(Template)).all()
         for e in existing:
             session.delete(e)
         session.commit()
         
-        print(f"Injecting {len(QUICK_TEMPLATES)} fresh blueprints...")
+        logger.info(f"Injecting {len(QUICK_TEMPLATES)} fresh blueprints...")
         for t_data in QUICK_TEMPLATES:
             template = Template(
                 name=t_data["name"],
@@ -199,7 +200,7 @@ def seed():
             session.add(template)
         
         session.commit()
-        print(f"✅ Success: Forge Library is now powered by the Database.")
+        logger.success("Forge Library is now powered by the Database.")
 
 if __name__ == "__main__":
     seed()

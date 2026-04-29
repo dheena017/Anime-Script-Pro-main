@@ -6,7 +6,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 def test():
     api_key = os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     print("Testing requests")
     try:
         response = requests.post(

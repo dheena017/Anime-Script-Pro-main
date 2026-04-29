@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'motion/react';
 import { LogIn, ShieldCheck, Zap } from 'lucide-react';
 import { AuthCard } from '../components/auth/AuthCard';

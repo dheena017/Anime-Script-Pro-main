@@ -1,3 +1,18 @@
+import os
+import sys
+import warnings
+
+# Ensure the project root is on sys.path when running this module directly.
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+# Suppress all runtime user warnings during backend startup
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+)
+
 from typing import Optional, AsyncGenerator
 from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, schemas as fa_schemas

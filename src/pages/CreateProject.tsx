@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { createClient } from '../supabase/client';
 import { useApp } from '../context/AppContext';
 import { cn } from '../lib/utils';
-import { API_BASE_URL, apiRequest } from '../lib/api-utils';
+import { apiRequest } from '../lib/api-utils';
 
 const GENRES = [
   'Shonen', 'Seinen', 'Cyberpunk', 'Isekai', 'Slice of Life', 'Mecha', 'Psychological', 'Dark Fantasy'
@@ -52,7 +52,7 @@ export default function CreateProject() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Authentication required.');
 
-      const project = await apiRequest<any>(`${API_BASE_URL}/api/projects`, {
+      const project = await apiRequest<any>('/api/projects', {
         method: 'POST',
         body: JSON.stringify({
           title,
@@ -68,7 +68,7 @@ export default function CreateProject() {
         }
       });
 
-      await apiRequest(`${API_BASE_URL}/api/generate/god-mode/${project.id}`, {
+      await apiRequest(`/api/generate/god-mode/${project.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`

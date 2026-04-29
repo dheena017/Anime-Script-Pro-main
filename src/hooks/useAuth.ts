@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { supabase } from '@/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  // supabase singleton is imported at the top — no per-render instantiation.
 
   useEffect(() => {
     // Check active sessions and sets the user

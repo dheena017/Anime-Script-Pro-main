@@ -16,14 +16,15 @@ import {
   LayoutGrid,
   Search,
   ImageIcon,
-  Settings
+  Settings,
+  SlidersHorizontal
 } from 'lucide-react';
 
 const STUDIO_NAV = [
   { id: 'world', icon: Globe, label: 'Anime World', path: '/world' },
 
   { id: 'cast', icon: UserPlus, label: 'Cast', path: '/cast' },
-  { id: 'series', icon: Layers, label: 'Series', path: '/series' },
+  { id: 'series', icon: Layers, label: 'Scenes', path: '/series' },
   { id: 'script', icon: ScrollText, label: 'Script', path: '/script' },
   { id: 'storyboard', icon: LayoutGrid, label: 'Storyboard', path: '/storyboard' },
   { id: 'seo', icon: Search, label: 'SEO', path: '/seo' },
@@ -32,15 +33,21 @@ const STUDIO_NAV = [
   { id: 'engine', icon: Settings, label: 'Engine', path: '/engine' },
 ];
 
-export const AnimeStudioNavigation: React.FC<{
+interface AnimeStudioNavigationProps {
   basePath: string;
   handleGenerate?: () => void;
   isLoading?: boolean;
-}> = ({
+  rightSidebarOpen?: boolean;
+  onToggleRightSidebar?: () => void;
+}
+
+export function AnimeStudioNavigation({
   basePath,
   handleGenerate,
-  isLoading
-}) => {
+  isLoading,
+  rightSidebarOpen: _rightSidebarOpen,
+  onToggleRightSidebar: _onToggleRightSidebar
+}: AnimeStudioNavigationProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const location = useLocation();
     const activeItem = STUDIO_NAV.find(item => location.pathname.endsWith(item.path)) || STUDIO_NAV[0];
@@ -102,6 +109,21 @@ export const AnimeStudioNavigation: React.FC<{
 
             {/* ACTION BUTTONS (Always Visible) */}
             <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4 border-l border-white/10 ml-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={_onToggleRightSidebar}
+                className={cn(
+                  "h-10 w-10 rounded-xl transition-all duration-300",
+                  _rightSidebarOpen 
+                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]" 
+                    : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent"
+                )}
+                title="Toggle Creative Engine"
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+              </Button>
+
               <Button
                 variant="default"
                 size="sm"

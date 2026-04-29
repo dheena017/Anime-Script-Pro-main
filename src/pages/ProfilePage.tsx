@@ -96,13 +96,13 @@ export function ProfilePage() {
          }
          try {
             const [profileRes, balanceRes, assetsRes, favRes, promptsRes, charsRes, settingsRes] = await Promise.all([
-               fetch(`http://localhost:8001/api/profiles/${user.id}`),
-               fetch(`http://localhost:8001/api/balances/${user.id}`),
-               fetch(`http://localhost:8001/api/assets/${user.id}`),
-               fetch(`http://localhost:8001/api/favorites/${user.id}`),
-               fetch(`http://localhost:8001/api/library/prompts/${user.id}`),
-               fetch(`http://localhost:8001/api/library/characters/${user.id}`),
-               fetch(`http://localhost:8001/api/settings/${user.id}`)
+               fetch(`/api/profiles/${user.id}`),
+               fetch(`/api/balances/${user.id}`),
+               fetch(`/api/assets/${user.id}`),
+               fetch(`/api/favorites/${user.id}`),
+               fetch(`/api/library/prompts/${user.id}`),
+               fetch(`/api/library/characters/${user.id}`),
+               fetch(`/api/settings/${user.id}`)
             ]);
 
             const profile = await profileRes.json();
@@ -152,14 +152,14 @@ export function ProfilePage() {
       if (!user) return;
       setSaving(true);
       try {
-         await fetch(`http://localhost:8001/api/profiles/${user.id}`, {
+         await fetch(`/api/profiles/${user.id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                display_name: displayName, handle, bio, avatar_url: avatarUrl, banner_url: bannerUrl
             })
          });
-         await fetch(`http://localhost:8001/api/settings/${user.id}`, {
+         await fetch(`/api/settings/${user.id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -174,7 +174,7 @@ export function ProfilePage() {
 
    const addPrompt = async () => {
       if (!user || !newPrompt.label) return;
-      const res = await fetch(`http://localhost:8001/api/library/prompts`, {
+      const res = await fetch(`/api/library/prompts`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ ...newPrompt, user_id: user.id, prompt_text: newPrompt.text })
@@ -189,7 +189,7 @@ export function ProfilePage() {
 
    const addDNA = async () => {
       if (!user || !newDNA.name) return;
-      const res = await fetch(`http://localhost:8001/api/library/characters`, {
+      const res = await fetch(`/api/library/characters`, {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ ...newDNA, user_id: user.id, visual_prompt: newDNA.prompt })

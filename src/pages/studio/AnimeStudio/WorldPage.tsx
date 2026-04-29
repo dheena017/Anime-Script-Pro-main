@@ -51,6 +51,13 @@ export function WorldPage() {
     return () => clearInterval(interval);
   }, [isGeneratingWorld]);
 
+  // Auto-trigger generation if we arrive with a prompt but no world
+  React.useEffect(() => {
+    if (prompt && !generatedWorld && !isGeneratingWorld) {
+      handleGenerate();
+    }
+  }, []);
+
   const handleGenerate = async () => {
     if (!prompt.trim()) {
       showNotification?.('Missing Core Parameter: Enter a production prompt to manifest reality.', 'error');

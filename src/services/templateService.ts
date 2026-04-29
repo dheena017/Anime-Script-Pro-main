@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_BASE_URL = 'http://localhost:8001/api';
+import { apiRequest } from '@/lib/api-utils';
 
 export interface Category {
   id: number;
@@ -31,8 +29,7 @@ export interface ProductionTemplate {
 
 export async function fetchCategories(): Promise<Category[]> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/categories`);
-    return response.data;
+    return await apiRequest<Category[]>('/api/categories');
   } catch (error) {
     console.error("fetchCategories error:", error);
     return [];
@@ -41,8 +38,7 @@ export async function fetchCategories(): Promise<Category[]> {
 
 export async function fetchTemplates(): Promise<ProductionTemplate[]> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/templates`);
-    return response.data;
+    return await apiRequest<ProductionTemplate[]>('/api/templates');
   } catch (error) {
     console.error("fetchTemplates error:", error);
     return [];

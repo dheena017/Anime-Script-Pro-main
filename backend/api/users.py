@@ -8,10 +8,10 @@ from backend.models import UserProfile, UserSettings, UserBalance
 from backend.database import async_engine
 from backend.deps import get_auth_user_id
 
-router = APIRouter(prefix="/api/users", tags=["Users"])
+router = APIRouter(prefix="/api", tags=["Users"])
 
-@router.get("/profile", response_model=UserProfile)
-async def get_user_profile(user_id: str = Depends(get_auth_user_id)):
+@router.get("/profiles/{user_id}", response_model=UserProfile)
+async def get_user_profile(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
         result = await session.exec(statement)
@@ -24,8 +24,8 @@ async def get_user_profile(user_id: str = Depends(get_auth_user_id)):
             await session.refresh(profile)
         return profile
 
-@router.post("/profile", response_model=UserProfile)
-async def update_user_profile(payload: dict, user_id: str = Depends(get_auth_user_id)):
+@router.post("/profiles/{user_id}", response_model=UserProfile)
+async def update_user_profile(user_id: str, payload: dict):
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
         result = await session.exec(statement)
@@ -41,12 +41,13 @@ async def update_user_profile(payload: dict, user_id: str = Depends(get_auth_use
         if "banner_url" in payload: profile.banner_url = payload["banner_url"]
         
         profile.updated_at = datetime.utcnow()
+        session.add(profile)
         await session.commit()
         await session.refresh(profile)
         return profile
 
-@router.get("/settings", response_model=UserSettings)
-async def get_user_settings(user_id: str = Depends(get_auth_user_id)):
+@router.get("/settings/{user_id}", response_model=UserSettings)
+async def get_user_settings(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
         result = await session.exec(statement)
@@ -58,8 +59,8 @@ async def get_user_settings(user_id: str = Depends(get_auth_user_id)):
             await session.refresh(settings)
         return settings
 
-@router.post("/settings", response_model=UserSettings)
-async def update_user_settings(payload: dict, user_id: str = Depends(get_auth_user_id)):
+@router.post("/settings/{user_id}", response_model=UserSettings)
+async def update_user_settings(user_id: str, payload: dict):
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
         result = await session.exec(statement)
@@ -76,12 +77,13 @@ async def update_user_settings(payload: dict, user_id: str = Depends(get_auth_us
         if "billing" in payload: settings.billing = payload["billing"]
         
         settings.updated_at = datetime.utcnow()
+        session.add(settings)
         await session.commit()
         await session.refresh(settings)
         return settings
 
-@router.get("/balance", response_model=UserBalance)
-async def get_user_balance(user_id: str = Depends(get_auth_user_id)):
+@router.get("/balances/{user_id}", response_model=UserBalance)
+async def get_user_balance(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserBalance).where(UserBalance.user_id == user_id)
         result = await session.exec(statement)

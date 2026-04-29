@@ -55,6 +55,28 @@ interface ProductionCoreProps {
   contentType: string;
   setContentType?: (type: string) => void;
   showNotification?: (msg: string, type: any) => void;
+  
+  // Missing props passed from Layout
+  session?: string;
+  setSession?: (s: string) => void;
+  episode?: string;
+  setEpisode?: (e: string) => void;
+  numScenes?: string;
+  setNumScenes?: (n: string) => void;
+  recapperPersona?: string;
+  setRecapperPersona?: (p: string) => void;
+  characterRelationships?: string;
+  setCharacterRelationships?: (r: string | null) => void;
+  worldBuilding?: string;
+  setWorldBuilding?: (w: string | null) => void;
+  castProfiles?: string;
+  setCastProfiles?: (c: string | null) => void;
+  handleGenerate?: () => void;
+  handleMasterGenerate?: () => void;
+  basePath?: string;
+  navigate?: any;
+  theme?: string;
+  setTheme?: (t: string) => void;
 }
 
 export const ProductionCore: React.FC<ProductionCoreProps> = ({
@@ -70,8 +92,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
   currentScriptId,
   user,
   contentType,
-  setContentType,
-}) => {
+  setContentType}) => {
   const [localContentType, setLocalContentType] = React.useState(contentType || 'Anime');
 
   React.useEffect(() => {
@@ -211,6 +232,10 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
                       <SelectValue placeholder="Model" />
                     </SelectTrigger>
                     <SelectContent className="bg-zinc-950 border-cyan-500/20 text-cyan-400">
+                      <SelectItem value="gemini-3.1-pro">G3.1 Pro (Ultra-Gen Intelligence)</SelectItem>
+                      <SelectItem value="gemini-3.1-flash">G3.1 Flash (Hyper-Speed Lite)</SelectItem>
+                      <SelectItem value="gemini-3-pro">G3.0 Pro (Advanced Reasoning)</SelectItem>
+                      <SelectItem value="gemini-3-flash">G3.0 Flash (Rapid Production)</SelectItem>
                       <SelectItem value="gemini-2.0-pro-exp-02-05">G2.0 Pro (Elite Intelligence)</SelectItem>
                       <SelectItem value="Gemini-2.5-Flash">G2.0 Flash (Next-Gen Hub)</SelectItem>
                       <SelectItem value="gemini-1.5-pro">G1.5 Pro (Legacy Elite)</SelectItem>

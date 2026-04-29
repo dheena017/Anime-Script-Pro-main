@@ -1,5 +1,22 @@
+import logging
 import os
 import sys
+import warnings
+
+# Ensure project root and backend package roots are importable when running this module directly
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BACKEND_ROOT = os.path.dirname(os.path.abspath(__file__))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+if BACKEND_ROOT not in sys.path:
+    sys.path.insert(0, BACKEND_ROOT)
+
+# Suppress all runtime user warnings during backend startup
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+)
+
 from datetime import datetime
 from typing import List, Optional, Dict
 from dotenv import load_dotenv
@@ -16,8 +33,45 @@ from slowapi.util import get_remote_address
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
 
-# Add parent directory to path to allow absolute imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+def configure_logging() -> None:
+    logger.remove()
+    logger.add(
+        sys.stderr,
+        level="INFO",
+        colorize=True,
+        format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        backtrace=False,
+        diagnose=False,
+    )
+
+    class InterceptHandler(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            try:
+                level = logger.level(record.levelname).name
+            except ValueError:
+                level = record.levelno
+            frame, depth = logging.currentframe(), 2
+            while frame is not None and frame.f_code.co_filename == logging.__file__:
+                frame = frame.f_back
+                depth += 1
+            logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+    intercept_loggers = [
+        "uvicorn",
+        "uvicorn.error",
+        "uvicorn.access",
+        "fastapi",
+        "sqlalchemy",
+        "sqlmodel",
+    ]
+    for name in intercept_loggers:
+        logging.getLogger(name).handlers = [InterceptHandler()]
+        logging.getLogger(name).propagate = False
+
+
+# Add project root to path to allow absolute imports when run directly
+# (This is also safe when imported as a module.)
 
 from backend.database import engine, async_engine, get_async_session
 from backend.models import Tutorial
@@ -25,7 +79,14 @@ from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCrea
 from backend.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
 
+configure_logging()
+
 # --- FastAPI app initialization ---
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
+logging.getLogger('sqlmodel').setLevel(logging.WARNING)
+
 app = FastAPI(
     title="Anime Script Pro API",
     version="1.0.0",
@@ -86,10 +147,27 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
 # --- Middleware ---
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"Request: {request.method} {request.url}")
-    response = await call_next(request)
-    logger.info(f"Response status: {response.status_code}")
-    return response
+    import time
+    start_time = time.perf_counter()
+    
+    # Capture relevant request details
+    method = request.method
+    path = request.url.path
+    query = request.url.query
+    
+    logger.info(f"INCOMING: {method} {path}{'?' + query if query else ''}")
+    
+    try:
+        response = await call_next(request)
+        process_time = (time.perf_counter() - start_time) * 1000
+        
+        status_color = "green" if response.status_code < 400 else "yellow" if response.status_code < 500 else "red"
+        logger.info(f"OUTGOING: {method} {path} | <{status_color}>{response.status_code}</{status_color}> | Latency: {process_time:.2f}ms")
+        
+        return response
+    except Exception as e:
+        logger.error(f"CRITICAL: Middleware caught exception during {method} {path}: {str(e)}")
+        raise
 
 # --- Routers ---
 from api.templates import router as templates_router
@@ -116,6 +194,10 @@ async def root():
 
 @app.get("/health", tags=["system"])
 async def health():
+    return {"status": "ok"}
+
+@app.get("/api/health", tags=["system"], include_in_schema=False)
+async def api_health():
     return {"status": "ok"}
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -199,20 +281,43 @@ async def websocket_template_notifications(websocket: WebSocket):
 # --- Startup Events ---
 @app.on_event("startup")
 async def on_startup():
-    # Create tables
-    SQLModel.metadata.create_all(engine)
+    banner = """
+    ================================================================================
+    █████╗ ███╗   ██╗██╗███╗   ███╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗
+    ██╔══██╗████╗  ██║██║████╗ ████║██╔════╝    ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝
+    ███████║██╔██╗ ██║██║██╔████╔██║█████╗      ███████╗██║     ██████╔╝██║██████╔╝   ██║   
+    ██╔══██║██║╚██╗██║██║██║╚██╔╝██║██╔══╝      ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   
+    ██║  ██║██║ ╚████║██║██║ ╚═╝ ██║███████╗    ███████║╚██████╗██║  ██║██║██║        ██║   
+    ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝╚══════╝    ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   
+    ================================================================================
+    PRO PRODUCTION SUITE | NEURAL ENGINE v1.0.0 | STATUS: INITIALIZING...
+    """
+    for line in banner.strip().split("\n"):
+        logger.info(line)
+
+    logger.info("Starting Anime Script Pro backend...")
+    logger.info("Loading environment variables and preparing database...")
+
+    # 1. Initialize Database & Sync Metadata (Async)
+    async with async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+    logger.success("DATABASE: Metadata synced successfully.")
     
-    # Auto-seed if empty
+    # 2. Auto-seed if empty (Synchronous check within session)
     with Session(engine) as session:
         if not session.exec(select(Tutorial)).first():
-            logger.info("Database empty. Initializing with default studio data...")
+            logger.warning("DATABASE: Studio data missing. Initializing core templates...")
             from seed_all import seed_all
             try:
                 seed_all()
+                logger.success("DATABASE: Auto-seeding complete. Studio assets deployed.")
             except Exception as e:
-                logger.error(f"Auto-seeding failed: {e}")
+                logger.error(f"DATABASE: Auto-seeding failed: {e}")
+        else:
+            logger.info("DATABASE: Persistence verified. Skipping seed.")
 
-@app.on_event("startup")
-async def on_startup_async():
-    async with async_engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+    logger.success("SYSTEM: Anime Script Pro Production Suite is ONLINE.")
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    logger.info("Anime Script Pro backend is shutting down.")
