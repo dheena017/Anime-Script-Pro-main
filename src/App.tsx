@@ -52,15 +52,7 @@ const LoadingSpinner = () => (
 
 export default function App() {
   React.useEffect(() => {
-    console.log(
-      `%c ⚡ GOD MODE ENGINE v2.0 %c INITIALIZED %c\n%c\n> World Lore: ACTIVE\n> Character DNA: SYNCED\n> Scene Scaffolding: 960 UNITS\n\n%cANIME STUDIO ARCHITECT IS READY.%c\n`,
-      "background: #dc2626; color: white; font-weight: bold; padding: 4px 8px; border-radius: 4px 0 0 4px;",
-      "background: #18181b; color: #dc2626; font-weight: bold; padding: 4px 8px; border-radius: 0 4px 4px 0;",
-      "",
-      "color: #71717a; font-family: monospace;",
-      "color: #dc2626; font-weight: bold; text-decoration: underline;",
-      ""
-    );
+    // Application initialized
   }, []);
 
   return (

@@ -30,7 +30,8 @@ export function StudioLayout({ type }: { type?: string }) {
     characterRelationships,
     numScenes,
     generatedWorld, generatedCharacters,
-    setGeneratedMetadata
+    setGeneratedMetadata,
+    showNotification
   } = useGenerator();
 
   React.useEffect(() => {
@@ -38,36 +39,50 @@ export function StudioLayout({ type }: { type?: string }) {
   }, [type, setContentType]);
 
   const basePath = type ? `/${type.toLowerCase()}` : '';
+  const getErrorMessage = (error: unknown) =>
+    error instanceof Error ? error.message : String(error);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setIsLoading(true);
-    navigate(`${basePath}/script`);
-    const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters);
-    setGeneratedScript(script);
-    setCurrentScriptId(null);
-    setIsLoading(false);
-    if (user) {
-      try {
-        const res = await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user_id: user.id,
-            name: prompt || "Single Generation",
-            content_type: contentType,
-            prompt: prompt,
-            vibe: tone,
-            metadata: { script, episode, session, model: selectedModel }
-          })
-        });
-        if (res.ok) {
-          const project = await res.json();
-          setCurrentScriptId(project.id);
-        }
-      } catch (error) {
-        console.error("Save single generation failed:", error);
+    try {
+      navigate(`${basePath}/script`);
+      const script = await generateScript(
+        prompt, tone, audience, session, episode, numScenes, selectedModel, contentType, recapperPersona, characterRelationships, generatedWorld, generatedCharacters
+      );
+      if (typeof script === "string" && script.startsWith("Error:")) {
+        showNotification?.(script, "error");
+        setIsLoading(false);
+        return;
       }
+      setGeneratedScript(script);
+      setCurrentScriptId(null);
+      if (user) {
+        try {
+          const res = await fetch("/api/projects", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              user_id: user.id,
+              name: prompt || "Single Generation",
+              content_type: contentType,
+              prompt: prompt,
+              vibe: tone,
+              metadata: { script, episode, session, model: selectedModel }
+            })
+          });
+          if (res.ok) {
+            const project = await res.json();
+            setCurrentScriptId(project.id);
+          }
+        } catch (error) {
+          showNotification?.("Save single generation failed: " + getErrorMessage(error), "error");
+        }
+      }
+    } catch (error) {
+      showNotification?.(getErrorMessage(error) || "Generation failed", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 

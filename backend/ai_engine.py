@@ -4,10 +4,12 @@ from google import genai
 from dotenv import load_dotenv
 
 from loguru import logger
-load_dotenv()
+# Load .env from root directory
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(dotenv_path)
 
 # Explicitly pass the API key since the .env file uses the VITE_ prefix
-api_key = os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("VITE_GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
 class AIEngine:

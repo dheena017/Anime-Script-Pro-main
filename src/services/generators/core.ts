@@ -1,3 +1,42 @@
+/**
+ * Utility: Checks if a value is empty (null, undefined, empty string, or empty array/object)
+ */
+export function isEmpty(value: any): boolean {
+  if (value == null) return true;
+  if (typeof value === "string" && value.trim() === "") return true;
+  if (Array.isArray(value) && value.length === 0) return true;
+  if (typeof value === "object" && Object.keys(value).length === 0) return true;
+  return false;
+}
+
+/**
+ * Utility: Clamp a number between min and max
+ */
+export function clamp(num: number, min: number, max: number): number {
+  return Math.min(Math.max(num, min), max);
+}
+
+/**
+ * Utility: Debounce a function (wait ms after last call before invoking)
+ */
+export function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function(this: any, ...args: any[]) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), ms);
+  } as T;
+}
+
+/**
+ * Utility: Simple logger with levels
+ */
+export const logger = {
+  info: (...args: any[]) => console.info("[INFO]", ...args),
+  warn: (...args: any[]) => console.warn("[WARN]", ...args),
+  error: (...args: any[]) => console.error("[ERROR]", ...args),
+  debug: (...args: any[]) => console.debug("[DEBUG]", ...args),
+};
+
 import { GoogleGenAI } from "@google/genai";
 
 /**
@@ -67,16 +106,17 @@ export class TimeoutError extends AIError {
   }
 }
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 
 /**
  * Robust AI Call Utility with built-in retries, timeouts, and error handling.
  */
 export async function callAI(
-  model: string,
+  model: string, // user-selected model
   prompt: string,
   systemInstruction: string,
-  retries: number = 0,
+  temperature: number = 0.85,
+  _retries: number = 0, // unused, kept for signature compatibility
   timeoutMs: number = 90000 // 90 second timeout for faster response cycles
 ) {
   // 1. Pre-flight checks
@@ -90,32 +130,39 @@ export async function callAI(
     throw new AuthenticationError("AI Configuration Missing: Gemini API Key is required.");
   }
 
-  let attempt = 0;
-  let currentModel = model.replace("models/", "").toLowerCase().trim();
+  //
+  // Try user-selected model first, then fallbacks
+  const fallbackModels = [
+    
+    "Gemini 3 Flash Live"
+    
 
-  // Pass the requested model to the backend and let the Stability Layer handle mapping
-  // This allows the backend to optimize for speed/quota dynamically.
-
-  while (attempt < (retries ?? 0) + 1) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
+  ];
+  const modelFallbacks = [model, ...fallbackModels.filter(m => m !== model)];
+  let lastError = null;
+  for (const currentModel of modelFallbacks) {
     try {
-      console.log(`[AI Core] [Attempt ${attempt + 1}] Requesting: ${currentModel}`);
-
-      const response = await fetch("/api/generate", {
+      const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+      if (!API_KEY) {
+        console.error("[AI Core] CRITICAL: VITE_GEMINI_API_KEY is missing.");
+        throw new AuthenticationError("AI Configuration Missing: Gemini API Key is required.");
+      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      const payload = {
+        model: currentModel,
+        prompt: prompt,
+        systemInstruction: systemInstruction,
+        temperature: temperature
+      };
+      console.log("[AI Core] Trying model:", currentModel, payload);
+      const response = await fetch("http://localhost:8001/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: currentModel,
-          prompt: prompt,
-          systemInstruction: systemInstruction
-        }),
+        body: JSON.stringify(payload),
         signal: controller.signal
       });
-
       clearTimeout(timeoutId);
-
       if (!response.ok) {
         let errorData: any = {};
         try {
@@ -124,90 +171,23 @@ export async function callAI(
           const text = await response.text().catch(() => "Unknown backend error");
           errorData = { error: text };
         }
-
         const msg = errorData.details || errorData.error?.message || errorData.error?.details || (typeof errorData.error === 'string' ? errorData.error : response.statusText) || "Generation Failed";
-        const msgLower = String(msg).toLowerCase();
-
         console.error(`[AI Core] Backend Error (${response.status}):`, errorData);
-
-        // 1. Rate Limiting / Quota
-        if (response.status === 429 || msgLower.includes("quota") || msgLower.includes("too many requests")) {
-          const retryAfter = errorData.retryAfter || 25;
-          throw new RateLimitError(msg, retryAfter);
-        }
-
-        // 2. Authentication Errors
-        if (response.status === 401 || response.status === 403) {
-          throw new AuthenticationError(`Authentication failed: ${msg}`);
-        }
-
-        // 3. Model Not Found (Fallback Logic)
-        if (response.status === 404 || msgLower.includes("not found")) {
-          if (attempt === 0 && currentModel !== "gemini-2.0-flash-lite-001") {
-            console.warn(`[AI Core] Model ${currentModel} not found. Falling back to gemini-2.0-flash-lite-001.`);
-            currentModel = "gemini-2.0-flash-lite-001";
-            attempt++;
-            continue;
-          }
-          throw new ModelNotFoundError(`Model ${currentModel} is unavailable.`);
-        }
-
-        // 4. Content Filtering (Safety)
-        if (msgLower.includes("safety") || msgLower.includes("filtered") || msgLower.includes("blocked")) {
-          throw new ContentFilterError("Response blocked by AI safety filters.", errorData);
-        }
-
-        // 5. Server Errors (Retryable)
-        if (response.status >= 500) {
-          throw new AIError(`Server error (${response.status}): ${msg}`, response.status, null, true);
-        }
-
-        throw new AIError(msg, response.status, null, false);
+        lastError = new Error(msg);
+        continue; // Try next model
       }
-
       const data = await response.json();
       const text = data.text;
-
-      if (!text) throw new AIError("AI returned an empty response.", 204, null, true);
+      if (!text) throw new Error("AI returned an empty response.");
       return text;
-
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-      attempt++;
-
-      if (error.name === 'AbortError') {
-        console.error(`[AI Core] Request Timed Out after ${timeoutMs}ms`);
-        if (attempt <= (retries ?? 0)) {
-          const backoff = Math.pow(2, attempt) * 1000;
-          await sleep(backoff);
-          continue;
-        }
-        throw new TimeoutError();
-      }
-
-      // If it's already an AIError, respect its retryable flag
-      const isRetryable = error instanceof AIError ? error.retryable : true;
-
-      console.warn(`[AI Core] Attempt ${attempt} failed: ${error.message} (Retryable: ${isRetryable})`);
-
-      if (attempt <= (retries ?? 0) && isRetryable) {
-        if (error instanceof RateLimitError) {
-          const waitTime = error.retryAfter * 1000;
-          console.log(`[AI Core] Quota Hit. Cooling down for ${error.retryAfter}s...`);
-          await sleep(waitTime);
-          continue;
-        }
-
-        // Fast Backoff
-        const backoff = Math.pow(1.5, attempt) * 500;
-        console.log(`[AI Core] Retrying in ${Math.round(backoff)}ms...`);
-        await sleep(backoff);
-        continue;
-      }
-
-      throw error;
+    } catch (error) {
+      lastError = error;
+      continue; // Try next model
     }
   }
+  // If all models fail, throw the last error
+  throw lastError || new Error("All Gemini models failed.");
+
 }
 
 export const getAIClient = () => new GoogleGenAI({

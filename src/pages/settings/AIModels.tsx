@@ -3,6 +3,7 @@ import { Cpu, BrainCircuit, Activity, DatabaseZap, Sparkles, Wand2, Mic, Image a
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import { settingsService } from '../../services/settingsService';
+import { ExternalModelNetwork } from '../../components/settings/ExternalModelNetwork';
 
 export function AIModelSettings() {
 
@@ -205,6 +206,10 @@ export function AIModelSettings() {
 
         </CardContent>
       </Card>
+
+      <div className="pt-12">
+        <ExternalModelNetwork />
+      </div>
     </div>
   );
 }

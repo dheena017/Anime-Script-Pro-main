@@ -1,4 +1,4 @@
-import { callAI, getAIClient } from "./core";
+import { callAI} from "./core";
 
 export async function generateImagePrompts(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
   const systemInstruction = `

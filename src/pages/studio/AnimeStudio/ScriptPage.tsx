@@ -323,14 +323,20 @@ export function ScriptPage() {
                     <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Initializing Production Core...</p>
                   </div>
                 ) : generatedScript ? (
-                  <ScriptView 
-                    generatedScript={generatedScript}
-                    prompt={prompt}
-                    session={session}
-                    episode={episode}
-                    audience={audience}
-                    visualData={visualData}
-                  />
+                  generatedScript.startsWith("Error:") ? (
+                    <div className="text-red-500 font-bold text-center py-8 text-lg">
+                      {generatedScript}
+                    </div>
+                  ) : (
+                    <ScriptView 
+                      generatedScript={generatedScript}
+                      prompt={prompt}
+                      session={session}
+                      episode={episode}
+                      audience={audience}
+                      visualData={visualData}
+                    />
+                  )
                 ) : (
                   <ScriptEmptyState 
                     onLaunch={handleGenerateScript}

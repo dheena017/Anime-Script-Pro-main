@@ -1,0 +1,37 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+from typing import List
+from backend.models import Notification
+from backend.database import async_engine
+from backend.deps import get_auth_user_id
+
+router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
+
+@router.get("/{user_id}", response_model=List[Notification])
+async def get_notifications(user_id: str):
+    async with AsyncSession(async_engine) as session:
+        statement = select(Notification).where(Notification.user_id == user_id)
+        results = await session.exec(statement)
+        return results.all()
+
+@router.post("/{notification_id}/read")
+async def mark_notification_read(notification_id: int):
+    async with AsyncSession(async_engine) as session:
+        notification = await session.get(Notification, notification_id)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        notification.is_read = True
+        session.add(notification)
+        await session.commit()
+        return {"status": "read"}
+
+@router.delete("/{notification_id}")
+async def delete_notification(notification_id: int):
+    async with AsyncSession(async_engine) as session:
+        notification = await session.get(Notification, notification_id)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        await session.delete(notification)
+        await session.commit()
+        return {"ok": True}
