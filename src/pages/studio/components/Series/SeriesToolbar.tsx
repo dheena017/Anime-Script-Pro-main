@@ -42,7 +42,8 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
+        const target = document.getElementById('studio-content-area') || document.documentElement;
+        await target.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }

@@ -280,7 +280,7 @@ export default function AnimeLayout() {
               onToggleRightSidebar={toggleEngine}
             />
 
-            <div className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-hidden">
+            <div id="studio-content-area" className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-y-auto custom-scrollbar">
               <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
               <div className="relative z-10 w-full h-full p-2 lg:p-4">
                 <AnimatePresence mode="wait">

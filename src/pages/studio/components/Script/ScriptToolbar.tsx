@@ -52,7 +52,8 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
+        const target = document.getElementById('studio-content-area') || document.documentElement;
+        await target.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }

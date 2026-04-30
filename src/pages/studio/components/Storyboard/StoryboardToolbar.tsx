@@ -41,8 +41,12 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
 
   const toggleFullscreen = async () => {
     try {
-      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
-      else await document.exitFullscreen();
+      if (!document.fullscreenElement) {
+        const target = document.getElementById('studio-content-area') || document.documentElement;
+        await target.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
     } catch (err) { console.error(err); }
   };
 
