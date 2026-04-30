@@ -1,14 +1,15 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Layers } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { SeriesHeader } from '../../components/Series/SeriesHeader';
 import { SeriesToolbar } from '../../components/Series/SeriesToolbar';
 import { generateSeriesPlan } from '@/services/geminiService';
+import { SeriesTab } from '@/pages/studio/components/Series/Tabs/SeriesTabs';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showScaffolder, setShowScaffolder] = React.useState(false);
 
   const {
@@ -45,53 +46,54 @@ export default function SeriesLayout() {
     }
   };
 
+  const activeTab = (searchParams.get('tab') as SeriesTab) || 'roadmap';
+
+  const handleTabChange = (tab: SeriesTab) => {
+    setSearchParams({ tab });
+  };
+
   return (
     <div className="space-y-6">
       <SeriesHeader
         onRegenerate={handleGenerate}
         isGenerating={isGeneratingSeries}
+        onPrev={() => navigate('/anime/cast')}
         onNext={() => navigate('/anime/script')}
         session={session}
         episode={episode}
       />
 
-      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="flex items-center gap-12 z-10 w-full">
-          <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-            <Layers className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Series_Nexus</span>
-          </div>
-
-          <SeriesToolbar
-            session={session}
-            episode={episode}
-            status={generatedSeriesPlan ? 'active' : 'empty'}
-            onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
-            showScaffolder={showScaffolder}
-            onManifestClick={() => {
-              document.getElementById('master-manifest')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            onExportClick={() => {
-              if (!generatedSeriesPlan) return;
-              const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `series-manifest-S${session}-E${episode}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          />
-        </div>
+      <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <SeriesToolbar
+          status={generatedSeriesPlan ? 'active' : 'empty'}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          session={session}
+          episode={episode}
+          onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
+          showScaffolder={showScaffolder}
+          onManifestClick={() => handleTabChange('roadmap')}
+          onExportClick={() => {
+            if (!generatedSeriesPlan) return;
+            const blob = new Blob([JSON.stringify(generatedSeriesPlan, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `series-manifest-S${session}-E${episode}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          content={generatedSeriesPlan ? JSON.stringify(generatedSeriesPlan, null, 2) : null}
+        />
       </div>
 
       <motion.div
+        key={activeTab}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Outlet context={{ showScaffolder, setShowScaffolder }} />
+        <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
       </motion.div>
     </div>
   );

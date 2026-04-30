@@ -7,11 +7,20 @@ import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/api-utils';
+import { useOutletContext } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { ScriptTab } from '../components/Script/Tabs/ScriptTabs';
 
 // Sub-components
-import { ScriptView } from '../components/Script/ScriptView';
 import { ScriptEmptyState } from '../components/Script/ScriptEmptyState';
 import { ScriptContext } from './Script/ScriptLayout';
+
+// Modular tab views
+import { TeleprompterTab } from '../components/Script/Tabs/TeleprompterTab';
+import { LinguisticsTab } from '../components/Script/Tabs/LinguisticsTab';
+import { BeatSheetTab } from '../components/Script/Tabs/BeatSheetTab';
+import { DialogueTab } from '../components/Script/Tabs/DialogueTab';
+import { MetadataTab } from '../components/Script/Tabs/MetadataTab';
 
 export function ScriptPage() {
   const { user } = useAuth();
@@ -283,6 +292,7 @@ export function ScriptPage() {
   };
 
   const { setHandlers } = React.useContext<any>(ScriptContext);
+  const { activeTab } = useOutletContext<{ activeTab: ScriptTab }>();
 
   React.useEffect(() => {
     setHandlers({
@@ -297,41 +307,100 @@ export function ScriptPage() {
     });
   }, [generatedScript, visualData, episode, session]);
 
+  const renderTabContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Initializing Production Core...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Sequencing neural script engine</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (!generatedScript) {
+      return (
+        <ScriptEmptyState
+          onLaunch={handleGenerateScript}
+          isGenerating={isLoading}
+        />
+      );
+    }
+
+    if (generatedScript.startsWith('Error:')) {
+      return (
+        <div className="text-red-500 font-bold text-center py-8 text-lg">{generatedScript}</div>
+      );
+    }
+
+    switch (activeTab) {
+      case 'teleprompter':
+        return (
+          <TeleprompterTab
+            generatedScript={generatedScript}
+            prompt={prompt}
+            session={session}
+            episode={episode}
+            audience={audience}
+            visualData={visualData}
+          />
+        );
+      case 'linguistics':
+        return <LinguisticsTab />;
+      case 'beats':
+        return <BeatSheetTab />;
+      case 'dialogue':
+        return <DialogueTab />;
+      case 'metadata':
+        return (
+          <MetadataTab
+            session={session}
+            episode={episode}
+            prompt={prompt}
+            tone={tone}
+            audience={audience}
+            contentType={contentType}
+            selectedModel={selectedModel}
+          />
+        );
+      default:
+        return (
+          <TeleprompterTab
+            generatedScript={generatedScript}
+            prompt={prompt}
+            session={session}
+            episode={episode}
+            audience={audience}
+            visualData={visualData}
+          />
+        );
+    }
+  };
+
   return (
     <div data-testid="marker-production-script">
-
-      <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
-        <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
-        <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
+      <Card className={cn(
+        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        activeTab === 'teleprompter'
+          ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50"
+          : "border-zinc-800/30 hover:border-zinc-700"
+      )}>
+        <div className={cn(
+          "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
+          activeTab === 'teleprompter' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
+        )} />
 
         <div className="w-full p-0">
-          <div className="p-12 max-w-4xl mx-auto">
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center h-[500px] text-studio">
-                  <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
-                  <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Initializing Production Core...</p>
-                </div>
-              ) : generatedScript ? (
-                generatedScript.startsWith("Error:") ? (
-                  <div className="text-red-500 font-bold text-center py-8 text-lg">
-                    {generatedScript}
-                  </div>
-                ) : (
-                  <ScriptView
-                    generatedScript={generatedScript}
-                    prompt={prompt}
-                    session={session}
-                    episode={episode}
-                    audience={audience}
-                    visualData={visualData} />
-                )
-              ) : (
-                <ScriptEmptyState
-                  onLaunch={handleGenerateScript}
-                  isGenerating={isLoading} />
-              )}
-            </div>
+          <div className={cn(
+            "p-12 mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700",
+            activeTab === 'teleprompter' ? "max-w-4xl" : "max-w-5xl"
+          )}>
+            {renderTabContent()}
           </div>
         </div>
       </Card>

@@ -1,11 +1,11 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ScrollText } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { ScriptHeader } from '../../components/Script/ScriptHeader';
 import { ScriptToolbar } from '../../components/Script/ScriptToolbar';
 import { generateScript } from '@/services/geminiService';
+import { ScriptTab } from '@/pages/studio/components/Script/Tabs/ScriptTabs';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -13,6 +13,7 @@ export const ScriptContext = React.createContext<{
 
 export default function ScriptLayout() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
@@ -46,6 +47,12 @@ export default function ScriptLayout() {
     }
   };
 
+  const activeTab = (searchParams.get('tab') as ScriptTab) || 'teleprompter';
+
+  const handleTabChange = (tab: ScriptTab) => {
+    setSearchParams({ tab });
+  };
+
   return (
     <ScriptContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
@@ -58,34 +65,30 @@ export default function ScriptLayout() {
           episode={episode}
         />
 
-        <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          <div className="flex items-center gap-12 z-10 w-full">
-            <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-              <ScrollText className="w-4 h-4 text-studio" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Script_Nexus</span>
-            </div>
-
-            <ScriptToolbar
-              session={session}
-              episode={episode}
-              status={generatedScript ? 'active' : 'empty'}
-              onExport={handlers.exportToPDF}
-              onViewSEO={handlers.handleGenerateSEO}
-              onViewPrompts={handlers.handleGeneratePrompts}
-              onViewStoryboard={handlers.handleGenerateVisuals}
-              onExtend={handlers.handleContinueScript}
-              onListen={handlers.playVoiceover}
-            />
-          </div>
+        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+          <ScriptToolbar
+            status={generatedScript ? 'active' : 'empty'}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            session={session}
+            episode={episode}
+            content={generatedScript}
+            onExport={handlers.exportToPDF}
+            onViewSEO={handlers.handleGenerateSEO}
+            onViewPrompts={handlers.handleGeneratePrompts}
+            onViewStoryboard={handlers.handleGenerateVisuals}
+            onExtend={handlers.handleContinueScript}
+            onListen={handlers.playVoiceover}
+          />
         </div>
 
         <motion.div
+          key={activeTab}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Outlet />
+          <Outlet context={{ activeTab }} />
         </motion.div>
       </div>
     </ScriptContext.Provider>
