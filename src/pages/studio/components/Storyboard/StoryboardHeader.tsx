@@ -64,7 +64,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
           {onPrev && (
             <Button 
               variant="outline" 
-              className="relative w-full sm:w-auto h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/back"
+              className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-xl group/back shadow-2xl"
               onClick={onPrev}
             >
               <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -75,22 +75,27 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <Button 
               variant="outline" 
-              className="relative w-full sm:w-auto h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
+              className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-xl group/btn shadow-2xl"
               onClick={onRegenerate}
               disabled={isGenerating}
             >
-              {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <ImageIcon className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-110 transition-transform" />}
-              SYNTHESIZE FRAMES
+              <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 rounded-full" />
+              {isGenerating ? (
+                <RefreshCw className="w-4 h-4 animate-spin mr-3 text-studio" />
+              ) : (
+                <ImageIcon className="w-4 h-4 mr-3 text-studio group-hover/btn:scale-110 transition-transform duration-500" />
+              )}
+              <span className="relative z-10">GENERATE STORYBOARD</span>
             </Button>
 
             <Button 
-              className="relative w-full sm:w-auto h-11 px-8 rounded-2xl bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] transition-all duration-300 backdrop-blur-md overflow-hidden group/next"
+              className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-studio hover:border-studio/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 backdrop-blur-xl group/next shadow-2xl"
               onClick={onNext}
             >
               <span className="relative z-10 flex items-center gap-2">
                 NEXT: SEO <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/10 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
             </Button>
           </div>
         </div>
