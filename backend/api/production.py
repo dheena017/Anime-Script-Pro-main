@@ -1,28 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
-from database import get_session
-from models.project_content import ProjectContent
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+from backend.database import get_async_session
+from backend.models.project_content import ProjectContent
 from datetime import datetime
 from typing import Optional, List
 
 router = APIRouter(prefix="/api/production", tags=["production"])
 
 @router.get("/{user_id}", response_model=Optional[ProjectContent])
-def get_production_content(user_id: str, project_id: Optional[int] = None, session: Session = Depends(get_session)):
+async def get_production_content(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session)):
     statement = select(ProjectContent).where(ProjectContent.user_id == user_id)
     if project_id:
         statement = statement.where(ProjectContent.project_id == project_id)
     
     statement = statement.order_by(ProjectContent.updated_at.desc())
-    return session.exec(statement).first()
+    result = await session.exec(statement)
+    return result.first()
 
 @router.post("/{user_id}", response_model=ProjectContent)
-def update_production_content(user_id: str, update: dict, project_id: Optional[int] = None, session: Session = Depends(get_session)):
+async def update_production_content(user_id: str, update: dict, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session)):
     statement = select(ProjectContent).where(ProjectContent.user_id == user_id)
     if project_id:
         statement = statement.where(ProjectContent.project_id == project_id)
     
-    db_content = session.exec(statement).first()
+    result = await session.exec(statement)
+    db_content = result.first()
     
     if not db_content:
         db_content = ProjectContent(user_id=user_id, project_id=project_id)
@@ -34,6 +37,6 @@ def update_production_content(user_id: str, update: dict, project_id: Optional[i
     db_content.updated_at = datetime.utcnow()
     
     session.add(db_content)
-    session.commit()
-    session.refresh(db_content)
+    await session.commit()
+    await session.refresh(db_content)
     return db_content

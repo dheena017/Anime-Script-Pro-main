@@ -9,7 +9,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.models import (
     Tutorial, CommunityPost, Project, Template, 
     UserProfile, UserBalance, MediaAsset, Category,
-    Series, Episode, Script, HelpCategory, FAQ, DocSection, DocArticle, Notification
+    Series, Episode, Script, HelpCategory, FAQ, DocSection, DocArticle, Notification,
+    WorldLore, CastMember, NarrativeBeat, ReusableCharacter, Scene
 )
 
 
@@ -21,7 +22,7 @@ LOCAL_USER_ID = "local-dev-architect-id"
 
 def seed_all():
     logger.info("Initializing Full Studio Ecosystem...")
-    SQLModel.metadata.create_all(engine)
+    # SQLModel.metadata.create_all(engine) # Handled by fastapi_app.py
     
     with Session(engine) as session:
         # 1. Seed Tutorials
@@ -45,6 +46,12 @@ def seed_all():
                     description="Everything you need to know about the 4-Phase autonomous production cycle.",
                     icon_name="Zap", duration="5m", level="Beginner", category="Production",
                     content="Master the autonomous loop...", video_url="https://example.com/one-prompt"
+                ),
+                Tutorial(
+                    title="Cinematic Prompt Engineering",
+                    description="Mastering the art of visual cues and camera directives for AI image synthesis.",
+                    icon_name="Camera", duration="15m", level="Expert", category="Visuals",
+                    content="Learn cinematic prompting...", video_url="https://example.com/prompts"
                 )
             ]
             for t in tutorials: session.add(t)
@@ -76,6 +83,22 @@ def seed_all():
                     color="text-blue-500", border="border-blue-500/50", bg="bg-blue-500/10",
                     shadow="shadow-[0_0_15px_rgba(59,130,246,0.2)]", elements=["Mental Geometry", "Perception Logic"],
                     stats={"deployed": "19.3k", "success": "95%", "complexity": "Professional"}
+                ),
+                Template(
+                    name="Isekai Nexus", category="Fantasy", icon="Globe", vibe="Ethereal & Expansive",
+                    description="Rebirth dynamics, systemic progression, and metaphysical world-building.",
+                    prompt="Architect a complex isekai universe with a unique 'System' logic and geopolitical magic conflict.",
+                    color="text-emerald-500", border="border-emerald-500/50", bg="bg-emerald-500/10",
+                    shadow="shadow-[0_0_15px_rgba(16,185,129,0.2)]", elements=["System Integration", "Aura Physics"],
+                    stats={"deployed": "58.1k", "success": "97%", "complexity": "Professional"}
+                ),
+                Template(
+                    name="Blossom Protocol", category="Romance", icon="Heart", vibe="Atmospheric & Emotional",
+                    description="Slow-burn pacing, heavy internal monologue, and lighting-focused cinematic cues.",
+                    prompt="Synthesize an atmospheric romance set in a rural Japanese town with a focus on 'Mono no aware'.",
+                    color="text-rose-500", border="border-rose-500/50", bg="bg-rose-500/10",
+                    shadow="shadow-[0_0_15px_rgba(244,63,94,0.2)]", elements=["Emotional Resonance", "Seasonal Aesthetics"],
+                    stats={"deployed": "12.8k", "success": "96%", "complexity": "Intermediate"}
                 )
             ]
             for t in templates: session.add(t)
@@ -113,6 +136,47 @@ def seed_all():
             script = Script(title="Ep 1: Reawakening", content="[INT. DUNGEON - NIGHT]\nJin-Woo grips his broken dagger. The giant statue's eyes glow red.", project_id=p1.id, episode_id=ep1.id, series_id=series.id)
             session.add(script)
 
+            logger.info("Synthesizing Master Manifest: Project X...")
+            px = Project(
+                user_id=LOCAL_USER_ID, title="Project X: The Last Protocol", content_type="Anime", 
+                genre="Seinen Horror", art_style="Oil Painting / Gritty", episode_length="24 min",
+                description="In a world where memories are currency, a memory-less detective hunts a digital ghost.",
+                status="active", model_used="God Mode Engine v2.0",
+                prod_metadata={"phase": "Production", "completion": 65}
+            )
+            session.add(px)
+            session.commit()
+
+            # World Lore
+            lore = WorldLore(
+                user_id=LOCAL_USER_ID, project_id=px.id,
+                architecture="Brutalist megastructures built on the ruins of a digital ocean.",
+                atlas="The Floating City of Memoria, divided into sectors based on memory quality.",
+                history="The Great Erasure (2088) wiped 90% of global data; memory became the new gold standard.",
+                systems="The Synapse Exchange: A biological marketplace for trading childhood memories for survival.",
+                culture="A neo-feudal society where 'Rich' means having a full childhood history.",
+                full_lore_blob="[MASTER LORE MANIFEST]\nLocation: Memoria\nYear: 2105\nCore Conflict: Memory Theft..."
+            )
+            session.add(lore)
+
+            # Cast Members
+            c1 = CastMember(
+                project_id=px.id, name="Detective Kaine", role="Protagonist",
+                description="Stoic, wears a cracked neural mask. Only has 3 days of memories.",
+                visual_dna="Noir aesthetic, glowing cyan eyes, weathered trench coat with fiber-optic stitching."
+            )
+            c2 = CastMember(
+                project_id=px.id, name="The Oracle", role="Antagonist",
+                description="A digital entity living in the forgotten servers. Wants to erase the world's last memory.",
+                visual_dna="Glitch-effect silhouette, shifting patterns of binary code, translucent skin."
+            )
+            session.add(c1)
+            session.add(c2)
+
+            # Narrative Beats
+            b1 = NarrativeBeat(project_id=px.id, title="The Awakening", content="Kaine discovers his first memory shard.", order=1)
+            session.add(b1)
+
         # 4. Seed Community Posts
         if not session.exec(select(CommunityPost)).first():
             logger.info("Broadcasting Social Hub transmissions...")
@@ -144,7 +208,9 @@ def seed_all():
         if not session.exec(select(UserProfile).where(UserProfile.user_id == LOCAL_USER_ID)).first():
             logger.info("Initializing Architect Credentials...")
             profile = UserProfile(
-                user_id=LOCAL_USER_ID, display_name="Lead Studio Architect",
+                user_id=LOCAL_USER_ID, 
+                display_name="Lead Studio Architect",
+                handle="architect",
                 bio="Architect of the Anime Script Pro production environment.",
                 avatar_url="https://api.dicebear.com/7.x/avataaars/svg?seed=Architect"
             )

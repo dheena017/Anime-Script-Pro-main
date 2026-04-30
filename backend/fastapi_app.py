@@ -25,6 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 from sqlmodel import SQLModel, Session, select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 from slowapi import Limiter
@@ -93,6 +94,7 @@ app = FastAPI(
     description="Backend API for Anime Script Pro. Provides authentication, project, and AI endpoints.",
     docs_url=None,  # Disable default docs
     redoc_url=None, # Disable default redoc
+    debug=True,
 )
 
 # Mount local static files for Swagger UI
@@ -187,7 +189,6 @@ from api.seo import router as seo_router
 from api.community import router as community_router
 from api.help import router as help_router
 from api.engine import router as engine_router
-from api.world import router as world_router
 from api.production import router as production_router
 
 # Core system routes
@@ -240,7 +241,6 @@ app.include_router(seo_router)
 app.include_router(community_router)
 app.include_router(help_router)
 app.include_router(engine_router)
-app.include_router(world_router)
 app.include_router(production_router)
 
 # FastAPI Users Auth Routers
@@ -305,18 +305,23 @@ async def on_startup():
         await conn.run_sync(SQLModel.metadata.create_all)
     logger.success("DATABASE: Metadata synced successfully.")
     
-    # 2. Auto-seed if empty (Synchronous check within session)
-    with Session(engine) as session:
-        if not session.exec(select(Tutorial)).first():
+    # 2. Auto-seed if empty
+    from sqlalchemy import func
+    async with AsyncSession(async_engine) as session:
+        result = await session.execute(select(func.count(Tutorial.id)))
+        count = result.scalar()
+        if count == 0:
             logger.warning("DATABASE: Studio data missing. Initializing core templates...")
+            # We run the seed script in a separate thread to avoid blocking the event loop
+            import anyio
             from seed_all import seed_all
             try:
-                seed_all()
+                await anyio.to_thread.run_sync(seed_all)
                 logger.success("DATABASE: Auto-seeding complete. Studio assets deployed.")
             except Exception as e:
                 logger.error(f"DATABASE: Auto-seeding failed: {e}")
         else:
-            logger.info("DATABASE: Persistence verified. Skipping seed.")
+            logger.info(f"DATABASE: Persistence verified ({count} tutorials found). Skipping seed.")
 
     logger.success("SYSTEM: Anime Script Pro Production Suite is ONLINE.")
 

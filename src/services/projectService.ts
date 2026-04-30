@@ -65,7 +65,7 @@ export const projectService = {
       const response = await apiRequest<any>(`/api/projects/${projectId}`, {
         method: 'DELETE'
       });
-      return response.status === "deleted";
+      return response.ok === true;
     } catch (e) {
       console.error(`Error deleting project ${projectId}:`, e);
       return false;

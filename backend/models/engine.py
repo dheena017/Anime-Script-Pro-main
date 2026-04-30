@@ -26,4 +26,4 @@ class AITelemetry(SQLModel, table=True):
     request_summary: Optional[str] = None
     error_message: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+    extra_metadata: Dict = Field(default_factory=dict, sa_column=Column(JSON))

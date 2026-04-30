@@ -56,7 +56,6 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
         ...options?.headers,
       },
     });
-    clearTimeout(id);
 
     if (!response.ok) {
       let errorData;
@@ -71,6 +70,16 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
     return await response.json();
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    throw new ApiError(error instanceof Error ? error.message : 'Network error');
+
+    const errorName = typeof error === 'object' && error !== null ? (error as any).name : undefined;
+    const errorMessage = typeof error === 'object' && error !== null ? String((error as any).message || (error as any)) : String(error);
+
+    if (errorName === 'AbortError' || errorMessage.toLowerCase().includes('aborted')) {
+      throw new ApiError(`Request timed out after ${timeout}ms`, 408);
+    }
+
+    throw new ApiError(errorMessage || 'Network error');
+  } finally {
+    clearTimeout(id);
   }
 }

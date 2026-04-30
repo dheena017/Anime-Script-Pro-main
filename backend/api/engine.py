@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List, Optional
 from datetime import datetime
-from ..database import get_session
-from ..models.engine import EngineConfig, AITelemetry
+from backend.database import get_async_session
+from backend.models.engine import EngineConfig, AITelemetry
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/engine", tags=["Engine Nexus"])
@@ -25,23 +26,25 @@ class TelemetryCreate(BaseModel):
     metadata: dict = {}
 
 @router.get("/config/{user_id}", response_model=EngineConfig)
-async def get_engine_config(user_id: str, session: Session = Depends(get_session)):
+async def get_engine_config(user_id: str, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    config = session.exec(statement).first()
+    result = await session.exec(statement)
+    config = result.first()
     
     if not config:
         # Create default config for new users
         config = EngineConfig(user_id=user_id)
         session.add(config)
-        session.commit()
-        session.refresh(config)
+        await session.commit()
+        await session.refresh(config)
     
     return config
 
 @router.post("/config/{user_id}", response_model=EngineConfig)
-async def update_engine_config(user_id: str, update: EngineConfigUpdate, session: Session = Depends(get_session)):
+async def update_engine_config(user_id: str, update: EngineConfigUpdate, session: AsyncSession = Depends(get_async_session)):
     statement = select(EngineConfig).where(EngineConfig.user_id == user_id)
-    config = session.exec(statement).first()
+    result = await session.exec(statement)
+    config = result.first()
     
     if not config:
         config = EngineConfig(user_id=user_id)
@@ -52,12 +55,12 @@ async def update_engine_config(user_id: str, update: EngineConfigUpdate, session
     
     config.updated_at = datetime.utcnow()
     session.add(config)
-    session.commit()
-    session.refresh(config)
+    await session.commit()
+    await session.refresh(config)
     return config
 
 @router.post("/telemetry", status_code=201)
-async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = None, session: Session = Depends(get_session)):
+async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = None, session: AsyncSession = Depends(get_async_session)):
     db_telemetry = AITelemetry(
         user_id=user_id,
         model=telemetry.model,
@@ -66,13 +69,14 @@ async def record_telemetry(telemetry: TelemetryCreate, user_id: Optional[str] = 
         endpoint=telemetry.endpoint,
         request_summary=telemetry.request_summary,
         error_message=telemetry.error_message,
-        metadata=telemetry.metadata
+        extra_metadata=telemetry.metadata
     )
     session.add(db_telemetry)
-    session.commit()
+    await session.commit()
     return {"status": "recorded"}
 
 @router.get("/telemetry/recent", response_model=List[AITelemetry])
-async def get_recent_telemetry(limit: int = 50, session: Session = Depends(get_session)):
+async def get_recent_telemetry(limit: int = 50, session: AsyncSession = Depends(get_async_session)):
     statement = select(AITelemetry).order_by(AITelemetry.timestamp.desc()).limit(limit)
-    return session.exec(statement).all()
+    result = await session.exec(statement)
+    return result.all()

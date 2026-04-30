@@ -7,6 +7,7 @@ from backend.models import User
 from backend.database import async_engine
 from backend.auth_utils import verify_password, create_access_token, create_refresh_token
 from backend.user_manager import auth_backend, fastapi_users
+from loguru import logger
 from backend.models import User as UserTable # For pydantic schemas if needed
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
@@ -15,8 +16,8 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
-MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_MINUTES = 30
+MAX_FAILED_ATTEMPTS = 3
+LOCKOUT_MINUTES = 1
 
 @router.post("/login")
 async def secure_login(
@@ -24,52 +25,66 @@ async def secure_login(
     response: Response,
     login_data: LoginRequest
 ):
-    async with AsyncSession(async_engine) as db:
-        result = await db.exec(select(User).where(User.email == login_data.email))
-        user = result.first()
-        
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
-            )
+    try:
+        async with AsyncSession(async_engine) as db:
+            statement = select(User).where(User.email == login_data.email)
+            result = await db.execute(statement)
+            user = result.scalars().first()
             
-        if user.locked_until and user.locked_until.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account temporarily locked due to multiple failed login attempts."
-            )
-            
-        if not verify_password(login_data.password, user.hashed_password):
-            user.failed_login_attempts += 1
-            if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
-                user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_MINUTES)
+            if not user:
+                logger.warning(f"Login failed: User {login_data.email} not found")
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid credentials"
+                )
+                
+            if user.locked_until and user.locked_until.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
+                logger.warning(f"Login failed: User {login_data.email} is locked until {user.locked_until}")
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Account temporarily locked due to multiple failed login attempts."
+                )
+                
+            if not verify_password(login_data.password, user.hashed_password):
+                logger.warning(f"Login failed: Invalid password for user {login_data.email}")
+                user.failed_login_attempts += 1
+                if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
+                    user.locked_until = datetime.now(timezone.utc) + timedelta(minutes=LOCKOUT_MINUTES)
+                db.add(user)
+                await db.commit()
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid credentials"
+                )
+                
+            user_id = str(user.id)
+            user.failed_login_attempts = 0
+            user.locked_until = None
             db.add(user)
             await db.commit()
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
+            
+            access_token = create_access_token(data={"sub": user_id})
+            refresh_token = create_refresh_token(data={"sub": user_id})
+            
+            response.set_cookie(
+                key="refresh_token",
+                value=refresh_token,
+                httponly=True,
+                secure=True,
+                samesite="strict",
+                max_age=7 * 24 * 60 * 60
             )
             
-        user.failed_login_attempts = 0
-        user.locked_until = None
-        db.add(user)
-        await db.commit()
-        
-        access_token = create_access_token(data={"sub": str(user.id)})
-        refresh_token = create_refresh_token(data={"sub": str(user.id)})
-        
-        response.set_cookie(
-            key="refresh_token",
-            value=refresh_token,
-            httponly=True,
-            secure=True,
-            samesite="strict",
-            max_age=7 * 24 * 60 * 60
-        )
-        
-        return {
-            "access_token": access_token,
-            "token_type": "bearer",
-            "expires_in": 15 * 60
-        }
+            logger.info(f"User logged in successfully: {login_data.email}")
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "expires_in": 15 * 60
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CRITICAL LOGIN ERROR: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

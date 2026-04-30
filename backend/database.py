@@ -1,6 +1,6 @@
 import os
 from sqlmodel import create_engine, SQLModel
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import AsyncGenerator
 
@@ -19,6 +19,13 @@ elif ASYNC_DB_URL.startswith("postgresql://"):
 # Create asynchronous engine
 async_engine = create_async_engine(ASYNC_DB_URL, echo=False)
 
+# Use a session factory with expire_on_commit disabled to avoid async instance reloads
+async_session = async_sessionmaker(
+    bind=async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSession(async_engine) as session:
+    async with async_session() as session:
         yield session

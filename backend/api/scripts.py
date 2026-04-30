@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import select, Session
+from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from typing import List, Optional
 from loguru import logger
 from backend.models import Script, Storyboard, ScriptVersion, ScreeningRoomEntry, NarrativeBeat
-from backend.database import async_engine, engine
+from backend.database import async_engine
 
 router = APIRouter(prefix="/api", tags=["Scripts"])
 

@@ -14,8 +14,8 @@ router = APIRouter(prefix="/api", tags=["Users"])
 async def get_user_profile(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
-        result = await session.exec(statement)
-        profile = result.first()
+        result = await session.execute(statement)
+        profile = result.scalars().first()
         if not profile:
             # Create default profile if it doesn't exist
             profile = UserProfile(user_id=user_id, handle=f"architect_{user_id[:5]}")
@@ -28,8 +28,8 @@ async def get_user_profile(user_id: str):
 async def update_user_profile(user_id: str, payload: dict):
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
-        result = await session.exec(statement)
-        profile = result.first()
+        result = await session.execute(statement)
+        profile = result.scalars().first()
         if not profile:
             profile = UserProfile(user_id=user_id, handle=payload.get("handle", f"user_{user_id[:5]}"))
             session.add(profile)
@@ -50,8 +50,8 @@ async def update_user_profile(user_id: str, payload: dict):
 async def get_user_settings(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
-        result = await session.exec(statement)
-        settings = result.first()
+        result = await session.execute(statement)
+        settings = result.scalars().first()
         if not settings:
             settings = UserSettings(user_id=user_id, profile={}, security={}, notifications={}, ai_models={}, storage={}, billing={})
             session.add(settings)
@@ -63,8 +63,8 @@ async def get_user_settings(user_id: str):
 async def update_user_settings(user_id: str, payload: dict):
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
-        result = await session.exec(statement)
-        settings = result.first()
+        result = await session.execute(statement)
+        settings = result.scalars().first()
         if not settings:
             settings = UserSettings(user_id=user_id, profile={}, security={}, notifications={}, ai_models={}, storage={}, billing={})
             session.add(settings)
@@ -86,8 +86,8 @@ async def update_user_settings(user_id: str, payload: dict):
 async def get_user_balance(user_id: str):
     async with AsyncSession(async_engine) as session:
         statement = select(UserBalance).where(UserBalance.user_id == user_id)
-        result = await session.exec(statement)
-        balance = result.first()
+        result = await session.execute(statement)
+        balance = result.scalars().first()
         if not balance:
             balance = UserBalance(user_id=user_id, credits=5000, current_tier="MASTER ARCHITECT")
             session.add(balance)
