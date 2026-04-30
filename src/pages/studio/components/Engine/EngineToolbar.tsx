@@ -29,8 +29,7 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
-        const target = document.getElementById('studio-content-area') || document.documentElement;
-        await target.requestFullscreen();
+        await document.documentElement.requestFullscreen();
       } else {
         await document.exitFullscreen();
       }

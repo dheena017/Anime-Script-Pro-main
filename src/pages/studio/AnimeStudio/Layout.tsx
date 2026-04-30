@@ -283,18 +283,24 @@ export default function AnimeLayout() {
             <div id="studio-content-area" className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-y-auto custom-scrollbar">
               <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
               <div className="relative z-10 w-full h-full p-2 lg:p-4">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={location.pathname}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                    className="w-full h-full"
-                  >
-                    <Outlet />
-                  </motion.div>
-                </AnimatePresence>
+                <React.Suspense fallback={
+                  <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+                    <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin" />
+                  </div>
+                }>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={location.pathname}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full h-full"
+                    >
+                      <Outlet />
+                    </motion.div>
+                  </AnimatePresence>
+                </React.Suspense>
               </div>
             </div>
           </div>
