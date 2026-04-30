@@ -2,14 +2,21 @@ import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateCharacters } from '@/services/geminiService';
 import { cn } from '@/lib/utils';
-import { useSearchParams } from 'react-router-dom';
-import { CastView } from '../components/Cast/CastView';
+import { useOutletContext } from 'react-router-dom';
 import { CastEmptyState } from '../components/Cast/CastEmptyState';
-import { RelationshipLab } from '../components/Cast/RelationshipLab';
+import { CastTab } from '../components/Cast/Tabs/CastTabs';
+import { Dna } from 'lucide-react';
+
+// Modularized Tab Components
+import { MatrixTab } from '../components/Cast/Tabs/MatrixTab';
+import { RegistryTab } from '../components/Cast/Tabs/RegistryTab';
+import { IntegrityTab } from '../components/Cast/Tabs/IntegrityTab';
+import { AddLeadTab } from '../components/Cast/Tabs/AddLeadTab';
+import { DNATab } from '../components/Cast/Tabs/DNATab';
+import { DynamicsTab } from '../components/Cast/Tabs/DynamicsTab';
 
 export function CastPage() {
-  const [searchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') === 'relationships' ? 'relationships' : 'profiles';
+  const { activeTab } = useOutletContext<{ activeTab: CastTab }>();
   const { 
     generatedCharacters, 
     isLiked, setIsLiked,
@@ -58,47 +65,64 @@ export function CastPage() {
     }
   };
 
+  const renderTabContent = () => {
+    if (isGeneratingCharacters) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] text-studio">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin mb-8 shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <Dna className="absolute inset-0 m-auto w-6 h-6 text-studio animate-pulse" />
+          </div>
+          <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Sequencing Neural Archetypes...</p>
+        </div>
+      );
+    }
+
+    if (!generatedCharacters && activeTab !== 'add-lead') {
+      return (
+        <CastEmptyState 
+          onLaunch={handleGenerate}
+          isGenerating={isGeneratingCharacters}
+        />
+      );
+    }
+
+    switch (activeTab) {
+      case 'matrix':
+        return <MatrixTab />;
+      case 'registry':
+        return <RegistryTab isLiked={isLiked} setIsLiked={setIsLiked} />;
+      case 'integrity':
+        return <IntegrityTab />;
+      case 'add-lead':
+        return <AddLeadTab />;
+      case 'dna':
+        return <DNATab />;
+      case 'dynamics':
+        return <DynamicsTab />;
+      default:
+        return <RegistryTab isLiked={isLiked} setIsLiked={setIsLiked} />;
+    }
+  };
+
 
   return (
     <div data-testid="marker-character-cast">
-
-
       <Card className={cn(
         "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
-        activeTab === 'profiles' 
+        activeTab === 'registry' 
           ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50" 
-          : "border-fuchsia-500/30 shadow-[0_0_40px_rgba(217,70,239,0.1)] hover:border-fuchsia-500/50"
+          : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className={cn(
           "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
-          activeTab === 'profiles' ? "border-studio/20 group-hover/card:border-studio/40" : "border-fuchsia-500/20 group-hover/card:border-fuchsia-500/40"
-        )} />
-        <div className={cn(
-          "absolute -top-[1px] left-10 right-10 h-[1px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-700",
-          activeTab === 'profiles' ? "bg-gradient-to-r from-transparent via-studio/60 to-transparent" : "bg-gradient-to-r from-transparent via-fuchsia-500/60 to-transparent"
+          activeTab === 'registry' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
         )} />
         
         <div className="w-full p-0">
           <div className="p-12 max-w-[1400px] mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {activeTab === 'relationships' ? (
-                <RelationshipLab />
-              ) : isGeneratingCharacters ? (
-                <div className="flex flex-col items-center justify-center h-[500px] text-studio">
-                  <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
-                  <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Sketching character souls...</p>
-                </div>
-              ) : generatedCharacters ? (
-                <CastView 
-                  isLiked={isLiked}
-                  setIsLiked={setIsLiked}
-                />
-              ) : (
-                <CastEmptyState 
-                  onLaunch={handleGenerate}
-                  isGenerating={isGeneratingCharacters}
-                />
-              )}
+              {renderTabContent()}
             </div>
           </div>
         </div>
@@ -106,3 +130,5 @@ export function CastPage() {
     </div>
   );
 }
+
+

@@ -1,12 +1,10 @@
 import React from 'react';
-import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { UserPlus } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { CastHeader } from '@/pages/studio/components/Cast/CastHeader';
-import { CastToolbar } from '@/pages/studio/components/Cast/CastToolbar';
+import { CastToolbar, CastTab } from '@/pages/studio/components/Cast/CastToolbar';
 import { generateCharacters } from '@/services/geminiService';
-import { ViewerToolbar } from '@/pages/studio/components/Layout/ViewerToolbar';
 
 export const CastContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -15,7 +13,6 @@ export const CastContext = React.createContext<{
 export default function CastLayout() {
   const navigate = useNavigate();
   const [handlers, setHandlers] = React.useState<any>({});
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
@@ -59,19 +56,11 @@ export default function CastLayout() {
     }
   };
 
-  // Determine active tab based on path or search params
-  const activeTab = searchParams.get('tab') === 'relationships' ? 'relationships' : 'profiles';
+  // Determine active tab based on search params
+  const activeTab = (searchParams.get('tab') as CastTab) || 'registry';
 
-  const handleTabChange = (tab: 'profiles' | 'relationships') => {
-    if (location.pathname !== '/anime/cast') {
-      navigate('/anime/cast' + (tab === 'relationships' ? '?tab=relationships' : ''));
-    } else {
-      if (tab === 'profiles') {
-        setSearchParams({});
-      } else {
-        setSearchParams({ tab: 'relationships' });
-      }
-    }
+  const handleTabChange = (tab: CastTab) => {
+    setSearchParams({ tab });
   };
 
   return (
@@ -87,32 +76,27 @@ export default function CastLayout() {
           onNext={() => navigate('/anime/series')}
         />
 
-        <ViewerToolbar
-          content={generatedCharacters}
-          nexusLabel="Cast_Nexus"
-          session={session}
-          episode={episode}
-        />
-
         <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <CastToolbar
-            session={session}
-            episode={episode}
             status={generatedCharacters ? 'active' : 'empty'}
             activeTab={activeTab}
             setActiveTab={handleTabChange}
+            session={session}
+            episode={episode}
+            content={generatedCharacters}
           />
         </div>
 
         <motion.div
-          key={location.pathname}
+          key={activeTab}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Outlet />
+          <Outlet context={{ activeTab }} />
         </motion.div>
       </div>
     </CastContext.Provider>
   );
 }
+

@@ -1,103 +1,140 @@
-import React from 'react';
-import { Activity, UserPlus, Fingerprint, Settings2, ShieldCheck, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
+import { CastTabs, CastTab } from './Tabs/CastTabs';
+import { Button } from '@/components/ui/button';
+
+export type { CastTab };
 
 interface CastToolbarProps {
-  session: string;
-  episode: string;
+  activeTab: CastTab;
+  setActiveTab: (tab: CastTab) => void;
   status: 'active' | 'draft' | 'empty';
-  activeTab: 'profiles' | 'relationships';
-  setActiveTab: (tab: 'profiles' | 'relationships') => void;
+  session?: string;
+  episode?: string;
+  content?: string | null;
 }
 
 export const CastToolbar: React.FC<CastToolbarProps> = ({
-  status,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  status,
+  session = '1',
+  episode = '1',
+  content = null
 }) => {
-  const navigate = useNavigate();
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error("Error toggling fullscreen:", err);
+    }
+  };
+
+  const handleCopy = () => {
+    if (content) {
+      navigator.clipboard.writeText(content);
+    }
+  };
+
+  const handleDownload = () => {
+    if (content) {
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cast_manifest.md';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
 
   return (
-    <div className="flex items-center justify-between w-full">
-      <div className="flex items-center gap-8">
-        <div className="flex p-1 bg-[#0a0a0a]/40 border border-zinc-800/50 rounded-xl backdrop-blur-md relative">
-          <button
-            onClick={() => setActiveTab('profiles')}
-            className={cn(
-              "relative px-6 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2",
-              activeTab === 'profiles' ? "text-studio" : "text-zinc-500 hover:text-zinc-300"
-            )}
-          >
-            {activeTab === 'profiles' && (
-              <motion.div
-                layoutId="cast-tab-indicator"
-                className="absolute inset-0 bg-studio/10 border border-studio/20 rounded-lg"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-2">
-              <Users className="w-3.5 h-3.5" />
-              Profiles
-            </span>
-          </button>
-          <button
-            onClick={() => setActiveTab('relationships')}
-            className={cn(
-              "relative px-6 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2",
-              activeTab === 'relationships' ? "text-fuchsia-400" : "text-zinc-500 hover:text-zinc-300"
-            )}
-          >
-            {activeTab === 'relationships' && (
-              <motion.div
-                layoutId="cast-tab-indicator"
-                className="absolute inset-0 bg-fuchsia-500/10 border border-fuchsia-500/20 rounded-lg"
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              />
-            )}
-            <span className="relative z-10 flex items-center gap-2">
-              <Fingerprint className="w-3.5 h-3.5" />
-              Matrix
-            </span>
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Activity className={cn("w-3 h-3", status === 'active' ? "text-cyan-500" : "text-zinc-600")} />
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 leading-none">
-              {status === 'active' ? 'Neural Registry Active' : 'Registry Standby'}
-            </span>
-            <span className="text-[7px] font-bold text-zinc-600 uppercase tracking-widest mt-0.5">Character Database Integrity: Verified</span>
+    <div className="flex flex-col gap-6 w-full">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
+            <Activity className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
           </div>
-          {status === 'active' && <ShieldCheck className="w-3 h-3 text-emerald-500/50" />}
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
+              Neural Registry {status === 'active' ? 'Active' : 'Standby'}
+            </span>
+            <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
+              System Status: Optimal // Core_Sync_01
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          {/* Production Unit */}
+          <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
+            <span className="text-studio/60 text-xs font-black">#</span>
+            <div className="flex flex-col">
+              <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
+              <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
+            <Button 
+              onClick={handleCopy} 
+              size="icon" 
+              variant="ghost" 
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+              title="Copy to clipboard"
+              disabled={!content}
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+            <Button 
+              onClick={handleDownload} 
+              size="icon" 
+              variant="ghost" 
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+              title="Export as Markdown"
+              disabled={!content}
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+            <div className="w-px h-5 bg-white/10 mx-1" />
+            <Button 
+              onClick={toggleFullscreen} 
+              size="icon" 
+              variant="ghost" 
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+            >
+              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl">
+             <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
+             <span className="text-[9px] font-black text-studio/80 uppercase tracking-widest">Live Synthesis Stream</span>
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <button
-          onClick={() => navigate('/anime/cast/create')}
-          className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group"
-        >
-          <UserPlus className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-[9px]">Add Lead</span>
-        </button>
-        <button
-          onClick={() => navigate('/anime/cast/dna')}
-          className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group"
-        >
-          <Fingerprint className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-[9px]">DNA Analysis</span>
-        </button>
-        <button
-          onClick={() => navigate('/anime/cast/dynamics')}
-          className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group"
-        >
-          <Settings2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-[9px]">Dynamics</span>
-        </button>
-      </div>
+      <CastTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 };
+
+
+

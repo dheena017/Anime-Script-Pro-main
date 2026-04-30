@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Download, Maximize, Minimize, Heart, Box, UserPlus } from 'lucide-react';
+import { Copy, Download, Maximize, Minimize, Heart, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +13,8 @@ interface ViewerToolbarProps {
   episode?: string;
   children?: React.ReactNode;
   icon?: React.ElementType;
+  hideProductionUnit?: boolean;
+  hideActions?: boolean;
 }
 
 export function ViewerToolbar({ 
@@ -24,7 +26,9 @@ export function ViewerToolbar({
   session = '1',
   episode = '1',
   children,
-  icon: Icon = UserPlus
+  icon: Icon = UserPlus,
+  hideProductionUnit = false,
+  hideActions = false
 }: ViewerToolbarProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -84,68 +88,73 @@ export function ViewerToolbar({
           <div className="flex items-center gap-8 ml-auto mr-8">
              {children}
              
-             <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-                <span className="text-studio/60 text-xs font-black">#</span>
-                <div className="flex flex-col">
-                  <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
-                  <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
-                </div>
-             </div>
+             {!hideProductionUnit && (
+               <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
+                  <span className="text-studio/60 text-xs font-black">#</span>
+                  <div className="flex flex-col">
+                    <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
+                    <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+                  </div>
+               </div>
+             )}
           </div>
 
           {/* Right Section: Actions */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-              <Button 
-                onClick={handleCopy} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title="Copy to clipboard"
-                disabled={!content}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button 
-                onClick={handleDownload} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title="Export as Markdown"
-                disabled={!content}
-              >
-                <Download className="w-4 h-4" />
-              </Button>
-              <div className="w-px h-5 bg-white/10 mx-1" />
-              <Button 
-                onClick={toggleFullscreen} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
-              >
-                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-              </Button>
-            </div>
+          {!hideActions && (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
+                <Button 
+                  onClick={handleCopy} 
+                  size="icon" 
+                  variant="ghost" 
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                  title="Copy to clipboard"
+                  disabled={!content}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button 
+                  onClick={handleDownload} 
+                  size="icon" 
+                  variant="ghost" 
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                  title="Export as Markdown"
+                  disabled={!content}
+                >
+                  <Download className="w-4 h-4" />
+                </Button>
+                <div className="w-px h-5 bg-white/10 mx-1" />
+                <Button 
+                  onClick={toggleFullscreen} 
+                  size="icon" 
+                  variant="ghost" 
+                  className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                  title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+                >
+                  {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                </Button>
+              </div>
 
-            {setIsLiked && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-11 w-11 rounded-full transition-all duration-500 border relative",
-                  isLiked 
-                    ? "text-red-400 bg-red-500/20 border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)] scale-110" 
-                    : "text-zinc-600 border-white/10 bg-black/40 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                )}
-                onClick={() => setIsLiked(!isLiked)}
-              >
-                <Heart className={cn("w-5 h-5 transition-transform duration-300 active:scale-125", isLiked && "fill-current")} />
-              </Button>
-            )}
-          </div>
+              {setIsLiked && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-11 w-11 rounded-full transition-all duration-500 border relative",
+                    isLiked 
+                      ? "text-red-400 bg-red-500/20 border-red-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)] scale-110" 
+                      : "text-zinc-600 border-white/10 bg-black/40 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                  )}
+                  onClick={() => setIsLiked(!isLiked)}
+                >
+                  <Heart className={cn("w-5 h-5 transition-transform duration-300 active:scale-125", isLiked && "fill-current")} />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
+
   );
 }
