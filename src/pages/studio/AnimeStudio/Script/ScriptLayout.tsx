@@ -59,8 +59,8 @@ export default function ScriptLayout() {
         <ScriptHeader
           onRegenerate={handleGenerate}
           isGenerating={isLoading}
-          onNext={handlers.handleNextEpisode || (() => navigate('/anime/storyboard'))}
-          onPrev={handlers.handlePrevEpisode || (() => navigate('/anime/series'))}
+          onNext={() => navigate('/anime/storyboard')}
+          onPrev={() => navigate('/anime/series')}
           session={session}
           episode={episode}
         />
@@ -79,6 +79,8 @@ export default function ScriptLayout() {
             onViewStoryboard={handlers.handleGenerateVisuals}
             onExtend={handlers.handleContinueScript}
             onListen={handlers.playVoiceover}
+            onNext={handlers.handleNextEpisode}
+            onPrev={handlers.handlePrevEpisode}
           />
         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize } from 'lucide-react';
+import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,8 @@ interface ScriptToolbarProps {
   onViewStoryboard: () => void;
   onExtend: () => void;
   onListen: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
@@ -33,7 +35,9 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   onViewPrompts,
   onViewStoryboard,
   onExtend,
-  onListen
+  onListen,
+  onPrev,
+  onNext
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -79,6 +83,32 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Sequence Control */}
+        {status === 'active' && (
+          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-4 duration-500">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all text-[9px] font-black uppercase tracking-widest gap-2"
+              onClick={onPrev}
+              disabled={!onPrev}
+            >
+              <ChevronLeft className="w-3 h-3" />
+              PREV EPISODE
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 rounded-lg text-studio/80 hover:text-studio hover:bg-studio/10 transition-all text-[9px] font-black uppercase tracking-widest gap-2 bg-studio/5 border border-studio/20"
+              onClick={onNext}
+              disabled={!onNext}
+            >
+              NEXT EPISODE
+              <ChevronRight className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
 
         <div className="flex items-center gap-6">
           {/* Quick Actions */}

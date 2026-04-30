@@ -67,7 +67,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 disabled={isGenerating}
               >
                 <ChevronRight className="w-4 h-4 group-hover/prev:-translate-x-1 transition-transform rotate-180 mr-1" />
-                Prev
+                PREVIOUS: SERIES
               </Button>
             )}
 
@@ -90,7 +90,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
               disabled={isGenerating}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Manifest Next Episode <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                NEXT: STORYBOARD <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
             </Button>
