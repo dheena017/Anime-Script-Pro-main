@@ -4,7 +4,6 @@ import { motion } from 'motion/react';
 import { Search } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { AssetsHeader } from '../../components/Assets/AssetsHeader';
-import { SEOToolbar } from '../../components/SEO/SEOToolbar';
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/geminiService';
 
 export default function AssetsLayout() {
@@ -12,9 +11,9 @@ export default function AssetsLayout() {
   const [isLiked, setIsLiked] = React.useState(false);
   
   const {
-    generatedMetadata, setGeneratedMetadata,
-    generatedDescription, setGeneratedDescription,
-    generatedImagePrompts, setGeneratedImagePrompts,
+    setGeneratedMetadata,
+    setGeneratedDescription,
+    setGeneratedImagePrompts,
     isGeneratingMetadata, setIsGeneratingMetadata,
     isGeneratingDescription, setIsGeneratingDescription,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
@@ -52,7 +51,6 @@ export default function AssetsLayout() {
     }
   };
 
-  const hasAnyAsset = generatedMetadata || generatedDescription || generatedImagePrompts;
 
   return (
     <div className="space-y-6">
@@ -74,12 +72,6 @@ export default function AssetsLayout() {
             <Search className="w-4 h-4 text-studio" />
             <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Assets_Nexus</span>
           </div>
-
-          <SEOToolbar 
-            session={session}
-            episode={episode}
-            status={hasAnyAsset ? 'active' : 'empty'}
-          />
         </div>
       </div>
 

@@ -35,7 +35,8 @@ const AnimeScript = lazy(() => import('./pages/studio/AnimeStudio/ScriptPage').t
 const AnimeCast = lazy(() => import('./pages/studio/AnimeStudio/CastPage').then(m => ({ default: m.CastPage })));
 const AnimeSeries = lazy(() => import('./pages/studio/AnimeStudio/SeriesPage').then(m => ({ default: m.SeriesPage })));
 const AnimeStoryboard = lazy(() => import('./pages/studio/AnimeStudio/StoryboardPage').then(m => ({ default: m.StoryboardPage })));
-const AnimeAssets = lazy(() => import('./pages/studio/AnimeStudio/AssetsPage').then(m => ({ default: m.AssetsPage })));
+const SEOPage = lazy(() => import('./pages/studio/AnimeStudio/SEOPage').then(m => ({ default: m.SEOPage })));
+const PromptsPage = lazy(() => import('./pages/studio/AnimeStudio/PromptsPage').then(m => ({ default: m.PromptsPage })));
 const AnimeScreening = lazy(() => import('./pages/studio/AnimeStudio/ScreeningRoom').then(m => ({ default: m.ScreeningRoom })));
 const AnimeTemplate = lazy(() => import('./pages/studio/AnimeStudio/TemplatePage').then(m => ({ default: m.TemplatePage })));
 const AnimeEngine = lazy(() => import('./pages/studio/AnimeStudio/EnginePage').then(m => ({ default: m.EnginePage })));
@@ -112,11 +113,11 @@ export default function App() {
                       </Route>
 
                       <Route path="seo" element={<AssetsLayout />}>
-                        <Route index element={<AnimeAssets />} />
+                        <Route index element={<SEOPage />} />
                       </Route>
 
                       <Route path="prompts" element={<AssetsLayout />}>
-                        <Route index element={<AnimeAssets />} />
+                        <Route index element={<PromptsPage />} />
                       </Route>
 
                       <Route path="screening" element={<ScreeningLayout />}>

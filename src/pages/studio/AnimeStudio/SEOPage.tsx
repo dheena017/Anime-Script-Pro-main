@@ -50,7 +50,7 @@ export function SEOPage() {
       <SEOHeader
         onRegenerate={handleGenerateMetadata}
         isGenerating={isGeneratingMetadata}
-        onNext={() => navigate('/studio/prompts')}
+        onNext={() => navigate('/anime/prompts')}
         session={session}
         episode={episode}
       />

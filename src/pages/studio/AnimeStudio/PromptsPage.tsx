@@ -49,7 +49,7 @@ export function PromptsPage() {
       <PromptsHeader
         onRegenerate={handleGenerate}
         isGenerating={isGeneratingImagePrompts}
-        onNext={() => navigate('/studio/screening')}
+        onNext={() => navigate('/anime/screening')}
         session={session}
         episode={episode} />
 
