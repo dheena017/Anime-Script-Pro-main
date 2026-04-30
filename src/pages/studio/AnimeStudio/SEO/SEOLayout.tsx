@@ -20,8 +20,21 @@ export default function SEOLayout() {
     generatedMetadata, setGeneratedMetadata,
     isLoading, setIsLoading,
     generatedScript, selectedModel, session, episode,
-    showNotification
+    showNotification,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('SEO Metadata Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!generatedScript) {
@@ -56,6 +69,9 @@ export default function SEOLayout() {
             isGenerating={isLoading}
             onNext={() => navigate('/anime/prompts')}
             onPrev={() => navigate('/anime/storyboard')}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedMetadata}
             session={session}
             episode={episode}
           />

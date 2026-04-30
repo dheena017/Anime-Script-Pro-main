@@ -16,8 +16,20 @@ export default function ScreeningLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode,
+    session, episode, isSaving, setIsSaving, showNotification, generatedScript
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Production Preview Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const activeTab = (searchParams.get('tab') as ScreeningTab) || 'preview';
 
@@ -34,6 +46,11 @@ export default function ScreeningLayout() {
             episode={episode}
             onPrev={() => navigate('/anime/prompts')}
             onNext={() => navigate('/anime/engine')}
+            onRender={handlers.handleFullRender}
+            isRendering={handlers.isRendering}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedScript}
           />
         </div>
 

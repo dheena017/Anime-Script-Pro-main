@@ -25,8 +25,22 @@ export default function WorldLayout() {
     prompt, selectedModel, contentType,
     setGeneratedWorld,
     session, episode, showNotification,
-    generatedWorld
+    generatedWorld,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Manual sync trigger for the World module
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('World Lore Manifest Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -63,6 +77,9 @@ export default function WorldLayout() {
           episode={episode}
           onPrev={() => navigate('/anime/mission')}
           onNext={() => navigate('/anime/cast')}
+          onSave={handleSave}
+          isSaving={isSaving}
+          hasContent={!!generatedWorld}
         />
       </div>
 

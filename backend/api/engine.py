@@ -7,7 +7,7 @@ from backend.database import get_async_session
 from backend.models.engine import EngineConfig, AITelemetry
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/engine", tags=["Engine Nexus"])
+router = APIRouter(prefix="/api/engine", tags=["Engine Nexus"])
 
 class EngineConfigUpdate(BaseModel):
     selected_model: Optional[str] = None

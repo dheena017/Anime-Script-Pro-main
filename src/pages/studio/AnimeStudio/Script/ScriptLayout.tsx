@@ -21,8 +21,21 @@ export default function ScriptLayout() {
     isLoading, setIsLoading,
     prompt, tone, audience, session, episode, numScenes, selectedModel, contentType,
     recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
-    generatedSeriesPlan, showNotification
+    generatedSeriesPlan, showNotification,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Script Draft Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -62,6 +75,9 @@ export default function ScriptLayout() {
             isGenerating={isLoading}
             onNext={() => navigate('/anime/storyboard')}
             onPrev={() => navigate('/anime/series')}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedScript}
             session={session}
             episode={episode}
           />

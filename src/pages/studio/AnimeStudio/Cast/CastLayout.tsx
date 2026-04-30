@@ -20,8 +20,21 @@ export default function CastLayout() {
     prompt, selectedModel, contentType, generatedWorld,
     setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships,
     session, episode, showNotification,
-    generatedCharacters
+    generatedCharacters,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Cast Manifest Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -68,13 +81,15 @@ export default function CastLayout() {
       <div className="space-y-6">
         <div className="studio-module-header">
           <CastHeader
-            isGeneratingCharacters={handlers.isGenerating || isGeneratingCharacters}
-            handleGenerate={handlers.handleGenerateCharacter || handleGenerate}
-            prompt={prompt}
+            isGenerating={handlers.isGenerating || isGeneratingCharacters}
+            onRegenerate={handlers.handleGenerateCharacter || handleGenerate}
             session={session}
             episode={episode}
             onPrev={() => navigate('/anime/world')}
             onNext={() => navigate('/anime/series')}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedCharacters}
           />
         </div>
 

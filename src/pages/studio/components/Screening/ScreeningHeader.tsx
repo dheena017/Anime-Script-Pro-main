@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Zap, Monitor, Cpu, ChevronRight, ChevronLeft } from 'lucide-react';
+import { RefreshCw, Zap, Monitor, Cpu, ChevronRight, ChevronLeft, Save } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { 
   Tooltip, 
@@ -20,6 +20,9 @@ interface ScreeningHeaderProps {
   onNext?: () => void;
   isLiked?: boolean;
   setIsLiked?: (liked: boolean) => void;
+  onSave?: () => void;
+  isSaving?: boolean;
+  hasContent?: boolean;
 }
 
 export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
@@ -29,7 +32,10 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
   session,
   episode,
   onPrev,
-  onNext
+  onNext,
+  onSave,
+  isSaving,
+  hasContent
 }) => {
   return (
     <TooltipProvider>
@@ -106,6 +112,29 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                   <p className="font-black uppercase tracking-widest text-[9px]">Execute Neural Cinema Rendering</p>
                 </TooltipContent>
               </Tooltip>
+
+              {onSave && hasContent && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      variant="outline"
+                      className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-emerald-500 hover:border-emerald-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-xl group/save shadow-2xl"
+                      onClick={onSave}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <RefreshCw className="w-4 h-4 animate-spin mr-2 text-emerald-500" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2 group-hover/save:scale-110 transition-transform" />
+                      )}
+                      <span>{isSaving ? "SAVING..." : "SAVE"}</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Save Current State</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger>

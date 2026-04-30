@@ -16,7 +16,7 @@ export default function EngineLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode, generatedScript
+    session, episode, generatedScript, isSaving
   } = useGenerator();
 
   const activeTab = (searchParams.get('tab') as EngineTab) || 'status';
@@ -34,6 +34,9 @@ export default function EngineLayout() {
             episode={episode}
             onPrev={() => navigate('/anime/screening')}
             isGenerating={handlers.isGenerating}
+            onSave={handlers.handleSaveCurrent}
+            isSaving={isSaving}
+            hasContent={!!generatedScript}
           />
         </div>
 

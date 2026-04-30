@@ -5,13 +5,17 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from '@/components/ui/tooltip';
-import { ChevronLeft, ChevronRight, Cpu, Globe, RefreshCw, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Cpu, Globe, RefreshCw, Sparkles, Save } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface WorldHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
   onPrev?: () => void;
+  onSave?: () => void;
+  isSaving?: boolean;
+  hasContent?: boolean;
   session: string;
   episode: string;
   prompt?: string;
@@ -21,6 +25,9 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
   onRegenerate,
   onNext,
   onPrev,
+  onSave,
+  isSaving,
+  hasContent,
   isGenerating,
   session,
   episode
@@ -67,7 +74,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
-                    PREVIOUS: MISSION
+                    PREVIOUS
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
@@ -91,13 +98,32 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                     ) : (
                       <Sparkles className="w-4 h-4 mr-3 text-studio group-hover/btn:scale-125 transition-transform duration-500" />
                     )}
-                    <span className="relative z-10">GENERATE WORLD</span>
+                    <span className="relative z-10">GENERATE</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
                   <p className="font-black uppercase tracking-widest text-[9px]">Synthesize Neural World Lore</p>
                 </TooltipContent>
               </Tooltip>
+
+              {onSave && hasContent && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      variant="outline" 
+                      className="relative w-full sm:w-auto h-12 px-6 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 shadow-[0_0_20px_rgba(6,182,212,0.1)] group/save"
+                      onClick={onSave}
+                      disabled={isSaving}
+                    >
+                      <Save className={cn("w-4 h-4 mr-2", isSaving && "animate-pulse")} />
+                      {isSaving ? "SAVING..." : "SAVE"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Manual Cloud Sync</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger>
@@ -106,13 +132,13 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      NEXT: CAST <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                      NEXT <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover/next:opacity-100 transition-opacity duration-500 rounded-full" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top">
-                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Character Casting</p>
+                  <p className="font-black uppercase tracking-widest text-[9px]">Proceed to Next Phase</p>
                 </TooltipContent>
               </Tooltip>
             </div>

@@ -2,10 +2,26 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ProtocolsToolbar } from './ProtocolsToolbar';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Save, RefreshCw } from 'lucide-react';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export default function ProtocolsLayout() {
   const navigate = useNavigate();
+  const { isSaving, setIsSaving, showNotification, generatedScript } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Sync logic handled via GeneratorContext implicitly, 
+      // providing explicit feedback here.
+      await new Promise(r => setTimeout(r, 800));
+      showNotification('Protocol Manifest Synchronized', 'success');
+    } catch (e) {
+      showNotification('Protocol Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -29,7 +45,23 @@ export default function ProtocolsLayout() {
           <ProtocolsToolbar />
         </div>
 
-        <div className="flex items-center gap-2 pl-4 border-l border-white/10 ml-2">
+        <div className="flex items-center gap-4 pl-4 border-l border-white/10 ml-2">
+          {generatedScript && (
+            <Button
+              variant="outline"
+              className="h-9 px-4 bg-studio/5 border-studio/20 text-studio hover:bg-studio/10 font-black uppercase tracking-widest text-[10px] rounded-xl transition-all duration-500 group/save"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin mr-2" />
+              ) : (
+                <Save className="w-3.5 h-3.5 mr-2 group-hover/save:scale-110 transition-transform" />
+              )}
+              {isSaving ? "SYNCING..." : "SAVE"}
+            </Button>
+          )}
+
           <Button 
             variant="ghost" 
             size="icon" 

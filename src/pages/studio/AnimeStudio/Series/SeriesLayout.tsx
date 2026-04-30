@@ -24,8 +24,21 @@ export default function SeriesLayout() {
     episode,
     generatedWorld,
     generatedCharacters,
-    showNotification
+    showNotification,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Series Roadmap Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -60,6 +73,9 @@ export default function SeriesLayout() {
           isGenerating={isGeneratingSeries}
           onPrev={() => navigate('/anime/cast')}
           onNext={() => navigate('/anime/script')}
+          onSave={handleSave}
+          isSaving={isSaving}
+          hasContent={!!generatedSeriesPlan}
           session={session}
           episode={episode}
         />

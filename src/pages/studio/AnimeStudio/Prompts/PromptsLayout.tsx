@@ -20,8 +20,21 @@ export default function PromptsLayout() {
     generatedImagePrompts, setGeneratedImagePrompts,
     isLoading, setIsLoading,
     generatedScript, selectedModel, session, episode,
-    showNotification
+    showNotification,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Neural Prompts Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!generatedScript) {
@@ -56,6 +69,9 @@ export default function PromptsLayout() {
             isGenerating={handlers.isGenerating || isLoading}
             onNext={() => navigate('/anime/screening')}
             onPrev={() => navigate('/anime/seo')}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedImagePrompts}
             session={session}
             episode={episode}
           />

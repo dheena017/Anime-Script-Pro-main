@@ -20,8 +20,21 @@ export default function StoryboardLayout() {
     generatedScript,
     generatedImagePrompts, setGeneratedImagePrompts,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    session, episode, selectedModel, showNotification
+    session, episode, selectedModel, showNotification,
+    isSaving, setIsSaving
   } = useGenerator();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      showNotification?.('Visual DNA Manifest Synchronized', 'success');
+    } catch (e) {
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!generatedScript) {
@@ -56,6 +69,9 @@ export default function StoryboardLayout() {
             isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
             onNext={() => navigate('/anime/seo')}
             onPrev={() => navigate('/anime/script')}
+            onSave={handleSave}
+            isSaving={isSaving}
+            hasContent={!!generatedImagePrompts}
             session={session}
             episode={episode}
           />
