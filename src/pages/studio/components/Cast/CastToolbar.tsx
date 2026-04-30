@@ -4,6 +4,12 @@ import { cn } from '@/lib/utils';
 import { CastTabs, CastTab } from './Tabs/CastTabs';
 import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 export type { CastTab };
 
@@ -57,7 +63,8 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full p-4 md:p-0">
+    <TooltipProvider>
+      <div className="flex flex-col gap-6 w-full p-4 md:p-0">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
@@ -85,45 +92,67 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md shrink-0">
-              <Button 
-                onClick={handleCopy} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title="Copy to clipboard"
-                disabled={!content}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button 
-                onClick={handleDownload} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title="Export as Markdown"
-                disabled={!content}
-              >
-                <Download className="w-4 h-4" />
-              </Button>
-              <div className="w-px h-5 bg-white/10 mx-1" />
-              <Button 
-                onClick={toggleFullscreen} 
-                size="icon" 
-                variant="ghost" 
-                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
-              >
-                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-              </Button>
+              <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md shrink-0">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      onClick={handleCopy} 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                      disabled={!content}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Copy Registry to Clipboard</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      onClick={handleDownload} 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                      disabled={!content}
+                    >
+                      <Download className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">Export as Markdown</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <div className="w-px h-5 bg-white/10 mx-1" />
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button 
+                      onClick={toggleFullscreen} 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
+                    >
+                      {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="font-black uppercase tracking-widest text-[9px]">{isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
+
           </div>
-
         </div>
-      </div>
 
-      <CastTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-    </div>
+        <CastTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+    </TooltipProvider>
   );
 };
 
