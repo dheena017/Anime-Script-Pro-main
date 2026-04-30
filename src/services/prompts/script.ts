@@ -13,6 +13,8 @@ export const SCRIPT_GENERATION_PROMPT = (contentType: string, tone: string, audi
     ${castProfiles ? `CHARACTER DNA REGISTRY:\n${castProfiles}\n` : ""}
     ${characterRelationships ? `INTERPERSONAL DYNAMICS:\n${characterRelationships}\n` : ""}
 
+    PRIME DIRECTIVE: You MUST strictly adhere to the WORLD LORE and CHARACTER DNA provided above. Every scene, dialogue line, and visual description must be consistent with these established facts. Do not invent details that contradict the Source of Truth.
+
     PRIME ARCHITECTURE PROTOCOLS:
     - QUANTUM CONTINUITY: Ensure micro-details (scars on hands, unique prop cracks, specific lighting temperatures) remain persistent across the entire arc of [PROMPT].
     - ASSET SYNCHRONIZATION: Explicitly inventory every character identity and primary prop required for the shot.

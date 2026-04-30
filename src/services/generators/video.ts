@@ -1,8 +1,9 @@
 import { callAI } from "./core";
 import { VIDEO_PROMPT_GENERATION_PROMPT } from "../prompts";
 
-export async function generateVideoPrompts(script: string, model: string = "gemini-2.0-flash-exp", contentType: string = "Anime") {
-  const systemInstruction = VIDEO_PROMPT_GENERATION_PROMPT(contentType);
+export async function generateVideoPrompts(script: string, model: string = "gemini-1.5-flash-latest") {
+  const contentType = script.toLowerCase().includes("anime") ? "Anime" : "Series";
+  const systemInstruction = VIDEO_PROMPT_GENERATION_PROMPT(contentType, script);
 
   try {
     const text = await callAI(model, `Generate video prompts for this production script: ${script}`, systemInstruction);

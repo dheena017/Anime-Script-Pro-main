@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { 
-  Sparkles, Brain, X, Target, Settings, Clapperboard, 
-  SlidersHorizontal, History, Sword, Globe, Terminal, Activity
+import {
+  Sparkles, Brain, X, Target, Settings, Clapperboard,
+  SlidersHorizontal, Sword, Globe, Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -23,7 +22,13 @@ import { Card } from '@/components/ui/card';
 import { EngineContext } from './Engine/EngineLayout';
 
 // Tabs
-import { EngineTab } from '../components/Engine/Tabs/EngineTabs';
+import { EngineTab } from '@/pages/studio/components/Engine/Tabs/EngineTabs';
+import { EngineConsole } from './Engine/tabs/EngineConsole';
+import { EngineCalibration } from './Engine/tabs/EngineCalibration';
+import { EngineOptimization } from './Engine/tabs/EngineOptimization';
+import { EngineLogs } from './Engine/tabs/EngineLogs';
+import { motion } from 'motion/react';
+
 
 const ANIME_TEMPLATES = [
   { id: 'shonen', label: 'Shonen Catalyst', icon: Sword, prompt: 'Synthesize a high-velocity battle narrative focused on elemental energy mastery and hierarchical tournament structures.', color: 'text-orange-500' },
@@ -42,9 +47,8 @@ export function EnginePage() {
   const {
     tone, setTone,
     audience, setAudience,
-    isSaving, setIsSaving,
+    setIsSaving,
     generatedScript,
-    currentScriptId,
     setCurrentScriptId,
     selectedModel, setSelectedModel,
     prompt: globalPrompt,
@@ -87,78 +91,114 @@ export function EnginePage() {
   }, [generatedScript, user, prompt, tone, selectedModel]);
 
   const renderTabContent = () => {
-    if (activeTab === 'status' || activeTab === 'calibration') {
-      return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="flex items-center justify-between border-b border-white/5 pb-10 mb-12">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
-                <Sparkles className="w-3 h-3 text-studio" />
-                <span className="text-[9px] font-black text-studio uppercase tracking-[0.2em]">Master Engine Configuration</span>
+    switch (activeTab) {
+      case 'status':
+        return (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center justify-between border-b border-white/5 pb-10 mb-12">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
+                  <Sparkles className="w-3 h-3 text-studio" />
+                  <span className="text-[9px] font-black text-studio uppercase tracking-[0.2em]">Master Engine Configuration</span>
+                </div>
+                <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                  PRODUCTION <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">BLUEPRINT</span>
+                </h1>
               </div>
-              <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
-                PRODUCTION <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">BLUEPRINT</span>
-              </h1>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-            <div className="lg:col-span-3 space-y-12">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Clapperboard className="w-4 h-4" />
-                    STUDIO SELECTION
-                  </label>
-                  <Select value={localContentType} onValueChange={(val) => setLocalContentType(val || 'Anime')}>
-                    <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
-                      <SelectValue placeholder="Anime" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 border-zinc-800">
-                      <SelectItem value="Anime">Anime Studio</SelectItem>
-                      <SelectItem value="Manhwa">Manhwa Studio</SelectItem>
-                      <SelectItem value="Comic">Comic Studio</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
+              <div className="lg:col-span-3 space-y-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Clapperboard className="w-4 h-4" />
+                      STUDIO SELECTION
+                    </label>
+                    <Select value={localContentType} onValueChange={(val) => setLocalContentType(val || 'Anime')}>
+                      <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
+                        <SelectValue placeholder="Anime" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-950 border-zinc-800">
+                        <SelectItem value="Anime">Anime Studio</SelectItem>
+                        <SelectItem value="Manhwa">Manhwa Studio</SelectItem>
+                        <SelectItem value="Comic">Comic Studio</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      NEURAL SYNTH ENGINE
+                    </label>
+                    <Select value={selectedModel} onValueChange={(val) => setSelectedModel(val || 'Gemini-2.5-Flash')}>
+                      <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-950 border-zinc-800">
+                        <SelectItem value="gemini-3.1-pro" className="text-fuchsia-400 font-bold">G3.1 Pro (Ultra-Gen Intelligence)</SelectItem>
+                        <SelectItem value="gemini-3.1-flash" className="text-cyan-400 font-bold">G3.1 Flash (Hyper-Speed Lite)</SelectItem>
+                        <SelectItem value="gemini-3-pro" className="text-fuchsia-300">G3.0 Pro (Advanced Reasoning)</SelectItem>
+                        <SelectItem value="gemini-3-flash" className="text-cyan-300">G3.0 Flash (Rapid Production)</SelectItem>
+                        <SelectItem value="gemini-2.0-pro-exp-02-05" className="text-zinc-300">G2.0 Pro (Elite Intelligence)</SelectItem>
+                        <SelectItem value="Gemini-2.5-Flash" className="text-zinc-400">G2.0 Flash (Next-Gen Hub)</SelectItem>
+                        <SelectItem value="gemini-1.5-pro" className="text-zinc-500">G1.5 Pro (Legacy Elite)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Real-time Pipeline Status */}
+                <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[2rem] space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
+                      <Activity className="w-4 h-4 text-studio" />
+                      Neural Production Pipeline
+                    </h4>
+                    <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">Syncing Active State...</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                    {[
+                      { label: 'Engine', status: prompt ? 'active' : 'standby' },
+                      { label: 'World', status: useGenerator().worldLore ? 'active' : 'standby' },
+                      { label: 'Cast', status: useGenerator().castProfiles ? 'active' : 'standby' },
+                      { label: 'Series', status: useGenerator().seriesPlan ? 'active' : 'standby' },
+                      { label: 'Script', status: useGenerator().generatedScript ? 'active' : 'standby' },
+                      { label: 'Storyboard', status: useGenerator().storyboardPrompts ? 'active' : 'standby' },
+                      { label: 'SEO', status: useGenerator().seoMetadata ? 'active' : 'standby' },
+                    ].map((stage) => (
+                      <div key={stage.label} className={cn(
+                        "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-500",
+                        stage.status === 'active' 
+                          ? "bg-studio/10 border-studio/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                          : "bg-black/40 border-white/5 opacity-40 grayscale"
+                      )}>
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          stage.status === 'active' ? "bg-studio shadow-[0_0_8px_rgba(6,182,212,0.5)]" : "bg-zinc-700"
+                        )} />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-center">{stage.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="space-y-4">
                   <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
-                    NEURAL SYNTH ENGINE
+                    <Target className="w-4 h-4" />
+                    CORE NARRATIVE CONCEPT
                   </label>
-                  <Select value={selectedModel} onValueChange={(val) => setSelectedModel(val || 'Gemini-2.5-Flash')}>
-                    <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 border-zinc-800">
-                      <SelectItem value="gemini-3.1-pro" className="text-fuchsia-400 font-bold">G3.1 Pro (Ultra-Gen Intelligence)</SelectItem>
-                      <SelectItem value="gemini-3.1-flash" className="text-cyan-400 font-bold">G3.1 Flash (Hyper-Speed Lite)</SelectItem>
-                      <SelectItem value="gemini-3-pro" className="text-fuchsia-300">G3.0 Pro (Advanced Reasoning)</SelectItem>
-                      <SelectItem value="gemini-3-flash" className="text-cyan-300">G3.0 Flash (Rapid Production)</SelectItem>
-                      <SelectItem value="gemini-2.0-pro-exp-02-05" className="text-zinc-300">G2.0 Pro (Elite Intelligence)</SelectItem>
-                      <SelectItem value="Gemini-2.5-Flash" className="text-zinc-400">G2.0 Flash (Next-Gen Hub)</SelectItem>
-                      <SelectItem value="gemini-1.5-pro" className="text-zinc-500">G1.5 Pro (Legacy Elite)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-[9px] text-zinc-500 uppercase tracking-widest mt-1">Connected to Global Production Infrastructure.</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  CORE NARRATIVE CONCEPT
-                </label>
-                <div className="relative group/textarea">
-                  <TextareaAutosize
-                    placeholder="Describe your core narrative vision, setting, and structural requirements..."
-                    className="w-full min-h-[350px] bg-black/40 border border-zinc-800/80 focus:border-studio/50 text-cyan-100 rounded-[2.5rem] p-10 text-lg font-medium resize-none transition-all shadow-inner leading-relaxed"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                  />
-                  <div className="absolute bottom-8 right-8 flex items-center gap-4">
+                  <div className="relative group/textarea">
+                    <TextareaAutosize
+                      placeholder="Describe your core narrative vision, setting, and structural requirements..."
+                      className="w-full min-h-[350px] bg-black/40 border border-zinc-800/80 focus:border-studio/50 text-cyan-100 rounded-[2.5rem] p-10 text-lg font-medium resize-none transition-all shadow-inner leading-relaxed"
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                    />
+                    <div className="absolute bottom-8 right-8 flex items-center gap-4">
                     {prompt && (
                       <button onClick={() => setPrompt('')} className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800">
                         <X className="w-5 h-5" />
@@ -204,73 +244,61 @@ export function EnginePage() {
             </div>
 
             <div className="space-y-8">
-              <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] space-y-10 relative overflow-hidden group/sidebar">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-studio/5 blur-[60px] pointer-events-none" />
-                <h4 className="text-[11px] font-black text-studio uppercase tracking-widest flex items-center gap-3">
-                  <div className="w-6 h-6 rounded-lg bg-studio/10 flex items-center justify-center border border-studio/20"><SlidersHorizontal className="w-3 h-3" /></div>
-                  Neural Parameters
-                </h4>
-                <div className="space-y-6">
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">NARRATIVE TONE</label>
-                    <Select value={tone} onValueChange={(val) => setTone(val || 'Hype/Energetic')}>
-                      <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-zinc-800">
-                        <SelectItem value="Hype/Energetic">Hype / Action</SelectItem>
-                        <SelectItem value="Dark/Gritty">Dark / Seinen</SelectItem>
-                        <SelectItem value="Emotional/Sad">Emotional / Drama</SelectItem>
-                      </SelectContent>
-                    </Select>
+                <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] space-y-10 relative overflow-hidden group/sidebar">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-studio/5 blur-[60px] pointer-events-none" />
+                  <h4 className="text-[11px] font-black text-studio uppercase tracking-widest flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-lg bg-studio/10 flex items-center justify-center border border-studio/20"><SlidersHorizontal className="w-3 h-3" /></div>
+                    Neural Parameters
+                  </h4>
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">NARRATIVE TONE</label>
+                      <Select value={tone} onValueChange={(val) => setTone(val || 'Hype/Energetic')}>
+                        <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectContent className="bg-zinc-950 border-zinc-800">
+                          <SelectItem value="Hype/Energetic">Hype / Action</SelectItem>
+                          <SelectItem value="Dark/Gritty">Dark / Seinen</SelectItem>
+                          <SelectItem value="Emotional/Sad">Emotional / Drama</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">TARGET AUDIENCE</label>
+                      <Select value={audience} onValueChange={(val) => setAudience(val || 'General Fans')}>
+                        <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectContent className="bg-zinc-950 border-zinc-800">
+                          <SelectItem value="General Fans">General Shonen</SelectItem>
+                          <SelectItem value="Hardcore Weebs">Elite / Seinen</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">TARGET AUDIENCE</label>
-                    <Select value={audience} onValueChange={(val) => setAudience(val || 'General Fans')}>
-                      <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
-                      <SelectContent className="bg-zinc-950 border-zinc-800">
-                        <SelectItem value="General Fans">General Shonen</SelectItem>
-                        <SelectItem value="Hardcore Weebs">Elite / Seinen</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="pt-6 border-t border-white/5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Neural Linkage</span>
+                      <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">Stable</span>
+                    </div>
+                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full w-[85%] bg-gradient-to-r from-studio to-fuchsia-500 rounded-full" />
+                    </div>
+                    <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase italic">The neural engine is calibrated for high-fidelity synthesis.</p>
                   </div>
-                </div>
-                <div className="pt-6 border-t border-white/5 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Neural Linkage</span>
-                    <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">Stable</span>
-                  </div>
-                  <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full w-[85%] bg-gradient-to-r from-studio to-fuchsia-500 rounded-full" />
-                  </div>
-                  <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase italic">The neural engine is calibrated for high-fidelity synthesis.</p>
                 </div>
               </div>
             </div>
           </div>
-
-          {generatedScript && (
-            <div className="mt-12 pt-12 border-t border-white/5 flex justify-center">
-              <Button onClick={handleSaveCurrent} disabled={isSaving} className="h-14 px-12 bg-studio/10 hover:bg-studio text-studio hover:text-black border border-studio/30 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-4 shadow-studio/10">
-                <History className="w-5 h-5" />
-                {isSaving ? 'SYNCING ARCHIVE...' : (currentScriptId ? 'UPDATE MASTER BLUEPRINT' : 'ARCHIVE ENGINE CONFIG')}
-              </Button>
-            </div>
-          )}
-        </div>
-      );
+        );
+      case 'console':
+        return <EngineConsole />;
+      case 'calibration':
+        return <EngineCalibration />;
+      case 'optimization':
+        return <EngineOptimization />;
+      case 'logs':
+        return <EngineLogs />;
+      default:
+        return null;
     }
-
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-zinc-700">
-        <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-[2rem] flex items-center justify-center mb-8">
-          <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }}>
-            {activeTab === 'console' ? <Terminal className="w-8 h-8 opacity-20" /> : <Activity className="w-8 h-8 opacity-20" />}
-          </motion.div>
-        </div>
-        <p className="font-black uppercase tracking-[0.3em] text-[10px] max-w-[220px] text-center leading-loose">
-          System layer {activeTab.toUpperCase()} is currently in standby mode. Core synchronization required.
-        </p>
-      </div>
-    );
   };
 
   return (

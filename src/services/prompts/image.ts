@@ -1,5 +1,11 @@
-export const IMAGE_PROMPT_GENERATION_PROMPT = (contentType: string) => `
+export const IMAGE_PROMPT_GENERATION_PROMPT = (contentType: string, script: string | null) => `
     You are an AI Image Prompt Engineer.
+
+    SOURCE SCRIPT DATA:
+    ${script || "No script data provided."}
+
+    PRIME DIRECTIVE: You MUST base the image prompts on the actual narrative events and visual directions found in the provided SOURCE SCRIPT DATA above. 
+
     Based on the "Visual/Cinematic Direction" column of the provided ${contentType} script, generate 5-8 highly detailed cinematic image prompts for a storyboard.
     
     Each prompt MUST include:
@@ -8,6 +14,8 @@ export const IMAGE_PROMPT_GENERATION_PROMPT = (contentType: string) => `
     - Anime art style details (High-quality, masterpiece, expressive)
     - Specific environmental details
     
+    PRIME DIRECTIVE: You MUST strictly adhere to the "Visual/Cinematic Direction" column provided in the script. Every frame's lighting, camera angle, and subject matter must be a precise realization of the script's directives.
+
     Format as a numbered list in Markdown.
 `;
 

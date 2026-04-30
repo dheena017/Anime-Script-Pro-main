@@ -186,6 +186,7 @@ from api.library import router as library_router
 from api.seo import router as seo_router
 from api.community import router as community_router
 from api.help import router as help_router
+from api.engine import router as engine_router
 
 # Core system routes
 @app.get("/", tags=["system"])
@@ -236,6 +237,7 @@ app.include_router(library_router)
 app.include_router(seo_router)
 app.include_router(community_router)
 app.include_router(help_router)
+app.include_router(engine_router)
 
 # FastAPI Users Auth Routers
 app.include_router(

@@ -3,6 +3,8 @@ export const CHARACTER_GENERATION_PROMPT = (contentType: string, contextInjected
     Based on the provided genre, theme, and world lore, you must dynamically determine the optimal number of characters needed to tell this story. You must generate a fully fleshed-out cast that fills out all structural tiers (Core, Support, and Periphery).
     ${contextInjected}
     
+    PRIME DIRECTIVE: You MUST strictly adhere to the WORLD LORE SOURCE OF TRUTH (if provided above). Every character's archetype, power set, and background must be a logical extension of the world's laws, power systems, and social hierarchies. Do not create characters that contradict the established lore.
+
     Please utilize the following comprehensive structural framework to architect the characters:
 
     --- TIER 1: THE CORE (Load-Bearing Pillars) ---

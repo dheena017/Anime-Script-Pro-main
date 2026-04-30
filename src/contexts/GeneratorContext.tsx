@@ -4,6 +4,10 @@ import { ProductionUnit } from '../lib/sequence-utils';
 import { useAuth } from '../hooks/useAuth';
 
 interface GeneratorContextType {
+  worldLore: any;
+  seriesPlan: any;
+  storyboardPrompts: any;
+  seoMetadata: any;
   prompt: string;
   setPrompt: (p: string) => void;
   theme: string;
@@ -90,6 +94,14 @@ interface GeneratorContextType {
   setIsFullscreen: (f: boolean) => void;
   notification: { message: string; type: 'error' | 'success' | 'info' } | null;
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
+  temperature: number;
+  setTemperature: (t: number) => void;
+  maxTokens: number;
+  setMaxTokens: (t: number) => void;
+  topP: number;
+  setTopP: (p: number) => void;
+  topK: number;
+  setTopK: (k: number) => void;
 }
 
 export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
@@ -151,6 +163,13 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
+  
+  // Engine Configuration State
+  const [temperature, setTemperature] = useState(0.85);
+  const [maxTokens, setMaxTokens] = useState(2048);
+  const [topP, setTopP] = useState(0.95);
+  const [topK, setTopK] = useState(40);
+  const [isEngineInitialized, setIsEngineInitialized] = useState(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -195,6 +214,81 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const interval = setInterval(fetchHistory, 30000);
     return () => clearInterval(interval);
   }, [user]);
+
+  // Load Engine Config
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadConfig = async () => {
+      try {
+        const { engineApi } = await import('../services/api/engine');
+        const config = await engineApi.getConfig(user.id);
+        if (config) {
+          setTemperature(config.temperature);
+          setMaxTokens(config.max_tokens);
+          setSelectedModel(config.selected_model);
+          setTone(config.vibe);
+          setAudience(config.audience);
+          setIsEngineInitialized(true);
+        }
+      } catch (error) {
+        console.error("Failed to load engine config:", error);
+      }
+    };
+
+    loadConfig();
+  }, [user?.id]);
+
+  // Auto-save Engine Config
+  useEffect(() => {
+    if (!user?.id || !isEngineInitialized) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        const { engineApi } = await import('../services/api/engine');
+        await engineApi.updateConfig(user.id, {
+          temperature,
+          max_tokens: maxTokens,
+          selected_model: selectedModel,
+          vibe: tone,
+          audience: audience
+        });
+        console.log("Engine configuration synced to cloud.");
+      } catch (error) {
+        console.error("Failed to sync engine config:", error);
+      }
+    }, 2000); // 2 second debounce
+
+    return () => clearTimeout(timeout);
+  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, isEngineInitialized]);
+  // Neural Telemetry Sync
+  useEffect(() => {
+    const syncTelemetry = async () => {
+      const { AI_EVENTS } = await import('../services/generators/core');
+      const { engineApi } = await import('../services/api/engine');
+
+      const handleTelemetry = async (e: any) => {
+        try {
+          await engineApi.recordTelemetry({
+            model: e.detail.model,
+            latency_ms: e.detail.latency,
+            status: e.detail.error ? 'ERROR' : 'SUCCESS',
+            endpoint: 'studio_general',
+            request_summary: e.detail.text?.substring(0, 100),
+            error_message: e.detail.error,
+            metadata: { fallbacks: e.detail.fallbacks }
+          }, user?.id);
+        } catch (err) {
+          console.warn("Failed to record remote telemetry:", err);
+        }
+      };
+
+      AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
+      return () => AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
+    };
+
+    syncTelemetry();
+  }, [user?.id]);
 
   return (
     <GeneratorContext.Provider value={{
@@ -241,7 +335,11 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       generatedAltText, setGeneratedAltText,
       isLiked, setIsLiked,
       isFullscreen, setIsFullscreen,
-      notification, showNotification
+      notification, showNotification,
+      temperature, setTemperature,
+      maxTokens, setMaxTokens,
+      topP, setTopP,
+      topK, setTopK
     }}>
       {children}
       {notification && (

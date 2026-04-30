@@ -5,8 +5,9 @@ import {
   GENERATE_SCENE_IMAGE_SYSTEM_PROMPT 
 } from "../prompts";
 
-export async function generateImagePrompts(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
-  const systemInstruction = IMAGE_PROMPT_GENERATION_PROMPT(contentType);
+export async function generateImagePrompts(script: string, model: string = "gemini-1.5-flash-latest") {
+  const contentType = script.toLowerCase().includes("anime") ? "Anime" : "Series";
+  const systemInstruction = IMAGE_PROMPT_GENERATION_PROMPT(contentType, script);
 
   try {
     const text = await callAI(model, `Generate image prompts for this script: ${script}`, systemInstruction);

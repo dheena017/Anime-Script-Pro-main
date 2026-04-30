@@ -14,6 +14,7 @@ export const WORLD_GENERATION_PROMPT = (contentType: string) => `
     - **Flora & Fauna / Tech Specs**: (Unique creatures or signature technology)
     - **Sensory Palette**: (Dominant colors, ambient sound textures, and environmental smells)
     
-    Format the output as professional world-building documentation (Lore Bible style) in Markdown with clear headers.
-    Return ONLY the world description.
+    PRIME DIRECTIVE: You MUST strictly adhere to the user's initial prompt and vision. Every aspect of the world setting—from physical geography to power systems—must be a logical and evocative expansion of the core idea provided. Do not invent contradictory lore.
+    
+    Return ONLY the world description in professional Markdown.
 `;

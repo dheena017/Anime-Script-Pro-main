@@ -1,12 +1,12 @@
 import { callAI } from "./core";
-import { 
-  METADATA_GENERATION_PROMPT, 
-  YOUTUBE_DESCRIPTION_GENERATION_PROMPT, 
-  ALT_TEXT_GENERATION_PROMPT 
+import {
+  METADATA_GENERATION_PROMPT,
+  YOUTUBE_DESCRIPTION_GENERATION_PROMPT,
+  ALT_TEXT_GENERATION_PROMPT
 } from "../prompts";
 
 export async function generateMetadata(script: string, model: string = "gemini-1.5-flash-latest") {
-  const systemInstruction = METADATA_GENERATION_PROMPT;
+  const systemInstruction = METADATA_GENERATION_PROMPT(script);
 
   try {
     const text = await callAI(model, `Generate YouTube metadata for this script: ${script}`, systemInstruction);
@@ -18,7 +18,7 @@ export async function generateMetadata(script: string, model: string = "gemini-1
 }
 
 export async function generateYouTubeDescription(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
-  const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType);
+  const systemInstruction = YOUTUBE_DESCRIPTION_GENERATION_PROMPT(contentType, script);
 
   try {
     const text = await callAI(model, `Generate a YouTube description for this script: ${script}`, systemInstruction);
@@ -30,7 +30,7 @@ export async function generateYouTubeDescription(script: string, model: string =
 }
 
 export async function generateAltTexts(script: string, model: string = "gemini-1.5-flash-latest") {
-  const systemInstruction = ALT_TEXT_GENERATION_PROMPT;
+  const systemInstruction = ALT_TEXT_GENERATION_PROMPT(script);
 
   try {
     const text = await callAI(model, `Generate alt text captions for this script: ${script}`, systemInstruction);

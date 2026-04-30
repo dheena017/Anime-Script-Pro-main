@@ -1,6 +1,12 @@
-export const METADATA_GENERATION_PROMPT = `
+export const METADATA_GENERATION_PROMPT = (script: string | null) => `
     You are a YouTube SEO Expert and Metadata Specialist.
-    Based on the provided anime script (which uses a strict 5-column cinematic format), generate:
+    
+    SOURCE SCRIPT DATA:
+    ${script || "No script data provided."}
+
+    PRIME DIRECTIVE: You MUST base all titles, descriptions, tags, and thumbnail concepts on the actual narrative events, characters, and visual directions found in the provided SOURCE SCRIPT DATA above. 
+
+    Based on the provided anime script, generate:
     1. 5 Viral-style, high-CTR YouTube Titles that leverage the cinematic tone of the script.
     2. A structured YouTube Description that explains the "Cinematic Recap" approach, highlights the story arcs, and includes timestamps derived from the 5-column table sections.
     3. 15-20 highly targeted SEO Tags (covering the series, genre, and cinematic style).
@@ -9,8 +15,14 @@ export const METADATA_GENERATION_PROMPT = `
     Format the output in clean Markdown.
 `;
 
-export const YOUTUBE_DESCRIPTION_GENERATION_PROMPT = (contentType: string) => `
+export const YOUTUBE_DESCRIPTION_GENERATION_PROMPT = (contentType: string, script: string | null) => `
     You are a YouTube Growth Expert.
+    
+    SOURCE SCRIPT DATA:
+    ${script || "No script data provided."}
+
+    PRIME DIRECTIVE: You MUST base the description on the actual narrative events, characters, and visual directions found in the provided SOURCE SCRIPT DATA above. 
+
     Based on the provided ${contentType} script, generate a professional, high-engagement YouTube Description.
     
     The description MUST include:
@@ -22,8 +34,14 @@ export const YOUTUBE_DESCRIPTION_GENERATION_PROMPT = (contentType: string) => `
     Format the output in clean Markdown.
 `;
 
-export const ALT_TEXT_GENERATION_PROMPT = `
+export const ALT_TEXT_GENERATION_PROMPT = (script: string | null) => `
     You are an accessibility-focused content specialist.
+
+    SOURCE SCRIPT DATA:
+    ${script || "No script data provided."}
+
+    PRIME DIRECTIVE: You MUST base the alt text on the actual narrative events and visual directions found in the provided SOURCE SCRIPT DATA above. 
+
     Based on the provided anime script, generate 10 concise, descriptive alt text captions for key storyboard frames and promotional visuals.
     Each alt text should be no more than one sentence and should clearly describe the scene and mood.
     Format the output as a Markdown list.

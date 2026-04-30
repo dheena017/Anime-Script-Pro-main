@@ -151,14 +151,16 @@ function broadcastAIStart(model: string) {
  * Robust AI Call Utility with built-in retries, timeouts, and error handling.
  */
 export async function callAI(
-  model: string, // user-selected model
+  model: string,
   prompt: string,
   systemInstruction: string,
-  temperature: number = 0.87,
-  _retries: number = 0, // unused, kept for signature compatibility
-  timeoutMs: number = 180000 // 180 second timeout to allow for backend fallback cycles
+  temperature: number = 0.85,
+  maxTokens: number = 2048,
+  topP: number = 0.95,
+  topK: number = 40,
+  timeoutMs: number = 180000
 ) {
-  const requestKey = JSON.stringify({ model, prompt, systemInstruction, temperature });
+  const requestKey = JSON.stringify({ model, prompt, systemInstruction, temperature, maxTokens, topP, topK });
   if (inFlightRequests.has(requestKey)) {
     console.info('[AI Core] Duplicate generation request detected. Reusing existing in-flight request.');
     return inFlightRequests.get(requestKey)!;
@@ -170,6 +172,18 @@ export async function callAI(
 
     console.info(`[AI Core] Starting generation request for model: ${model}`);
     console.info(`[AI Core] Prompt length: ${prompt?.length || 0}, instruction length: ${systemInstruction?.length || 0}`);
+
+    // Context Audit: Find "SOURCE OF TRUTH" markers in the system instruction
+    const worldInjected = systemInstruction.includes("WORLD LORE SOURCE OF TRUTH");
+    const castInjected = systemInstruction.includes("CHARACTER DNA REGISTRY");
+    const planInjected = systemInstruction.includes("EPISODE MASTER BLUEPRINT");
+
+    console.groupCollapsed(`[AI Core] Neural Context Audit`);
+    console.log("World Lore Sync:", worldInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("Cast DNA Sync:", castInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("Episode Plan Sync:", planInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("Total Instruction Volume:", systemInstruction.length, "chars");
+    console.groupEnd();
 
     console.groupCollapsed(`[AI Core] Request to ${model}`);
     console.log("System Instruction:", systemInstruction);
@@ -231,7 +245,10 @@ export async function callAI(
           model: currentModel,
           prompt: prompt,
           systemInstruction: systemInstruction,
-          temperature: temperature
+          temperature: temperature,
+          max_tokens: maxTokens,
+          top_p: topP,
+          top_k: topK
         };
 
         console.log("[AI Core] Trying model:", currentModel);

@@ -7,6 +7,7 @@ from .system import (
     Category, Tutorial, Notification, SEOEntry, HelpCategory, FAQ, 
     DocSection, DocArticle, ScreeningRoomEntry, CommunityPost
 )
+from .engine import EngineConfig, AITelemetry
 
 # Export all models for easier importing
 __all__ = [
