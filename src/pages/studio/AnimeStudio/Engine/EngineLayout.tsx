@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 import { EngineHeader } from '../../components/Engine/EngineHeader';
 import { EngineToolbar } from '../../components/Engine/EngineToolbar';
 import { EngineTab } from '../../components/Engine/Tabs/EngineTabs';
@@ -16,8 +17,36 @@ export default function EngineLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode, generatedScript, isSaving
+    session, episode, generatedScript, isSaving, setIsSaving, showNotification,
+    temperature, maxTokens, selectedModel, tone, audience
   } = useGenerator();
+
+  const { user } = useAuth();
+
+  const handleSaveCurrent = async () => {
+    if (!user?.id) {
+      showNotification?.('Authentication Required', 'error');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { engineApi } = await import('@/services/api/engine');
+      await engineApi.updateConfig(user.id, {
+        temperature,
+        max_tokens: maxTokens,
+        selected_model: selectedModel,
+        vibe: tone,
+        audience: audience
+      });
+      showNotification?.('Engine Matrix Synchronized', 'success');
+    } catch (e) {
+      console.error("Manual sync failed:", e);
+      showNotification?.('Sync Error', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const activeTab = (searchParams.get('tab') as EngineTab) || 'status';
 
@@ -34,7 +63,7 @@ export default function EngineLayout() {
             episode={episode}
             onPrev={() => navigate('/anime/screening')}
             isGenerating={handlers.isGenerating}
-            onSave={handlers.handleSaveCurrent}
+            onSave={handleSaveCurrent}
             isSaving={isSaving}
             hasContent={!!generatedScript}
           />

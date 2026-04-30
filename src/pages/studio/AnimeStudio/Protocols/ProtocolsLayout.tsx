@@ -4,19 +4,35 @@ import { ProtocolsToolbar } from './ProtocolsToolbar';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, RefreshCw } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProtocolsLayout() {
   const navigate = useNavigate();
-  const { isSaving, setIsSaving, showNotification, generatedScript } = useGenerator();
+  const { 
+    isSaving, setIsSaving, showNotification, generatedScript,
+    castProfiles, castData, generatedSeriesPlan, generatedMetadata
+  } = useGenerator();
+  const { user } = useAuth();
 
   const handleSave = async () => {
+    if (!user?.id) {
+      showNotification?.('Authentication Required', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Sync logic handled via GeneratorContext implicitly, 
-      // providing explicit feedback here.
-      await new Promise(r => setTimeout(r, 800));
+      const { productionApi } = await import('@/services/api/production');
+      await productionApi.updateContent(user.id, {
+        cast_profiles: castProfiles,
+        cast_data: castData,
+        script_content: generatedScript,
+        series_plan: generatedSeriesPlan,
+        seo_metadata: generatedMetadata
+      });
       showNotification('Protocol Manifest Synchronized', 'success');
     } catch (e) {
+      console.error("Manual sync failed:", e);
       showNotification('Protocol Sync Error', 'error');
     } finally {
       setIsSaving(false);

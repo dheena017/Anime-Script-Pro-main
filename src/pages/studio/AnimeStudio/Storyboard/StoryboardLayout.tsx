@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 import { StoryboardHeader } from '../../components/Storyboard/StoryboardHeader';
 import { StoryboardToolbar } from '../../components/Storyboard/StoryboardToolbar';
 import { generateImagePrompts } from '@/services/geminiService';
@@ -21,15 +22,31 @@ export default function StoryboardLayout() {
     generatedImagePrompts, setGeneratedImagePrompts,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     session, episode, selectedModel, showNotification,
-    isSaving, setIsSaving
+    isSaving, setIsSaving,
+    castProfiles, castData, generatedSeriesPlan, generatedMetadata
   } = useGenerator();
 
+  const { user } = useAuth();
+
   const handleSave = async () => {
+    if (!user?.id) {
+      showNotification?.('Authentication Required', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await new Promise(r => setTimeout(r, 800));
+      const { productionApi } = await import('@/services/api/production');
+      await productionApi.updateContent(user.id, {
+        cast_profiles: castProfiles,
+        cast_data: castData,
+        script_content: generatedScript,
+        series_plan: generatedSeriesPlan,
+        seo_metadata: generatedMetadata
+      });
       showNotification?.('Visual DNA Manifest Synchronized', 'success');
     } catch (e) {
+      console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');
     } finally {
       setIsSaving(false);

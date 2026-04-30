@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 import { ScreeningHeader } from '../../components/Screening/ScreeningHeader';
 import { ScreeningToolbar } from '../../components/Screening/ScreeningToolbar';
 import { ScreeningTab } from '../../components/Screening/Tabs/ScreeningTabs';
@@ -16,15 +17,31 @@ export default function ScreeningLayout() {
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode, isSaving, setIsSaving, showNotification, generatedScript
+    session, episode, isSaving, setIsSaving, showNotification, generatedScript,
+    castProfiles, castData, generatedSeriesPlan, generatedMetadata
   } = useGenerator();
 
+  const { user } = useAuth();
+
   const handleSave = async () => {
+    if (!user?.id) {
+      showNotification?.('Authentication Required', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await new Promise(r => setTimeout(r, 800));
+      const { productionApi } = await import('@/services/api/production');
+      await productionApi.updateContent(user.id, {
+        cast_profiles: castProfiles,
+        cast_data: castData,
+        script_content: generatedScript,
+        series_plan: generatedSeriesPlan,
+        seo_metadata: generatedMetadata
+      });
       showNotification?.('Production Preview Synchronized', 'success');
     } catch (e) {
+      console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');
     } finally {
       setIsSaving(false);

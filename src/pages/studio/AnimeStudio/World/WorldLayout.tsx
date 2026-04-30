@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 import { WorldHeader } from '@/pages/studio/components/World/WorldHeader';
 import { WorldToolbar } from '@/pages/studio/components/World/WorldToolbar';
 import { generateWorld } from '@/services/geminiService';
@@ -26,16 +27,32 @@ export default function WorldLayout() {
     setGeneratedWorld,
     session, episode, showNotification,
     generatedWorld,
-    isSaving, setIsSaving
+    isSaving, setIsSaving,
+    architecture, atlas, historyLore, systems, culture
   } = useGenerator();
 
+  const { user } = useAuth();
+
   const handleSave = async () => {
+    if (!user?.id) {
+      showNotification?.('Authentication Required', 'error');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Manual sync trigger for the World module
-      await new Promise(r => setTimeout(r, 800));
+      const { worldApi } = await import('@/services/api/world');
+      await worldApi.updateLore(user.id, {
+        architecture,
+        atlas,
+        history: historyLore,
+        systems,
+        culture,
+        full_lore_blob: generatedWorld
+      });
       showNotification?.('World Lore Manifest Synchronized', 'success');
     } catch (e) {
+      console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');
     } finally {
       setIsSaving(false);
