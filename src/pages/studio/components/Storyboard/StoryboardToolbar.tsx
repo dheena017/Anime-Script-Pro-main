@@ -143,10 +143,6 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
               </Button>
             </div>
 
-            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl shrink-0 grow md:grow-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 animate-pulse" />
-              <span className="text-[9px] font-black text-fuchsia-400/80 uppercase tracking-widest">Visual DNA Live</span>
-            </div>
           </div>
         </div>
       </div>

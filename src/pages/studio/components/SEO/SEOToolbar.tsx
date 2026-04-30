@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
+import { Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { Button } from '@/components/ui/button';
@@ -70,13 +70,6 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
 
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">
           <div className="flex items-center justify-between w-full md:w-auto gap-4">
-            {/* Status Indicator */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md grow md:grow-0 justify-center">
-              <Activity className={cn('w-3 h-3', status === 'active' ? 'text-emerald-500' : 'text-zinc-600')} />
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
-                {status === 'active' ? 'Index Ready' : 'Awaiting Engine'}
-              </span>
-            </div>
 
             {/* Production Unit */}
             <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow md:grow-0">

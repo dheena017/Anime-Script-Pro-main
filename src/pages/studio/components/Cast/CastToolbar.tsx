@@ -126,10 +126,6 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl w-full md:w-auto">
-             <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-             <span className="text-[9px] font-black text-studio/80 uppercase tracking-widest">Live Synthesis Stream</span>
-          </div>
         </div>
       </div>
 
