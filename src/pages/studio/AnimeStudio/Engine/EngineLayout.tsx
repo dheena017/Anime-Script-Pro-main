@@ -13,10 +13,10 @@ export const EngineContext = React.createContext<{
 export default function EngineLayout() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [setHandlers] = React.useState<any>({});
+  const [handlers, setHandlers] = React.useState<any>({});
 
   const {
-    session, episode,
+    session, episode, generatedScript
   } = useGenerator();
 
   const activeTab = (searchParams.get('tab') as EngineTab) || 'status';
@@ -32,11 +32,12 @@ export default function EngineLayout() {
           session={session}
           episode={episode}
           onPrev={() => navigate('/anime/screening')}
+          isGenerating={handlers.isGenerating}
         />
 
         <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <EngineToolbar
-            status="active"
+            status={generatedScript ? 'active' : 'empty'}
             activeTab={activeTab}
             setActiveTab={handleTabChange}
             session={session}

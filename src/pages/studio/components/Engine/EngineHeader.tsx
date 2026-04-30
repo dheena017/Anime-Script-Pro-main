@@ -1,19 +1,22 @@
 import React from 'react';
 import { Settings, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface EngineHeaderProps {
   session: string;
   episode: string;
   onNext?: () => void;
   onPrev?: () => void;
+  isGenerating?: boolean;
 }
 
 export const EngineHeader: React.FC<EngineHeaderProps> = ({
   session,
   episode,
   onNext,
-  onPrev
+  onPrev,
+  isGenerating = false
 }) => {
   return (
     <div className="relative group">
@@ -37,9 +40,9 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
                 Production Engine
               </h1>
               <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-studio shadow-[0_0_8px_#06b6d4] animate-pulse" />
+                <div className={cn("w-1 h-1 rounded-full animate-pulse", isGenerating ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
                 <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  Ready
+                  {isGenerating ? 'Computing' : 'Ready'}
                 </span>
               </div>
             </div>
