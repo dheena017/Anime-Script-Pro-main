@@ -53,10 +53,6 @@ const PromptsLayout = lazy(() => import('./pages/studio/AnimeStudio/Prompts/Prom
 const ScreeningLayout = lazy(() => import('./pages/studio/AnimeStudio/Screening/ScreeningLayout'));
 const EngineLayout = lazy(() => import('./pages/studio/AnimeStudio/Engine/EngineLayout'));
 
-// Cast Sub-pages
-const CharacterCreation = lazy(() => import('./pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
-const DNAPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
-const DynamicsPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
 
 
 const LoadingSpinner = () => (
@@ -96,9 +92,6 @@ export default function App() {
 
                       <Route path="cast" element={<CastLayout />}>
                         <Route index element={<AnimeCast />} />
-                        <Route path="create" element={<CharacterCreation />} />
-                        <Route path="dna" element={<DNAPage />} />
-                        <Route path="dynamics" element={<DynamicsPage />} />
                       </Route>
 
                       <Route path="series" element={<SeriesLayout />}>
