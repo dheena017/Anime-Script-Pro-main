@@ -306,7 +306,7 @@ export default function AnimeLayout() {
           </div>
         </div>
 
-        <div className="mt-4">
+        <div id="production-logs" className="mt-4">
           <SessionLogs
             history={history}
             setPrompt={setPrompt}

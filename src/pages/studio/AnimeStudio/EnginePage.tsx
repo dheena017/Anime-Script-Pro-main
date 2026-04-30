@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import {
   Sparkles, Brain, X, Target, Settings, Clapperboard,
-  SlidersHorizontal, Sword, Globe, Activity
+  Sword, Globe, Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -46,7 +46,6 @@ export function EnginePage() {
 
   const {
     tone, setTone,
-    audience, setAudience,
     setIsSaving,
     generatedScript,
     setCurrentScriptId,
@@ -108,9 +107,9 @@ export function EnginePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-              <div className="lg:col-span-3 space-y-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-12">
+              <div className="space-y-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="space-y-4">
                     <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
                       <Clapperboard className="w-4 h-4" />
@@ -145,6 +144,23 @@ export function EnginePage() {
                         <SelectItem value="gemini-2.0-pro-exp-02-05" className="text-zinc-300">G2.0 Pro (Elite Intelligence)</SelectItem>
                         <SelectItem value="Gemini-2.5-Flash" className="text-zinc-400">G2.0 Flash (Next-Gen Hub)</SelectItem>
                         <SelectItem value="gemini-1.5-pro" className="text-zinc-500">G1.5 Pro (Legacy Elite)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Brain className="w-4 h-4" />
+                      NARRATIVE TONE
+                    </label>
+                    <Select value={tone} onValueChange={(val) => setTone(val || 'Hype/Energetic')}>
+                      <SelectTrigger className="h-14 bg-zinc-900/50 border-zinc-800 text-cyan-100 rounded-2xl focus:border-studio/50 transition-all">
+                        <SelectValue placeholder="Hype/Energetic" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-zinc-950 border-zinc-800">
+                        <SelectItem value="Hype/Energetic">Hype / Action</SelectItem>
+                        <SelectItem value="Dark/Gritty">Dark / Seinen</SelectItem>
+                        <SelectItem value="Emotional/Sad">Emotional / Drama</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -239,49 +255,6 @@ export function EnginePage() {
                         );
                       })}
                     </motion.div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-8">
-                <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] space-y-10 relative overflow-hidden group/sidebar">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-studio/5 blur-[60px] pointer-events-none" />
-                  <h4 className="text-[11px] font-black text-studio uppercase tracking-widest flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-lg bg-studio/10 flex items-center justify-center border border-studio/20"><SlidersHorizontal className="w-3 h-3" /></div>
-                    Neural Parameters
-                  </h4>
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">NARRATIVE TONE</label>
-                      <Select value={tone} onValueChange={(val) => setTone(val || 'Hype/Energetic')}>
-                        <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
-                        <SelectContent className="bg-zinc-950 border-zinc-800">
-                          <SelectItem value="Hype/Energetic">Hype / Action</SelectItem>
-                          <SelectItem value="Dark/Gritty">Dark / Seinen</SelectItem>
-                          <SelectItem value="Emotional/Sad">Emotional / Drama</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">TARGET AUDIENCE</label>
-                      <Select value={audience} onValueChange={(val) => setAudience(val || 'General Fans')}>
-                        <SelectTrigger className="h-10 bg-black/40 border-zinc-800/50 text-cyan-200 text-xs rounded-xl"><SelectValue /></SelectTrigger>
-                        <SelectContent className="bg-zinc-950 border-zinc-800">
-                          <SelectItem value="General Fans">General Shonen</SelectItem>
-                          <SelectItem value="Hardcore Weebs">Elite / Seinen</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="pt-6 border-t border-white/5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Neural Linkage</span>
-                      <span className="text-[8px] font-black text-studio uppercase tracking-widest animate-pulse">Stable</span>
-                    </div>
-                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full w-[85%] bg-gradient-to-r from-studio to-fuchsia-500 rounded-full" />
-                    </div>
-                    <p className="text-[9px] text-zinc-600 font-medium leading-relaxed uppercase italic">The neural engine is calibrated for high-fidelity synthesis.</p>
                   </div>
                 </div>
               </div>

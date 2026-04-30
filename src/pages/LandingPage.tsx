@@ -108,6 +108,52 @@ const DropdownLink = ({
   </a>
 );
 
+const SpeedLines = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    {[...Array(30)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute bg-studio/20"
+        style={{
+          width: '1px',
+          height: '150px',
+          left: `${Math.random() * 100}%`,
+          top: '-20%',
+        }}
+        animate={{
+          top: '120%',
+          opacity: [0, 0.5, 0],
+        }}
+        transition={{
+          duration: 0.3 + Math.random() * 0.4,
+          repeat: Infinity,
+          delay: Math.random() * 5,
+          ease: "linear",
+        }}
+      />
+    ))}
+  </div>
+);
+
+const DigitalScanline = () => (
+  <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden opacity-10">
+    <motion.div
+      className="w-full h-[2px] bg-studio shadow-[0_0_15px_rgba(6,182,212,0.8)]"
+      animate={{ top: ['-5%', '105%'] }}
+      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      style={{ position: 'absolute' }}
+    />
+  </div>
+);
+
+const HUDDecoration = () => (
+  <div className="fixed inset-y-0 left-0 w-2 z-[90] pointer-events-none hidden 2xl:flex flex-col items-center justify-center gap-12 opacity-20">
+    {[...Array(6)].map((_, i) => (
+      <div key={i} className="w-px h-24 bg-gradient-to-b from-transparent via-studio to-transparent" />
+    ))}
+  </div>
+);
+
 // -------------------------------------------------
 // Gallery data using local assets
 // -------------------------------------------------
@@ -179,6 +225,11 @@ export function LandingPage() {
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
+        <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-studio/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
+        <SpeedLines />
+        <DigitalScanline />
+        <HUDDecoration />
       </div>
 
       {/* Navigation */}
@@ -312,12 +363,13 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tight leading-[0.9] text-white"
+            className="text-6xl md:text-8xl lg:text-9xl font-black italic tracking-tighter leading-[0.9] text-white relative"
           >
-            TURN YOUR IMAGINATION <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio">
+            <span className="relative z-10">TURN YOUR IMAGINATION</span> <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] relative z-10">
               INTO STUDIO-QUALITY ANIME.
             </span>
+            <div className="absolute inset-0 -z-0 bg-studio/5 blur-[100px] rounded-full scale-110 animate-pulse" />
           </motion.h1>
 
           <motion.p
@@ -358,10 +410,13 @@ export function LandingPage() {
                 <div className="flex items-center justify-end pt-2 px-1">
                   <Button
                     onClick={handleGenerate}
-                    className="h-12 px-8 rounded-xl bg-studio text-black hover:bg-studio/90 font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95 shrink-0"
+                    className="h-12 px-8 rounded-xl bg-studio text-black hover:bg-studio/90 font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95 shrink-0 relative overflow-hidden group"
                   >
-                    <Send className="w-4 h-4 mr-2" />
-                    Generate
+                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-[-20deg] z-0" />
+                    <span className="relative z-10 flex items-center">
+                      <Send className="w-4 h-4 mr-2" />
+                      Generate
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -374,11 +429,10 @@ export function LandingPage() {
                 <button
                   key={style.label}
                   onClick={() => setSelectedStyle(style.label)}
-                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${
-                    selectedStyle === style.label
+                  className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${selectedStyle === style.label
                       ? style.color + ' ring-1 ring-white/20 scale-105'
                       : 'bg-zinc-800/50 text-zinc-500 border-zinc-800 hover:text-zinc-300'
-                  }`}
+                    }`}
                 >
                   {style.label}
                 </button>
@@ -408,7 +462,7 @@ export function LandingPage() {
           </motion.div>
 
           {/* Video Demo Section */}
-          <motion.section 
+          <motion.section
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
@@ -420,11 +474,11 @@ export function LandingPage() {
                 <Video className="w-4 h-4 text-studio" />
                 <span className="text-xs font-bold text-white uppercase tracking-wider">Live Demo</span>
               </div>
-              <video 
+              <video
                 className="w-full h-auto aspect-video object-cover"
-                autoPlay 
-                muted 
-                loop 
+                autoPlay
+                muted
+                loop
                 playsInline
                 poster="/cyberpunk_thumbnail_1776537282821.png"
               >
@@ -449,7 +503,7 @@ export function LandingPage() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
                   <Code className="w-8 h-8 text-studio" />
@@ -462,7 +516,7 @@ export function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
                   <Palette className="w-8 h-8 text-studio" />
@@ -475,7 +529,7 @@ export function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group"
+                className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
                   <Download className="w-8 h-8 text-studio" />
@@ -503,16 +557,16 @@ export function LandingPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: idx * 0.05 }}
-                  className="relative group cursor-pointer rounded-2xl overflow-hidden"
+                  className="relative group cursor-pointer rounded-2xl overflow-hidden hover:shadow-[0_10px_30px_rgba(6,182,212,0.2)] hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-studio/30"
                   onClick={() => setActivePrompt(item.prompt)}
                 >
                   <img
                     src={item.src}
                     alt="Generated anime art"
-                    className="w-full h-56 object-cover transition-transform group-hover:scale-105"
+                    className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300 p-6">
-                    <span className="text-white text-sm font-medium text-center leading-relaxed">
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 p-6">
+                    <span className="text-white text-sm font-medium text-center leading-relaxed translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                       "{item.prompt}"
                     </span>
                   </div>
@@ -563,10 +617,10 @@ export function LandingPage() {
                   transition={{ delay: i * 0.05 }}
                   className="p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group text-left"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-studio/10 group-hover:scale-110 transition-all">
-                    <f.icon className="w-6 h-6 text-zinc-400 group-hover:text-studio" />
+                  <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-studio/10 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]">
+                    <f.icon className="w-6 h-6 text-zinc-400 group-hover:text-studio transition-colors" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{f.title}</h3>
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-studio transition-colors">{f.title}</h3>
                   <p className="text-zinc-500 text-sm leading-relaxed">{f.text}</p>
                 </motion.div>
               ))}
