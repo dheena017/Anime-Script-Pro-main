@@ -60,8 +60,8 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6 w-full p-4 md:p-0">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
         {/* Identity */}
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center">
@@ -77,70 +77,76 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          {onAddScene && (
-            <Button
-              variant="outline"
-              className="h-11 px-5 rounded-2xl font-black uppercase tracking-widest text-[10px] text-zinc-300 border-zinc-700 hover:text-white hover:border-studio transition-all duration-300"
-              onClick={onAddScene}
-            >
-              <Plus className="w-3.5 h-3.5 mr-2" />
-              Append Scene
-            </Button>
-          )}
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row items-center w-full md:w-auto gap-4">
+            {onAddScene && (
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto h-11 px-5 rounded-2xl font-black uppercase tracking-widest text-[10px] text-zinc-300 border-zinc-700 hover:text-white hover:border-studio transition-all duration-300"
+                onClick={onAddScene}
+              >
+                <Plus className="w-3.5 h-3.5 mr-2" />
+                Append Scene
+              </Button>
+            )}
 
-          {/* Quick Actions */}
-          <div className="flex items-center gap-4 px-5 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
-            <button
-              onClick={onEnhanceNarration}
-              disabled={isGlobalEnhancing}
-              className="text-zinc-500 hover:text-studio transition-colors disabled:opacity-40 group"
-              title="Audio Sync"
-            >
-              <Mic2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-            <button
-              onClick={onEnhanceVisuals}
-              disabled={isGlobalEnhancing}
-              className="text-zinc-500 hover:text-fuchsia-400 transition-colors disabled:opacity-40 group"
-              title="Refine Visual Matrix"
-            >
-              <Zap className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-          </div>
+            <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+              {/* Quick Actions */}
+              <div className="flex items-center gap-4 px-5 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md grow sm:grow-0 justify-center">
+                <button
+                  onClick={onEnhanceNarration}
+                  disabled={isGlobalEnhancing}
+                  className="text-zinc-500 hover:text-studio transition-colors disabled:opacity-40 group"
+                  title="Audio Sync"
+                >
+                  <Mic2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </button>
+                <button
+                  onClick={onEnhanceVisuals}
+                  disabled={isGlobalEnhancing}
+                  className="text-zinc-500 hover:text-fuchsia-400 transition-colors disabled:opacity-40 group"
+                  title="Refine Visual Matrix"
+                >
+                  <Zap className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                </button>
+              </div>
 
-          {/* Production Unit */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-            <span className="text-fuchsia-400/60 text-xs font-black">#</span>
-            <div className="flex flex-col">
-              <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
-              <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+              {/* Production Unit */}
+              <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow sm:grow-0">
+                <span className="text-fuchsia-400/60 text-xs font-black">#</span>
+                <div className="flex flex-col">
+                  <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
+                  <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-            <Button onClick={handleCopy} size="icon" variant="ghost"
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
-              title="Copy" disabled={!content}>
-              <Copy className="w-4 h-4" />
-            </Button>
-            <Button onClick={handleDownload} size="icon" variant="ghost"
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
-              title="Export JSON" disabled={!content}>
-              <Download className="w-4 h-4" />
-            </Button>
-            <div className="w-px h-5 bg-white/10 mx-1" />
-            <Button onClick={toggleFullscreen} size="icon" variant="ghost"
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
-              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
-              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-            </Button>
-          </div>
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            {/* Actions */}
+            <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md shrink-0">
+              <Button onClick={handleCopy} size="icon" variant="ghost"
+                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
+                title="Copy" disabled={!content}>
+                <Copy className="w-4 h-4" />
+              </Button>
+              <Button onClick={handleDownload} size="icon" variant="ghost"
+                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
+                title="Export JSON" disabled={!content}>
+                <Download className="w-4 h-4" />
+              </Button>
+              <div className="w-px h-5 bg-white/10 mx-1" />
+              <Button onClick={toggleFullscreen} size="icon" variant="ghost"
+                className="h-9 w-9 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              </Button>
+            </div>
 
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl">
-            <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 animate-pulse" />
-            <span className="text-[9px] font-black text-fuchsia-400/80 uppercase tracking-widest">Visual DNA Live</span>
+            <div className="flex items-center justify-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl shrink-0 grow md:grow-0">
+              <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-500 animate-pulse" />
+              <span className="text-[9px] font-black text-fuchsia-400/80 uppercase tracking-widest">Visual DNA Live</span>
+            </div>
           </div>
         </div>
       </div>

@@ -52,8 +52,8 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-6 w-full p-4 md:p-0">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 lg:gap-0">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
             <Zap className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
@@ -68,26 +68,28 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          {/* Status Indicator */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
-            <Activity className={cn('w-3 h-3', status === 'active' ? 'text-studio' : 'text-zinc-600')} />
-            <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
-              {status === 'active' ? 'Synthetics Ready' : 'Awaiting Engine'}
-            </span>
-          </div>
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            {/* Status Indicator */}
+            <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md grow md:grow-0 justify-center">
+              <Activity className={cn('w-3 h-3', status === 'active' ? 'text-studio' : 'text-zinc-600')} />
+              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
+                {status === 'active' ? 'Synthetics Ready' : 'Awaiting Engine'}
+              </span>
+            </div>
 
-          {/* Production Unit */}
-          <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-            <span className="text-studio/60 text-xs font-black">#</span>
-            <div className="flex flex-col">
-              <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
-              <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+            {/* Production Unit */}
+            <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow md:grow-0">
+              <span className="text-studio/60 text-xs font-black">#</span>
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
+                <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
+              </div>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
+          <div className="flex items-center justify-center gap-1 p-1.5 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md w-full md:w-auto">
             <Button 
               onClick={handleCopy} 
               size="icon" 
