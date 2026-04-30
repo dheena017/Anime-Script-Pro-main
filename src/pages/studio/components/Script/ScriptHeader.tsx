@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, ChevronRight, Terminal, Cpu } from 'lucide-react';
+import { RefreshCw, ChevronRight, ChevronLeft, Terminal, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -66,7 +66,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
                 onClick={onPrev}
                 disabled={isGenerating}
               >
-                <ChevronRight className="w-4 h-4 group-hover/prev:-translate-x-1 transition-transform rotate-180 mr-1" />
+                <ChevronLeft className="w-4 h-4 group-hover/prev:-translate-x-1 transition-transform mr-2" />
                 PREVIOUS: SERIES
               </Button>
             )}

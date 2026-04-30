@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, RefreshCw, ChevronRight, Sparkles, Cpu } from 'lucide-react';
+import { Globe, RefreshCw, ChevronRight, ChevronLeft, Sparkles, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -59,6 +59,7 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
               className="w-full sm:w-auto h-11 px-6 bg-white/5 border-white/10 text-zinc-500 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all group/back"
               onClick={onPrev}
             >
+              <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
               PREVIOUS: MISSION
             </Button>
           )}
