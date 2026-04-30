@@ -144,10 +144,6 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
             </Button>
           </div>
 
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl">
-             <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-             <span className="text-[9px] font-black text-studio/80 uppercase tracking-widest">Script Manifest Live</span>
-          </div>
         </div>
       </div>
 
