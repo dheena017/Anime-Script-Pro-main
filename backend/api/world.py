@@ -1,92 +1,47 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlmodel import select, Session
-from sqlmodel.ext.asyncio.session import AsyncSession
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, select
+from database import get_session
+from models.world import WorldLore
 from datetime import datetime
-from loguru import logger
-from backend.models import WorldLore, NarrativeBeat, CastMember
-from backend.database import async_engine, engine
-from backend.deps import get_auth_user_id
+from typing import List, Optional
 
-router = APIRouter(prefix="/api", tags=["World Building"])
+router = APIRouter(prefix="/api/world", tags=["world"])
 
-@router.post("/world-lore")
-async def create_worldlore(request: Request):
-    """Create or update world lore."""
-    data = await request.json()
-    project_id = data.get("project_id")
-    content = data.get("markdown_content")
+@router.get("/lore/{user_id}", response_model=Optional[WorldLore])
+def get_world_lore(user_id: str, project_id: Optional[int] = None, session: Session = Depends(get_session)):
+    statement = select(WorldLore).where(WorldLore.user_id == user_id)
+    if project_id:
+        statement = statement.where(WorldLore.project_id == project_id)
     
-    async with AsyncSession(async_engine) as session:
-        statement = select(WorldLore).where(WorldLore.id == project_id)
-        result = await session.exec(statement)
-        db_lore = result.first()
-        
-        if db_lore:
-            db_lore.content = content
-            db_lore.updated_at = datetime.utcnow()
-        else:
-            db_lore = WorldLore(id=project_id, title=f"World Lore for {project_id}", content=content)
-            
-        session.add(db_lore)
-        await session.commit()
-        await session.refresh(db_lore)
-        return db_lore
+    # Return the most recent lore for this user/project
+    statement = statement.order_by(WorldLore.updated_at.desc())
+    return session.exec(statement).first()
 
-@router.get("/world-lore/{project_id}")
-async def get_worldlore(project_id: int):
-    """Get world lore for a project."""
-    async with AsyncSession(async_engine) as session:
-        statement = select(WorldLore).where(WorldLore.id == project_id)
-        result = await session.exec(statement)
-        return result.first()
+@router.post("/lore/{user_id}", response_model=WorldLore)
+def update_world_lore(user_id: str, lore_update: dict, project_id: Optional[int] = None, session: Session = Depends(get_session)):
+    # Check if existing lore exists
+    statement = select(WorldLore).where(WorldLore.user_id == user_id)
+    if project_id:
+        statement = statement.where(WorldLore.project_id == project_id)
+    
+    db_lore = session.exec(statement).first()
+    
+    if not db_lore:
+        db_lore = WorldLore(user_id=user_id, project_id=project_id)
+    
+    # Update fields from dict
+    for key, value in lore_update.items():
+        if hasattr(db_lore, key):
+            setattr(db_lore, key, value)
+    
+    db_lore.updated_at = datetime.utcnow()
+    
+    session.add(db_lore)
+    session.commit()
+    session.refresh(db_lore)
+    return db_lore
 
-@router.get("/narrativebeats", response_model=List[NarrativeBeat])
-async def get_narrativebeats():
-    async with AsyncSession(async_engine) as session:
-        results = await session.exec(select(NarrativeBeat))
-        return results.all()
-
-@router.post("/narrativebeats", response_model=NarrativeBeat)
-async def create_narrativebeat(narrativebeat: NarrativeBeat):
-    async with AsyncSession(async_engine) as session:
-        session.add(narrativebeat)
-        await session.commit()
-        await session.refresh(narrativebeat)
-        return narrativebeat
-
-@router.post("/characters")
-async def batch_create_characters(payload: dict):
-    """Batch create characters for a project."""
-    try:
-        project_id = payload.get("project_id")
-        characters = payload.get("characters", [])
-        
-        async with AsyncSession(async_engine) as session:
-            created = []
-            for c in characters:
-                db_member = CastMember(
-                    name=c.get("name"),
-                    role=c.get("role", "MAIN"),
-                    archetype=c.get("archetype"),
-                    personality=c.get("personality"),
-                    appearance=c.get("appearance"),
-                    visual_prompt=c.get("visual_dna"),
-                    description=c.get("description"),
-                    project_id=project_id
-                )
-                session.add(db_member)
-                created.append(db_member)
-            await session.commit()
-            return {"status": "ok", "count": len(created)}
-    except Exception as e:
-        logger.error(f"Batch character creation failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to synthesize character cast")
-
-@router.get("/cast/{castmember_id}", response_model=CastMember)
-async def get_castmember(castmember_id: int):
-    async with AsyncSession(async_engine) as session:
-        castmember = await session.get(CastMember, castmember_id)
-        if not castmember:
-            raise HTTPException(status_code=404, detail="Character not found")
-        return castmember
+@router.get("/history/{user_id}", response_model=List[WorldLore])
+def get_lore_history(user_id: str, limit: int = 10, session: Session = Depends(get_session)):
+    statement = select(WorldLore).where(WorldLore.user_id == user_id).order_by(WorldLore.updated_at.desc()).limit(limit)
+    return session.exec(statement).all()

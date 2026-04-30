@@ -6,6 +6,16 @@ import { WorldToolbar } from '@/pages/studio/components/World/WorldToolbar';
 import { generateWorld } from '@/services/geminiService';
 import { WorldTab } from '@/pages/studio/components/World/Tabs/WorldTabs';
 
+import { createContext } from 'react';
+
+export const WorldContext = createContext<{
+  activeTab: WorldTab;
+  setActiveTab: (tab: WorldTab) => void;
+}>({
+  activeTab: 'architecture',
+  setActiveTab: () => {},
+});
+
 export default function WorldLayout() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,13 +77,15 @@ export default function WorldLayout() {
         />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Outlet context={{ activeTab }} />
-      </motion.div>
+      <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Outlet context={{ activeTab }} />
+        </motion.div>
+      </WorldContext.Provider>
     </div>
   );
 }

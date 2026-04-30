@@ -172,8 +172,8 @@ export function EnginePage() {
                     ].map((stage) => (
                       <div key={stage.label} className={cn(
                         "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-500",
-                        stage.status === 'active' 
-                          ? "bg-studio/10 border-studio/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]" 
+                        stage.status === 'active'
+                          ? "bg-studio/10 border-studio/30 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
                           : "bg-black/40 border-white/5 opacity-40 grayscale"
                       )}>
                         <div className={cn(
@@ -199,51 +199,51 @@ export function EnginePage() {
                       onChange={(e) => setPrompt(e.target.value)}
                     />
                     <div className="absolute bottom-8 right-8 flex items-center gap-4">
-                    {prompt && (
-                      <button onClick={() => setPrompt('')} className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800">
-                        <X className="w-5 h-5" />
-                      </button>
-                    )}
-                    <Button
-                      onClick={() => {
-                        setGlobalPrompt(prompt);
-                        setGlobalContentType(localContentType);
-                        navigate('/anime/world');
-                      }}
-                      disabled={!prompt}
-                      className={cn("h-16 px-10 bg-studio text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] gap-3", !prompt && "opacity-20 grayscale pointer-events-none")}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      Generate Production Blueprint
-                    </Button>
+                      {prompt && (
+                        <button onClick={() => setPrompt('')} className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800">
+                          <X className="w-5 h-5" />
+                        </button>
+                      )}
+                      <Button
+                        onClick={() => {
+                          setGlobalPrompt(prompt);
+                          setGlobalContentType(localContentType);
+                          navigate('/anime/world');
+                        }}
+                        disabled={!prompt}
+                        className={cn("h-16 px-10 bg-studio text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] gap-3", !prompt && "opacity-20 grayscale pointer-events-none")}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Generate Production Blueprint
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="pt-8 space-y-6">
-                  <div className="flex items-center justify-between px-2">
-                    <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
-                      <Clapperboard className="w-3.5 h-3.5 text-studio/50" />
-                      Production DNA Blueprints
-                    </h4>
-                    <span className="text-[8px] font-bold text-studio/30 uppercase tracking-widest">Select Narrative Foundation</span>
+                  <div className="pt-8 space-y-6">
+                    <div className="flex items-center justify-between px-2">
+                      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
+                        <Clapperboard className="w-3.5 h-3.5 text-studio/50" />
+                        Production DNA Blueprints
+                      </h4>
+                      <span className="text-[8px] font-bold text-studio/30 uppercase tracking-widest">Select Narrative Foundation</span>
+                    </div>
+                    <motion.div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
+                      {ANIME_TEMPLATES.map((t) => {
+                        const isActive = prompt === t.prompt;
+                        return (
+                          <motion.button key={t.id} variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} onClick={() => setPrompt(t.prompt)} className={cn("flex-shrink-0 snap-start flex items-center gap-3 px-8 py-4 rounded-[1.5rem] transition-all duration-500 group/dna relative overflow-hidden", isActive ? "bg-studio/10 border-studio/40 shadow-[0_0_25px_rgba(6,182,212,0.1)]" : "bg-zinc-900/40 border-white/5 hover:border-studio/30 hover:bg-zinc-900/60")}>
+                            {isActive && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />}
+                            <t.icon className={cn("w-4 h-4 transition-all duration-500", isActive ? "scale-110 " + t.color : "text-zinc-600 group-hover/dna:text-studio")} />
+                            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500", isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-300")}>{t.label}</span>
+                          </motion.button>
+                        );
+                      })}
+                    </motion.div>
                   </div>
-                  <motion.div className="flex flex-nowrap gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory" initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
-                    {ANIME_TEMPLATES.map((t) => {
-                      const isActive = prompt === t.prompt;
-                      return (
-                        <motion.button key={t.id} variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} onClick={() => setPrompt(t.prompt)} className={cn("flex-shrink-0 snap-start flex items-center gap-3 px-8 py-4 rounded-[1.5rem] transition-all duration-500 group/dna relative overflow-hidden", isActive ? "bg-studio/10 border-studio/40 shadow-[0_0_25px_rgba(6,182,212,0.1)]" : "bg-zinc-900/40 border-white/5 hover:border-studio/30 hover:bg-zinc-900/60")}>
-                          {isActive && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />}
-                          <t.icon className={cn("w-4 h-4 transition-all duration-500", isActive ? "scale-110 " + t.color : "text-zinc-600 group-hover/dna:text-studio")} />
-                          <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500", isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-300")}>{t.label}</span>
-                        </motion.button>
-                      );
-                    })}
-                  </motion.div>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-8">
+              <div className="space-y-8">
                 <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] space-y-10 relative overflow-hidden group/sidebar">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-studio/5 blur-[60px] pointer-events-none" />
                   <h4 className="text-[11px] font-black text-studio uppercase tracking-widest flex items-center gap-3">
@@ -308,7 +308,7 @@ export function EnginePage() {
         "border-studio/20 shadow-[0_0_40px_rgba(6,182,212,0.08)] hover:border-studio/40"
       )}>
         <div className="absolute inset-0 border-[1px] border-white/5 rounded-[2.5rem] pointer-events-none group-hover/card:border-white/10 transition-colors duration-700" />
-        
+
         <div className="w-full p-0">
           <div className="p-12 max-w-[1500px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             {renderTabContent()}

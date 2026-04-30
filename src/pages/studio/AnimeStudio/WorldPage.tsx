@@ -5,11 +5,11 @@ import { useOutletContext } from 'react-router-dom';
 import { WorldTab } from '../components/World/Tabs/WorldTabs';
 
 // Modularized Tab Components
-import { ArchitectureTab } from '../components/World/Tabs/ArchitectureTab';
-import { AtlasTab } from '../components/World/Tabs/AtlasTab';
-import { HistoryTab } from '../components/World/Tabs/HistoryTab';
-import { SystemsTab } from '../components/World/Tabs/SystemsTab';
-import { CultureTab } from '../components/World/Tabs/CultureTab';
+import { WorldArchitecture } from './World/tabs/WorldArchitecture';
+import { WorldAtlas } from './World/tabs/WorldAtlas';
+import { WorldHistory } from './World/tabs/WorldHistory';
+import { WorldSystems } from './World/tabs/WorldSystems';
+import { WorldCulture } from './World/tabs/WorldCulture';
 import { WorldEmptyState } from '../components/World/WorldEmptyState';
 
 export function WorldPage() {
@@ -49,31 +49,17 @@ export function WorldPage() {
 
     switch (activeTab) {
       case 'architecture':
-        return (
-          <ArchitectureTab 
-            isEditing={isEditing}
-            content={generatedWorld}
-            prompt={prompt}
-            onContentChange={setGeneratedWorld}
-          />
-        );
+        return <WorldArchitecture />;
       case 'atlas':
-        return <AtlasTab />;
+        return <WorldAtlas />;
       case 'history':
-        return <HistoryTab />;
+        return <WorldHistory />;
       case 'systems':
-        return <SystemsTab />;
+        return <WorldSystems />;
       case 'culture':
-        return <CultureTab />;
+        return <WorldCulture />;
       default:
-        return (
-          <ArchitectureTab 
-            isEditing={isEditing}
-            content={generatedWorld}
-            prompt={prompt}
-            onContentChange={setGeneratedWorld}
-          />
-        );
+        return <WorldArchitecture />;
     }
   };
 

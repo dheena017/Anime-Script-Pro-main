@@ -102,6 +102,17 @@ interface GeneratorContextType {
   setTopP: (p: number) => void;
   topK: number;
   setTopK: (k: number) => void;
+  // World Modular Lore
+  architecture: string | null;
+  setArchitecture: (s: string | null) => void;
+  atlas: string | null;
+  setAtlas: (s: string | null) => void;
+  historyLore: string | null;
+  setHistoryLore: (s: string | null) => void;
+  systems: string | null;
+  setSystems: (s: string | null) => void;
+  culture: string | null;
+  setCulture: (s: string | null) => void;
 }
 
 export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
@@ -163,13 +174,22 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isLiked, setIsLiked] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
-  
+
   // Engine Configuration State
   const [temperature, setTemperature] = useState(0.85);
   const [maxTokens, setMaxTokens] = useState(2048);
   const [topP, setTopP] = useState(0.95);
   const [topK, setTopK] = useState(40);
   const [isEngineInitialized, setIsEngineInitialized] = useState(false);
+
+  // World Modular Lore State
+  const [architecture, setArchitecture] = useState<string | null>(null);
+  const [atlas, setAtlas] = useState<string | null>(null);
+  const [historyLore, setHistoryLore] = useState<string | null>(null);
+  const [systems, setSystems] = useState<string | null>(null);
+  const [culture, setCulture] = useState<string | null>(null);
+  const [isWorldInitialized, setIsWorldInitialized] = useState(false);
+  const [isProductionInitialized, setIsProductionInitialized] = useState(false);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -261,6 +281,103 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
     return () => clearTimeout(timeout);
   }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, isEngineInitialized]);
+
+  // Load World Lore
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadWorldLore = async () => {
+      try {
+        const { worldApi } = await import('../services/api/world');
+        const lore = await worldApi.getLore(user.id);
+        if (lore) {
+          setArchitecture(lore.architecture);
+          setAtlas(lore.atlas);
+          setHistoryLore(lore.history);
+          setSystems(lore.systems);
+          setCulture(lore.culture);
+          if (lore.full_lore_blob) setGeneratedWorld(lore.full_lore_blob);
+          setIsWorldInitialized(true);
+        }
+      } catch (error) {
+        console.error("Failed to load world lore:", error);
+      }
+    };
+
+    loadWorldLore();
+  }, [user?.id]);
+
+  // Auto-save World Lore
+  useEffect(() => {
+    if (!user?.id || !isWorldInitialized) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        const { worldApi } = await import('../services/api/world');
+        await worldApi.updateLore(user.id, {
+          architecture,
+          atlas,
+          history: historyLore,
+          systems,
+          culture,
+          full_lore_blob: generatedWorld
+        });
+        console.log("World lore synced to cloud.");
+      } catch (error) {
+        console.error("Failed to sync world lore:", error);
+      }
+    }, 3000); // 3 second debounce
+
+    return () => clearTimeout(timeout);
+  }, [user?.id, architecture, atlas, historyLore, systems, culture, generatedWorld, isWorldInitialized]);
+
+  // Load Production Content
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadProduction = async () => {
+      try {
+        const { productionApi } = await import('../services/api/production');
+        const content = await productionApi.getContent(user.id);
+        if (content) {
+          setCastProfiles(content.cast_profiles);
+          setCastData(content.cast_data);
+          setGeneratedScript(content.script_content);
+          setGeneratedSeriesPlan(content.series_plan);
+          setGeneratedMetadata(content.seo_metadata);
+          // Map other fields as needed
+          setIsProductionInitialized(true);
+        }
+      } catch (error) {
+        console.error("Failed to load production content:", error);
+      }
+    };
+
+    loadProduction();
+  }, [user?.id]);
+
+  // Auto-save Production Content
+  useEffect(() => {
+    if (!user?.id || !isProductionInitialized) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        const { productionApi } = await import('../services/api/production');
+        await productionApi.updateContent(user.id, {
+          cast_profiles: castProfiles,
+          cast_data: castData,
+          script_content: generatedScript,
+          series_plan: generatedSeriesPlan,
+          seo_metadata: generatedMetadata
+        });
+        console.log("Production content synced to cloud.");
+      } catch (error) {
+        console.error("Failed to sync production content:", error);
+      }
+    }, 5000); // 5 second debounce for larger data objects
+
+    return () => clearTimeout(timeout);
+  }, [user?.id, castProfiles, castData, generatedScript, generatedSeriesPlan, generatedMetadata, isProductionInitialized]);
   // Neural Telemetry Sync
   useEffect(() => {
     const syncTelemetry = async () => {
@@ -292,6 +409,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <GeneratorContext.Provider value={{
+      worldLore: generatedWorld,
+      seriesPlan: generatedSeriesPlan,
+      storyboardPrompts: generatedImagePrompts,
+      seoMetadata: generatedMetadata,
       prompt, setPrompt,
       theme, setTheme,
       generatedScript, setGeneratedScript,
@@ -339,7 +460,12 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       temperature, setTemperature,
       maxTokens, setMaxTokens,
       topP, setTopP,
-      topK, setTopK
+      topK, setTopK,
+      architecture, setArchitecture,
+      atlas, setAtlas,
+      historyLore, setHistoryLore,
+      systems, setSystems,
+      culture, setCulture
     }}>
       {children}
       {notification && (
@@ -359,5 +485,3 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     </GeneratorContext.Provider>
   );
 }
-
-

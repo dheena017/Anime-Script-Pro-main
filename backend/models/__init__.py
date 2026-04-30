@@ -8,6 +8,8 @@ from .system import (
     DocSection, DocArticle, ScreeningRoomEntry, CommunityPost
 )
 from .engine import EngineConfig, AITelemetry
+from .world import WorldLore
+from .project_content import ProjectContent
 
 # Export all models for easier importing
 __all__ = [
