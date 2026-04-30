@@ -90,23 +90,28 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
 
             <div className="flex items-center justify-between w-full sm:w-auto gap-4">
               {/* Quick Actions */}
-              <div className="flex items-center gap-4 px-5 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md grow sm:grow-0 justify-center">
-                <button
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md grow sm:grow-0 justify-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
                   onClick={onEnhanceNarration}
                   disabled={isGlobalEnhancing}
-                  className="text-zinc-500 hover:text-studio transition-colors disabled:opacity-40 group"
                   title="Audio Sync"
                 >
-                  <Mic2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                </button>
-                <button
+                  <Mic2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-lg text-zinc-500 hover:text-fuchsia-400 hover:bg-fuchsia-500/10 transition-all duration-300 group"
                   onClick={onEnhanceVisuals}
                   disabled={isGlobalEnhancing}
-                  className="text-zinc-500 hover:text-fuchsia-400 transition-colors disabled:opacity-40 group"
                   title="Refine Visual Matrix"
                 >
-                  <Zap className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                </button>
+                  <Zap className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                </Button>
               </div>
 
               {/* Production Unit */}

@@ -7,7 +7,7 @@ import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/api-utils';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ScriptTab } from '../components/Script/Tabs/ScriptTabs';
 
@@ -222,13 +222,23 @@ export function ScriptPage() {
 
 
 
+  const navigate = useNavigate();
+
   const handleGenerateSEO = async () => {
     if (!generatedScript) return;
+    
+    // If we already have metadata, just navigate
+    if (recapperPersona) {
+      navigate('/anime/seo');
+      return;
+    }
+
     setIsGeneratingMetadata(true);
     try {
       const seo = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(seo);
       showNotification?.('SEO Engine sequence complete', 'success');
+      navigate('/anime/seo');
     } catch (e: any) {
       showNotification?.('SEO Failure: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -238,11 +248,13 @@ export function ScriptPage() {
 
   const handleGeneratePrompts = async () => {
     if (!generatedScript) return;
+    
     setIsGeneratingImagePrompts(true);
     try {
       const prompts = await generateImagePrompts(generatedScript, selectedModel, contentType);
       setGeneratedImagePrompts(prompts);
       showNotification?.('Visual Prompts generated', 'success');
+      navigate('/anime/prompts');
     } catch (e: any) {
       showNotification?.('Prompt failure: ' + (e.message || 'Error'), 'error');
     } finally {
@@ -255,7 +267,7 @@ export function ScriptPage() {
     setIsGeneratingVisuals(true);
     try {
       showNotification?.('Navigating to Storyboard Generator...', 'success');
-      window.location.href = '/studio/storyboard';
+      navigate('/anime/storyboard');
     } catch (e: any) {
       showNotification?.('Storyboard failure: ' + (e.message || 'Error'), 'error');
     } finally {

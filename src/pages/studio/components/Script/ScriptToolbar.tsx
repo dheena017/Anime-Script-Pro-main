@@ -105,23 +105,60 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
 
         <div className="flex items-center gap-6">
           {/* Quick Actions */}
-          <div className="flex items-center gap-4 px-6 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
-            <button onClick={onViewSEO} className="text-zinc-500 hover:text-studio transition-colors group" title="SEO Matrix">
-              <Search className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-            <button onClick={onViewPrompts} className="text-zinc-500 hover:text-studio transition-colors group" title="Neural Prompts">
-              <Wand2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-            <button onClick={onViewStoryboard} className="text-zinc-500 hover:text-studio transition-colors group" title="Visual Storyboard">
-              <Layout className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-            <div className="w-px h-3 bg-white/10" />
-            <button onClick={onExtend} className="text-zinc-500 hover:text-studio transition-colors group" title="Extend Script">
-              <RefreshCw className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
-            <button onClick={onListen} className="text-zinc-500 hover:text-studio transition-colors group" title="Neural Voiceover">
-              <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-            </button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
+              onClick={onViewSEO}
+              title="SEO Matrix"
+            >
+              <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
+              onClick={onViewPrompts}
+              title="Neural Prompts"
+            >
+              <Wand2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
+              onClick={onViewStoryboard}
+              title="Visual Storyboard"
+            >
+              <Layout className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
+
+            <div className="w-px h-4 bg-white/10 mx-1" />
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
+              onClick={onExtend}
+              title="Extend Script"
+              disabled={!content}
+            >
+              <RefreshCw className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300 group"
+              onClick={onListen}
+              title="Neural Voiceover"
+              disabled={!content}
+            >
+              <Volume2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
           </div>
 
           {/* Production Unit */}
