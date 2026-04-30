@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
+import { Activity, Cpu, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
+import { EngineTabs, EngineTab } from './Tabs/EngineTabs';
 import { Button } from '@/components/ui/button';
 
-export type { SEOTab };
+export type { EngineTab };
 
-interface SEOToolbarProps {
-  activeTab: SEOTab;
-  setActiveTab: (tab: SEOTab) => void;
+interface EngineToolbarProps {
+  activeTab: EngineTab;
+  setActiveTab: (tab: EngineTab) => void;
   status: 'active' | 'draft' | 'empty';
   session?: string;
   episode?: string;
   content?: string | null;
 }
 
-export const SEOToolbar: React.FC<SEOToolbarProps> = ({
+export const EngineToolbar: React.FC<EngineToolbarProps> = ({
   activeTab,
   setActiveTab,
   status,
@@ -55,15 +55,15 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
     <div className="flex flex-col gap-6 w-full">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <Search className={cn("w-5 h-5", status === 'active' ? "text-emerald-400" : "text-zinc-600")} />
+          <div className="w-10 h-10 rounded-xl bg-studio/10 border border-studio/20 flex items-center justify-center">
+            <Cpu className={cn("w-5 h-5", status === 'active' ? "text-studio" : "text-zinc-600")} />
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white italic">
-              SEO Nexus {status === 'active' ? 'Active' : 'Standby'}
+              Engine Nexus {status === 'active' ? 'Active' : 'Standby'}
             </span>
             <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-              Marketing DNA // Search_Optimized
+              Computational Core // Neural_Backbone
             </span>
           </div>
         </div>
@@ -71,15 +71,15 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
         <div className="flex items-center gap-6">
           {/* Status Indicator */}
           <div className="flex items-center gap-2 px-4 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
-            <Activity className={cn('w-3 h-3', status === 'active' ? 'text-emerald-500' : 'text-zinc-600')} />
+            <Activity className={cn('w-3 h-3', status === 'active' ? 'text-studio' : 'text-zinc-600')} />
             <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">
-              {status === 'active' ? 'Index Ready' : 'Awaiting Engine'}
+              {status === 'active' ? 'Core Synchronized' : 'Idle State'}
             </span>
           </div>
 
           {/* Production Unit */}
           <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md">
-            <span className="text-emerald-400/60 text-xs font-black">#</span>
+            <span className="text-studio/60 text-xs font-black">#</span>
             <div className="flex flex-col">
               <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest leading-none">Production Unit</span>
               <span className="text-sm font-black text-white font-mono leading-none mt-1">S{session}-E{episode}</span>
@@ -92,7 +92,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
               onClick={handleCopy} 
               size="icon" 
               variant="ghost" 
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-300"
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
               title="Copy"
               disabled={!content}
             >
@@ -101,7 +101,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
             <Button 
               size="icon" 
               variant="ghost" 
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-300"
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
               title="Export"
               disabled={!content}
             >
@@ -112,7 +112,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
               onClick={toggleFullscreen} 
               size="icon" 
               variant="ghost" 
-              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all duration-300"
+              className="h-9 w-9 rounded-lg text-zinc-500 hover:text-studio hover:bg-studio/10 transition-all duration-300"
               title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             >
               {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
@@ -121,8 +121,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
         </div>
       </div>
 
-      <SEOTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+      <EngineTabs activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 };
-

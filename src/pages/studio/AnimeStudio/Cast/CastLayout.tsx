@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { CastHeader } from '@/pages/studio/components/Cast/CastHeader';
@@ -12,6 +12,7 @@ export const CastContext = React.createContext<{
 
 export default function CastLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [handlers, setHandlers] = React.useState<any>({});
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -56,12 +57,23 @@ export default function CastLayout() {
     }
   };
 
-  // Determine active tab based on search params
-  const activeTab = (searchParams.get('tab') as CastTab) || 'registry';
+  // Determine active tab based on route first, then search params
+  const activeTab = React.useMemo(() => {
+    const path = location.pathname;
+    if (path.endsWith('/dna')) return 'dna';
+    if (path.endsWith('/dynamics')) return 'dynamics';
+    if (path.endsWith('/create')) return 'add-lead';
+    return (searchParams.get('tab') as CastTab) || 'registry';
+  }, [location.pathname, searchParams]);
 
   const handleTabChange = (tab: CastTab) => {
-    setSearchParams({ tab });
+    if (tab === 'dna') navigate('/anime/cast/dna');
+    else if (tab === 'dynamics') navigate('/anime/cast/dynamics');
+    else if (tab === 'add-lead') navigate('/anime/cast/create');
+    else if (tab === 'registry') navigate('/anime/cast');
+    else setSearchParams({ tab });
   };
+
 
   return (
     <CastContext.Provider value={{ setHandlers }}>

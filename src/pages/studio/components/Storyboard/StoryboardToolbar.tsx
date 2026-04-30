@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Palette, Mic2, Zap, Copy, Download, Maximize, Minimize } from 'lucide-react';
+import { Palette, Mic2, Zap, Copy, Download, Maximize, Minimize, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 export type { StoryboardTab };
 
 interface StoryboardToolbarProps {
+  onAddScene?: () => void;
   activeTab: StoryboardTab;
   setActiveTab: (tab: StoryboardTab) => void;
   status: 'active' | 'draft' | 'empty';
@@ -25,6 +26,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   session = '1',
   episode = '1',
   content = null,
+  onAddScene,
   onEnhanceNarration,
   onEnhanceVisuals,
   isGlobalEnhancing
@@ -76,6 +78,17 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
         </div>
 
         <div className="flex items-center gap-6">
+          {onAddScene && (
+            <Button
+              variant="outline"
+              className="h-11 px-5 rounded-2xl font-black uppercase tracking-widest text-[10px] text-zinc-300 border-zinc-700 hover:text-white hover:border-studio transition-all duration-300"
+              onClick={onAddScene}
+            >
+              <Plus className="w-3.5 h-3.5 mr-2" />
+              Append Scene
+            </Button>
+          )}
+
           {/* Quick Actions */}
           <div className="flex items-center gap-4 px-5 py-2 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
             <button

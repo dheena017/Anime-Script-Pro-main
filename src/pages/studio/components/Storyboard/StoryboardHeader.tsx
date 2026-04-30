@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, RefreshCw, Zap, Image as ImageIcon, ChevronRight, Layers, Wand2 } from 'lucide-react';
+import { RefreshCw, Image as ImageIcon, ChevronRight, Layers, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -8,8 +8,6 @@ interface StoryboardHeaderProps {
   setIsLiked?: (liked: boolean) => void;
   isGuideOpen?: boolean;
   setIsGuideOpen?: (open: boolean) => void;
-  handleAddScene?: () => void;
-  scenesLength: number;
   handleEnhanceAllVisuals?: () => void;
   handleEnhanceAllNarration?: () => void;
   onRegenerate: () => void;
@@ -22,24 +20,15 @@ interface StoryboardHeaderProps {
   episode: string;
   onNext?: () => void;
   onPrev?: () => void;
-  handleFullProductionLoop?: () => void;
-  isProductionLoopActive?: boolean;
-  productionProgress?: number;
 }
 
 export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
-  handleAddScene,
-  scenesLength,
   onRegenerate,
   isGenerating,
-  isGeneratingVisuals,
   onNext,
   onPrev,
   session,
   episode,
-  handleFullProductionLoop,
-  isProductionLoopActive,
-  productionProgress = 0
 }) => {
   return (
     <div className="space-y-6">
@@ -65,9 +54,6 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
                   Visual Storyboard
                 </h1>
-                <div className="px-2 py-0.5 rounded-lg bg-studio/20 text-studio text-[10px] font-black border border-studio/30 shadow-[0_0_10px_rgba(6,182,212,0.1)]">
-                  {scenesLength} SCENES
-                </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
                 <Wand2 className="w-3 h-3 text-studio/40" />
@@ -80,24 +66,15 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
 
             <div className="flex items-center gap-3">
               {onPrev && (
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="text-zinc-500 hover:text-white font-black uppercase tracking-widest text-[10px] h-11 px-4 rounded-2xl transition-all duration-300 backdrop-blur-md"
                   onClick={onPrev}
                 >
-                  Back
+                  Previous: Script
                 </Button>
               )}
-              <Button 
-                variant="outline" 
-                className="bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] h-11 px-6 rounded-2xl transition-all duration-300 backdrop-blur-md"
-                onClick={handleAddScene}
-              >
-                <Plus className="w-3.5 h-3.5 mr-2" />
-                Append Scene
-              </Button>
-
-              <Button 
+              <Button
                 className={cn(
                   "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/btn border",
                   isGenerating 
@@ -115,30 +92,6 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                   <ImageIcon className="w-4 h-4 mr-2" />
                 )}
                 <span className="relative z-10">Synthesize Frames</span>
-              </Button>
-
-              <Button 
-                className={cn(
-                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/loop border",
-                  isProductionLoopActive 
-                    ? "bg-fuchsia-900/50 border-fuchsia-800 text-fuchsia-400" 
-                    : "bg-fuchsia-500/10 hover:bg-fuchsia-500 text-fuchsia-500 hover:text-black border-fuchsia-500/40 hover:border-fuchsia-500 shadow-fuchsia-500/20"
-                )}
-                onClick={handleFullProductionLoop}
-                disabled={isProductionLoopActive || isGeneratingVisuals}
-              >
-                {isProductionLoopActive ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Zap className="w-4 h-4 mr-2" />
-                )}
-                <span className="relative z-10">Ignite Production Loop</span>
-                {isProductionLoopActive && (
-                  <div 
-                    className="absolute bottom-0 left-0 h-1 bg-fuchsia-400 transition-all duration-500" 
-                    style={{ width: `${productionProgress}%` }} 
-                  />
-                )}
               </Button>
 
               {onNext && (

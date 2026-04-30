@@ -63,7 +63,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
             {onPrev && (
               <Button 
                 variant="outline" 
-                className="h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-white/20 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md"
+                className="h-11 px-6 bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all"
                 onClick={onPrev}
               >
                 Previous: Cast
@@ -76,7 +76,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
               disabled={isGenerating}
             >
               {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <LayoutGrid className="w-4 h-4 mr-2 text-studio group-hover/btn:rotate-90 transition-transform duration-500" />}
-              Resynthesize Series
+              Generate Script
             </Button>
 
             <Button 

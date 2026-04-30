@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, RefreshCw, ChevronRight, Cpu, Radar } from 'lucide-react';
+import { Search, RefreshCw, ChevronRight, ChevronLeft, Cpu, Radar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -7,6 +7,7 @@ interface SEOHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
+  onPrev: () => void;
   session: string;
   episode: string;
 }
@@ -15,6 +16,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
   onRegenerate,
   isGenerating,
   onNext,
+  onPrev,
   session,
   episode
 }) => {
@@ -56,6 +58,14 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          <Button 
+            variant="ghost" 
+            className="text-zinc-600 hover:text-studio text-[9px] font-black uppercase tracking-widest group/back px-0"
+            onClick={onPrev}
+          >
+            <ChevronLeft className="w-4 h-4 mr-1 group-hover/back:-translate-x-1 transition-transform" />
+            Back to Storyboard
+          </Button>
 
           <div className="flex items-center gap-3">
             <Button 
@@ -86,4 +96,5 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
     </div>
   );
 };
+
 

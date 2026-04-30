@@ -1,30 +1,30 @@
 import React from 'react';
-import { Hash, Tag, Globe, FileText, Share2 } from 'lucide-react';
+import { Cpu, Terminal, Zap, Activity, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 
-export type SEOTab = 'keywords' | 'description' | 'alt-texts' | 'tags' | 'distribution';
+export type EngineTab = 'status' | 'console' | 'calibration' | 'optimization' | 'logs';
 
-interface SEOTabsProps {
-  activeTab: SEOTab;
-  setActiveTab: (tab: SEOTab) => void;
+interface EngineTabsProps {
+  activeTab: EngineTab;
+  setActiveTab: (tab: EngineTab) => void;
 }
 
-export const SEOTabs: React.FC<SEOTabsProps> = ({
+export const EngineTabs: React.FC<EngineTabsProps> = ({
   activeTab,
   setActiveTab
 }) => {
-  const tabs: { id: SEOTab; label: string; icon: any; color: string }[] = [
-    { id: 'keywords', label: 'Keywords', icon: Hash, color: 'text-emerald-400' },
-    { id: 'description', label: 'Description', icon: FileText, color: 'text-blue-400' },
-    { id: 'alt-texts', label: 'Alt Texts', icon: Globe, color: 'text-amber-400' },
-    { id: 'tags', label: 'Meta Tags', icon: Tag, color: 'text-fuchsia-400' },
-    { id: 'distribution', label: 'Distribution', icon: Share2, color: 'text-rose-400' },
+  const tabs: { id: EngineTab; label: string; icon: any; color: string }[] = [
+    { id: 'status', label: 'Core Status', icon: Cpu, color: 'text-studio' },
+    { id: 'console', label: 'Console', icon: Terminal, color: 'text-emerald-400' },
+    { id: 'calibration', label: 'Calibration', icon: Zap, color: 'text-amber-400' },
+    { id: 'optimization', label: 'Optimization', icon: Activity, color: 'text-blue-400' },
+    { id: 'logs', label: 'System Logs', icon: Settings, color: 'text-zinc-400' },
   ];
 
   return (
     <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-2xl relative overflow-hidden group">
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       
       {tabs.map((tab) => (
         <button
@@ -37,7 +37,7 @@ export const SEOTabs: React.FC<SEOTabsProps> = ({
         >
           {activeTab === tab.id && (
             <motion.div
-              layoutId="seo-tab-glow"
+              layoutId="engine-tab-glow"
               className="absolute inset-0 bg-white/5 border border-white/10 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.05)]"
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             />
@@ -46,7 +46,7 @@ export const SEOTabs: React.FC<SEOTabsProps> = ({
           <span className="relative z-10">{tab.label}</span>
           {activeTab === tab.id && (
             <motion.div 
-              layoutId="seo-tab-underline"
+              layoutId="engine-tab-underline"
               className="absolute -bottom-1 left-4 right-4 h-0.5 bg-current rounded-full opacity-50"
             />
           )}

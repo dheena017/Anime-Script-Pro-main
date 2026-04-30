@@ -77,7 +77,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
               disabled={isGeneratingCharacters || !prompt.trim()}
             >
               {isGeneratingCharacters ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Users className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-110 transition-transform" />}
-              Resynthesize Cast
+              Generate Characters
             </Button>
 
             {onNext && (

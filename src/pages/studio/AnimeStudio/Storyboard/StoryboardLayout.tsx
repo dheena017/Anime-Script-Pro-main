@@ -57,11 +57,6 @@ export default function StoryboardLayout() {
           onPrev={() => navigate('/anime/script')}
           session={session}
           episode={episode}
-          handleAddScene={handlers.handleAddScene}
-          scenesLength={handlers.scenesLength || 0}
-          handleFullProductionLoop={handlers.handleFullProductionLoop}
-          isProductionLoopActive={handlers.isProductionLoopActive}
-          productionProgress={handlers.productionProgress}
         />
 
         <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
@@ -75,6 +70,7 @@ export default function StoryboardLayout() {
             onEnhanceNarration={handlers.handleEnhanceAllNarration}
             onEnhanceVisuals={handlers.handleEnhanceAllVisuals}
             isGlobalEnhancing={handlers.isGlobalEnhancing}
+            onAddScene={handlers.handleAddScene}
           />
         </div>
 
