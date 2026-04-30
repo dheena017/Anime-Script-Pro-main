@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useOutletContext } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { 
   enhanceSceneVisuals, 
@@ -11,6 +13,7 @@ import {
   suggestDuration,
   generateSceneVideo
 } from '@/services/geminiService';
+import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
 
 // Sub-components
 import { PlanningGuide } from '../components/Storyboard/PlanningGuide';
@@ -336,6 +339,7 @@ export function StoryboardPage() {
   };
 
   const { setHandlers } = React.useContext<any>(StoryboardContext);
+  const { activeTab } = useOutletContext<{ activeTab: StoryboardTab }>();
 
   React.useEffect(() => {
     setHandlers({
@@ -354,77 +358,106 @@ export function StoryboardPage() {
     });
   }, [isGlobalEnhancing, scenes, isProductionLoopActive, productionProgress, isGuideOpen, isGeneratingVisuals]);
 
+  const framesView = (
+    <div className="space-y-12">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="storyboard">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10">
+              {scenes.map((scene, idx) => (
+                <Draggable key={scene.id} draggableId={scene.id} index={idx}>
+                  {(provided, snapshot) => (
+                    <SceneCard
+                      scene={scene}
+                      index={idx}
+                      visualData={visualData}
+                      promptList={promptList}
+                      editingSceneId={editingSceneId}
+                      editForm={editForm}
+                      isEnhancingNarration={isEnhancingNarration}
+                      isEnhancing={isEnhancing}
+                      isRewritingTension={isRewritingTension}
+                      isSuggestingDuration={isSuggestingDuration}
+                      setEditForm={setEditForm}
+                      handleGenerateVisual={handleGenerateVisual}
+                      handleGenerateVideo={handleGenerateVideo}
+                      videoData={videoData}
+                      startEditing={startEditing}
+                      cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+                      saveSceneEdits={saveSceneEdits}
+                      handleEnhanceNarration={handleEnhanceNarration}
+                      handleEnhanceVisuals={handleEnhanceVisuals}
+                      handleRewriteTension={handleRewriteTension}
+                      handleSuggestDuration={handleSuggestDuration}
+                      dragHandleProps={provided.dragHandleProps}
+                      draggableProps={provided.draggableProps}
+                      innerRef={provided.innerRef}
+                      isDragging={snapshot.isDragging}
+                      isBulkEnhancing={enhancingSceneIds.has(scene.id)} />
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
+  );
+
+  const renderTabContent = () => {
+    if (scenes.length === 0 && activeTab === 'frames') {
+      return <EmptyState handleAddScene={handleAddScene} />;
+    }
+    switch (activeTab) {
+      case 'frames': return framesView;
+      case 'angles': return (
+        <div className="py-20 text-center space-y-6">
+          <div className="w-16 h-16 rounded-[2rem] bg-studio/10 border border-studio/20 flex items-center justify-center mx-auto">
+            <span className="text-2xl">🎥</span>
+          </div>
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Shot Angles</h2>
+          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] max-w-md mx-auto">Camera blocking, Dutch angles, and cinematic framing guides for each scene node.</p>
+        </div>
+      );
+      case 'composition': return (
+        <div className="pt-8 space-y-12">
+          <SceneTimeline scenes={scenes} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-white/5">
+            <Moodboard />
+            <SoundscapeLibrary />
+          </div>
+        </div>
+      );
+      case 'animatic': return (
+        <div className="py-20 text-center space-y-6">
+          <div className="w-16 h-16 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
+            <span className="text-2xl">🎬</span>
+          </div>
+          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Animatic Preview</h2>
+          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] max-w-md mx-auto">Sequential frame preview with timing overlays. Connect generated video nodes to render the full animatic.</p>
+        </div>
+      );
+      case 'audio': return <SoundscapeLibrary />;
+      default: return framesView;
+    }
+  };
+
   return (
     <div data-testid="marker-visual-storyboard">
-
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
-      <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
-        <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
-        <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-
+      <Card className={cn(
+        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        activeTab === 'frames'
+          ? "border-fuchsia-500/20 shadow-[0_0_40px_rgba(217,70,239,0.08)] hover:border-fuchsia-500/40"
+          : "border-zinc-800/30 hover:border-zinc-700"
+      )}>
         <div className="w-full p-0">
-          <div className="p-12 max-w-[1400px] mx-auto">
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {scenes.length > 0 ? (
-                <div className="space-y-12">
-                  <DragDropContext onDragEnd={handleDragEnd}>
-                    <Droppable droppableId="storyboard">
-                      {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10">
-                          {scenes.map((scene, idx) => (
-                            <Draggable key={scene.id} draggableId={scene.id} index={idx}>
-                              {(provided, snapshot) => (
-                                <SceneCard
-                                  scene={scene}
-                                  index={idx}
-                                  visualData={visualData}
-                                  promptList={promptList}
-                                  editingSceneId={editingSceneId}
-                                  editForm={editForm}
-                                  isEnhancingNarration={isEnhancingNarration}
-                                  isEnhancing={isEnhancing}
-                                  isRewritingTension={isRewritingTension}
-                                  isSuggestingDuration={isSuggestingDuration}
-                                  setEditForm={setEditForm}
-                                  handleGenerateVisual={handleGenerateVisual}
-                                  handleGenerateVideo={handleGenerateVideo}
-                                  videoData={videoData}
-                                  startEditing={startEditing}
-                                  cancelEditing={() => { setEditingSceneId(null); setEditForm({}); } }
-                                  saveSceneEdits={saveSceneEdits}
-                                  handleEnhanceNarration={handleEnhanceNarration}
-                                  handleEnhanceVisuals={handleEnhanceVisuals}
-                                  handleRewriteTension={handleRewriteTension}
-                                  handleSuggestDuration={handleSuggestDuration}
-                                  dragHandleProps={provided.dragHandleProps}
-                                  draggableProps={provided.draggableProps}
-                                  innerRef={provided.innerRef}
-                                  isDragging={snapshot.isDragging}
-                                  isBulkEnhancing={enhancingSceneIds.has(scene.id)} />
-                              )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
-
-                  <div className="pt-10 space-y-12">
-                    <SceneTimeline scenes={scenes} />
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-studio/10">
-                      <Moodboard />
-                      <SoundscapeLibrary />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <EmptyState handleAddScene={handleAddScene} />
-              )}
-            </div>
+          <div className="p-12 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {renderTabContent()}
           </div>
         </div>
       </Card>
