@@ -62,11 +62,23 @@ export function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-[900px] flex flex-col items-center"
+        className="relative z-10 w-full max-w-[1200px] flex flex-col items-center"
       >
-        <div className="w-full flex flex-col md:flex-row gap-8 items-center justify-center">
+        <div className="w-full flex flex-col md:flex-row gap-12 items-center justify-center">
           {/* Visual Content Section */}
-          <div className="hidden md:flex flex-col gap-6 w-1/2">
+          <div className="hidden md:flex flex-col gap-8 w-[55%]">
+             <div className="space-y-4 mb-2">
+                <h2 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-[0.9]">
+                  Turn your <span className="text-studio">imagination</span><br />
+                  Into studio-quality <span className="text-[#bd4a4a]">Anime</span>.
+                </h2>
+                <div className="flex items-center gap-3">
+                  <div className="h-[1px] w-12 bg-studio/30" />
+                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">
+                    Neural Access Authorized
+                  </p>
+                </div>
+             </div>
              <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-3xl p-1">
                 <div className="relative aspect-video rounded-[1.8rem] overflow-hidden bg-zinc-900">
                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">

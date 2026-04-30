@@ -62,79 +62,93 @@ export function RegisterPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-[900px] flex flex-col md:flex-row-reverse gap-8 items-center"
+        className="relative z-10 w-full max-w-[1200px] flex flex-col items-center"
       >
-        {/* Visual Content Section */}
-        <div className="hidden md:flex flex-col gap-6 w-1/2">
-           <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-3xl p-1">
-              <div className="relative aspect-video rounded-[1.8rem] overflow-hidden bg-zinc-900">
-                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
-                    <div className="w-16 h-16 rounded-full bg-studio/20 backdrop-blur-md flex items-center justify-center border border-studio/30 group-hover:scale-110 transition-transform">
-                       <Sparkles className="w-6 h-6 text-studio fill-studio" />
-                    </div>
-                 </div>
-                 <img 
-                    src="/mythic_ronin_thumbnail_1776586589054.png" 
-                    className="w-full h-full object-cover opacity-60"
-                    alt="Production Preview"
-                 />
-              </div>
-              
-              <div className="flex gap-4 p-4 mt-2">
-                 <div className="flex-1 space-y-2">
-                    <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-                       <motion.div 
-                          className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]"
-                          initial={{ width: "0%" }}
-                          animate={{ width: "40%" }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                       />
-                    </div>
-                    <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-500">
-                       <span>World Syncing</span>
-                       <span className="text-studio">40% READY</span>
-                    </div>
-                 </div>
-              </div>
-           </div>
-
-           <div className="grid grid-cols-3 gap-4">
-              {[
-                { icon: Cpu, label: "Core" },
-                { icon: Layout, label: "Canvas" },
-                { icon: Play, label: "Flow" }
-              ].map((item, i) => (
-                <div key={i} className="bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-4 flex flex-col items-center gap-2 group hover:border-studio/30 transition-all">
-                   <item.icon className="w-5 h-5 text-zinc-500 group-hover:text-studio transition-colors" />
-                   <span className="text-[8px] uppercase font-bold tracking-widest text-zinc-600 group-hover:text-zinc-400">{item.label}</span>
+        <div className="w-full flex flex-col md:flex-row-reverse gap-12 items-center justify-center">
+          {/* Visual Content Section */}
+          <div className="hidden md:flex flex-col gap-8 w-[55%]">
+             <div className="space-y-4 mb-2">
+                <h2 className="text-5xl font-black italic uppercase tracking-tighter text-white leading-[0.9]">
+                  Turn your <span className="text-studio">imagination</span><br />
+                  Into studio-quality <span className="text-[#bd4a4a]">Anime</span>.
+                </h2>
+                <div className="flex items-center gap-3">
+                  <div className="h-[1px] w-12 bg-studio/30" />
+                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">
+                    Neural Access Authorized
+                  </p>
                 </div>
-              ))}
-           </div>
+             </div>
+             <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-3xl p-1">
+                <div className="relative aspect-video rounded-[1.8rem] overflow-hidden bg-zinc-900">
+                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
+                      <div className="w-16 h-16 rounded-full bg-studio/20 backdrop-blur-md flex items-center justify-center border border-studio/30 group-hover:scale-110 transition-transform">
+                         <Sparkles className="w-6 h-6 text-studio fill-studio" />
+                      </div>
+                   </div>
+                   <img 
+                      src="/mythic_ronin_thumbnail_1776586589054.png" 
+                      className="w-full h-full object-cover opacity-60"
+                      alt="Production Preview"
+                   />
+                </div>
+                
+                <div className="flex gap-4 p-4 mt-2">
+                   <div className="flex-1 space-y-2">
+                      <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                         <motion.div 
+                            className="h-full bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]"
+                            initial={{ width: "0%" }}
+                            animate={{ width: "40%" }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                         />
+                      </div>
+                      <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-500">
+                         <span>World Syncing</span>
+                         <span className="text-studio">40% READY</span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-3 gap-4">
+                {[
+                  { icon: Cpu, label: "Core" },
+                  { icon: Layout, label: "Canvas" },
+                  { icon: Play, label: "Flow" }
+                ].map((item, i) => (
+                  <div key={i} className="bg-zinc-900/50 border border-zinc-800/50 rounded-2xl p-4 flex flex-col items-center gap-2 group hover:border-studio/30 transition-all">
+                     <item.icon className="w-5 h-5 text-zinc-500 group-hover:text-studio transition-colors" />
+                     <span className="text-[8px] uppercase font-bold tracking-widest text-zinc-600 group-hover:text-zinc-400">{item.label}</span>
+                  </div>
+                ))}
+             </div>
+          </div>
+
+          <div className="w-full md:w-[440px]">
+            <AuthCard title="Initialize Architect" description="Protocol Alpha / Identity Creation">
+            <RegisterForm />
+
+            <div className="relative mt-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-zinc-800/50" />
+              </div>
+              <div className="relative flex justify-center text-[8px] uppercase font-black tracking-widest">
+                <span className="bg-[#020203] px-4 text-zinc-600">Secure Initialization</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 mt-4">
+              <SocialLoginButton icon={GithubIcon}>
+                Sign Up with Github
+              </SocialLoginButton>
+            </div>
+          </AuthCard>
+        </div>
         </div>
 
-        <div className="w-full md:w-[440px]">
-          <AuthCard title="Initialize Architect" description="Protocol Alpha / Identity Creation">
-          <RegisterForm />
-
-          <div className="relative mt-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-zinc-800/50" />
-            </div>
-            <div className="relative flex justify-center text-[8px] uppercase font-black tracking-widest">
-              <span className="bg-[#020203] px-4 text-zinc-600">Secure Initialization</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 mt-4">
-            <SocialLoginButton icon={GithubIcon}>
-              Sign Up with Github
-            </SocialLoginButton>
-          </div>
-        </AuthCard>
-      </div>
-
         {/* Footer Metrics */}
-        <div className="mt-8 flex items-center justify-between px-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+        <div className="w-full mt-12 flex flex-col sm:flex-row items-center justify-between px-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
            <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-500">
               <div className="flex items-center gap-1.5">
                  <ShieldCheck className="w-3 h-3 text-studio" />
@@ -145,7 +159,7 @@ export function RegisterPage() {
                  <span>Fast Lane</span>
               </div>
            </div>
-           <p className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-600">
+           <p className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-600 mt-4 sm:mt-0">
               Studio Architect v2.0
            </p>
         </div>
