@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import {
-  Sparkles, Brain, X, Target, Settings, Clapperboard,
+  Sparkles, Brain, Target, Settings, Clapperboard,
   Sword, Globe, Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -202,22 +202,27 @@ export function EnginePage() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
                     <Target className="w-4 h-4" />
                     CORE NARRATIVE CONCEPT
                   </label>
-                  <div className="relative group/textarea">
-                    <TextareaAutosize
-                      placeholder="Describe your core narrative vision, setting, and structural requirements..."
-                      className="w-full min-h-[350px] bg-black/40 border border-zinc-800/80 focus:border-studio/50 text-cyan-100 rounded-[2.5rem] p-10 text-lg font-medium resize-none transition-all shadow-inner leading-relaxed"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                    />
-                    <div className="absolute bottom-8 right-8 flex items-center gap-4">
+                  <div className="bg-[#050505] border border-white/5 rounded-[3rem] overflow-hidden group/textarea transition-all hover:border-white/10 shadow-2xl">
+                    <div className="p-10 pb-4">
+                      <TextareaAutosize
+                        placeholder="Describe your core narrative vision, setting, and structural requirements..."
+                        className="w-full min-h-[250px] bg-transparent border-none focus:ring-0 text-cyan-100 text-xl font-medium resize-none transition-all leading-relaxed placeholder:text-zinc-700"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                      />
+                    </div>
+                    <div className="p-8 bg-white/[0.02] border-t border-white/5 flex items-center justify-end gap-4">
                       {prompt && (
-                        <button onClick={() => setPrompt('')} className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800">
-                          <X className="w-5 h-5" />
+                        <button 
+                          onClick={() => setPrompt('')} 
+                          className="h-16 px-10 flex items-center justify-center bg-zinc-900/50 hover:bg-zinc-800 rounded-full transition-all border border-white/5 text-zinc-500 hover:text-white text-[10px] font-black uppercase tracking-[0.2em]"
+                        >
+                          Clear
                         </button>
                       )}
                       <Button
@@ -227,7 +232,10 @@ export function EnginePage() {
                           navigate('/anime/world');
                         }}
                         disabled={!prompt}
-                        className={cn("h-16 px-10 bg-studio text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] gap-3", !prompt && "opacity-20 grayscale pointer-events-none")}
+                        className={cn(
+                          "h-16 px-12 bg-[#0070FF] hover:bg-[#0060EE] text-white font-black uppercase tracking-[0.2em] text-[10px] rounded-full transition-all shadow-[0_10px_40px_rgba(0,112,255,0.3)] gap-3 border-none",
+                          !prompt && "opacity-20 grayscale pointer-events-none"
+                        )}
                       >
                         <Sparkles className="w-4 h-4" />
                         Generate Production Blueprint
@@ -247,10 +255,26 @@ export function EnginePage() {
                       {ANIME_TEMPLATES.map((t) => {
                         const isActive = prompt === t.prompt;
                         return (
-                          <motion.button key={t.id} variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} onClick={() => setPrompt(t.prompt)} className={cn("flex-shrink-0 snap-start flex items-center gap-3 px-8 py-4 rounded-[1.5rem] transition-all duration-500 group/dna relative overflow-hidden", isActive ? "bg-studio/10 border-studio/40 shadow-[0_0_25px_rgba(6,182,212,0.1)]" : "bg-zinc-900/40 border-white/5 hover:border-studio/30 hover:bg-zinc-900/60")}>
-                            {isActive && <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />}
-                            <t.icon className={cn("w-4 h-4 transition-all duration-500", isActive ? "scale-110 " + t.color : "text-zinc-600 group-hover/dna:text-studio")} />
-                            <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500", isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-300")}>{t.label}</span>
+                          <motion.button 
+                            key={t.id} 
+                            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} 
+                            onClick={() => setPrompt(t.prompt)} 
+                            className={cn(
+                              "flex-shrink-0 snap-start flex items-center gap-4 px-10 py-6 rounded-full transition-all duration-500 group/dna relative",
+                              isActive 
+                                ? "bg-blue-500/10 border border-blue-500/30 shadow-[0_0_30px_rgba(0,112,255,0.1)]" 
+                                : "bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10"
+                            )}
+                          >
+                            {isActive && <div className="absolute top-4 right-6 w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]" />}
+                            <t.icon className={cn(
+                              "w-4 h-4 transition-all duration-500", 
+                              isActive ? "text-blue-400" : "text-zinc-600 group-hover/dna:text-zinc-400"
+                            )} />
+                            <span className={cn(
+                              "text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500", 
+                              isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-400"
+                            )}>{t.label}</span>
                           </motion.button>
                         );
                       })}

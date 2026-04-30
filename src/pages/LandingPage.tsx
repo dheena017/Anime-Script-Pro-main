@@ -108,32 +108,34 @@ const DropdownLink = ({
   </a>
 );
 
-const SpeedLines = () => (
-  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    {[...Array(30)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="absolute bg-studio/20"
-        style={{
-          width: '1px',
-          height: '150px',
-          left: `${Math.random() * 100}%`,
-          top: '-20%',
-        }}
-        animate={{
-          top: '120%',
-          opacity: [0, 0.5, 0],
-        }}
-        transition={{
-          duration: 0.3 + Math.random() * 0.4,
-          repeat: Infinity,
-          delay: Math.random() * 5,
-          ease: "linear",
-        }}
-      />
-    ))}
-  </div>
-);
+const SpeedLines = () => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {[...Array(30)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-studio/20"
+          style={{
+            width: '1px',
+            height: '150px',
+            left: `${(i * 3.33) % 100}%`,
+            top: '-20%',
+          }}
+          animate={{
+            top: '120%',
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 0.3 + (i % 10) * 0.04,
+            repeat: Infinity,
+            delay: (i % 50) * 0.1,
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const DigitalScanline = () => (
   <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden opacity-10">

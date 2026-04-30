@@ -10,7 +10,8 @@ import {
   FolderGit2,
   PlusSquare,
   Cpu,
-  Calendar
+  Sparkles,
+  Brain
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/card';
@@ -73,150 +74,170 @@ export default function Dashboard() {
     }
   }, [user, authLoading]);
 
-  if (authLoading || (user && dataLoading)) {
-    return <StudioLoading message="Initializing Orchestrator..." submessage="Syncing neural status and production nodes..." />;
-  }
-
-
-
   return (
-    <div className={cn("min-h-screen bg-[#050505] text-zinc-100 space-y-8 max-w-[1600px] mx-auto pt-4")}>
+    <div className={cn("min-h-screen bg-[#050505] text-zinc-100 max-w-[1600px] mx-auto")}>
+      {(authLoading || (user && dataLoading)) ? (
+        <StudioLoading message="Initializing Orchestrator..." submessage="Syncing neural status and production nodes..." />
+      ) : (
+        <div className="space-y-12 pt-10 pb-20 px-6">
       {/* 1. TOP HEADER / NEURAL STATUS */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-12">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-studio/10 border border-studio/20 rounded-full">
+            <div className="w-1.5 h-1.5 rounded-full bg-studio animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
+            <span className="text-[9px] font-black text-studio uppercase tracking-[0.2em]">Neural Link Established</span>
+          </div>
+          <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
+            GREETINGS, <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">
+              {user?.email?.split('@')[0] || 'ARCHITECT'}
+            </span>
+          </h1>
+        </div>
+        
+        <div className="flex items-center gap-8 text-right">
+          <div className="space-y-1">
+            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Neural Status</p>
+            <p className="text-xs font-bold text-emerald-400 uppercase tracking-tighter">OPTIMAL SYNC</p>
+          </div>
+          <div className="w-[1px] h-10 bg-white/10" />
+          <div className="space-y-1">
+            <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Active Node</p>
+            <p className="text-xs font-bold text-studio uppercase tracking-tighter">CENTRAL HUB-01</p>
+          </div>
+        </div>
       </div>
 
       {/* 2. CORE STATS BAR */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <Card className="bg-zinc-900/30 border-zinc-800/50 p-8 flex flex-col justify-between group hover:border-[#bd4a4a]/20 transition-all relative overflow-hidden rounded-[2rem]">
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#bd4a4a]/[0.02] pointer-events-none" />
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">PRODUCTION ARCHIVES</p>
-            <div className="flex items-baseline gap-2">
-               <h3 className="text-5xl font-black text-white">{stats.total}</h3>
-               <div className="flex items-center gap-1 text-[10px] text-emerald-500 font-bold mb-1">
-                 <Activity className="w-3 h-3" /> ONLINE
-               </div>
-            </div>
-         </Card>
-
-         <Card className="bg-zinc-900/30 border-zinc-800/50 p-8 flex flex-col justify-between group hover:border-[#bd4a4a]/20 transition-all relative overflow-hidden rounded-[2rem]">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4">NEURAL ACTIVITY (WEEK)</p>
-            <h3 className="text-5xl font-black text-white">{stats.week}</h3>
-         </Card>
-
-         <Card className="bg-zinc-900/30 border-zinc-800/50 p-8 flex flex-col justify-center items-start group hover:border-[#bd4a4a]/20 transition-all rounded-[2rem]">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2">LATEST BLUEPRINT</p>
-            <div className="w-full">
-              <p className="text-sm font-bold text-zinc-200 truncate mb-2">
-                {stats.recent ? stats.recent.title : 'No active blueprints'}
-              </p>
-              {stats.recent && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
-                    <Calendar className="w-2.5 h-2.5 text-[#bd4a4a]" />
-                    {new Date(stats.recent.created_at).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-2 text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
-                    <Cpu className="w-2.5 h-2.5 text-blue-500" />
-                    {stats.recent.model_used || 'Gemini-2.0-Flash'}
-                  </div>
-                </div>
-              )}
-            </div>
-         </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+         {[
+           { label: 'Production Archives', val: stats.total, sub: 'Online', icon: Activity, color: 'from-studio/20 to-transparent', border: 'hover:border-studio/40' },
+           { label: 'Neural Activity (Week)', val: stats.week, sub: 'Active', icon: Zap, color: 'from-fuchsia-500/20 to-transparent', border: 'hover:border-fuchsia-500/40' },
+           { label: 'Latest Blueprint', val: stats.recent?.title || 'N/A', sub: stats.recent?.model_used || 'STABLE', icon: Cpu, color: 'from-violet-500/20 to-transparent', border: 'hover:border-violet-500/40' },
+         ].map((stat, i) => (
+           <Card key={i} className={cn("glass p-10 flex flex-col justify-between group transition-all relative overflow-hidden rounded-[2.5rem]", stat.border)}>
+              <div className={cn("absolute inset-0 bg-gradient-to-br pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700", stat.color)} />
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">{stat.label}</p>
+                <stat.icon className="w-5 h-5 text-zinc-700 group-hover:text-white transition-colors" />
+              </div>
+              <div className="space-y-2 relative z-10">
+                 <h3 className="text-5xl font-black text-white tracking-tighter truncate leading-none">{stat.val}</h3>
+                 <div className="flex items-center gap-2 text-[9px] text-emerald-500 font-black tracking-widest uppercase">
+                   <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                   {stat.sub}
+                 </div>
+              </div>
+           </Card>
+         ))}
       </div>
 
       {/* 2.1 STUDIO SELECTOR */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-           <LayoutGrid className="w-4 h-4 text-[#bd4a4a]" />
-           <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em]">Initialize Environment</h3>
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+             <LayoutGrid className="w-5 h-5 text-studio" />
+             <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.4em]">Initialize Environment</h3>
+          </div>
+          <div className="h-[1px] flex-1 bg-white/5 mx-8 hidden md:block" />
+          <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Select Production Mode</span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
-            { name: 'Anime Studio', type: 'Anime', path: '/anime', color: 'border-[#bd4a4a]/20 text-white bg-[#bd4a4a]/5 hover:border-[#bd4a4a]/50', desc: 'Japanese style animation frames & lore.' },
-            { name: 'World Lore', type: 'Manhwa', path: '/world', color: 'border-zinc-800 text-zinc-400 bg-zinc-900/20 hover:border-zinc-700', desc: 'World building and narrative scaffolding.' },
-            { name: 'Archive Room', type: 'Comic', path: '/projects', color: 'border-zinc-800 text-zinc-400 bg-zinc-900/20 hover:border-zinc-700', desc: 'Review and manage existing blueprint archives.' },
+            { name: 'Anime Studio', type: 'Anime', path: '/anime', icon: Sparkles, color: 'hover:border-studio/50', glow: 'bg-studio/5', desc: 'Japanese style animation frames & lore.' },
+            { name: 'World Lore', type: 'Manhwa', path: '/world', icon: Brain, color: 'hover:border-fuchsia-500/50', glow: 'bg-fuchsia-500/5', desc: 'World building and narrative scaffolding.' },
+            { name: 'Archive Room', type: 'Comic', path: '/projects', icon: FolderGit2, color: 'hover:border-zinc-500/50', glow: 'bg-zinc-500/5', desc: 'Review and manage existing blueprint archives.' },
           ].map((studio) => (
             <button
               key={studio.type}
               onClick={() => navigate(studio.path)}
               className={cn(
-                "p-8 rounded-[2rem] border transition-all text-left group hover:scale-[1.02] active:scale-95 relative overflow-hidden",
+                "p-10 rounded-[3rem] border border-white/5 bg-white/[0.01] transition-all text-left group hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden",
                 studio.color
               )}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
-              <div className="flex items-center justify-between mb-3 relative z-10">
-                <span className="text-lg font-black uppercase tracking-tighter">{studio.name}</span>
-                <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none", studio.glow)} />
+              <div className="flex items-center justify-between mb-6 relative z-10">
+                <div className="p-3 bg-black/40 border border-white/10 rounded-2xl">
+                  <studio.icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
+                </div>
+                <div className="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                 </div>
               </div>
-              <p className="text-[10px] opacity-60 font-medium leading-relaxed uppercase tracking-widest relative z-10">{studio.desc.toUpperCase()}</p>
+              <span className="text-2xl font-black text-white uppercase tracking-tighter mb-2 block relative z-10">{studio.name}</span>
+              <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase tracking-widest relative z-10">{studio.desc}</p>
             </button>
           ))}
         </div>
       </div>
 
       {/* 3. MAIN WORKSPACE SECTION */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 h-full">
-         <div className="xl:col-span-3 space-y-8">
-            <div className="flex items-center gap-3">
-               <Zap className="w-5 h-5 text-[#bd4a4a] fill-current" />
-               <h2 className="text-xl font-black uppercase tracking-[0.2em] text-white">NEURAL ACTIONS</h2>
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
+         <div className="xl:col-span-3 space-y-12">
+            <div className="flex items-center gap-4">
+               <Zap className="w-6 h-6 text-studio fill-studio/20" />
+               <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-white">Neural Actions</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                {[
-                 { title: 'New Blueprint', desc: 'Initialize a fresh project from scratch using AI guidance.', icon: PlusSquare, color: 'text-[#bd4a4a]', path: '/projects/new' },
-                 { title: 'Resume Script', desc: 'Contine refining your latest narrative transmissions.', icon: ScrollText, color: 'text-blue-500', path: '/anime/script' },
-                 { title: 'Project Archive', desc: 'Access and switch between your production history.', icon: FolderGit2, color: 'text-zinc-400', path: '/projects' },
+                 { title: 'New Blueprint', desc: 'Initialize fresh project.', icon: PlusSquare, color: 'text-studio', path: '/projects/new', level: 'L1 ARCHITECT' },
+                 { title: 'Resume Script', desc: 'Continue transmissions.', icon: ScrollText, color: 'text-fuchsia-500', path: '/anime/script', level: 'L2 WRITER' },
+                 { title: 'Archive', desc: 'Access history.', icon: FolderGit2, color: 'text-zinc-400', path: '/projects', level: 'L3 ADMIN' },
                ].map((item, idx) => (
                  <motion.button 
                    key={idx}
-                   whileHover={{ y: -5 }}
+                   whileHover={{ y: -8 }}
                    onClick={() => navigate(item.path)}
-                   className="flex flex-col text-left p-8 bg-zinc-900/30 border border-zinc-800/50 rounded-[2.5rem] hover:border-[#bd4a4a]/30 transition-all group relative overflow-hidden aspect-[4/3] justify-between shadow-xl"
+                   className="flex flex-col text-left p-10 glass border border-white/5 rounded-[3rem] group relative overflow-hidden aspect-[4/3] justify-between transition-all"
                  >
-                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#bd4a4a]/20 to-transparent" />
-                   <div className="absolute bottom-0 right-0 w-32 h-32 bg-[#bd4a4a] rounded-full blur-[100px] opacity-0 group-hover:opacity-10 pointer-events-none" />
+                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-studio/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                    
                    <div className="flex items-center justify-between">
-                     <div className={cn("p-3 rounded-2xl bg-zinc-800 border border-zinc-700 transition-all group-hover:scale-110 group-hover:rotate-6", item.color)}>
-                        <item.icon className="w-6 h-6" />
+                     <div className={cn("p-4 rounded-2xl bg-black/40 border border-white/5 transition-all group-hover:scale-110", item.color)}>
+                        <item.icon className="w-8 h-8" />
                      </div>
-                     <ChevronRight className="w-5 h-5 text-zinc-700 group-hover:text-[#bd4a4a] group-hover:translate-x-1 transition-all" />
+                     <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">{item.level}</span>
                    </div>
 
-                   <div>
-                      <h4 className="text-2xl font-black text-white mb-2 tracking-tight">{item.title}</h4>
-                      <p className="text-xs text-zinc-500 font-medium leading-relaxed uppercase tracking-wide">{item.desc}</p>
+                   <div className="space-y-2">
+                      <h4 className="text-3xl font-black text-white tracking-tighter leading-none group-hover:text-studio transition-colors">{item.title}</h4>
+                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{item.desc}</p>
                    </div>
                  </motion.button>
                ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-               <Card className="bg-zinc-900/20 border-zinc-800/50 rounded-[2.5rem] p-10 space-y-6">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">SYSTEM LOGS</h3>
-                  <div className="p-6 bg-black/40 border border-zinc-800/50 rounded-3xl space-y-4">
-                     <div className="flex items-start gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#bd4a4a] mt-2 shrink-0 animate-pulse" />
-                        <p className="text-[11px] font-bold text-zinc-300 leading-relaxed">
-                          All systems optimal. Studio Architect Node is currently running in ARCHITECT mode.
-                        </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+               <Card className="glass rounded-[3rem] p-12 space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">System Logs</h3>
+                    <div className="flex gap-1">
+                      <div className="w-1 h-1 rounded-full bg-studio" />
+                      <div className="w-1 h-1 rounded-full bg-fuchsia-500" />
+                      <div className="w-1 h-1 rounded-full bg-zinc-700" />
+                    </div>
+                  </div>
+                  <div className="p-8 bg-black/40 border border-white/5 rounded-[2rem] space-y-6">
+                     <div className="flex items-start gap-4">
+                        <div className="w-2 h-2 rounded-full bg-studio mt-2 shrink-0 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.5)]" />
+                        <div className="space-y-2">
+                          <p className="text-[13px] font-bold text-zinc-200 leading-relaxed">
+                            System Synchronized. Studio Architect Node active.
+                          </p>
+                          <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-widest">
+                             Environment: Production // Mode: Architect
+                          </p>
+                        </div>
                      </div>
-                     <p className="text-[10px] text-zinc-500 font-medium ml-4">
-                        Status: Environment synced with Supabase Backend. Project selector active.
-                     </p>
                   </div>
                </Card>
 
-               <Card className="bg-zinc-900/20 border-zinc-800/50 rounded-[2.5rem] p-10 space-y-6">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">FAST LANE</h3>
-                  <div className="space-y-3">
+               <Card className="glass rounded-[3rem] p-12 space-y-8">
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Fast Lane</h3>
+                  <div className="grid grid-cols-1 gap-4">
                     {[
-
                       { label: 'Character Cast', path: '/anime/cast' },
                       { label: 'Storyboard Gallery', path: '/anime/storyboard' },
                       { label: 'Studio Wiki', path: '/tutorials' },
@@ -224,10 +245,12 @@ export default function Dashboard() {
                       <button 
                         key={idx}
                         onClick={() => navigate(step.path)}
-                        className="w-full flex items-center justify-between p-4 bg-black/20 border border-zinc-800/50 rounded-2xl hover:bg-zinc-900 hover:border-[#bd4a4a]/20 transition-all group"
+                        className="w-full flex items-center justify-between p-6 bg-black/20 border border-white/5 rounded-2xl hover:bg-studio/5 hover:border-studio/20 transition-all group"
                       >
-                         <span className="text-[10px] font-black text-zinc-400 group-hover:text-white transition-colors uppercase tracking-widest">{step.label}</span>
-                         <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-[#bd4a4a] group-hover:translate-x-1 transition-all" />
+                         <span className="text-[11px] font-black text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em]">{step.label}</span>
+                         <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center">
+                            <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-studio group-hover:translate-x-1 transition-all" />
+                         </div>
                       </button>
                     ))}
                   </div>
@@ -235,10 +258,12 @@ export default function Dashboard() {
             </div>
          </div>
 
-         <div className="space-y-8">
+         <div className="space-y-12">
             <TodoWidget />
          </div>
       </div>
+     </div>
+      )}
     </div>
   );
 }

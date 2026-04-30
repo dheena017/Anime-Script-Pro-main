@@ -8,13 +8,27 @@ import {
   Rocket,
   Wand2,
   Box,
-  Layers
+  Layers,
+  UserPlus,
+  Layout
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function Changelog() {
   const updates = [
+    {
+      version: 'v2.5.0',
+      date: 'May 01, 2026',
+      title: 'The Identity & Visual Synthesis Update',
+      highlight: 'Deployment of the brand new Registration system and cinematic authentication experience.',
+      items: [
+        { icon: UserPlus, label: 'Architect Registry', detail: 'Complete user registration flow with secure identity initialization.' },
+        { icon: Sparkles, label: 'Cinematic Auth', detail: 'Redesigned Login and Register pages with real-time world-syncing visuals.' },
+        { icon: Layout, label: 'Wide-Lens UI', detail: 'Expansion of the authentication layouts to 1200px for immersive storytelling.' },
+        { icon: Zap, label: 'Quick Navigation', detail: 'Added "Return to Base" back buttons for seamless landing-to-auth transitions.' }
+      ]
+    },
     {
       version: 'v2.4.0',
       date: 'April 26, 2026',
