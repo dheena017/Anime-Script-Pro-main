@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useOutletContext } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DropResult } from '@hello-pangea/dnd';
 import { 
   enhanceSceneVisuals, 
   generateSceneImage, 
@@ -17,12 +17,14 @@ import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
 
 // Sub-components
 import { PlanningGuide } from '../components/Storyboard/PlanningGuide';
-import { SceneCard } from '../components/Storyboard/SceneCard';
-import { EmptyState } from '../components/Storyboard/EmptyState';
-import { Moodboard } from '../components/Moodboard/Moodboard';
-import { SceneTimeline } from '../components/Timeline/SceneTimeline';
-import { SoundscapeLibrary } from '../components/Audio/SoundscapeLibrary';
 import { StoryboardContext } from './Storyboard/StoryboardLayout';
+
+// Modular tab components
+import { FramesTab } from '../components/Storyboard/Tabs/FramesTab';
+import { AnglesTab } from '../components/Storyboard/Tabs/AnglesTab';
+import { CompositionTab } from '../components/Storyboard/Tabs/CompositionTab';
+import { AnimaticTab } from '../components/Storyboard/Tabs/AnimaticTab';
+import { AudioTab } from '../components/Storyboard/Tabs/AudioTab';
 
 interface Scene {
   id: string;
@@ -358,88 +360,72 @@ export function StoryboardPage() {
     });
   }, [isGlobalEnhancing, scenes, isProductionLoopActive, productionProgress, isGuideOpen, isGeneratingVisuals]);
 
-  const framesView = (
-    <div className="space-y-12">
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="storyboard">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10">
-              {scenes.map((scene, idx) => (
-                <Draggable key={scene.id} draggableId={scene.id} index={idx}>
-                  {(provided, snapshot) => (
-                    <SceneCard
-                      scene={scene}
-                      index={idx}
-                      visualData={visualData}
-                      promptList={promptList}
-                      editingSceneId={editingSceneId}
-                      editForm={editForm}
-                      isEnhancingNarration={isEnhancingNarration}
-                      isEnhancing={isEnhancing}
-                      isRewritingTension={isRewritingTension}
-                      isSuggestingDuration={isSuggestingDuration}
-                      setEditForm={setEditForm}
-                      handleGenerateVisual={handleGenerateVisual}
-                      handleGenerateVideo={handleGenerateVideo}
-                      videoData={videoData}
-                      startEditing={startEditing}
-                      cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
-                      saveSceneEdits={saveSceneEdits}
-                      handleEnhanceNarration={handleEnhanceNarration}
-                      handleEnhanceVisuals={handleEnhanceVisuals}
-                      handleRewriteTension={handleRewriteTension}
-                      handleSuggestDuration={handleSuggestDuration}
-                      dragHandleProps={provided.dragHandleProps}
-                      draggableProps={provided.draggableProps}
-                      innerRef={provided.innerRef}
-                      isDragging={snapshot.isDragging}
-                      isBulkEnhancing={enhancingSceneIds.has(scene.id)} />
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </div>
-  );
-
   const renderTabContent = () => {
-    if (scenes.length === 0 && activeTab === 'frames') {
-      return <EmptyState handleAddScene={handleAddScene} />;
-    }
     switch (activeTab) {
-      case 'frames': return framesView;
-      case 'angles': return (
-        <div className="py-20 text-center space-y-6">
-          <div className="w-16 h-16 rounded-[2rem] bg-studio/10 border border-studio/20 flex items-center justify-center mx-auto">
-            <span className="text-2xl">🎥</span>
-          </div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Shot Angles</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] max-w-md mx-auto">Camera blocking, Dutch angles, and cinematic framing guides for each scene node.</p>
-        </div>
-      );
-      case 'composition': return (
-        <div className="pt-8 space-y-12">
-          <SceneTimeline scenes={scenes} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-white/5">
-            <Moodboard />
-            <SoundscapeLibrary />
-          </div>
-        </div>
-      );
-      case 'animatic': return (
-        <div className="py-20 text-center space-y-6">
-          <div className="w-16 h-16 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto">
-            <span className="text-2xl">🎬</span>
-          </div>
-          <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Animatic Preview</h2>
-          <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.3em] max-w-md mx-auto">Sequential frame preview with timing overlays. Connect generated video nodes to render the full animatic.</p>
-        </div>
-      );
-      case 'audio': return <SoundscapeLibrary />;
-      default: return framesView;
+      case 'frames':
+        return (
+          <FramesTab
+            scenes={scenes}
+            visualData={visualData}
+            videoData={videoData}
+            promptList={promptList}
+            editingSceneId={editingSceneId}
+            editForm={editForm}
+            isEnhancingNarration={isEnhancingNarration}
+            isEnhancing={isEnhancing}
+            isRewritingTension={isRewritingTension}
+            isSuggestingDuration={isSuggestingDuration}
+            enhancingSceneIds={enhancingSceneIds}
+            setEditForm={setEditForm}
+            handleDragEnd={handleDragEnd}
+            handleGenerateVisual={handleGenerateVisual}
+            handleGenerateVideo={handleGenerateVideo}
+            startEditing={startEditing}
+            cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+            saveSceneEdits={saveSceneEdits}
+            handleEnhanceNarration={handleEnhanceNarration}
+            handleEnhanceVisuals={handleEnhanceVisuals}
+            handleRewriteTension={handleRewriteTension}
+            handleSuggestDuration={handleSuggestDuration}
+            handleAddScene={handleAddScene}
+          />
+        );
+      case 'angles':
+        return <AnglesTab />;
+      case 'composition':
+        return <CompositionTab scenes={scenes} />;
+      case 'animatic':
+        return <AnimaticTab scenes={scenes} videoData={videoData} />;
+      case 'audio':
+        return <AudioTab scenes={scenes} />;
+      default:
+        return (
+          <FramesTab
+            scenes={scenes}
+            visualData={visualData}
+            videoData={videoData}
+            promptList={promptList}
+            editingSceneId={editingSceneId}
+            editForm={editForm}
+            isEnhancingNarration={isEnhancingNarration}
+            isEnhancing={isEnhancing}
+            isRewritingTension={isRewritingTension}
+            isSuggestingDuration={isSuggestingDuration}
+            enhancingSceneIds={enhancingSceneIds}
+            setEditForm={setEditForm}
+            handleDragEnd={handleDragEnd}
+            handleGenerateVisual={handleGenerateVisual}
+            handleGenerateVideo={handleGenerateVideo}
+            startEditing={startEditing}
+            cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+            saveSceneEdits={saveSceneEdits}
+            handleEnhanceNarration={handleEnhanceNarration}
+            handleEnhanceVisuals={handleEnhanceVisuals}
+            handleRewriteTension={handleRewriteTension}
+            handleSuggestDuration={handleSuggestDuration}
+            handleAddScene={handleAddScene}
+          />
+        );
     }
   };
 
@@ -464,3 +450,4 @@ export function StoryboardPage() {
     </div>
   );
 }
+
