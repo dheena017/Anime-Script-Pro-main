@@ -17,7 +17,10 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
   onRegenerate,
   onNext,
   onPrev,
-  isGenerating}) => {
+  isGenerating,
+  session,
+  episode
+}) => {
   return (
     <div className="relative group">
       {/* Cinematic Ambient Glow */}
@@ -38,36 +41,35 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
 
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
+              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
                 World Architect
               </h1>
-              <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
-                <div className={cn("w-1 h-1 rounded-full animate-pulse", isGenerating ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
-                <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  {isGenerating ? 'Synthesizing' : 'Lore_Stable'}
+              <div className="px-2.5 py-1 rounded-full bg-studio/20 border border-studio/30 flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", isGenerating ? "bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
+                <span className="text-[9px] font-black uppercase tracking-widest text-studio">
+                  {isGenerating ? 'SYNTHESIZING' : 'LORE_STABLE'}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">Neural Lore Synthesis Engine V3.2 // Realm_Active</p>
+              <Cpu className="w-3.5 h-3.5 text-studio/40" />
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Lore Synthesis Engine V3.2</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+        <div className="flex items-center gap-5 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          {onPrev && (
+            <Button 
+              variant="outline" 
+              className="h-11 px-6 bg-white/5 border-white/10 text-zinc-500 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all group/back"
+              onClick={onPrev}
+            >
+              PREVIOUS: MISSION
+            </Button>
+          )}
 
-          <div className="flex items-center gap-3">
-            {onPrev && (
-              <Button 
-                variant="outline" 
-                className="h-11 px-6 bg-black/60 border-zinc-800 text-zinc-500 hover:text-white hover:border-white/20 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md"
-                onClick={onPrev}
-              >
-                Previous: Mission
-              </Button>
-            )}
-
+          <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
@@ -75,21 +77,20 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
               disabled={isGenerating}
             >
               {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-125 transition-transform" />}
-              Synthesize World
+              SYNTHESIZE REALITY
             </Button>
 
             <Button 
               className={cn(
-                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 gap-3 overflow-hidden group/next border-none",
-                "bg-studio text-black hover:bg-white hover:text-black",
-                "hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
+                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
+                "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
               )}
               onClick={onNext}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Next: Cast DNA <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                NEXT: CAST <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
-              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000 ease-in-out" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
             </Button>
           </div>
         </div>

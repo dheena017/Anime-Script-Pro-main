@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, RefreshCw, ChevronRight, ChevronLeft, Cpu, Image as ImageIcon } from 'lucide-react';
+import { Terminal, RefreshCw, ChevronRight, Cpu, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -40,34 +40,35 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
 
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
+              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
                 Prompt Architect
               </h1>
-              <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
-                <div className={cn("w-1 h-1 rounded-full animate-pulse", isGenerating ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
-                <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  {isGenerating ? 'Synthesizing' : 'Manifest_Ready'}
+              <div className="px-2.5 py-1 rounded-full bg-studio/20 border border-studio/30 flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", isGenerating ? "bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
+                <span className="text-[9px] font-black uppercase tracking-widest text-studio">
+                  {isGenerating ? 'SYNTHESIZING' : 'MANIFEST_READY'}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // DNA_Archived</p>
+              <Cpu className="w-3.5 h-3.5 text-studio/40" />
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Prompt Synthesis Engine V5.1</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          <Button 
-            variant="ghost" 
-            className="text-zinc-600 hover:text-studio text-[9px] font-black uppercase tracking-widest group/back px-0"
-            onClick={onPrev}
-          >
-            <ChevronLeft className="w-4 h-4 mr-1 group-hover/back:-translate-x-1 transition-transform" />
-            Back to SEO
-          </Button>
+        <div className="flex items-center gap-5 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          {onPrev && (
+            <Button 
+              variant="outline" 
+              className="h-11 px-6 bg-white/5 border-white/10 text-zinc-500 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all group/back"
+              onClick={onPrev}
+            >
+              PREVIOUS: SEO
+            </Button>
+          )}
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
@@ -75,7 +76,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               disabled={isGenerating}
             >
               {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Terminal className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-110 transition-transform" />}
-              Re-Synthesize Prompts
+              RE-SYNTHESIZE DNA
             </Button>
 
             <Button 
@@ -86,7 +87,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
               onClick={onNext}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Next: Screening Room <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                NEXT: SCREENING <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
             </Button>

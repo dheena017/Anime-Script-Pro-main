@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Zap, Monitor, Cpu, ChevronRight, ChevronLeft } from 'lucide-react';
+import { RefreshCw, Zap, Monitor, Cpu, ChevronRight } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -42,100 +42,81 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
             <div className="w-14 h-14 rounded-2xl bg-studio/10 border border-studio/30 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] group/icon overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-studio/20 to-transparent opacity-0 group-hover/icon:opacity-100 transition-opacity duration-500" />
               <Monitor className="w-7 h-7 text-studio relative z-10 animate-pulse-slow" />
-              {/* Neural Pulse Ring */}
               <div className="absolute inset-0 border-2 border-studio/50 rounded-2xl animate-ping opacity-20" />
             </div>
           </div>
 
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black uppercase tracking-[0.25em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
-                Screening Room
+              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
+                Screening Architect
               </h1>
-              <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
-                <div className={cn("w-1 h-1 rounded-full animate-pulse", isRendering ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
-                <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  {isRendering ? 'Processing' : 'Active'}
+              <div className="px-2.5 py-1 rounded-full bg-studio/20 border border-studio/30 flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", isRendering ? "bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
+                <span className="text-[9px] font-black uppercase tracking-widest text-studio">
+                  {isRendering ? 'RENDERING' : 'RENDER_READY'}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Render Architecture</p>
+              <Cpu className="w-3.5 h-3.5 text-studio/40" />
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Synthesis Engine V2.1</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          <div className="flex items-center gap-4">
-            {onPrev && (
-              <Button 
-                variant="ghost" 
-                className="text-zinc-600 hover:text-studio text-[9px] font-black uppercase tracking-widest group/back px-0"
-                onClick={onPrev}
-              >
-                <ChevronLeft className="w-4 h-4 mr-1 group-hover/back:-translate-x-1 transition-transform" />
-                Back to Prompts
-              </Button>
-            )}
+        <div className="flex items-center gap-5 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          {onPrev && (
+            <Button 
+              variant="outline" 
+              className="h-11 px-6 bg-white/5 border-white/10 text-zinc-500 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all group/back"
+              onClick={onPrev}
+            >
+              PREVIOUS: PROMPTS
+            </Button>
+          )}
 
-            {/* Session Navigation */}
-            <div className="flex bg-black/80 border border-zinc-800/50 p-1.5 rounded-2xl shadow-inner backdrop-blur-xl">
-              {[1, 2, 3, 4].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setActiveSession(s)}
-                  className={cn(
-                    "relative h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 overflow-hidden",
-                    activeSession === s 
-                      ? "text-black bg-studio shadow-[0_0_20px_rgba(6,182,212,0.4)]" 
-                      : "text-zinc-600 hover:text-studio/80 hover:bg-studio/5"
-                  )}
-                >
-                  <span className="relative z-10">S{s}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Render Action */}
-              <Button 
+          {/* Session Navigation */}
+          <div className="flex bg-black/40 border border-white/5 p-1 rounded-2xl backdrop-blur-xl">
+            {[1, 2, 3, 4].map((s) => (
+              <button
+                key={s}
+                onClick={() => setActiveSession(s)}
                 className={cn(
-                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/btn border",
-                  isRendering 
-                    ? "bg-zinc-900 border-zinc-800 text-zinc-600" 
-                    : "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+                  "relative h-9 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                  activeSession === s 
+                    ? "text-black bg-studio shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
+                    : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
                 )}
-                onClick={onRender}
-                disabled={isRendering || !hasScript}
               >
-                {!isRendering && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />}
-                
-                {isRendering ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Zap className="w-4 h-4 fill-current animate-pulse" />
-                )}
-                <span className="relative z-10">
-                  {isRendering ? 'Synthesizing' : 'Initiate Render'}
-                </span>
-              </Button>
+                S{s}
+              </button>
+            ))}
+          </div>
 
-              {onNext && (
-                <Button 
-                  className={cn(
-                    "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
-                    "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
-                  )}
-                  onClick={onNext}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Next: Engine <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
-                </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
+              onClick={onRender}
+              disabled={isRendering || !hasScript}
+            >
+              {isRendering ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Zap className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-110 transition-transform" />}
+              INITIATE RENDER
+            </Button>
+
+            <Button 
+              className={cn(
+                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
+                "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
               )}
-            </div>
+              onClick={onNext}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                NEXT: ENGINE <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+            </Button>
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Cpu } from 'lucide-react';
+import { Settings, Cpu, ChevronRight, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -20,9 +20,11 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
 }) => {
   return (
     <div className="relative group">
+      {/* Cinematic Ambient Glow */}
       <div className="absolute -inset-1 bg-gradient-to-r from-studio/20 via-fuchsia-500/10 to-studio/20 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
 
       <div className="relative flex flex-col md:flex-row items-center justify-between p-6 bg-[#050505]/80 backdrop-blur-3xl border border-studio/20 rounded-[2rem] shadow-2xl overflow-hidden">
+        {/* Background Scanline Effect */}
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] pointer-events-none animate-scanline" />
         
         <div className="flex items-center gap-8 z-10 w-full md:w-auto">
@@ -36,43 +38,57 @@ export const EngineHeader: React.FC<EngineHeaderProps> = ({
 
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
-                Production Engine
+              <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
+                Engine Architect
               </h1>
-              <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
-                <div className={cn("w-1 h-1 rounded-full animate-pulse", isGenerating ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
-                <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  {isGenerating ? 'Computing' : 'Ready'}
+              <div className="px-2.5 py-1 rounded-full bg-studio/20 border border-studio/30 flex items-center gap-2">
+                <div className={cn("w-1.5 h-1.5 rounded-full", isGenerating ? "bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
+                <span className="text-[9px] font-black uppercase tracking-widest text-studio">
+                  {isGenerating ? 'COMPUTING' : 'SYSTEM_READY'}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
-              <Settings className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural_Core_v5.1</p>
+              <Settings className="w-3.5 h-3.5 text-studio/40" />
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Core V5.1 // Production_Active</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          <div className="flex items-center gap-3">
-            {onPrev && (
-              <Button 
-                variant="outline" 
-                className="h-11 px-6 bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all"
-                onClick={onPrev}
-              >
-                Back to Screening
-              </Button>
-            )}
+        <div className="flex items-center gap-5 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          {onPrev && (
+            <Button 
+              variant="outline" 
+              className="h-11 px-6 bg-white/5 border-white/10 text-zinc-500 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all group/back"
+              onClick={onPrev}
+            >
+              PREVIOUS: SCREENING
+            </Button>
+          )}
 
-            {onNext && (
-              <Button 
-                className="relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border-none bg-studio text-black hover:bg-white hover:text-black"
-                onClick={onNext}
-              >
-                Next Stage
-              </Button>
-            )}
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
+              onClick={() => {}} // Placeholder for engine actions
+              disabled={isGenerating}
+            >
+              {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Zap className="w-4 h-4 mr-2 text-studio group-hover/btn:scale-110 transition-transform" />}
+              LAUNCH NEURAL CORE
+            </Button>
+
+            <Button 
+              className={cn(
+                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
+                "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+              )}
+              onClick={onNext}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                DISTRIBUTION <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+            </Button>
           </div>
         </div>
       </div>

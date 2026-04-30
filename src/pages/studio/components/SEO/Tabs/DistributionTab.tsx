@@ -1,5 +1,5 @@
 import React from 'react';
-import { Share2, Youtube, Music2, Instagram, Globe, CheckCircle2 } from 'lucide-react';
+import { Share2, Play, Music2, Camera, Globe, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -12,9 +12,9 @@ interface DistributionTabProps {
 
 export const DistributionTab: React.FC<DistributionTabProps> = () => {
   const platforms = [
-    { name: 'YouTube', icon: Youtube, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', status: 'Ready' },
+    { name: 'YouTube', icon: Play, color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', status: 'Ready' },
     { name: 'TikTok', icon: Music2, icon2: Share2, color: 'text-zinc-100', bg: 'bg-zinc-100/10', border: 'border-zinc-100/20', status: 'Ready' },
-    { name: 'Instagram', icon: Instagram, color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-500/20', status: 'Pending' },
+    { name: 'Instagram', icon: Camera, color: 'text-rose-500', bg: 'bg-rose-500/10', border: 'border-rose-500/20', status: 'Pending' },
     { name: 'Web Portal', icon: Globe, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', status: 'Optimizing' },
   ];
 
