@@ -22,6 +22,8 @@ interface GeneratorContextType {
   setGeneratedDescription: (d: string | null) => void;
   generatedWorld: string | null;
   setGeneratedWorld: (w: string | null) => void;
+  generatedAltText: string | null;
+  setGeneratedAltText: (a: string | null) => void;
   visualData: Record<number, string[]>;
   setVisualData: React.Dispatch<React.SetStateAction<Record<number, string[]>>>;
   videoData: Record<number, string>;
@@ -75,6 +77,8 @@ interface GeneratorContextType {
   setIsContinuingScript: (c: boolean) => void;
   isGeneratingVisuals: boolean;
   setIsGeneratingVisuals: (l: boolean) => void;
+  isGeneratingAltText: boolean;
+  setIsGeneratingAltText: (l: boolean) => void;
   currentScriptId: string | null;
   setCurrentScriptId: (id: string | null) => void;
   history: any[];
@@ -100,6 +104,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedSeriesPlan, setGeneratedSeriesPlan] = useState<any[] | null>(null);
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
   const [generatedWorld, setGeneratedWorld] = useState<string | null>(null);
+  const [generatedAltText, setGeneratedAltText] = useState<string | null>(null);
   const [visualData, setVisualData] = useState<Record<number, string[]>>({});
   const [videoData, setVideoData] = useState<Record<number, string>>({});
 
@@ -138,6 +143,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isContinuingScript, setIsContinuingScript] = useState(false);
   const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
+  const [isGeneratingAltText, setIsGeneratingAltText] = useState(false);
   const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [isLiked, setIsLiked] = useState(false);
@@ -214,12 +220,14 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       isSaving, setIsSaving,
       isContinuingScript, setIsContinuingScript,
       isGeneratingVisuals, setIsGeneratingVisuals,
+      isGeneratingAltText, setIsGeneratingAltText,
       currentScriptId, setCurrentScriptId,
       history,
       productionSequence, setProductionSequence,
       visualData, setVisualData,
       videoData, setVideoData,
       generatedWorld, setGeneratedWorld,
+      generatedAltText, setGeneratedAltText,
       isLiked, setIsLiked,
       notification, showNotification
     }}>
