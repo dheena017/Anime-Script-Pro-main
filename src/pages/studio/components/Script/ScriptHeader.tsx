@@ -62,11 +62,11 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
             {onPrev && (
               <Button
                 variant="outline"
-                className="relative h-11 px-4 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/prev"
+                className="relative w-full sm:w-auto h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/back"
                 onClick={onPrev}
                 disabled={isGenerating}
               >
-                <ChevronLeft className="w-4 h-4 group-hover/prev:-translate-x-1 transition-transform mr-2" />
+                <ChevronLeft className="w-4 h-4 group-hover/back:-translate-x-1 transition-transform mr-2" />
                 PREVIOUS: SERIES
               </Button>
             )}
