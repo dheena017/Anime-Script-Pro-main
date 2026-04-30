@@ -1,7 +1,6 @@
 import React from 'react';
 import { RefreshCw, Image as ImageIcon, ChevronRight, ChevronLeft, Layers, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface StoryboardHeaderProps {
   isLiked?: boolean;
@@ -85,16 +84,13 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
             </Button>
 
             <Button 
-              className={cn(
-                "relative w-full sm:w-auto h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
-                "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
-              )}
+              className="relative w-full sm:w-auto h-11 px-8 rounded-2xl bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] transition-all duration-300 backdrop-blur-md overflow-hidden group/next"
               onClick={onNext}
             >
               <span className="relative z-10 flex items-center gap-2">
                 NEXT: SEO <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-studio/10 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
             </Button>
           </div>
         </div>
