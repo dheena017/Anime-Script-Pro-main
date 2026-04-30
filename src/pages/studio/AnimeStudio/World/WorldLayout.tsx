@@ -1,72 +1,77 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Globe } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
-import { WorldHeader } from '../../components/World/WorldHeader';
-import { WorldToolbar } from '../../components/World/WorldToolbar';
+import { WorldHeader } from '@/pages/studio/components/World/WorldHeader';
+import { WorldToolbar } from '@/pages/studio/components/World/WorldToolbar';
 import { generateWorld } from '@/services/geminiService';
+import { WorldTab } from '@/pages/studio/components/World/Tabs/WorldTabs';
 
 export default function WorldLayout() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const {
     isGeneratingWorld, setIsGeneratingWorld,
     prompt, selectedModel, contentType,
-    setGeneratedWorld, generatedWorld,
-    session, episode, showNotification
+    setGeneratedWorld,
+    session, episode, showNotification,
+    generatedWorld
   } = useGenerator();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest reality.', 'error');
+      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest world lore.', 'error');
       return;
     }
     setIsGeneratingWorld(true);
     try {
-      const world = await generateWorld(prompt, selectedModel, contentType);
-      setGeneratedWorld(world);
-      showNotification?.('Neural Synthesis Complete: World Bible Archived', 'success');
+      const result = await generateWorld(prompt, selectedModel, contentType);
+      setGeneratedWorld(result);
+      showNotification?.('Neural Synthesis Complete: World Manifested', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Lore Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
     } finally {
       setIsGeneratingWorld(false);
     }
   };
 
+  const activeTab = (searchParams.get('tab') as WorldTab) || 'architecture';
+
+  const handleTabChange = (tab: WorldTab) => {
+    setSearchParams({ tab });
+  };
+
   return (
     <div className="space-y-6">
       <WorldHeader
-        onRegenerate={handleGenerate}
         isGenerating={isGeneratingWorld}
-        onNext={() => navigate('/anime/cast')}
+        onRegenerate={handleGenerate}
+        prompt={prompt}
         session={session}
         episode={episode}
+        onPrev={() => navigate('/anime/mission')}
+        onNext={() => navigate('/anime/cast')}
       />
 
-      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="flex items-center gap-12 z-10 w-full">
-          <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-            <Globe className="w-4 h-4 text-studio animate-pulse" />
-            <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">World_Nexus</span>
-          </div>
-
-          <WorldToolbar
-            session={session}
-            episode={episode}
-            status={generatedWorld ? 'active' : 'empty'}
-            onRefresh={handleGenerate}
-            isGenerating={isGeneratingWorld}
-          />
-        </div>
+      <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <WorldToolbar
+          status={generatedWorld ? 'active' : 'empty'}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          session={session}
+          episode={episode}
+          content={generatedWorld}
+        />
       </div>
 
       <motion.div
+        key={activeTab}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Outlet />
+        <Outlet context={{ activeTab }} />
       </motion.div>
     </div>
   );

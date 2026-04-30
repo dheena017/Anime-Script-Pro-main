@@ -7,15 +7,17 @@ interface WorldHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
+  onPrev?: () => void;
   session: string;
   episode: string;
+  prompt?: string;
 }
 
 export const WorldHeader: React.FC<WorldHeaderProps> = ({
   onRegenerate,
   onNext,
-  isGenerating,
-}) => {
+  onPrev,
+  isGenerating}) => {
   return (
     <div className="relative group">
       {/* Cinematic Ambient Glow */}
@@ -56,6 +58,16 @@ export const WorldHeader: React.FC<WorldHeaderProps> = ({
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
 
           <div className="flex items-center gap-3">
+            {onPrev && (
+              <Button 
+                variant="outline" 
+                className="h-11 px-6 bg-black/60 border-zinc-800 text-zinc-500 hover:text-white hover:border-white/20 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md"
+                onClick={onPrev}
+              >
+                Previous: Mission
+              </Button>
+            )}
+
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"

@@ -1,196 +1,99 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
-import { generateWorld } from '@/services/geminiService';
 import { cn } from '@/lib/utils';
-import { Sparkles, Globe } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
+import { WorldTab } from '../components/World/Tabs/WorldTabs';
 
-// Sub-components
+// Modularized Tab Components
+import { ArchitectureTab } from '../components/World/Tabs/ArchitectureTab';
+import { AtlasTab } from '../components/World/Tabs/AtlasTab';
+import { HistoryTab } from '../components/World/Tabs/HistoryTab';
+import { SystemsTab } from '../components/World/Tabs/SystemsTab';
+import { CultureTab } from '../components/World/Tabs/CultureTab';
 import { WorldEmptyState } from '../components/World/WorldEmptyState';
-import { WorldOutputViewer } from '../components/World/WorldOutputViewer';
-import { WorldToolbar } from '../components/World/WorldToolbar';
-import { ViewerToolbar } from '../components/Layout/ViewerToolbar';
 
 export function WorldPage() {
-  const [synthStep, setSynthStep] = React.useState(0);
+  const { activeTab } = useOutletContext<{ activeTab: WorldTab }>();
   const {
     generatedWorld,
     setGeneratedWorld,
     isGeneratingWorld,
-    setIsGeneratingWorld,
     isEditing,
-    setIsEditing,
     prompt,
-    selectedModel,
-    contentType,
-    showNotification,
-    session,
-    episode
   } = useGenerator();
 
-  const synthSteps = [
-    "Analyzing Narrative DNA...",
-    "Drafting Tectonic Layouts...",
-    "Calculating Environmental Aesthetics...",
-    "Defining Metaphysical Systems...",
-    "Chronicalizing Lore Eras...",
-    "Archiving World Bible..."
-  ];
-
-  React.useEffect(() => {
-    let interval: any;
+  const renderTabContent = () => {
     if (isGeneratingWorld) {
-      setSynthStep(0);
-      interval = setInterval(() => {
-        setSynthStep(prev => (prev < synthSteps.length - 1 ? prev + 1 : prev));
-      }, 3000);
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Sequencing World DNA...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Architecting neural foundations</p>
+          </div>
+        </div>
+      );
     }
-    return () => clearInterval(interval);
-  }, [isGeneratingWorld]);
 
-  // Auto-trigger generation if we arrive with a prompt but no world
-  React.useEffect(() => {
-    if (prompt && !generatedWorld && !isGeneratingWorld) {
-      handleGenerate();
+    if (!generatedWorld) {
+      return (
+        <WorldEmptyState 
+          onLaunch={() => {}} // Handled by Layout Header
+          isGenerating={isGeneratingWorld}
+        />
+      );
     }
-  }, []);
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest reality.', 'error');
-      return;
-    }
-    setIsGeneratingWorld(true);
-    try {
-      const world = await generateWorld(prompt, selectedModel, contentType);
-      setGeneratedWorld(world);
-      showNotification?.('Neural Synthesis Complete: World Bible Archived', 'success');
-    } catch (e: any) {
-      console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
-    } finally {
-      setIsGeneratingWorld(false);
+    switch (activeTab) {
+      case 'architecture':
+        return (
+          <ArchitectureTab 
+            isEditing={isEditing}
+            content={generatedWorld}
+            prompt={prompt}
+            onContentChange={setGeneratedWorld}
+          />
+        );
+      case 'atlas':
+        return <AtlasTab />;
+      case 'history':
+        return <HistoryTab />;
+      case 'systems':
+        return <SystemsTab />;
+      case 'culture':
+        return <CultureTab />;
+      default:
+        return (
+          <ArchitectureTab 
+            isEditing={isEditing}
+            content={generatedWorld}
+            prompt={prompt}
+            onContentChange={setGeneratedWorld}
+          />
+        );
     }
   };
 
-
   return (
     <div data-testid="marker-world-architecture">
-
-
-      <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
-        <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
-        <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-
+      <Card className={cn(
+        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        activeTab === 'architecture' 
+          ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50" 
+          : "border-zinc-800/30 hover:border-zinc-700"
+      )}>
+        <div className={cn(
+          "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
+          activeTab === 'architecture' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
+        )} />
+        
         <div className="w-full p-0">
           <div className="p-12 max-w-[1400px] mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <AnimatePresence mode="wait">
-                {isGeneratingWorld ? (
-                  <motion.div
-                    key="generating"
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 1.02 }}
-                    className="flex flex-col items-center justify-center min-h-[600px] text-center"
-                  >
-                    <div className="relative mb-12">
-                      <div className="absolute inset-0 bg-studio/20 blur-3xl rounded-full animate-pulse" />
-                      <div className="relative w-24 h-24 border-2 border-studio/10 border-t-studio rounded-full animate-spin" />
-                      <Globe className="w-10 h-10 text-studio absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                    </div>
-
-                    <div className="space-y-4 max-w-sm">
-                      <h3 className="text-xl font-black text-white uppercase tracking-[0.4em]">NEURAL MANIFESTATION</h3>
-                      <p className="text-[10px] font-bold text-studio/60 uppercase tracking-[0.3em] animate-pulse">
-                        {synthSteps[synthStep]}
-                      </p>
-
-                      <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mt-10">
-                        <motion.div
-                          className="h-full bg-gradient-to-r from-studio via-fuchsia-500 to-studio shadow-studio"
-                          initial={{ width: "0%" }}
-                          animate={{ width: `${((synthStep + 1) / synthSteps.length) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </motion.div>
-                ) : generatedWorld ? (
-                  <motion.div
-                    key="content"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-16"
-                  >
-                    <ViewerToolbar
-                      content={generatedWorld}
-                      nexusLabel="World_Nexus"
-                      session={session}
-                      episode={episode}
-                      icon={Globe}
-                    >
-                      <WorldToolbar
-                        session={session}
-                        episode={episode}
-                        status={generatedWorld ? 'active' : 'empty'}
-                      />
-                    </ViewerToolbar>
-
-                    <div className="flex items-center justify-between border-b border-white/5 pb-10">
-                      <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
-                          <Sparkles className="w-3 h-3 text-studio" />
-                          <span className="text-[9px] font-black text-studio uppercase tracking-[0.2em]">WORLD BIBLE ARCHIVE SYNCED</span>
-                        </div>
-                        <h1 className="text-6xl font-black text-white uppercase tracking-tighter leading-none">
-                          PRODUCTION <br />
-                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">SPECIFICATION</span>
-                        </h1>
-                      </div>
-                      <div className="flex items-center gap-3 w-full sm:w-auto">
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "h-14 px-8 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300 backdrop-blur-xl",
-                            isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
-                          )}
-                          onClick={() => setIsEditing(!isEditing)}
-                        >
-                          {isEditing ? "Save Specification" : "Custom Manual Edit"}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="max-h-[75vh] overflow-y-auto pr-4 custom-scrollbar pb-8">
-                      {/* Main Content */}
-                      <div className="w-full">
-                        <WorldOutputViewer 
-                          isEditing={isEditing} 
-                          content={generatedWorld || ''} 
-                          prompt={prompt}
-                          onContentChange={setGeneratedWorld} 
-                        />
-                      </div>
-
-
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="empty"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                  >
-                    <WorldEmptyState
-                      onLaunch={handleGenerate}
-                      isGenerating={isGeneratingWorld}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {renderTabContent()}
             </div>
           </div>
         </div>
@@ -198,4 +101,5 @@ export function WorldPage() {
     </div>
   );
 }
+
 

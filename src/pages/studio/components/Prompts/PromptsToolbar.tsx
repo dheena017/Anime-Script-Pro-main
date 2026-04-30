@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Wand2, Copy, Share2, Terminal } from 'lucide-react';
+import { Activity, Wand2, Share2, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PromptsToolbarProps {
@@ -29,7 +29,6 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
         <button className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
           <Wand2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
           <span className="text-[10px] font-black uppercase tracking-widest">Optimizers</span>
-        </button>
         </button>
         <div className="w-px h-4 bg-zinc-800 mx-2" />
         <button className="flex items-center gap-2 text-zinc-600 hover:text-studio transition-colors group">
