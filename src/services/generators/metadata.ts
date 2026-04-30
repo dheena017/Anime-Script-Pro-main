@@ -43,3 +43,20 @@ export async function generateYouTubeDescription(script: string, model: string =
     return "Error: " + (error instanceof Error ? error.message : String(error));
   }
 }
+
+export async function generateAltTexts(script: string, model: string = "gemini-1.5-flash-latest") {
+  const systemInstruction = `
+    You are an accessibility-focused content specialist.
+    Based on the provided anime script, generate 10 concise, descriptive alt text captions for key storyboard frames and promotional visuals.
+    Each alt text should be no more than one sentence and should clearly describe the scene and mood.
+    Format the output as a Markdown list.
+  `;
+
+  try {
+    const text = await callAI(model, `Generate alt text captions for this script: ${script}`, systemInstruction);
+    return text || "Failed to generate alt text.";
+  } catch (error) {
+    console.error("Error generating alt text:", error);
+    return "Error: " + (error instanceof Error ? error.message : String(error));
+  }
+}
