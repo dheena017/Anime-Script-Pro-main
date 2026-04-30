@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion/react';
+import { UI_PROMPT_SUGGESTIONS } from '@/services/prompts';
 
 interface OmniPromptProps {
   value?: string;
@@ -11,13 +12,6 @@ interface OmniPromptProps {
   className?: string;
   placeholder?: string;
 }
-
-const SUGGESTIONS = [
-  { label: 'Generate Tournament Arc', color: 'text-orange-400', border: 'border-orange-400/20' },
-  { label: 'Cyberpunk Cityscape', color: 'text-cyan-400', border: 'border-cyan-400/20' },
-  { label: 'Emotional Drama', color: 'text-fuchsia-400', border: 'border-fuchsia-400/20' },
-  { label: 'Sci-Fi Conspiracy', color: 'text-emerald-400', border: 'border-emerald-400/20' }
-];
 
 export const OmniPrompt: React.FC<OmniPromptProps> = ({ 
   value: controlledValue,
@@ -97,7 +91,7 @@ export const OmniPrompt: React.FC<OmniPromptProps> = ({
 
       {/* SUGGESTION CHIPS */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        {SUGGESTIONS.map((chip, i) => (
+        {UI_PROMPT_SUGGESTIONS.map((chip, i) => (
           <motion.button
             key={i}
             initial={{ opacity: 0, y: 10 }}
@@ -121,3 +115,4 @@ export const OmniPrompt: React.FC<OmniPromptProps> = ({
     </div>
   );
 };
+

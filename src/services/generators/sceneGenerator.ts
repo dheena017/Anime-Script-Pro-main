@@ -1,13 +1,9 @@
 import { callAI } from "./core";
+import { SCENE_GENERATION_PROMPT } from "../prompts";
 
 export async function generateScene(prompt: string, beatDescription: string, model: string = "gemini-1.5-flash-latest"): Promise<{ narration: string; visuals: string; sound: string }> {
-  const systemInstruction = `
-    You are an expert ${prompt.includes('Anime') ? 'Anime' : 'Screenplay'} Writer.
-    Based on the context, generate a detailed scene with narration, visuals, and sound.
-    
-    Return ONLY a valid JSON object with:
-    { "narration": "...", "visuals": "...", "sound": "..." }
-  `;
+  const type = prompt.includes('Anime') ? 'Anime' : 'Screenplay';
+  const systemInstruction = SCENE_GENERATION_PROMPT(type);
 
   try {
     const result = await callAI(model, `Overall Context: ${prompt}\nBeat: ${beatDescription}`, systemInstruction);
@@ -28,3 +24,4 @@ export async function generateScene(prompt: string, beatDescription: string, mod
     };
   }
 }
+

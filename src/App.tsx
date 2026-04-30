@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 import { ErrorBoundary } from './lib/error-utils';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -52,6 +52,16 @@ const SEOLayout = lazy(() => import('./pages/studio/AnimeStudio/SEO/SEOLayout'))
 const PromptsLayout = lazy(() => import('./pages/studio/AnimeStudio/Prompts/PromptsLayout'));
 const ScreeningLayout = lazy(() => import('./pages/studio/AnimeStudio/Screening/ScreeningLayout'));
 const EngineLayout = lazy(() => import('./pages/studio/AnimeStudio/Engine/EngineLayout'));
+const ProtocolsLayout = lazy(() => import('./pages/studio/AnimeStudio/Protocols/ProtocolsLayout'));
+
+const ScriptArchitect = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/ScriptArchitect'));
+const LoreOracle = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/LoreOracle'));
+const SoulForge = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/SoulForge'));
+const VisualSynthesizer = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/VisualSynthesizer'));
+const MotionChoreographer = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/MotionChoreographer'));
+const Showrunner = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/Showrunner'));
+const SEOMaster = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/SEOMaster'));
+const ProductionAide = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/ProductionAide'));
 
 
 
@@ -120,6 +130,18 @@ export default function App() {
 
                       <Route path="engine" element={<EngineLayout />}>
                         <Route index element={<AnimeEngine />} />
+                      </Route>
+
+                      <Route path="protocols" element={<ProtocolsLayout />}>
+                        <Route index element={<Navigate to="script" replace />} />
+                        <Route path="script" element={<ScriptArchitect />} />
+                        <Route path="world" element={<LoreOracle />} />
+                        <Route path="cast" element={<SoulForge />} />
+                        <Route path="visual" element={<VisualSynthesizer />} />
+                        <Route path="motion" element={<MotionChoreographer />} />
+                        <Route path="series" element={<Showrunner />} />
+                        <Route path="seo" element={<SEOMaster />} />
+                        <Route path="utils" element={<ProductionAide />} />
                       </Route>
 
                       <Route path="template" element={<AnimeTemplate />} />

@@ -18,19 +18,21 @@ import {
   Settings,
   SlidersHorizontal,
   Search,
+  ShieldCheck,
 } from 'lucide-react';
 
 const STUDIO_NAV = [
+  { id: 'engine', icon: Settings, label: 'Engine', path: '/engine' },
   { id: 'world', icon: Globe, label: 'Anime World', path: '/world' },
-
   { id: 'cast', icon: UserPlus, label: 'Cast', path: '/cast' },
   { id: 'series', icon: Layers, label: 'Scenes', path: '/series' },
   { id: 'script', icon: ScrollText, label: 'Script', path: '/script' },
   { id: 'storyboard', icon: LayoutGrid, label: 'Storyboard', path: '/storyboard' },
   { id: 'seo', icon: Search, label: 'SEO', path: '/seo' },
   { id: 'prompts', icon: ImageIcon, label: 'Prompts', path: '/prompts' },
+  { id: 'protocols', icon: ShieldCheck, label: 'Protocols', path: '/protocols' },
   { id: 'screening', icon: Play, label: 'Screening', path: '/screening' },
-  { id: 'engine', icon: Settings, label: 'Engine', path: '/engine' },
+
 ];
 
 interface AnimeStudioNavigationProps {

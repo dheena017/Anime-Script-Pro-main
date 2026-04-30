@@ -171,6 +171,11 @@ export async function callAI(
     console.info(`[AI Core] Starting generation request for model: ${model}`);
     console.info(`[AI Core] Prompt length: ${prompt?.length || 0}, instruction length: ${systemInstruction?.length || 0}`);
 
+    console.groupCollapsed(`[AI Core] Request to ${model}`);
+    console.log("System Instruction:", systemInstruction);
+    console.log("User Prompt:", prompt);
+    console.groupEnd();
+
     // 1. Pre-flight checks
     if (!prompt?.trim()) {
       throw new ValidationError("Prompt is required for AI generation.");
@@ -288,6 +293,10 @@ export async function callAI(
         const data = await response.json();
         const text = data.text;
         if (!text) throw new Error("AI returned an empty response.");
+
+        console.groupCollapsed(`[AI Core] Response from ${currentModel}`);
+        console.log(text);
+        console.groupEnd();
 
         const totalLatency = performance.now() - startTime;
         console.info(`[AI Core] Success! Model: ${currentModel} | Latency: ${totalLatency.toFixed(2)}ms`);
