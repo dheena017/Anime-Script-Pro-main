@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Table, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -13,15 +13,12 @@ import { ManifestScaffolder } from '@/components/studio/ManifestArchitect';
 import { cn } from '@/lib/utils';
 
 // Sub-components
-import { SeriesHeader } from '../components/Series/SeriesHeader';
-import { SeriesToolbar } from '../components/Series/SeriesToolbar';
 import { SeriesEmptyState } from '../components/Series/SeriesEmptyState';
 import { SeriesView } from '../components/Series/SeriesView';
 
 export function SeriesPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showScaffolder, setShowScaffolder] = React.useState(false);
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [lastSyncDate, setLastSyncDate] = React.useState<string | null>(null);
   
@@ -37,8 +34,6 @@ export function SeriesPage() {
     contentType,
     productionSequence,
     setProductionSequence,
-    session,
-    episode,
     setSession,
     setEpisode,
     generatedWorld,
@@ -133,33 +128,15 @@ export function SeriesPage() {
     }
   };
 
-  const [isLiked, setIsLiked] = React.useState(false);
+
+  const { showScaffolder } = useOutletContext<any>();
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 relative" data-testid="marker-series-planning">
-      {/* Cinematic Background Elements */}
+    <div data-testid="marker-series-planning">
       <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.05)_0%,transparent_50%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[length:100px_100px]" />
       </div>
-
-      <SeriesHeader 
-        onRegenerate={handleGenerate}
-        isGenerating={isGeneratingSeries}
-        onNext={() => navigate('/studio/script')}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
-
-      <SeriesToolbar 
-        session={session}
-        episode={episode}
-        status={generatedSeriesPlan ? 'active' : 'empty'}
-        onToggleScaffolder={() => setShowScaffolder(!showScaffolder)}
-        showScaffolder={showScaffolder}
-      />
 
       <AnimatePresence>
         {showScaffolder && (
@@ -233,7 +210,7 @@ export function SeriesPage() {
                   <p className="font-sans font-medium uppercase tracking-[0.2em] text-[10px] text-shadow-studio">Architecting narrative arcs...</p>
                 </div>
               ) : generatedSeriesPlan ? (
-                <div className="space-y-16">
+                <div className="space-y-16" id="master-manifest">
                   <div className="border-b border-zinc-800/80 pb-12 text-center space-y-6">
                     <div className="inline-block px-4 py-1.5 bg-studio/10 border border-studio/30 rounded-full text-[10px] uppercase tracking-[0.4em] text-studio font-black shadow-studio backdrop-blur-md">
                       Production Roadmap // Classic Node v4.2
@@ -245,16 +222,18 @@ export function SeriesPage() {
                       <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
                         {totalEpisodesInManifest} Episodes mapped across the active manifest structure.
                       </p>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "h-12 px-10 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
-                          isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
-                        )}
-                        onClick={() => setIsEditing(!isEditing)}
-                      >
-                        {isEditing ? "Save Roadmap Plan" : "Custom Manual Edit"}
-                      </Button>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "h-12 px-10 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+                            isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
+                          )}
+                          onClick={() => setIsEditing(!isEditing)}
+                        >
+                          {isEditing ? "Save Roadmap Plan" : "Custom Manual Edit"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
@@ -285,6 +264,6 @@ export function SeriesPage() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }

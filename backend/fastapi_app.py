@@ -40,7 +40,7 @@ def configure_logging() -> None:
         sys.stderr,
         level="INFO",
         colorize=True,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>",
         backtrace=False,
         diagnose=False,
     )
@@ -282,18 +282,14 @@ async def websocket_template_notifications(websocket: WebSocket):
 @app.on_event("startup")
 async def on_startup():
     banner = """
-    ================================================================================
-    █████╗ ███╗   ██╗██╗███╗   ███╗███████╗    ███████╗ ██████╗██████╗ ██╗██████╗ ████████╗
-    ██╔══██╗████╗  ██║██║████╗ ████║██╔════╝    ██╔════╝██╔════╝██╔══██╗██║██╔══██╗╚══██╔══╝
-    ███████║██╔██╗ ██║██║██╔████╔██║█████╗      ███████╗██║     ██████╔╝██║██████╔╝   ██║   
-    ██╔══██║██║╚██╗██║██║██║╚██╔╝██║██╔══╝      ╚════██║██║     ██╔══██╗██║██╔═══╝    ██║   
-    ██║  ██║██║ ╚████║██║██║ ╚═╝ ██║███████╗    ███████║╚██████╗██║  ██║██║██║        ██║   
-    ╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝╚══════╝    ╚══════╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝        ╚═╝   
-    ================================================================================
-    PRO PRODUCTION SUITE | NEURAL ENGINE v1.0.0 | STATUS: INITIALIZING...
+    +------------------------------------------------------------------------------+
+    |                                                                              |
+    |   ANIME SCRIPT PRO | NEURAL ENGINE v1.0.0                                    |
+    |   STATUS: INITIALIZING CORE PRODUCTION SUITE...                              |
+    |                                                                              |
+    +------------------------------------------------------------------------------+
     """
-    for line in banner.strip().split("\n"):
-        logger.info(line)
+    logger.info(f"\n{banner.strip()}")
 
     logger.info("Starting Anime Script Pro backend...")
     logger.info("Loading environment variables and preparing database...")

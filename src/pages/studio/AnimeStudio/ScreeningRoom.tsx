@@ -6,8 +6,9 @@ import { apiRequest } from '@/lib/api-utils';
 import { generateImagePrompts } from '@/services/geminiService';
 
 // Sub-components
-import { ScreeningHeader } from '../components/Screening/ScreeningHeader';
-import { ScreeningToolbar } from '../components/Screening/ScreeningToolbar';
+import { useOutletContext } from 'react-router-dom';
+
+// Sub-components
 import { ScreeningViewport } from '../components/Screening/ScreeningViewport';
 import { ScreeningTimeline } from '../components/Screening/ScreeningTimeline';
 import { ScreeningMetadata } from '../components/Screening/ScreeningMetadata';
@@ -15,13 +16,10 @@ import { ScreeningEmptyState } from '../components/Screening/ScreeningEmptyState
 import { RenderPhase, Scene } from '../components/Screening/types';
 
 export function ScreeningRoom() {
-  const { currentScriptId, generatedScript, session, episode, showNotification, selectedModel } = useGenerator();
-  const [isLiked, setIsLiked] = React.useState(false);
+  const { currentScriptId, generatedScript, showNotification, selectedModel} = useGenerator();
   const [scenes, setScenes] = React.useState<Scene[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isRendering, setIsRendering] = React.useState(false);
-  const [activeSession, setActiveSession] = React.useState(1);
-  const [videoUrl, setVideoUrl] = React.useState<string | null>(null);
+  const { activeSession, setIsRendering, setVideoUrl, videoUrl, isRendering } = useOutletContext<any>();
   const [videoPrompts, setVideoPrompts] = React.useState<string | null>(null);
   const [renderPhases, setRenderPhases] = React.useState<RenderPhase[]>([
     { id: 'lore', label: 'Lore Vault Integration', status: 'pending' },
@@ -123,29 +121,11 @@ export function ScreeningRoom() {
 
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-screening-room">
-      <ScreeningHeader 
-        activeSession={activeSession}
-        setActiveSession={setActiveSession}
-        isRendering={isRendering}
-        onRender={handleFullRender}
-        hasScript={!!generatedScript}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
-
-      <ScreeningToolbar 
-        session={activeSession.toString()}
-        episode="1" // Default or based on activeSession
-        status={videoUrl || scenes.length > 0 ? 'active' : 'empty'}
-      />
-
+    <div data-testid="marker-screening-room">
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
         <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-        
+
         <div className="w-full p-0">
           <div className="p-12 max-w-[1400px] mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -157,10 +137,9 @@ export function ScreeningRoom() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                   >
-                    <ScreeningEmptyState 
+                    <ScreeningEmptyState
                       onLaunch={handleFullRender}
-                      isGenerating={isRendering}
-                    />
+                      isGenerating={isRendering} />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -172,7 +151,7 @@ export function ScreeningRoom() {
                   >
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                       <div className="lg:col-span-3">
-                        <ScreeningViewport 
+                        <ScreeningViewport
                           videoUrl={videoUrl}
                           isRendering={isRendering}
                           renderPhases={renderPhases}
@@ -180,23 +159,20 @@ export function ScreeningRoom() {
                           activeSession={activeSession}
                           sceneCount={scenes.length}
                           videoPrompts={videoPrompts}
-                          generatedScript={generatedScript}
-                        />
+                          generatedScript={generatedScript} />
                       </div>
 
                       <div className="lg:col-span-1">
-                        <ScreeningTimeline 
+                        <ScreeningTimeline
                           scenes={scenes}
-                          isLoading={isLoading}
-                        />
+                          isLoading={isLoading} />
                       </div>
                     </div>
 
                     <div className="mt-8">
-                      <ScreeningMetadata 
+                      <ScreeningMetadata
                         isRendering={isRendering}
-                        videoUrl={videoUrl}
-                      />
+                        videoUrl={videoUrl} />
                     </div>
                   </motion.div>
                 )}
@@ -205,7 +181,7 @@ export function ScreeningRoom() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 

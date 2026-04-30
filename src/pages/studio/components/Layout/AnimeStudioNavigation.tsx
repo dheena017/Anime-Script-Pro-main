@@ -14,10 +14,10 @@ import {
   ChevronDown,
   Loader2,
   LayoutGrid,
-  Search,
   ImageIcon,
   Settings,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Search,
 } from 'lucide-react';
 
 const STUDIO_NAV = [
@@ -48,151 +48,152 @@ export function AnimeStudioNavigation({
   rightSidebarOpen: _rightSidebarOpen,
   onToggleRightSidebar: _onToggleRightSidebar
 }: AnimeStudioNavigationProps) {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-    const location = useLocation();
-    const activeItem = STUDIO_NAV.find(item => location.pathname.endsWith(item.path)) || STUDIO_NAV[0];
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const location = useLocation();
+  const activeItem = STUDIO_NAV.find(item => location.pathname.endsWith(item.path)) || STUDIO_NAV[0];
 
-    return (
-      <div className="w-full px-4 pt-4 pb-2 relative z-[100]">
-        <div className="max-w-7xl mx-auto">
-          <div className="relative flex items-center justify-between h-16 px-3 bg-black/60 backdrop-blur-3xl border border-white/5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-            {/* Top light trace */}
-            <div className="absolute top-0 left-1/4 w-1/2 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
 
-            {/* DESKTOP NAVIGATION (Hidden on Mobile) */}
-            <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
-              {STUDIO_NAV.map((item) => {
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={`${basePath}${item.path}`}
-                    end={item.path === ''}
-                    className={({ isActive }) => cn(
-                      "relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
-                      isActive ? "text-cyan-400" : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
-                    )}
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <item.icon className={cn("w-3.5 h-3.5", isActive ? "text-cyan-400" : "text-zinc-600")} />
-                        <span className="relative z-10">{item.label}</span>
-                        {isActive && (
-                          <motion.div
-                            layoutId="active-pill"
-                            className="absolute inset-0 bg-cyan-500/10 border border-cyan-500/20 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </div>
+  return (
+    <div className="w-full px-4 pt-4 pb-2 relative z-[100]">
+      <div className="max-w-7xl mx-auto">
+        <div className="relative flex items-center justify-between h-16 px-3 bg-black/60 backdrop-blur-3xl border border-white/5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+          {/* Top light trace */}
+          <div className="absolute top-0 left-1/4 w-1/2 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
 
-            {/* MOBILE NAVIGATION TRIGGER (Hidden on Desktop) */}
-            <div className="lg:hidden flex items-center">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-xl"
-              >
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
-                  <activeItem.icon className="w-4 h-4 text-cyan-400" />
+          {/* DESKTOP NAVIGATION (Hidden on Mobile) */}
+          <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
+            {STUDIO_NAV.map((item) => {
+              return (
+                <NavLink
+                  key={item.path}
+                  to={`${basePath}${item.path}`}
+                  end={item.path === ''}
+                  className={({ isActive }) => cn(
+                    "relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300",
+                    isActive ? "text-cyan-400" : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5"
+                  )}
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.icon className={cn("w-3.5 h-3.5", isActive ? "text-cyan-400" : "text-zinc-600")} />
+                      <span className="relative z-10">{item.label}</span>
+                      {isActive && (
+                        <motion.div
+                          layoutId="active-pill"
+                          className="absolute inset-0 bg-cyan-500/10 border border-cyan-500/20 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+
+          {/* MOBILE NAVIGATION TRIGGER (Hidden on Desktop) */}
+          <div className="lg:hidden flex items-center">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-xl"
+            >
+              <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                <activeItem.icon className="w-4 h-4 text-cyan-400" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-1">Active Phase</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">{activeItem.label}</span>
+              </div>
+              <ChevronDown className={cn("w-4 h-4 text-zinc-500 transition-transform duration-300", isMobileMenuOpen && "rotate-180")} />
+            </button>
+          </div>
+
+          {/* ACTION BUTTONS (Always Visible) */}
+          <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4 border-l border-white/10 ml-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={_onToggleRightSidebar}
+              className={cn(
+                "h-10 w-10 rounded-xl transition-all duration-300",
+                _rightSidebarOpen
+                  ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                  : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent"
+              )}
+              title="Toggle Creative Engine"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className="relative h-10 px-4 lg:px-8 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-[0.2em] text-[10px] overflow-hidden group transition-all duration-300 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 fill-current" />
+                  <span className="inline">Generate All</span>
                 </div>
-                <div className="flex flex-col items-start">
-                  <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-1">Active Phase</span>
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">{activeItem.label}</span>
-                </div>
-                <ChevronDown className={cn("w-4 h-4 text-zinc-500 transition-transform duration-300", isMobileMenuOpen && "rotate-180")} />
-              </button>
-            </div>
-
-            {/* ACTION BUTTONS (Always Visible) */}
-            <div className="flex items-center gap-2 lg:gap-3 pl-2 lg:pl-4 border-l border-white/10 ml-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={_onToggleRightSidebar}
-                className={cn(
-                  "h-10 w-10 rounded-xl transition-all duration-300",
-                  _rightSidebarOpen 
-                    ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]" 
-                    : "text-zinc-500 hover:text-zinc-300 hover:bg-white/5 border border-transparent"
-                )}
-                title="Toggle Creative Engine"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleGenerate}
-                disabled={isLoading}
-                className="relative h-10 px-4 lg:px-8 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-black uppercase tracking-[0.2em] text-[10px] overflow-hidden group transition-all duration-300 active:scale-95 shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 fill-current" />
-                    <span className="inline">Generate All</span>
-                  </div>
-                )}
-              </Button>
-            </div>
+              )}
+            </Button>
           </div>
         </div>
-
-        {/* MOBILE MENU OVERLAY */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90]"
-              />
-              <motion.div
-                initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                className="absolute top-24 left-4 right-4 bg-[#0a0a0a] border border-white/10 rounded-[2rem] p-6 shadow-2xl z-[100] max-h-[70vh] overflow-y-auto overflow-x-hidden"
-              >
-                <div className="grid grid-cols-2 gap-3">
-                  {STUDIO_NAV.map((item) => {
-                    const isActive = location.pathname.endsWith(item.path);
-                    return (
-                      <NavLink
-                        key={item.path}
-                        to={`${basePath}${item.path}`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={cn(
-                          "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300",
-                          isActive
-                            ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-                            : "bg-white/5 border-transparent text-zinc-500"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
-                          isActive ? "bg-cyan-500/20 border-cyan-500/40" : "bg-black/40 border-white/5"
-                        )}>
-                          <item.icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
-                      </NavLink>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
       </div>
-    );
-  };
+
+      {/* MOBILE MENU OVERLAY */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="absolute top-24 left-4 right-4 bg-[#0a0a0a] border border-white/10 rounded-[2rem] p-6 shadow-2xl z-[100] max-h-[70vh] overflow-y-auto overflow-x-hidden"
+            >
+              <div className="grid grid-cols-2 gap-3">
+                {STUDIO_NAV.map((item) => {
+                  const isActive = location.pathname.endsWith(item.path);
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={`${basePath}${item.path}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={cn(
+                        "flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300",
+                        isActive
+                          ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+                          : "bg-white/5 border-transparent text-zinc-500"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center border transition-all",
+                        isActive ? "bg-cyan-500/20 border-cyan-500/40" : "bg-black/40 border-white/5"
+                      )}>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 

@@ -80,6 +80,8 @@ interface GeneratorContextType {
   history: any[];
   productionSequence: ProductionUnit[];
   setProductionSequence: (s: ProductionUnit[]) => void;
+  isLiked: boolean;
+  setIsLiked: (l: boolean) => void;
   notification: { message: string; type: 'error' | 'success' | 'info' } | null;
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
 }
@@ -138,6 +140,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isGeneratingVisuals, setIsGeneratingVisuals] = useState(false);
   const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [isLiked, setIsLiked] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
 
   const showNotification = (message: string, type: 'error' | 'success' | 'info' = 'info') => {
@@ -217,6 +220,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       visualData, setVisualData,
       videoData, setVideoData,
       generatedWorld, setGeneratedWorld,
+      isLiked, setIsLiked,
       notification, showNotification
     }}>
       {children}

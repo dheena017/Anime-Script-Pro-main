@@ -1,20 +1,19 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Globe, Sparkles, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateWorld } from '@/services/geminiService';
 import { cn } from '@/lib/utils';
+import { Sparkles, Globe } from 'lucide-react';
 
 // Sub-components
-import { WorldHeader } from '../components/World/WorldHeader';
 import { WorldEmptyState } from '../components/World/WorldEmptyState';
 import { WorldOutputViewer } from '../components/World/WorldOutputViewer';
-import { ViewerToolbar } from '../components/World/ViewerToolbar';
+import { WorldToolbar } from '../components/World/WorldToolbar';
+import { ViewerToolbar } from '../components/Layout/ViewerToolbar';
 
 export function WorldPage() {
-  const [isLiked, setIsLiked] = React.useState(false);
   const [synthStep, setSynthStep] = React.useState(0);
   const {
     generatedWorld,
@@ -26,9 +25,9 @@ export function WorldPage() {
     prompt,
     selectedModel,
     contentType,
+    showNotification,
     session,
-    episode,
-    showNotification
+    episode
   } = useGenerator();
 
   const synthSteps = [
@@ -78,16 +77,8 @@ export function WorldPage() {
 
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-world-architecture">
-      <WorldHeader
-        onRegenerate={handleGenerate}
-        isGenerating={isGeneratingWorld}
-        onNext={() => { }}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
+    <div data-testid="marker-world-architecture">
+
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
@@ -133,6 +124,20 @@ export function WorldPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-16"
                   >
+                    <ViewerToolbar
+                      content={generatedWorld}
+                      nexusLabel="World_Nexus"
+                      session={session}
+                      episode={episode}
+                      icon={Globe}
+                    >
+                      <WorldToolbar
+                        session={session}
+                        episode={episode}
+                        status={generatedWorld ? 'active' : 'empty'}
+                      />
+                    </ViewerToolbar>
+
                     <div className="flex items-center justify-between border-b border-white/5 pb-10">
                       <div className="space-y-3">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-studio/10 border border-studio/20 rounded-full">
@@ -145,9 +150,6 @@ export function WorldPage() {
                         </h1>
                       </div>
                       <div className="flex items-center gap-3 w-full sm:w-auto">
-                        {generatedWorld && (
-                          <ViewerToolbar content={generatedWorld} />
-                        )}
                         <Button
                           variant="outline"
                           className={cn(
@@ -157,17 +159,6 @@ export function WorldPage() {
                           onClick={() => setIsEditing(!isEditing)}
                         >
                           {isEditing ? "Save Specification" : "Custom Manual Edit"}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={cn(
-                            "h-14 w-14 rounded-2xl border border-white/5 transition-all duration-300 backdrop-blur-xl",
-                            isLiked ? "bg-studio/20 text-studio border-studio/40 shadow-studio" : "bg-white/5 text-zinc-600 hover:text-studio"
-                          )}
-                          onClick={() => setIsLiked(!isLiked)}
-                        >
-                          <Heart className={cn("w-6 h-6", isLiked && "fill-current")} />
                         </Button>
                       </div>
                     </div>
@@ -204,7 +195,7 @@ export function WorldPage() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 

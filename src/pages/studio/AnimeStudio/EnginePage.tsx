@@ -35,13 +35,10 @@ const ANIME_TEMPLATES = [
   { id: 'psych', label: 'Synapse Thriller', icon: Brain, prompt: 'Engineer a psychological thriller exploring reality-bending dream manipulation and forensic memory analysis.', color: 'text-blue-500' },
 ];
 
-// Sub-components
-import { EngineHeader } from '../components/Engine/EngineHeader';
 
 export function EnginePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [isLiked, setIsLiked] = React.useState(false);
 
   const {
     tone, setTone,
@@ -51,8 +48,6 @@ export function EnginePage() {
     currentScriptId,
     setCurrentScriptId,
     selectedModel, setSelectedModel,
-    session,
-    episode,
     prompt: globalPrompt,
     setPrompt: setGlobalPrompt,
     setContentType: setGlobalContentType
@@ -89,22 +84,7 @@ export function EnginePage() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
-      <EngineHeader
-        onNext={() => {
-          setGlobalPrompt(prompt);
-          setGlobalContentType(localContentType);
-          navigate('/anime/world');
-        }}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
+    <div data-testid="marker-engine-config">
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
@@ -172,104 +152,104 @@ export function EnginePage() {
                     </div>
                   </div>
 
-                   {/* CONCEPT AREA */}
-                   <div className="space-y-4">
-                     <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                       <Target className="w-4 h-4" />
-                       CORE NARRATIVE CONCEPT
-                     </label>
-                     <div className="relative group/textarea">
-                       <TextareaAutosize
-                         placeholder="Describe your core narrative vision, setting, and structural requirements..."
-                         className="w-full min-h-[350px] bg-black/40 border border-zinc-800/80 focus:border-studio/50 text-cyan-100 rounded-[2.5rem] p-10 text-lg font-medium resize-none transition-all shadow-inner leading-relaxed"
-                         value={prompt}
-                         onChange={(e) => setPrompt(e.target.value)}
-                       />
-                       
-                       <div className="absolute bottom-8 right-8 flex items-center gap-4">
-                         {prompt && (
-                           <button
-                             onClick={() => setPrompt('')}
-                             className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800"
-                           >
-                             <X className="w-5 h-5" />
-                           </button>
-                         )}
+                  {/* CONCEPT AREA */}
+                  <div className="space-y-4">
+                      <label className="text-[11px] font-black text-cyan-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        CORE NARRATIVE CONCEPT
+                      </label>
+                    <div className="relative group/textarea">
+                      <TextareaAutosize
+                        placeholder="Describe your core narrative vision, setting, and structural requirements..."
+                        className="w-full min-h-[350px] bg-black/40 border border-zinc-800/80 focus:border-studio/50 text-cyan-100 rounded-[2.5rem] p-10 text-lg font-medium resize-none transition-all shadow-inner leading-relaxed"
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                      />
 
-                         <Button
-                           onClick={() => {
-                             setGlobalPrompt(prompt);
-                             setGlobalContentType(localContentType);
-                             navigate('/anime/world');
-                           }}
-                           disabled={!prompt}
-                           className={cn(
-                             "h-16 px-10 bg-studio text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] gap-3",
-                             !prompt && "opacity-20 grayscale pointer-events-none"
-                           )}
-                         >
-                           <Sparkles className="w-4 h-4" />
-                           Generate Production Blueprint
-                         </Button>
-                       </div>
-                     </div>
+                      <div className="absolute bottom-8 right-8 flex items-center gap-4">
+                        {prompt && (
+                          <button
+                            onClick={() => setPrompt('')}
+                            className="p-4 bg-zinc-900/80 rounded-2xl opacity-0 group-hover/textarea:opacity-100 hover:text-studio transition-all border border-zinc-800"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        )}
 
-                     {/* Relocated and Restyled Blueprint DNA */}
-                     <div className="pt-8 space-y-6">
-                       <div className="flex items-center justify-between px-2">
-                         <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
-                           <Clapperboard className="w-3.5 h-3.5 text-studio/50" />
-                           Production DNA Blueprints
-                         </h4>
-                         <span className="text-[8px] font-bold text-studio/30 uppercase tracking-widest">Select Narrative Foundation</span>
-                       </div>
-                       
-                       <motion.div 
-                         className="flex flex-nowrap gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
-                         initial="hidden"
-                         animate="visible"
-                         variants={{
-                           visible: { transition: { staggerChildren: 0.1 } }
-                         }}
-                       >
-                         {ANIME_TEMPLATES.map((t) => {
-                           const isActive = prompt === t.prompt;
-                           return (
-                             <motion.button
-                               key={t.id}
-                               variants={{
-                                 hidden: { opacity: 0, y: 10 },
-                                 visible: { opacity: 1, y: 0 }
-                               }}
-                               onClick={() => setPrompt(t.prompt)}
-                               className={cn(
-                                 "flex-shrink-0 snap-start flex items-center gap-3 px-8 py-4 rounded-[1.5rem] transition-all duration-500 group/dna relative overflow-hidden",
-                                 isActive 
-                                   ? "bg-studio/10 border-studio/40 shadow-[0_0_25px_rgba(6,182,212,0.1)]" 
-                                   : "bg-zinc-900/40 border-white/5 hover:border-studio/30 hover:bg-zinc-900/60"
-                               )}
-                             >
-                               {/* Active Indicator Dot */}
-                               {isActive && (
-                                 <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
-                               )}
-                               
-                               <t.icon className={cn(
-                                 "w-4 h-4 transition-all duration-500", 
-                                 isActive ? "scale-110 " + t.color : "text-zinc-600 group-hover/dna:text-studio"
-                               )} />
-                               <span className={cn(
-                                 "text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500",
-                                 isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-300"
-                               )}>
-                                 {t.label}
-                               </span>
-                             </motion.button>
-                           );
-                         })}
-                       </motion.div>
-                     </div>
-                   </div>
+                        <Button
+                          onClick={() => {
+                            setGlobalPrompt(prompt);
+                            setGlobalContentType(localContentType);
+                            navigate('/anime/world');
+                          }}
+                          disabled={!prompt}
+                          className={cn(
+                            "h-16 px-10 bg-studio text-black font-black uppercase tracking-[0.2em] text-[10px] rounded-3xl hover:scale-105 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] gap-3",
+                            !prompt && "opacity-20 grayscale pointer-events-none"
+                          )}
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Generate Production Blueprint
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Relocated and Restyled Blueprint DNA */}
+                    <div className="pt-8 space-y-6">
+                      <div className="flex items-center justify-between px-2">
+                        <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <Clapperboard className="w-3.5 h-3.5 text-studio/50" />
+                          Production DNA Blueprints
+                        </h4>
+                        <span className="text-[8px] font-bold text-studio/30 uppercase tracking-widest">Select Narrative Foundation</span>
+                      </div>
+
+                      <motion.div
+                        className="flex flex-nowrap gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
+                        initial="hidden"
+                        animate="visible"
+                        variants={{
+                          visible: { transition: { staggerChildren: 0.1 } }
+                        }}
+                      >
+                        {ANIME_TEMPLATES.map((t) => {
+                          const isActive = prompt === t.prompt;
+                          return (
+                            <motion.button
+                              key={t.id}
+                              variants={{
+                                hidden: { opacity: 0, y: 10 },
+                                visible: { opacity: 1, y: 0 }
+                              }}
+                              onClick={() => setPrompt(t.prompt)}
+                              className={cn(
+                                "flex-shrink-0 snap-start flex items-center gap-3 px-8 py-4 rounded-[1.5rem] transition-all duration-500 group/dna relative overflow-hidden",
+                                isActive
+                                  ? "bg-studio/10 border-studio/40 shadow-[0_0_25px_rgba(6,182,212,0.1)]"
+                                  : "bg-zinc-900/40 border-white/5 hover:border-studio/30 hover:bg-zinc-900/60"
+                              )}
+                            >
+                              {/* Active Indicator Dot */}
+                              {isActive && (
+                                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-studio animate-pulse" />
+                              )}
+
+                              <t.icon className={cn(
+                                "w-4 h-4 transition-all duration-500",
+                                isActive ? "scale-110 " + t.color : "text-zinc-600 group-hover/dna:text-studio"
+                              )} />
+                              <span className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.2em] transition-colors duration-500",
+                                isActive ? "text-white" : "text-zinc-500 group-hover/dna:text-zinc-300"
+                              )}>
+                                {t.label}
+                              </span>
+                            </motion.button>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Sidebar Column */}
@@ -277,7 +257,7 @@ export function EnginePage() {
                   <div className="p-8 bg-[#050505]/60 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] space-y-10 relative overflow-hidden group/sidebar">
                     {/* Ambient Glow */}
                     <div className="absolute top-0 right-0 w-32 h-32 bg-studio/5 blur-[60px] pointer-events-none" />
-                    
+
                     <h4 className="text-[11px] font-black text-studio uppercase tracking-widest flex items-center gap-3">
                       <div className="w-6 h-6 rounded-lg bg-studio/10 flex items-center justify-center border border-studio/20">
                         <SlidersHorizontal className="w-3 h-3" />
@@ -328,25 +308,25 @@ export function EnginePage() {
                       </p>
                     </div>
                   </div>
+                </div>
               </div>
-            </div>
 
-            {generatedScript && (
-              <div className="mt-12 pt-12 border-t border-white/5 flex justify-center">
-                <Button
-                  onClick={handleSaveCurrent}
-                  disabled={isSaving}
-                  className="h-14 px-12 bg-studio/10 hover:bg-studio text-studio hover:text-black border border-studio/30 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-4 shadow-studio/10"
-                >
-                  <History className="w-5 h-5" />
-                  {isSaving ? 'SYNCING ARCHIVE...' : (currentScriptId ? 'UPDATE MASTER BLUEPRINT' : 'ARCHIVE ENGINE CONFIG')}
-                </Button>
-              </div>
-            )}
+              {generatedScript && (
+                <div className="mt-12 pt-12 border-t border-white/5 flex justify-center">
+                  <Button
+                    onClick={handleSaveCurrent}
+                    disabled={isSaving}
+                    className="h-14 px-12 bg-studio/10 hover:bg-studio text-studio hover:text-black border border-studio/30 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-4 shadow-studio/10"
+                  >
+                    <History className="w-5 h-5" />
+                    {isSaving ? 'SYNCING ARCHIVE...' : (currentScriptId ? 'UPDATE MASTER BLUEPRINT' : 'ARCHIVE ENGINE CONFIG')}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </Card>
-  </motion.div>
-);
+      </Card>
+    </div>
+  );
 }

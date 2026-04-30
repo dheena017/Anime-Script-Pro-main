@@ -1,5 +1,5 @@
-import React from 'react';
 import { motion } from 'motion/react';
+import { Zap } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -10,21 +10,20 @@ import { useNavigate } from 'react-router-dom';
 import { PromptsHeader } from '../components/Prompts/PromptsHeader';
 import { PromptsToolbar } from '../components/Prompts/PromptsToolbar';
 import { PromptsEmptyState } from '../components/Prompts/PromptsEmptyState';
+import { ViewerToolbar } from '../components/Layout/ViewerToolbar';
 
 export function PromptsPage() {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = React.useState(false);
-  const { 
-    generatedImagePrompts, 
-    setGeneratedImagePrompts, 
-    isGeneratingImagePrompts, 
+  const {
+    generatedImagePrompts,
+    setGeneratedImagePrompts,
+    isGeneratingImagePrompts,
     setIsGeneratingImagePrompts,
     generatedScript,
     selectedModel,
     session,
     episode,
-    showNotification
-  } = useGenerator();
+    showNotification } = useGenerator();
 
   const handleGenerate = async () => {
     if (!generatedScript) {
@@ -47,26 +46,28 @@ export function PromptsPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10" data-testid="marker-ai-image-prompts">
-      <PromptsHeader 
+      <PromptsHeader
         onRegenerate={handleGenerate}
         isGenerating={isGeneratingImagePrompts}
         onNext={() => navigate('/studio/screening')}
         session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
+        episode={episode} />
 
-      <PromptsToolbar 
+      <ViewerToolbar
+        content={generatedImagePrompts}
+        nexusLabel="Prompt_Nexus"
         session={session}
         episode={episode}
-        status={generatedImagePrompts ? 'active' : 'empty'}
-      />
+        icon={Zap}
+      >
+        <PromptsToolbar
+          status={generatedImagePrompts ? 'active' : 'empty'} />
+      </ViewerToolbar>
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
         <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-        
+
         <div className="w-full p-0">
           <div className="p-12 max-w-6xl mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -81,17 +82,14 @@ export function PromptsPage() {
                   <ReactMarkdown>{generatedImagePrompts}</ReactMarkdown>
                 </div>
               ) : (
-                <PromptsEmptyState 
+                <PromptsEmptyState
                   onLaunch={handleGenerate}
-                  isGenerating={isGeneratingImagePrompts}
-                />
+                  isGenerating={isGeneratingImagePrompts} />
               )}
             </div>
           </div>
         </div>
       </Card>
-
-
     </motion.div>
   );
 }

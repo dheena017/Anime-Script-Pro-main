@@ -39,9 +39,22 @@ const AnimeAssets = lazy(() => import('./pages/studio/AnimeStudio/AssetsPage').t
 const AnimeScreening = lazy(() => import('./pages/studio/AnimeStudio/ScreeningRoom').then(m => ({ default: m.ScreeningRoom })));
 const AnimeTemplate = lazy(() => import('./pages/studio/AnimeStudio/TemplatePage').then(m => ({ default: m.TemplatePage })));
 const AnimeEngine = lazy(() => import('./pages/studio/AnimeStudio/EnginePage').then(m => ({ default: m.EnginePage })));
-
-
 const AnimeWorld = lazy(() => import('./pages/studio/AnimeStudio/WorldPage').then(m => ({ default: m.WorldPage })));
+
+// Production System Layouts
+const WorldLayout = lazy(() => import('./pages/studio/AnimeStudio/World/WorldLayout'));
+const CastLayout = lazy(() => import('./pages/studio/AnimeStudio/Cast/CastLayout'));
+const SeriesLayout = lazy(() => import('./pages/studio/AnimeStudio/Series/SeriesLayout'));
+const ScriptLayout = lazy(() => import('./pages/studio/AnimeStudio/Script/ScriptLayout'));
+const StoryboardLayout = lazy(() => import('./pages/studio/AnimeStudio/Storyboard/StoryboardLayout'));
+const AssetsLayout = lazy(() => import('./pages/studio/AnimeStudio/Assets/AssetsLayout'));
+const ScreeningLayout = lazy(() => import('./pages/studio/AnimeStudio/Screening/ScreeningLayout'));
+const EngineLayout = lazy(() => import('./pages/studio/AnimeStudio/Engine/EngineLayout'));
+
+// Cast Sub-pages
+const CharacterCreation = lazy(() => import('./pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
+const DNAPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
+const DynamicsPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
 
 
 const LoadingSpinner = () => (
@@ -75,17 +88,46 @@ export default function App() {
                     <Route path="/anime" element={<AnimeLayout />}>
                       <Route index element={<AnimePortal />} />
 
-                      <Route path="script" element={<AnimeScript />} />
-                      <Route path="cast" element={<AnimeCast />} />
-                      <Route path="series" element={<AnimeSeries />} />
-                      <Route path="storyboard" element={<AnimeStoryboard />} />
-                      <Route path="seo" element={<AnimeAssets />} />
-                      <Route path="prompts" element={<AnimeAssets />} />
-                      <Route path="screening" element={<AnimeScreening />} />
-                      <Route path="template" element={<AnimeTemplate />} />
+                      <Route path="world" element={<WorldLayout />}>
+                        <Route index element={<AnimeWorld />} />
+                      </Route>
 
-                      <Route path="world" element={<AnimeWorld />} />
-                      <Route path="engine" element={<AnimeEngine />} />
+                      <Route path="cast" element={<CastLayout />}>
+                        <Route index element={<AnimeCast />} />
+                        <Route path="create" element={<CharacterCreation />} />
+                        <Route path="dna" element={<DNAPage />} />
+                        <Route path="dynamics" element={<DynamicsPage />} />
+                      </Route>
+
+                      <Route path="series" element={<SeriesLayout />}>
+                        <Route index element={<AnimeSeries />} />
+                      </Route>
+
+                      <Route path="script" element={<ScriptLayout />}>
+                        <Route index element={<AnimeScript />} />
+                      </Route>
+
+                      <Route path="storyboard" element={<StoryboardLayout />}>
+                        <Route index element={<AnimeStoryboard />} />
+                      </Route>
+
+                      <Route path="seo" element={<AssetsLayout />}>
+                        <Route index element={<AnimeAssets />} />
+                      </Route>
+
+                      <Route path="prompts" element={<AssetsLayout />}>
+                        <Route index element={<AnimeAssets />} />
+                      </Route>
+
+                      <Route path="screening" element={<ScreeningLayout />}>
+                        <Route index element={<AnimeScreening />} />
+                      </Route>
+
+                      <Route path="engine" element={<EngineLayout />}>
+                        <Route index element={<AnimeEngine />} />
+                      </Route>
+
+                      <Route path="template" element={<AnimeTemplate />} />
                     </Route>
 
 

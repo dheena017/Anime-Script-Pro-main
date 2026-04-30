@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, RefreshCw, ChevronRight, Heart, Sparkles, Cpu, Radar } from 'lucide-react';
+import { Search, RefreshCw, ChevronRight, Cpu, Radar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,8 +9,6 @@ interface SEOHeaderProps {
   onNext: () => void;
   session: string;
   episode: string;
-  isLiked?: boolean;
-  setIsLiked?: (liked: boolean) => void;
 }
 
 export const SEOHeader: React.FC<SEOHeaderProps> = ({
@@ -18,9 +16,7 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
   isGenerating,
   onNext,
   session,
-  episode,
-  isLiked,
-  setIsLiked
+  episode
 }) => {
   return (
     <div className="relative group">
@@ -54,38 +50,12 @@ export const SEOHeader: React.FC<SEOHeaderProps> = ({
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">High-Conversion Synthesis Engine V2.1 // Alg_Sync_Success</p>
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Alg_Sync_Success</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          {/* Production Unit Badge */}
-          <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-black/60 border border-zinc-800/50 rounded-2xl backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-studio/60" />
-              <div className="flex flex-col">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-tighter leading-none mb-1">Production Unit</span>
-                <span className="text-xs font-black text-white font-mono tracking-widest uppercase">S{session}-E{episode}</span>
-              </div>
-            </div>
-            
-            {setIsLiked && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-9 w-9 rounded-xl transition-all duration-500 border border-zinc-800/50",
-                  isLiked 
-                    ? "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20 shadow-[0_0_15px_rgba(217,70,239,0.2)]" 
-                    : "text-zinc-600 hover:text-fuchsia-400 hover:bg-fuchsia-500/5 hover:border-fuchsia-500/10"
-                )}
-                onClick={() => setIsLiked(!isLiked)}
-              >
-                <Heart className={cn("w-4.5 h-4.5 transition-transform duration-300 active:scale-125", isLiked && "fill-current")} />
-              </Button>
-            )}
-          </div>
 
           <div className="flex items-center gap-3">
             <Button 

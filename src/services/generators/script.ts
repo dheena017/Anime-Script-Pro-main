@@ -52,6 +52,7 @@ export async function generateScript(
     
     INFINITE DIRECTIVES:
     - Eliminate every trace of the ordinary. Every scene must be a high-fidelity visual and sonic masterpiece.
+    - DO NOT group scenes (e.g., '2-10'). Every single scene MUST have its own individual row with a unique Scene # (1, 2, 3, 4, 5, 6...).
     - Synchronize the 11 columns into a singular, high-octane production heartbeat.
     
     Return ONLY the markdown table.
@@ -88,6 +89,7 @@ export async function continueScript(currentScript: string, model: string = "gem
     1. Scene # | 2. Section | 3. Soul Focus | 4. Narration | 5. Visuals | 6. VFX | 7. Audio | 8. Emotion | 9. Subtext | 10. Assets | 11. Time
     
     Maintain Quantum Continuity and Sakuga intensity.
+    - DO NOT group scenes. Every scene MUST have its own individual row.
     Return ONLY the markdown table.
   `;
 

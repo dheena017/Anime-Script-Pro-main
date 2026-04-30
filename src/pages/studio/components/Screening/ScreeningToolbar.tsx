@@ -14,7 +14,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   status
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-black/40 border border-zinc-800/50 rounded-2xl mb-8">
+    <div className="flex items-center justify-between w-full">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2 px-3 py-1 bg-studio/5 border border-studio/20 rounded-lg">
           <Box className="w-3 h-3 text-studio/50" />

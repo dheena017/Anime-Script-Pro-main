@@ -1,8 +1,7 @@
 import React from 'react';
-import { Music, Play, Sparkles, Disc, Activity } from 'lucide-react';
+import { Music, Play, Disc, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+
 
 const MOCK_TRACKS = [
   { name: 'Neon Horizon', genre: 'Synthwave', bpm: 120, mood: 'Action' },
@@ -19,9 +18,6 @@ export const SoundscapeLibrary: React.FC = () => {
           <Music className="w-4 h-4 text-studio" />
           AI Soundscape Curation
         </h3>
-        <Badge variant="outline" className="text-[8px] border-studio/20 text-studio bg-studio/5">
-           Beta: Audio Engine v1
-        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -48,16 +44,6 @@ export const SoundscapeLibrary: React.FC = () => {
           </Card>
         ))}
       </div>
-      
-      <Button className="w-full h-10 bg-[#0a0a0a] border border-studio/10 text-[9px] font-black uppercase tracking-widest text-studio hover:bg-studio/10 hover:border-studio/30 transition-all">
-         Refresh AI Curation <Sparkles className="w-3 h-3 ml-2" />
-      </Button>
     </div>
   );
 };
-
-const Badge = ({ children, className }: any) => (
-  <span className={cn("px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter", className)}>
-    {children}
-  </span>
-);

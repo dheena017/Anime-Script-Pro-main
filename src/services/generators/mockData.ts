@@ -78,4 +78,13 @@ export const MOCK_WORLD = `
 
 export const MOCK_SERIES_PLAN: any[] = [];
 
-export const MOCK_SCRIPT = "";
+export const MOCK_SCRIPT = `
+| Scene # | Section | Soul Focus | Narration | Visual Direction | VFX Compounds | Audio Forge | Emotional Key | Subtext | Active Asset List | Time |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | GENESIS | Anya | [DSP] (Cynical) The rain doesn't wash away the neon filth; it just makes it glow brighter. | Wide tracking shot of Anya walking through a rain-slicked alleyway. Neon signs flicker in puddles. | Rainfall shaders, chromatic aberration on sign edges. | Low synth drone, foley of boots on wet pavement. | Melancholy | Isolation in a crowded world. | Anya, Custom Railgun Pistol | 0:00 - 0:15 |
+| 2 | GENESIS | Anya | [DSP] (Alert) Another shadow. They're getting sloppy. | Anya stops, eyes narrowing. Close-up on her cybernetic eye zooming. | Digital HUD overlay, iris scanning pulse. | High-frequency hum, heartbeat pulse. | Tension | Constant vigilance. | Anya, Cyber-Eye | 0:15 - 0:25 |
+| 3 | GENESIS | Unknown | [DSP] (Whispering) She's here. Delete the anomaly. | Shadowy figures emerge from the steam. Camera pans up to reveal Rika's silhouette on a rooftop. | Volumetric steam, purple eye-glow for Rika. | Distortion, whispering voices. | Threat | Predatory surveillance. | Rika, Shadow Soldiers | 0:25 - 0:45 |
+| 4 | ASCENSION | Anya | [DSP] (Determined) You want a glitch? I'll give you a system crash. | Anya draws her railgun. Blue sparks dance across the barrel. | Electric particle arcs, lighting shift to cold blue. | Charging hum, thunder crack. | Resolution | Defiance against the digital gods. | Anya, Railgun | 0:45 - 1:00 |
+| 5 | ASCENSION | Sachi | [DSP] (Terrified) Anya! Behind you! | Sachi runs into the alley, her plasma katana glowing faintly. | Plasma trails, soft glow around Sachi. | Fast-paced orchestral staccato. | Urgency | The burden of protection. | Sachi, Plasma Katana | 1:00 - 1:15 |
+| 6 | ZENITH | Rika | [DSP] (Coldly) Optimization is inevitable, Anya Kisaragi. | Rika leaps from the roof, data-shards forming wings of light. | Data-shard particles, bloom effect. | Digital screech, choir swell. | Domination | The crushing weight of progress. | Rika | 1:15 - 1:30 |
+`;

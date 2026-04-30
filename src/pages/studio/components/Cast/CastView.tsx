@@ -55,16 +55,18 @@ export const CastView: React.FC<CastViewProps> = ({
           <p className="text-zinc-500 italic max-w-lg mx-auto font-medium">
             Clinical profiles of the ideological conflicts and emotional DNA driving the narrative.
           </p>
-          <Button
-            variant="outline"
-            className={cn(
-              "h-12 px-10 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
-              isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
-            )}
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? "Save Cast Bios" : "Custom Manual Edit"}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className={cn(
+                "h-12 px-10 rounded-2xl border font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+                isEditing ? "bg-studio text-black border-studio shadow-studio" : "bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30"
+              )}
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              {isEditing ? "Save Cast Bios" : "Custom Manual Edit"}
+            </Button>
+          </div>
         </div>
       </div>
 

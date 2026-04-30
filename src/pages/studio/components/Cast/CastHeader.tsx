@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, RefreshCw, ChevronRight, Sparkles, Heart, Fingerprint, Cpu } from 'lucide-react';
+import { Users, RefreshCw, ChevronRight, Fingerprint, Cpu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -8,10 +8,9 @@ interface CastHeaderProps {
   handleGenerate: () => void;
   prompt: string;
   onNext?: () => void;
+  onPrev?: () => void;
   session: string;
   episode: string;
-  isLiked?: boolean;
-  setIsLiked?: (liked: boolean) => void;
 }
 
 export const CastHeader: React.FC<CastHeaderProps> = ({
@@ -19,10 +18,7 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
   handleGenerate,
   prompt,
   onNext,
-  session,
-  episode,
-  isLiked,
-  setIsLiked
+  onPrev
 }) => {
   return (
     <div className="relative group">
@@ -62,34 +58,18 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          {/* Production Unit Badge */}
-          <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-black/60 border border-zinc-800/50 rounded-2xl backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-studio/60" />
-              <div className="flex flex-col">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-tighter leading-none mb-1">Production Unit</span>
-                <span className="text-xs font-black text-white font-mono tracking-widest uppercase">S{session}-E{episode}</span>
-              </div>
-            </div>
-            
-            {setIsLiked && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-9 w-9 rounded-xl transition-all duration-500 border border-zinc-800/50",
-                  isLiked 
-                    ? "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20 shadow-[0_0_15px_rgba(217,70,239,0.2)]" 
-                    : "text-zinc-600 hover:text-fuchsia-400 hover:bg-fuchsia-500/5 hover:border-fuchsia-500/10"
-                )}
-                onClick={() => setIsLiked(!isLiked)}
-              >
-                <Heart className={cn("w-4.5 h-4.5 transition-transform duration-300 active:scale-125", isLiked && "fill-current")} />
-              </Button>
-            )}
-          </div>
 
           <div className="flex items-center gap-3">
+            {onPrev && (
+              <Button 
+                variant="outline" 
+                className="h-11 px-6 bg-white/5 border-white/10 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all"
+                onClick={onPrev}
+              >
+                Previous: World
+              </Button>
+            )}
+
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"
@@ -103,15 +83,16 @@ export const CastHeader: React.FC<CastHeaderProps> = ({
             {onNext && (
               <Button 
                 className={cn(
-                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
-                  "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border-none",
+                  "bg-studio text-black hover:bg-white hover:text-black",
+                  "hover:scale-[1.02] shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(255,255,255,0.6)]"
                 )}
                 onClick={onNext}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Next: Series Plan <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+                <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000 ease-in-out" />
               </Button>
             )}
           </div>

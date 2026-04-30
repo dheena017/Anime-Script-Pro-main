@@ -1,12 +1,12 @@
 import React from 'react';
-import { Package, RefreshCw, ChevronRight, Sparkles, Box, Heart } from 'lucide-react';
+import { Package, RefreshCw, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface AssetsHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
+  onPrev?: () => void;
   session: string;
   episode: string;
   isLiked?: boolean;
@@ -17,10 +17,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
   onRegenerate,
   isGenerating,
   onNext,
-  session,
-  episode,
-  isLiked,
-  setIsLiked
+  onPrev
 }) => {
   return (
     <div className="flex items-center justify-between p-6 bg-[#0a0a0a]/80 backdrop-blur-xl border border-zinc-800 rounded-3xl mb-6">
@@ -35,29 +32,18 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-4 border-l border-zinc-800 pl-6">
-          <div className="flex items-center gap-2 px-3 py-1 bg-studio/5 border border-zinc-800 rounded-lg">
-            <Box className="w-3 h-3 text-studio/50" />
-            <span className="text-[9px] font-black text-studio/60 uppercase tracking-tighter">Unit</span>
-            <span className="text-xs font-black text-white font-mono">S{session}-E{episode}</span>
-          </div>
-          {setIsLiked && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8 rounded-xl transition-all duration-300",
-                isLiked ? "text-red-400 bg-red-500/10 border-red-500/20" : "text-zinc-600 border-white/5 bg-white/5 hover:text-red-400"
-              )}
-              onClick={() => setIsLiked(!isLiked)}
-            >
-              <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-            </Button>
-          )}
-        </div>
       </div>
       
       <div className="flex items-center gap-3">
+        {onPrev && (
+          <Button 
+            variant="ghost" 
+            className="text-zinc-500 hover:text-white font-black uppercase tracking-widest text-[10px] h-10 px-4 rounded-xl transition-all"
+            onClick={onPrev}
+          >
+            Back
+          </Button>
+        )}
         <Button 
           variant="outline" 
           className="bg-black/40 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] h-10 px-6 rounded-xl transition-all"

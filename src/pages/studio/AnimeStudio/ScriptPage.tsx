@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'motion/react';
 
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -10,15 +9,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/api-utils';
 
 // Sub-components
-import { ScriptHeader } from '../components/Script/ScriptHeader';
-import { ScriptToolbar } from '../components/Script/ScriptToolbar';
 import { ScriptView } from '../components/Script/ScriptView';
 import { ScriptEmptyState } from '../components/Script/ScriptEmptyState';
+import { ScriptContext } from './Script/ScriptLayout';
 
 export function ScriptPage() {
   const { user } = useAuth();
-  const [isLiked, setIsLiked] = React.useState(false);
-  const {
+  const { 
     generatedScript, setGeneratedScript,
     selectedModel,
     isLoading, setIsLoading,
@@ -285,68 +282,60 @@ export function ScriptPage() {
     window.speechSynthesis.speak(utterance);
   };
 
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6" data-testid="marker-production-script">
-      <ScriptHeader 
-        onRegenerate={handleGenerateScript}
-        isGenerating={isLoading}
-        onNext={handleNextEpisode}
-        onPrev={parseInt(episode) > 1 || parseInt(session) > 1 ? handlePrevEpisode : undefined}
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
+  const { setHandlers } = React.useContext<any>(ScriptContext);
 
-      <ScriptToolbar 
-        session={session}
-        episode={episode}
-        status={generatedScript ? 'active' : 'empty'}
-        onExport={exportToPDF}
-        onViewSEO={handleGenerateSEO}
-        onViewPrompts={handleGeneratePrompts}
-        onViewStoryboard={handleGenerateVisuals}
-        onExtend={handleContinueScript}
-        onListen={() => playVoiceover(generatedScript)}
-      />
+  React.useEffect(() => {
+    setHandlers({
+      exportToPDF,
+      handleGenerateSEO,
+      handleGeneratePrompts,
+      handleGenerateVisuals,
+      handleContinueScript,
+      handleNextEpisode,
+      handlePrevEpisode,
+      playVoiceover: () => playVoiceover(generatedScript)
+    });
+  }, [generatedScript, visualData, episode, session]);
+
+  return (
+    <div data-testid="marker-production-script">
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
         <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-        
+
         <div className="w-full p-0">
           <div className="p-12 max-w-4xl mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                {isLoading ? (
-                  <div className="flex flex-col items-center justify-center h-[500px] text-studio">
-                    <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
-                    <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Initializing Production Core...</p>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-[500px] text-studio">
+                  <div className="w-10 h-10 border-2 border-studio/30 border-t-studio rounded-full animate-spin mb-6 shadow-studio" />
+                  <p className="font-sans font-medium tracking-widest text-xs uppercase text-shadow-studio">Initializing Production Core...</p>
+                </div>
+              ) : generatedScript ? (
+                generatedScript.startsWith("Error:") ? (
+                  <div className="text-red-500 font-bold text-center py-8 text-lg">
+                    {generatedScript}
                   </div>
-                ) : generatedScript ? (
-                  generatedScript.startsWith("Error:") ? (
-                    <div className="text-red-500 font-bold text-center py-8 text-lg">
-                      {generatedScript}
-                    </div>
-                  ) : (
-                    <ScriptView 
-                      generatedScript={generatedScript}
-                      prompt={prompt}
-                      session={session}
-                      episode={episode}
-                      audience={audience}
-                      visualData={visualData}
-                    />
-                  )
                 ) : (
-                  <ScriptEmptyState 
-                    onLaunch={handleGenerateScript}
-                    isGenerating={isLoading}
-                  />
-                )}
-              </div>
+                  <ScriptView
+                    generatedScript={generatedScript}
+                    prompt={prompt}
+                    session={session}
+                    episode={episode}
+                    audience={audience}
+                    visualData={visualData} />
+                )
+              ) : (
+                <ScriptEmptyState
+                  onLaunch={handleGenerateScript}
+                  isGenerating={isLoading} />
+              )}
+            </div>
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
+

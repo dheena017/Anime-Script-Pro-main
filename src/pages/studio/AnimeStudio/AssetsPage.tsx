@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/geminiService';
 import { cn } from '@/lib/utils';
-import { AssetsHeader } from '../components/Assets/AssetsHeader';
-import { SEOToolbar } from '../components/SEO/SEOToolbar';
 import { SEOEmptyState } from '../components/SEO/SEOEmptyState';
 
+import { useLocation } from 'react-router-dom';
+
 export function AssetsPage() {
-  const [isLiked, setIsLiked] = React.useState(false);
+  const location = useLocation();
   const {
     generatedMetadata, setGeneratedMetadata,
     generatedDescription, setGeneratedDescription,
@@ -20,11 +20,11 @@ export function AssetsPage() {
     isGeneratingMetadata, setIsGeneratingMetadata,
     isGeneratingDescription, setIsGeneratingDescription,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-    generatedScript, selectedModel, session, episode,
+    generatedScript, selectedModel, 
     showNotification
   } = useGenerator();
 
-  const [activeTab, setActiveTab] = React.useState<'seo' | 'prompts'>('seo');
+  const activeTab = location.pathname.includes('prompts') ? 'prompts' : 'seo';
 
   const handleGenerateAll = async () => {
     if (!generatedScript) {
@@ -100,22 +100,7 @@ export function AssetsPage() {
   const hasAnyAsset = generatedMetadata || generatedDescription || generatedImagePrompts;
 
   return (
-    <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8 pb-20">
-      <AssetsHeader 
-        onRegenerate={handleGenerateAll}
-        isGenerating={isGeneratingMetadata || isGeneratingDescription || isGeneratingImagePrompts}
-        onNext={() => {}} 
-        session={session}
-        episode={episode}
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-      />
-
-      <SEOToolbar 
-        session={session}
-        episode={episode}
-        status={hasAnyAsset ? 'active' : 'empty'}
-      />
+    <div data-testid="marker-assets-production">
 
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
@@ -131,25 +116,6 @@ export function AssetsPage() {
                 />
               ) : (
                 <div className="space-y-12">
-                  <div className="flex bg-black/40 p-1.5 rounded-2xl border border-zinc-800/50 w-fit mx-auto shadow-2xl backdrop-blur-xl">
-                    {[
-                      { id: 'seo', label: 'SEO & Metadata', icon: Search },
-                      { id: 'prompts', label: 'Visual Prompts', icon: ImageIcon }
-                    ].map((tab) => (
-                      <Button
-                        key={tab.id}
-                        variant="ghost"
-                        onClick={() => setActiveTab(tab.id as any)}
-                        className={cn(
-                          "h-10 px-8 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-500",
-                          activeTab === tab.id ? "bg-studio text-black shadow-studio" : "text-zinc-500 hover:text-studio"
-                        )}
-                      >
-                        <tab.icon className="w-3.5 h-3.5 mr-2" />
-                        {tab.label}
-                      </Button>
-                    ))}
-                  </div>
 
                   <AnimatePresence mode="wait">
                     {activeTab === 'seo' ? (
@@ -203,7 +169,7 @@ export function AssetsPage() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 

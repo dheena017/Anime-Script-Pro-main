@@ -86,7 +86,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
 
   return (
     <div className="space-y-12">
-      <div className="border-b border-zinc-800/80 pb-12 mb-12 text-center space-y-4 relative">
+      <div className="border-b border-zinc-800/80 pb-6 mb-8 text-center space-y-4 relative">
         <div className="inline-block px-3 py-1 bg-zinc-800/20 border border-zinc-800/50 rounded-full text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold mb-4 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
           Official Anime Script
         </div>

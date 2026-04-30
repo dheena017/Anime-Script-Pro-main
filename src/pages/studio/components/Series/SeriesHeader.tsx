@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, RefreshCw, ChevronRight, Heart, Sparkles, Cpu, Layers } from 'lucide-react';
+import { LayoutGrid, RefreshCw, ChevronRight, Cpu, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -7,20 +7,18 @@ interface SeriesHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
+  onPrev?: () => void;
   session: string;
   episode: string;
-  isLiked?: boolean;
-  setIsLiked?: (liked: boolean) => void;
 }
 
 export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
   onRegenerate,
   isGenerating,
   onNext,
+  onPrev,
   session,
   episode,
-  isLiked,
-  setIsLiked
 }) => {
   return (
     <div className="relative group">
@@ -54,40 +52,23 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">Multi-Scene Synthesis Engine V2.8 // Schema_Synced</p>
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Schema_Synced</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-          {/* Production Unit Badge */}
-          <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-black/60 border border-zinc-800/50 rounded-2xl backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-3 h-3 text-studio/60" />
-              <div className="flex flex-col">
-                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-tighter leading-none mb-1">Production Unit</span>
-                <span className="text-xs font-black text-white font-mono tracking-widest uppercase">S{session}-E{episode}</span>
-              </div>
-            </div>
-            
-            {setIsLiked && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "h-9 w-9 rounded-xl transition-all duration-500 border border-zinc-800/50",
-                  isLiked 
-                    ? "text-fuchsia-400 bg-fuchsia-500/10 border-fuchsia-500/20 shadow-[0_0_15px_rgba(217,70,239,0.2)]" 
-                    : "text-zinc-600 hover:text-fuchsia-400 hover:bg-fuchsia-500/5 hover:border-fuchsia-500/10"
-                )}
-                onClick={() => setIsLiked(!isLiked)}
-              >
-                <Heart className={cn("w-4.5 h-4.5 transition-transform duration-300 active:scale-125", isLiked && "fill-current")} />
-              </Button>
-            )}
-          </div>
 
           <div className="flex items-center gap-3">
+            {onPrev && (
+              <Button 
+                variant="ghost" 
+                className="text-zinc-500 hover:text-white font-black uppercase tracking-widest text-[10px] h-11 px-4 rounded-2xl transition-all duration-300 backdrop-blur-md"
+                onClick={onPrev}
+              >
+                Back
+              </Button>
+            )}
             <Button 
               variant="outline" 
               className="relative h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-studio hover:border-studio/30 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md overflow-hidden group/btn"

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { 
   enhanceSceneVisuals, 
@@ -14,13 +13,13 @@ import {
 } from '@/services/geminiService';
 
 // Sub-components
-import { StoryboardHeader } from '../components/Storyboard/StoryboardHeader';
 import { PlanningGuide } from '../components/Storyboard/PlanningGuide';
 import { SceneCard } from '../components/Storyboard/SceneCard';
 import { EmptyState } from '../components/Storyboard/EmptyState';
 import { Moodboard } from '../components/Moodboard/Moodboard';
 import { SceneTimeline } from '../components/Timeline/SceneTimeline';
 import { SoundscapeLibrary } from '../components/Audio/SoundscapeLibrary';
+import { StoryboardContext } from './Storyboard/StoryboardLayout';
 
 interface Scene {
   id: string;
@@ -34,14 +33,11 @@ interface Scene {
 }
 
 export function StoryboardPage() {
-  const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
   const { 
     generatedScript, setGeneratedScript, 
     visualData, setVisualData, 
     videoData, setVideoData,
     generatedImagePrompts, 
-    session, episode,
     selectedModel,
     isGeneratingVisuals,
     setIsGeneratingVisuals
@@ -339,29 +335,27 @@ export function StoryboardPage() {
     setEditForm({});
   };
 
+  const { setHandlers } = React.useContext<any>(StoryboardContext);
+
+  React.useEffect(() => {
+    setHandlers({
+      handleEnhanceAllNarration,
+      handleEnhanceAllVisuals,
+      handleFullProductionLoop,
+      handleGenerateAll,
+      handleAddScene,
+      isGlobalEnhancing,
+      isProductionLoopActive,
+      productionProgress,
+      isGuideOpen,
+      setIsGuideOpen,
+      scenesLength: scenes.length,
+      isGenerating: isGeneratingVisuals
+    });
+  }, [isGlobalEnhancing, scenes, isProductionLoopActive, productionProgress, isGuideOpen, isGeneratingVisuals]);
+
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4" data-testid="marker-visual-storyboard">
-      <StoryboardHeader 
-        isLiked={isLiked}
-        setIsLiked={setIsLiked}
-        isGuideOpen={isGuideOpen}
-        setIsGuideOpen={setIsGuideOpen}
-        handleAddScene={handleAddScene}
-        scenesLength={scenes.length}
-        handleEnhanceAllVisuals={handleEnhanceAllVisuals}
-        handleEnhanceAllNarration={handleEnhanceAllNarration}
-        handleGenerateAll={handleGenerateAll}
-        isGlobalEnhancing={isGlobalEnhancing}
-        isGeneratingVisuals={isGeneratingVisuals}
-        isEnhancingAllVisuals={isEnhancingAllVisuals}
-        isEnhancingAllNarration={isEnhancingAllNarration}
-        session={session}
-        episode={episode}
-        onNext={() => navigate('/studio/seo')}
-        handleFullProductionLoop={handleFullProductionLoop}
-        isProductionLoopActive={isProductionLoopActive}
-        productionProgress={productionProgress}
-      />
+    <div data-testid="marker-visual-storyboard">
 
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
@@ -370,7 +364,7 @@ export function StoryboardPage() {
       <Card className="bg-[#030303] border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700 hover:border-studio/50">
         <div className="absolute inset-0 border-[1px] border-studio/20 rounded-[2.5rem] pointer-events-none group-hover/card:border-studio/40 transition-colors duration-700" />
         <div className="absolute -top-[1px] left-10 right-10 h-[1px] bg-gradient-to-r from-transparent via-studio/60 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-700" />
-        
+
         <div className="w-full p-0">
           <div className="p-12 max-w-[1400px] mx-auto">
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -383,7 +377,7 @@ export function StoryboardPage() {
                           {scenes.map((scene, idx) => (
                             <Draggable key={scene.id} draggableId={scene.id} index={idx}>
                               {(provided, snapshot) => (
-                                <SceneCard 
+                                <SceneCard
                                   scene={scene}
                                   index={idx}
                                   visualData={visualData}
@@ -399,7 +393,7 @@ export function StoryboardPage() {
                                   handleGenerateVideo={handleGenerateVideo}
                                   videoData={videoData}
                                   startEditing={startEditing}
-                                  cancelEditing={() => { setEditingSceneId(null); setEditForm({}); }}
+                                  cancelEditing={() => { setEditingSceneId(null); setEditForm({}); } }
                                   saveSceneEdits={saveSceneEdits}
                                   handleEnhanceNarration={handleEnhanceNarration}
                                   handleEnhanceVisuals={handleEnhanceVisuals}
@@ -409,8 +403,7 @@ export function StoryboardPage() {
                                   draggableProps={provided.draggableProps}
                                   innerRef={provided.innerRef}
                                   isDragging={snapshot.isDragging}
-                                  isBulkEnhancing={enhancingSceneIds.has(scene.id)}
-                                />
+                                  isBulkEnhancing={enhancingSceneIds.has(scene.id)} />
                               )}
                             </Draggable>
                           ))}
@@ -419,7 +412,7 @@ export function StoryboardPage() {
                       )}
                     </Droppable>
                   </DragDropContext>
-                  
+
                   <div className="pt-10 space-y-12">
                     <SceneTimeline scenes={scenes} />
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-6 border-t border-studio/10">
@@ -435,6 +428,6 @@ export function StoryboardPage() {
           </div>
         </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }
