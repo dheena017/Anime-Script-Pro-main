@@ -41,18 +41,18 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-500">
-                Scenes Architect
+                Series Architect
               </h1>
               <div className="px-2 py-0.5 rounded-full bg-studio/10 border border-studio/20 flex items-center gap-1.5">
                 <div className={cn("w-1 h-1 rounded-full animate-pulse", isGenerating ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
                 <span className="text-[8px] font-black uppercase tracking-widest text-studio/80">
-                  {isGenerating ? 'Mapping Scenes' : 'Matrix_Mapped'}
+                  {isGenerating ? 'Sequencing' : 'Series_Mapped'}
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Schema_Synced</p>
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Series Synthesis Engine V4.2</p>
             </div>
           </div>
         </div>
@@ -62,11 +62,11 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
           <div className="flex items-center gap-3">
             {onPrev && (
               <Button 
-                variant="ghost" 
-                className="text-zinc-500 hover:text-white font-black uppercase tracking-widest text-[10px] h-11 px-4 rounded-2xl transition-all duration-300 backdrop-blur-md"
+                variant="outline" 
+                className="h-11 px-6 bg-black/60 border-zinc-800 text-zinc-400 hover:text-white hover:border-white/20 font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all duration-300 backdrop-blur-md"
                 onClick={onPrev}
               >
-                Back
+                Previous: Cast
               </Button>
             )}
             <Button 
@@ -76,7 +76,7 @@ export const SeriesHeader: React.FC<SeriesHeaderProps> = ({
               disabled={isGenerating}
             >
               {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <LayoutGrid className="w-4 h-4 mr-2 text-studio group-hover/btn:rotate-90 transition-transform duration-500" />}
-              Re-Architect Plan
+              Resynthesize Series
             </Button>
 
             <Button 
