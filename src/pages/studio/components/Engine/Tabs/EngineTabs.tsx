@@ -23,7 +23,7 @@ export const EngineTabs: React.FC<EngineTabsProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-2xl relative overflow-hidden group">
+    <div className="flex items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-2xl relative overflow-x-auto no-scrollbar group">
       <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       
       {tabs.map((tab) => (
@@ -31,7 +31,7 @@ export const EngineTabs: React.FC<EngineTabsProps> = ({
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           className={cn(
-            "relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-3 group/tab",
+            "relative px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-3 group/tab shrink-0 whitespace-nowrap",
             activeTab === tab.id ? tab.color : "text-zinc-500 hover:text-zinc-300"
           )}
         >
