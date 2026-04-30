@@ -1,11 +1,11 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Palette } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { StoryboardHeader } from '../../components/Storyboard/StoryboardHeader';
 import { StoryboardToolbar } from '../../components/Storyboard/StoryboardToolbar';
 import { generateImagePrompts } from '@/services/geminiService';
+import { StoryboardTab } from '@/pages/studio/components/Storyboard/Tabs/StoryboardTabs';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -13,6 +13,7 @@ export const StoryboardContext = React.createContext<{
 
 export default function StoryboardLayout() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
   const {
@@ -24,7 +25,7 @@ export default function StoryboardLayout() {
 
   const handleGenerate = async () => {
     if (!generatedScript) {
-      showNotification?.('Prerequisite Failure: Synthesis a script manifest before generating visual DNA.', 'error');
+      showNotification?.('Prerequisite Failure: Synthesize a script manifest before generating visual DNA.', 'error');
       return;
     }
     setIsGeneratingImagePrompts(true);
@@ -38,6 +39,12 @@ export default function StoryboardLayout() {
     } finally {
       setIsGeneratingImagePrompts(false);
     }
+  };
+
+  const activeTab = (searchParams.get('tab') as StoryboardTab) || 'frames';
+
+  const handleTabChange = (tab: StoryboardTab) => {
+    setSearchParams({ tab });
   };
 
   return (
@@ -57,31 +64,27 @@ export default function StoryboardLayout() {
           productionProgress={handlers.productionProgress}
         />
 
-        <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          <div className="flex items-center gap-12 z-10 w-full">
-            <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-              <Palette className="w-4 h-4 text-studio" />
-              <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Storyboard_Nexus</span>
-            </div>
-
-            <StoryboardToolbar
-              session={session}
-              episode={episode}
-              status={generatedImagePrompts ? 'active' : 'empty'}
-              onEnhanceNarration={handlers.handleEnhanceAllNarration}
-              onEnhanceVisuals={handlers.handleEnhanceAllVisuals}
-              isGlobalEnhancing={handlers.isGlobalEnhancing}
-            />
-          </div>
+        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+          <StoryboardToolbar
+            status={generatedImagePrompts ? 'active' : 'empty'}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            session={session}
+            episode={episode}
+            content={generatedImagePrompts}
+            onEnhanceNarration={handlers.handleEnhanceAllNarration}
+            onEnhanceVisuals={handlers.handleEnhanceAllVisuals}
+            isGlobalEnhancing={handlers.isGlobalEnhancing}
+          />
         </div>
 
         <motion.div
+          key={activeTab}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Outlet />
+          <Outlet context={{ activeTab }} />
         </motion.div>
       </div>
     </StoryboardContext.Provider>
