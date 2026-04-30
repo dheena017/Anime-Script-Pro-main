@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Book,
   Terminal,
@@ -78,13 +78,14 @@ export default function DocumentationPage() {
              <div className="space-y-1">
                {sections.map((section) => {
                  const Icon = ICON_MAP[section.icon] || Globe;
+                 const isActive = activeSection === section.slug;
                  return (
                    <button 
                      key={section.id}
                      onClick={() => setActiveSection(section.slug)}
-                     className={React.useMemo(() => `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group text-left ${activeSection === section.slug ? 'bg-red-500/10 text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`, [activeSection, section.slug])}
+                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group text-left ${isActive ? 'bg-red-500/10 text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
                    >
-                     <Icon className={React.useMemo(() => `w-4 h-4 transition-colors ${activeSection === section.slug ? 'text-red-500' : 'group-hover:text-red-500'}`, [activeSection, section.slug])} />
+                     <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-red-500' : 'group-hover:text-red-500'}`} />
                      <span className="text-[11px] font-bold uppercase tracking-widest">{section.label}</span>
                    </button>
                  );
