@@ -9,6 +9,8 @@ import { AppProvider } from './context/AppContext';
 // Core Pages (Lazy)
 
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const LibraryPage = lazy(() => import('./pages/Library').then(m => ({ default: m.LibraryPage })));
 const CommunityPage = lazy(() => import('./pages/Community').then(m => ({ default: m.CommunityPage })));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage').then(m => ({ default: m.DiscoverPage })));
@@ -26,6 +28,10 @@ const DocumentationPage = lazy(() => import('./pages/Documentation'));
 const SystemStatus = lazy(() => import('./pages/SystemStatus'));
 const Changelog = lazy(() => import('./pages/Changelog'));
 const FeedbackPage = lazy(() => import('./pages/Feedback'));
+const ApiReferencePage = lazy(() => import('./pages/ApiReference'));
+const LoreDatabasePage = lazy(() => import('./pages/LoreDatabase'));
+const ContactPage = lazy(() => import('./pages/Contact'));
+const TermsPage = lazy(() => import('./pages/Terms'));
 
 
 // Anime Studio Components (Lazy)
@@ -90,6 +96,8 @@ export default function App() {
 
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
                   <Route element={<Layout />}>
@@ -164,6 +172,10 @@ export default function App() {
                     <Route path="/feedback" element={<FeedbackPage />} />
                     <Route path="/create-project" element={<CreateProject />} />
                     <Route path="/projects/new" element={<CreateProject />} />
+                    <Route path="/api-reference" element={<ApiReferencePage />} />
+                    <Route path="/lore-database" element={<LoreDatabasePage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
                   </Route>
                 </Routes>
               </Suspense>

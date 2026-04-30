@@ -109,15 +109,15 @@ const DropdownLink = ({
 );
 
 // -------------------------------------------------
-// Gallery placeholder data
+// Gallery data using local assets
 // -------------------------------------------------
 const GALLERY_DATA: GalleryItem[] = [
-  { src: 'https://placehold.co/600x400/1a1a2e/06b6d4?text=Cyberpunk+City', prompt: 'A neon-lit cyberpunk city at night with rain reflections' },
-  { src: 'https://placehold.co/600x400/1a1a2e/a855f7?text=Fantasy+Warrior', prompt: 'A cel-shaded fantasy warrior wielding a glowing katana' },
-  { src: 'https://placehold.co/600x400/1a1a2e/ec4899?text=Sakura+Scene', prompt: 'Watercolor-style sakura blossoms falling over a quiet temple' },
-  { src: 'https://placehold.co/600x400/1a1a2e/06b6d4?text=Mecha+Battle', prompt: 'A massive mecha battle in a ruined metropolis, 90s anime style' },
-  { src: 'https://placehold.co/600x400/1a1a2e/a855f7?text=Ocean+Sunset', prompt: 'An anime girl watching the ocean sunset from a cliff, Studio Ghibli style' },
-  { src: 'https://placehold.co/600x400/1a1a2e/ec4899?text=Space+Station', prompt: 'Interior of a futuristic space station with holographic displays' },
+  { src: '/cyberpunk_thumbnail_1776537282821.png', prompt: 'A neon-lit cyberpunk city at night with rain reflections' },
+  { src: '/dark_isekai_thumbnail_1776537262155.png', prompt: 'A cel-shaded fantasy warrior wielding a glowing katana' },
+  { src: '/magical_girl_thumbnail_1776537629295.png', prompt: 'Watercolor-style sakura blossoms falling over a quiet temple' },
+  { src: '/mecha_rebellion_thumbnail_1776537334398.png', prompt: 'A massive mecha battle in a ruined metropolis, 90s anime style' },
+  { src: '/sports_anime_thumbnail_1776537646600.png', prompt: 'An anime girl watching the ocean sunset from a cliff, Studio Ghibli style' },
+  { src: '/steampunk_chronicle_thumbnail_1776586554491.png', prompt: 'Interior of a futuristic space station with holographic displays' },
 ];
 
 // -------------------------------------------------
@@ -407,6 +407,38 @@ export function LandingPage() {
             </Button>
           </motion.div>
 
+          {/* Video Demo Section */}
+          <motion.section 
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="max-w-5xl mx-auto py-16"
+          >
+            <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(6,182,212,0.15)] group">
+              {/* Added Icon and Image Overlay elements */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                <Video className="w-4 h-4 text-studio" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider">Live Demo</span>
+              </div>
+              <video 
+                className="w-full h-auto aspect-video object-cover"
+                autoPlay 
+                muted 
+                loop 
+                playsInline
+                poster="/cyberpunk_thumbnail_1776537282821.png"
+              >
+                <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                <Button className="w-20 h-20 rounded-full bg-studio text-black hover:scale-110 transition-transform shadow-[0_0_30px_rgba(6,182,212,0.5)] flex items-center justify-center">
+                  <Play className="w-10 h-10 fill-black translate-x-1" />
+                </Button>
+              </div>
+            </div>
+          </motion.section>
+
           {/* How It Works Section */}
           <section className="max-w-7xl mx-auto py-20">
             <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">
@@ -622,19 +654,19 @@ export function LandingPage() {
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">Resources</h4>
               <ul className="space-y-4">
                 <li><a href="/tutorials" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Learn / Documentation</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Youtube Guides</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">API Reference</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Lore Database</a></li>
+                <li><a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Youtube Guides</a></li>
+                <li><a href="/api-reference" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">API Reference</a></li>
+                <li><a href="/lore-database" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Lore Database</a></li>
               </ul>
             </div>
 
             <div className="space-y-6">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-white">Support</h4>
               <ul className="space-y-4">
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Contact Support</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Neural Help Center</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Status Portal</a></li>
-                <li><a href="#" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Terms of Protocol</a></li>
+                <li><a href="/contact" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Contact Support</a></li>
+                <li><a href="/help" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Neural Help Center</a></li>
+                <li><a href="/status" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Status Portal</a></li>
+                <li><a href="/terms" className="text-zinc-500 hover:text-studio text-sm font-medium transition-colors no-underline">Terms of Protocol</a></li>
               </ul>
             </div>
           </div>
@@ -647,7 +679,7 @@ export function LandingPage() {
               <a href="#" className="text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors no-underline">
                 Privacy Core
               </a>
-              <a href="#" className="text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors no-underline">
+              <a href="/terms" className="text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors no-underline">
                 Terms of Service
               </a>
             </div>

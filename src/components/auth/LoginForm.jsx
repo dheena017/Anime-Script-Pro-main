@@ -17,12 +17,26 @@ export function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
+  React.useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage('');
 
     try {
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
+
       await axios.post('/api/auth/login', { email, password, rememberMe });
       navigate('/dashboard');
     } catch (err) {
@@ -37,12 +51,12 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <FormLabel htmlFor="email">Identity Vector</FormLabel>
+        <FormLabel htmlFor="email">Enter your Email Address</FormLabel>
         <InputField
           id="email"
           name="email"
           type="email"
-          placeholder="architect@studio.pro"
+          placeholder="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -55,12 +69,15 @@ export function LoginForm() {
         <FormLabel 
           htmlFor="password" 
           rightElement={
-            <span className="text-[9px] uppercase font-bold text-zinc-700 hover:text-studio cursor-pointer transition-colors">
-              Recover
+            <span 
+              className="text-[9px] uppercase font-bold text-zinc-700 hover:text-studio cursor-pointer transition-colors"
+              onClick={() => navigate('/forgot-password')}
+            >
+              Forgot
             </span>
           }
         >
-          Neural Key
+          Enter your Password
         </FormLabel>
         <PasswordInput
           id="password"
@@ -85,8 +102,20 @@ export function LoginForm() {
       <ErrorMessage error={errorMessage} />
 
       <SubmitButton loading={isLoading}>
-        Initialize Session
+        Access System
       </SubmitButton>
+
+      <div className="text-center pt-4">
+        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-medium">
+          New Architect?{' '}
+          <span 
+            className="text-studio hover:underline cursor-pointer transition-all"
+            onClick={() => navigate('/register')}
+          >
+            Initialize Account
+          </span>
+        </p>
+      </div>
     </form>
   );
 }
