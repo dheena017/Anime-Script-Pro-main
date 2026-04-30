@@ -24,7 +24,7 @@ export const ScriptHeader: React.FC<ScriptHeaderProps> = ({
       {/* Cinematic Ambient Glow */}
       <div className="absolute -inset-1 bg-gradient-to-r from-studio/20 via-fuchsia-500/10 to-studio/20 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
 
-      <div className="relative flex flex-col md:flex-row items-center justify-between p-6 bg-[#050505]/80 backdrop-blur-3xl border border-studio/20 rounded-[2rem] shadow-2xl overflow-hidden">
+      <div className="relative flex flex-col md:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden">
         {/* Background Scanline Effect */}
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(6,182,212,0.05)_50%,transparent_100%)] bg-[length:100%_4px] pointer-events-none animate-scanline" />
 
