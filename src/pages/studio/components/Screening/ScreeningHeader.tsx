@@ -51,12 +51,6 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               <h1 className="text-2xl font-black uppercase tracking-[0.2em] text-white italic leading-none bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-zinc-400">
                 Screening Architect
               </h1>
-              <div className="px-2.5 py-1 rounded-full bg-studio/20 border border-studio/30 flex items-center gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full", isRendering ? "bg-amber-500 animate-pulse shadow-[0_0_8px_#f59e0b]" : "bg-studio shadow-[0_0_8px_#06b6d4]")} />
-                <span className="text-[9px] font-black uppercase tracking-widest text-studio">
-                  {isRendering ? 'RENDERING' : 'RENDER_READY'}
-                </span>
-              </div>
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Cpu className="w-3.5 h-3.5 text-studio/40" />
