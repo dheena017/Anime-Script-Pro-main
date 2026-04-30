@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, RefreshCw, ChevronRight, Cpu, Image as ImageIcon } from 'lucide-react';
+import { Terminal, RefreshCw, ChevronRight, ChevronLeft, Cpu, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -7,6 +7,7 @@ interface PromptsHeaderProps {
   onRegenerate: () => void;
   isGenerating: boolean;
   onNext: () => void;
+  onPrev: () => void;
   session: string;
   episode: string;
 }
@@ -15,6 +16,7 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
   onRegenerate,
   isGenerating,
   onNext,
+  onPrev,
   session,
   episode
 }) => {
@@ -56,6 +58,14 @@ export const PromptsHeader: React.FC<PromptsHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
+          <Button 
+            variant="ghost" 
+            className="text-zinc-600 hover:text-studio text-[9px] font-black uppercase tracking-widest group/back px-0"
+            onClick={onPrev}
+          >
+            <ChevronLeft className="w-4 h-4 mr-1 group-hover/back:-translate-x-1 transition-transform" />
+            Back to SEO
+          </Button>
 
           <div className="flex items-center gap-3">
             <Button 

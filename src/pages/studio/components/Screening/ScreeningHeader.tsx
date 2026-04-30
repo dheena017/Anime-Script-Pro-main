@@ -1,28 +1,33 @@
 import React from 'react';
-import { RefreshCw, Zap, Monitor, Cpu } from 'lucide-react';
+import { RefreshCw, Zap, Monitor, Cpu, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface ScreeningHeaderProps {
-  activeSession: number;
-  setActiveSession: (session: number) => void;
-  isRendering: boolean;
-  onRender: () => void;
-  hasScript: boolean;
+  activeSession?: number;
+  setActiveSession?: (session: number) => void;
+  isRendering?: boolean;
+  onRender?: () => void;
+  hasScript?: boolean;
   session: string;
   episode: string;
   onPrev?: () => void;
+  onNext?: () => void;
   isLiked?: boolean;
   setIsLiked?: (liked: boolean) => void;
 }
 
 export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
-  activeSession,
-  setActiveSession,
-  isRendering,
-  onRender,
-  hasScript,
-  onPrev}) => {
+  activeSession = 1,
+  setActiveSession = () => {},
+  isRendering = false,
+  onRender = () => {},
+  hasScript = true,
+  session,
+  episode,
+  onPrev,
+  onNext
+}) => {
   return (
     <div className="relative group">
       {/* Cinematic Ambient Glow */}
@@ -56,14 +61,24 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
             </div>
             <div className="flex items-center gap-2 mt-2">
               <Cpu className="w-3 h-3 text-studio/40" />
-              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">Neural Render Architecture V2.0 // Node_Active</p>
+              <p className="text-[9px] font-black text-studio/40 uppercase tracking-[0.4em]">S{session} // EP{episode} // Neural Render Architecture</p>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-6 mt-6 md:mt-0 z-10 w-full md:w-auto justify-between md:justify-end">
-
           <div className="flex items-center gap-4">
+            {onPrev && (
+              <Button 
+                variant="ghost" 
+                className="text-zinc-600 hover:text-studio text-[9px] font-black uppercase tracking-widest group/back px-0"
+                onClick={onPrev}
+              >
+                <ChevronLeft className="w-4 h-4 mr-1 group-hover/back:-translate-x-1 transition-transform" />
+                Back to Prompts
+              </Button>
+            )}
+
             {/* Session Navigation */}
             <div className="flex bg-black/80 border border-zinc-800/50 p-1.5 rounded-2xl shadow-inner backdrop-blur-xl">
               {[1, 2, 3, 4].map((s) => (
@@ -82,39 +97,45 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
               ))}
             </div>
 
-            {onPrev && (
+            <div className="flex items-center gap-3">
+              {/* Render Action */}
               <Button 
-                variant="ghost" 
-                className="text-zinc-500 hover:text-white font-black uppercase tracking-widest text-[10px] h-11 px-4 rounded-2xl transition-all duration-300 backdrop-blur-md"
-                onClick={onPrev}
+                className={cn(
+                  "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/btn border",
+                  isRendering 
+                    ? "bg-zinc-900 border-zinc-800 text-zinc-600" 
+                    : "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+                )}
+                onClick={onRender}
+                disabled={isRendering || !hasScript}
               >
-                Back
+                {!isRendering && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />}
+                
+                {isRendering ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Zap className="w-4 h-4 fill-current animate-pulse" />
+                )}
+                <span className="relative z-10">
+                  {isRendering ? 'Synthesizing' : 'Initiate Render'}
+                </span>
               </Button>
-            )}
 
-            {/* Render Action */}
-            <Button 
-              className={cn(
-                "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/btn border",
-                isRendering 
-                  ? "bg-zinc-900 border-zinc-800 text-zinc-600" 
-                  : "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+              {onNext && (
+                <Button 
+                  className={cn(
+                    "relative h-11 px-8 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 shadow-2xl gap-3 overflow-hidden group/next border",
+                    "bg-studio/10 hover:bg-studio text-studio hover:text-black border-studio/40 hover:border-studio shadow-studio/20"
+                  )}
+                  onClick={onNext}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Next: Engine <ChevronRight className="w-4 h-4 group-hover/next:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/next:translate-x-full transition-transform duration-1000" />
+                </Button>
               )}
-              onClick={onRender}
-              disabled={isRendering || !hasScript}
-            >
-              {/* Button Shine Effect */}
-              {!isRendering && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />}
-              
-              {isRendering ? (
-                <RefreshCw className="w-4 h-4 animate-spin" />
-              ) : (
-                <Zap className="w-4 h-4 fill-current animate-pulse" />
-              )}
-              <span className="relative z-10">
-                {isRendering ? 'Synthesizing Manifest' : 'Initiate Render'}
-              </span>
-            </Button>
+            </div>
           </div>
         </div>
       </div>

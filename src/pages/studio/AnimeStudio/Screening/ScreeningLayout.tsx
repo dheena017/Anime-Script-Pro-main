@@ -1,54 +1,59 @@
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { MonitorPlay } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { ScreeningHeader } from '../../components/Screening/ScreeningHeader';
 import { ScreeningToolbar } from '../../components/Screening/ScreeningToolbar';
+import { ScreeningTab } from '../../components/Screening/Tabs/ScreeningTabs';
+
+export const ScreeningContext = React.createContext<{
+  setHandlers: React.Dispatch<React.SetStateAction<any>>;
+}>({ setHandlers: () => { } });
 
 export default function ScreeningLayout() {
   const navigate = useNavigate();
-  const { session, episode, generatedScript } = useGenerator();
-  const [activeSession, setActiveSession] = React.useState(1);
-  const [isRendering, setIsRendering] = React.useState(false);
-  const [videoUrl, setVideoUrl] = React.useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setHandlers] = React.useState<any>({});
+
+  const {
+    session, episode,
+  } = useGenerator();
+
+  const activeTab = (searchParams.get('tab') as ScreeningTab) || 'preview';
+
+  const handleTabChange = (tab: ScreeningTab) => {
+    setSearchParams({ tab });
+  };
 
   return (
-    <div className="space-y-6">
-      <ScreeningHeader
-        activeSession={activeSession}
-        setActiveSession={setActiveSession}
-        isRendering={isRendering}
-        onRender={() => { }} // Controlled by child or context
-        hasScript={!!generatedScript}
-        session={session}
-        episode={episode}
-        onPrev={() => navigate('/anime/seo')}
-      />
+    <ScreeningContext.Provider value={{ setHandlers }}>
+      <div className="space-y-6">
+        <ScreeningHeader
+          session={session}
+          episode={episode}
+          onPrev={() => navigate('/anime/prompts')}
+          onNext={() => navigate('/anime/engine')}
+        />
 
-      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
-        <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-        <div className="flex items-center gap-12 z-10 w-full">
-          <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
-            <MonitorPlay className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black text-studio uppercase tracking-[0.2em]">Screening_Nexus</span>
-          </div>
-
+        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <ScreeningToolbar
-            session={activeSession.toString()}
-            episode="1"
-            status={videoUrl ? 'active' : 'empty'}
+            status="active"
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            session={session}
+            episode={episode}
           />
         </div>
-      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Outlet context={{ activeSession, setActiveSession, setIsRendering, setVideoUrl, videoUrl }} />
-      </motion.div>
-    </div>
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Outlet context={{ activeTab }} />
+        </motion.div>
+      </div>
+    </ScreeningContext.Provider>
   );
 }
