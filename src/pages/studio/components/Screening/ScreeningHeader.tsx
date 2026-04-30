@@ -1,7 +1,6 @@
 import React from 'react';
 import { RefreshCw, Zap, Monitor, Cpu, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface ScreeningHeaderProps {
   activeSession?: number;
@@ -18,8 +17,6 @@ interface ScreeningHeaderProps {
 }
 
 export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
-  activeSession = 1,
-  setActiveSession = () => {},
   isRendering = false,
   onRender = () => {},
   hasScript = true,
@@ -71,24 +68,6 @@ export const ScreeningHeader: React.FC<ScreeningHeaderProps> = ({
                 PREVIOUS: PROMPTS
               </Button>
             )}
-
-            {/* Session Navigation */}
-            <div className="flex w-full sm:w-auto justify-center bg-black/40 border border-white/5 p-1 rounded-full backdrop-blur-xl">
-              {[1, 2, 3, 4].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setActiveSession(s)}
-                  className={cn(
-                    "relative h-9 flex-1 sm:flex-none px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
-                    activeSession === s 
-                      ? "text-black bg-studio shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
-                      : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
-                  )}
-                >
-                  S{s}
-                </button>
-              ))}
-            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">

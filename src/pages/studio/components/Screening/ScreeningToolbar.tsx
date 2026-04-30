@@ -14,6 +14,8 @@ interface ScreeningToolbarProps {
   session?: string;
   episode?: string;
   content?: string | null;
+  activeSession?: number;
+  setActiveSession?: (session: number) => void;
 }
 
 export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
@@ -22,7 +24,9 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   status,
   session = '1',
   episode = '1',
-  content = null
+  content = null,
+  activeSession = 1,
+  setActiveSession = () => {}
 }) => {
   const { isFullscreen } = useGenerator();
 
@@ -63,6 +67,23 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
 
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6 w-full lg:w-auto">
           <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            {/* Session Navigation */}
+            <div className="flex items-center bg-black/40 border border-white/5 p-1 rounded-full backdrop-blur-md">
+              {[1, 2, 3, 4].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setActiveSession(s)}
+                  className={cn(
+                    "relative h-8 flex items-center px-4 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                    activeSession === s 
+                      ? "text-black bg-studio shadow-[0_0_15px_rgba(6,182,212,0.3)]" 
+                      : "text-zinc-500 hover:text-studio/80 hover:bg-studio/5"
+                  )}
+                >
+                  S{s}
+                </button>
+              ))}
+            </div>
 
             {/* Production Unit */}
             <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-xl backdrop-blur-md grow md:grow-0">

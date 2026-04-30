@@ -13,7 +13,7 @@ export const ScreeningContext = React.createContext<{
 export default function ScreeningLayout() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [, setHandlers] = React.useState<any>({});
+  const [handlers, setHandlers] = React.useState<any>({});
 
   const {
     session, episode,
@@ -44,6 +44,8 @@ export default function ScreeningLayout() {
             setActiveTab={handleTabChange}
             session={session}
             episode={episode}
+            activeSession={handlers.activeSession}
+            setActiveSession={handlers.setActiveSession}
           />
         </div>
 
