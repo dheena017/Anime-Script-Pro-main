@@ -44,17 +44,19 @@ export default function WorldLayout() {
 
   return (
     <div className="space-y-6">
-      <WorldHeader
-        isGenerating={isGeneratingWorld}
-        onRegenerate={handleGenerate}
-        prompt={prompt}
-        session={session}
-        episode={episode}
-        onPrev={() => navigate('/anime/mission')}
-        onNext={() => navigate('/anime/cast')}
-      />
+      <div className="studio-module-header">
+        <WorldHeader
+          isGenerating={isGeneratingWorld}
+          onRegenerate={handleGenerate}
+          prompt={prompt}
+          session={session}
+          episode={episode}
+          onPrev={() => navigate('/anime/mission')}
+          onNext={() => navigate('/anime/cast')}
+        />
+      </div>
 
-      <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+      <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
         <WorldToolbar
           status={generatedWorld ? 'active' : 'empty'}
           activeTab={activeTab}

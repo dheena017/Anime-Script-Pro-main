@@ -66,17 +66,19 @@ export default function CastLayout() {
   return (
     <CastContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <CastHeader
-          isGeneratingCharacters={handlers.isGenerating || isGeneratingCharacters}
-          handleGenerate={handlers.handleGenerateCharacter || handleGenerate}
-          prompt={prompt}
-          session={session}
-          episode={episode}
-          onPrev={() => navigate('/anime/world')}
-          onNext={() => navigate('/anime/series')}
-        />
+        <div className="studio-module-header">
+          <CastHeader
+            isGeneratingCharacters={handlers.isGenerating || isGeneratingCharacters}
+            handleGenerate={handlers.handleGenerateCharacter || handleGenerate}
+            prompt={prompt}
+            session={session}
+            episode={episode}
+            onPrev={() => navigate('/anime/world')}
+            onNext={() => navigate('/anime/series')}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <CastToolbar
             status={generatedCharacters ? 'active' : 'empty'}
             activeTab={activeTab}

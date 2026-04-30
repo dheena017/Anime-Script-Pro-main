@@ -28,14 +28,16 @@ export default function EngineLayout() {
   return (
     <EngineContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <EngineHeader
-          session={session}
-          episode={episode}
-          onPrev={() => navigate('/anime/screening')}
-          isGenerating={handlers.isGenerating}
-        />
+        <div className="studio-module-header">
+          <EngineHeader
+            session={session}
+            episode={episode}
+            onPrev={() => navigate('/anime/screening')}
+            isGenerating={handlers.isGenerating}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <EngineToolbar
             status={generatedScript ? 'active' : 'empty'}
             activeTab={activeTab}

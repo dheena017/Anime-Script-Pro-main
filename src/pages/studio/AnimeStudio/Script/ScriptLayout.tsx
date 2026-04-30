@@ -56,16 +56,18 @@ export default function ScriptLayout() {
   return (
     <ScriptContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <ScriptHeader
-          onRegenerate={handleGenerate}
-          isGenerating={isLoading}
-          onNext={() => navigate('/anime/storyboard')}
-          onPrev={() => navigate('/anime/series')}
-          session={session}
-          episode={episode}
-        />
+        <div className="studio-module-header">
+          <ScriptHeader
+            onRegenerate={handleGenerate}
+            isGenerating={isLoading}
+            onNext={() => navigate('/anime/storyboard')}
+            onPrev={() => navigate('/anime/series')}
+            session={session}
+            episode={episode}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <ScriptToolbar
             status={generatedScript ? 'active' : 'empty'}
             activeTab={activeTab}

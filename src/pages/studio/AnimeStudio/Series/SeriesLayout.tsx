@@ -54,16 +54,18 @@ export default function SeriesLayout() {
 
   return (
     <div className="space-y-6">
-      <SeriesHeader
-        onRegenerate={handleGenerate}
-        isGenerating={isGeneratingSeries}
-        onPrev={() => navigate('/anime/cast')}
-        onNext={() => navigate('/anime/script')}
-        session={session}
-        episode={episode}
-      />
+      <div className="studio-module-header">
+        <SeriesHeader
+          onRegenerate={handleGenerate}
+          isGenerating={isGeneratingSeries}
+          onPrev={() => navigate('/anime/cast')}
+          onNext={() => navigate('/anime/script')}
+          session={session}
+          episode={episode}
+        />
+      </div>
 
-      <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+      <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
         <SeriesToolbar
           status={generatedSeriesPlan ? 'active' : 'empty'}
           activeTab={activeTab}

@@ -50,16 +50,18 @@ export default function StoryboardLayout() {
   return (
     <StoryboardContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <StoryboardHeader
-          onRegenerate={handlers.handleGenerateAll || handleGenerate}
-          isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
-          onNext={() => navigate('/anime/seo')}
-          onPrev={() => navigate('/anime/script')}
-          session={session}
-          episode={episode}
-        />
+        <div className="studio-module-header">
+          <StoryboardHeader
+            onRegenerate={handlers.handleGenerateAll || handleGenerate}
+            isGenerating={handlers.isGenerating || isGeneratingImagePrompts}
+            onNext={() => navigate('/anime/seo')}
+            onPrev={() => navigate('/anime/script')}
+            session={session}
+            episode={episode}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <StoryboardToolbar
             status={generatedImagePrompts ? 'active' : 'empty'}
             activeTab={activeTab}

@@ -54,7 +54,7 @@ export function AnimeStudioNavigation({
 
 
   return (
-    <div className="w-full px-4 pt-4 pb-2 relative z-[100]">
+    <div className="w-full px-4 pt-4 pb-2 relative z-[100] studio-navigation-bar">
       <div className="max-w-7xl mx-auto">
         <div className="relative flex items-center justify-between h-16 px-3 bg-[#050505]/80 backdrop-blur-3xl border border-studio/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
           {/* Top light trace */}

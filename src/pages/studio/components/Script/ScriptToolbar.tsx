@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, Maximize, Minimize, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export type { ScriptTab };
 
@@ -39,15 +40,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   onPrev,
   onNext
 }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

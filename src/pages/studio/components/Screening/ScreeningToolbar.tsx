@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Monitor, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ScreeningTabs, ScreeningTab } from './Tabs/ScreeningTabs';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export type { ScreeningTab };
 
@@ -23,15 +24,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

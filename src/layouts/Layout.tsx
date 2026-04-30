@@ -16,8 +16,10 @@ import {
 import { useApp } from '../context/AppContext';
 import { NeuralConsole } from '../components/studio/NeuralConsole';
 import { NotificationCenter } from '../components/NotificationCenter';
+import { useGenerator } from '../hooks/useGenerator';
 
 export function Layout() {
+  const { isFullscreen } = useGenerator();
   const location = useLocation();
   const { currentProject } = useApp();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -28,7 +30,10 @@ export function Layout() {
                       location.pathname.startsWith('/comic');
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30 overflow-x-hidden">
+    <div className={cn(
+      "min-h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30 overflow-x-hidden",
+      isFullscreen && "studio-fullscreen-mode"
+    )}>
       {/* Background Accents - Atmospheric */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.08)_0%,transparent_70%)] blur-[100px] rounded-full mix-blend-screen" />

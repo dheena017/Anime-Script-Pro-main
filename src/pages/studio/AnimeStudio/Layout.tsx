@@ -66,7 +66,7 @@ export default function AnimeLayout() {
     setVisualData,
     addLog,
     theme, setTheme,
-    showNotification
+    showNotification,
   } = useGenerator();
 
 

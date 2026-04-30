@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Copy, Download, Maximize, Minimize, Heart, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useGenerator } from '@/hooks/useGenerator';
 
 interface ViewerToolbarProps {
   content: string | null;
@@ -30,15 +30,7 @@ export function ViewerToolbar({
   hideProductionUnit = false,
   hideActions = false
 }: ViewerToolbarProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

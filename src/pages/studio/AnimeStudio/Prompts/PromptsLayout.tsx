@@ -50,16 +50,18 @@ export default function PromptsLayout() {
   return (
     <PromptsContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <PromptsHeader
-          onRegenerate={handlers.handleGenerate || handleGenerate}
-          isGenerating={handlers.isGenerating || isLoading}
-          onNext={() => navigate('/anime/screening')}
-          onPrev={() => navigate('/anime/seo')}
-          session={session}
-          episode={episode}
-        />
+        <div className="studio-module-header">
+          <PromptsHeader
+            onRegenerate={handlers.handleGenerate || handleGenerate}
+            isGenerating={handlers.isGenerating || isLoading}
+            onNext={() => navigate('/anime/screening')}
+            onPrev={() => navigate('/anime/seo')}
+            session={session}
+            episode={episode}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <PromptsToolbar
             status={generatedImagePrompts ? 'active' : 'empty'}
             activeTab={activeTab}

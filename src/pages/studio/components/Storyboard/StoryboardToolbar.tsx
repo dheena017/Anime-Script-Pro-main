@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Palette, Mic2, Zap, Copy, Download, Maximize, Minimize, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export type { StoryboardTab };
 
@@ -31,13 +32,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   onEnhanceVisuals,
   isGlobalEnhancing
 }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

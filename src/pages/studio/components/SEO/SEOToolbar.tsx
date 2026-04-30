@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export type { SEOTab };
 
@@ -23,15 +24,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

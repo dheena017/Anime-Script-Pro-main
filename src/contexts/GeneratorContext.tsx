@@ -86,6 +86,8 @@ interface GeneratorContextType {
   setProductionSequence: (s: ProductionUnit[]) => void;
   isLiked: boolean;
   setIsLiked: (l: boolean) => void;
+  isFullscreen: boolean;
+  setIsFullscreen: (f: boolean) => void;
   notification: { message: string; type: 'error' | 'success' | 'info' } | null;
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
 }
@@ -147,7 +149,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [currentScriptId, setCurrentScriptId] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const showNotification = (message: string, type: 'error' | 'success' | 'info' = 'info') => {
     setNotification({ message, type });
@@ -229,6 +240,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       generatedWorld, setGeneratedWorld,
       generatedAltText, setGeneratedAltText,
       isLiked, setIsLiked,
+      isFullscreen, setIsFullscreen,
       notification, showNotification
     }}>
       {children}

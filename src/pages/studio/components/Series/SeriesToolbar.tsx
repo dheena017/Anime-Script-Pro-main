@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Layers, Copy, Download, Maximize, Minimize, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { Button } from '@/components/ui/button';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export type { SeriesTab };
 
@@ -29,15 +30,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   onManifestClick,
   onExportClick,
 }) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  const { isFullscreen } = useGenerator();
 
   const toggleFullscreen = async () => {
     try {

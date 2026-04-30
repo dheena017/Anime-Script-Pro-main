@@ -28,14 +28,16 @@ export default function ScreeningLayout() {
   return (
     <ScreeningContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <ScreeningHeader
-          session={session}
-          episode={episode}
-          onPrev={() => navigate('/anime/prompts')}
-          onNext={() => navigate('/anime/engine')}
-        />
+        <div className="studio-module-header">
+          <ScreeningHeader
+            session={session}
+            episode={episode}
+            onPrev={() => navigate('/anime/prompts')}
+            onNext={() => navigate('/anime/engine')}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <ScreeningToolbar
             status="active"
             activeTab={activeTab}

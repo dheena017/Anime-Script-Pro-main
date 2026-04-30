@@ -82,6 +82,41 @@
     background-color: color-mix(in srgb, var(--studio-primary), transparent 20%);
     box-shadow: 0 0 15px var(--studio-glow);
   }
+
+  /* Global Fullscreen Logic */
+  .studio-fullscreen-mode .sidebar-container,
+  .studio-fullscreen-mode header,
+  .studio-fullscreen-mode footer,
+  .studio-fullscreen-mode .session-logs-container,
+  .studio-fullscreen-mode .studio-navigation-bar {
+    display: none !important;
+  }
+
+  .studio-fullscreen-mode main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
+  .studio-fullscreen-mode .max-w-7xl {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .studio-fullscreen-mode #studio-content-area {
+    height: calc(100vh - 4rem) !important;
+    margin: 2rem !important;
+    border-radius: 2rem !important;
+    max-width: calc(100vw - 4rem) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .studio-fullscreen-mode #studio-content-area > div {
+    /* Restore normal padding */
+  }
 }
 
 /* Glass & Technical Components */

@@ -50,16 +50,18 @@ export default function SEOLayout() {
   return (
     <SEOContext.Provider value={{ setHandlers }}>
       <div className="space-y-6">
-        <SEOHeader
-          onRegenerate={handleGenerate}
-          isGenerating={isLoading}
-          onNext={() => navigate('/anime/prompts')}
-          onPrev={() => navigate('/anime/storyboard')}
-          session={session}
-          episode={episode}
-        />
+        <div className="studio-module-header">
+          <SEOHeader
+            onRegenerate={handleGenerate}
+            isGenerating={isLoading}
+            onNext={() => navigate('/anime/prompts')}
+            onPrev={() => navigate('/anime/storyboard')}
+            session={session}
+            episode={episode}
+          />
+        </div>
 
-        <div className="flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
+        <div className="studio-module-toolbar flex items-center justify-center p-2 bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-xl mb-8">
           <SEOToolbar
             status={generatedMetadata ? 'active' : 'empty'}
             activeTab={activeTab}
