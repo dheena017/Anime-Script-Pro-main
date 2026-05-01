@@ -6,10 +6,11 @@ import {
   generateMetadata, 
   generateYouTubeDescription, 
   generateAltTexts,
-  generateGrowthStrategy 
+  generateDistributionStrategy 
 } from '@/services/api/gemini';
 import { GrowthTab } from './components/SEO/Tabs/GrowthTab';
 import { cn } from '@/lib/utils';
+import { growthApi } from '@/services/api/growth';
 
 // Context
 import { SEOContext } from './SEO/SEOLayout';
@@ -35,6 +36,8 @@ export function SEOPage() {
     isGeneratingAltText, setIsGeneratingAltText,
     generatedGrowthStrategy, setGeneratedGrowthStrategy,
     isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
+    generatedDistributionPlan, setGeneratedDistributionPlan,
+    isGeneratingDistribution, setIsGeneratingDistribution,
     generatedScript, selectedModel, showNotification
   } = useGenerator();
 
@@ -92,21 +95,45 @@ export function SEOPage() {
     }
   };
 
-  const handleGenerateGrowthStrategy = async () => {
+  const handleGenerateGrowthStrategy = async (strategyId?: number) => {
     if (!generatedScript) {
       showNotification?.('Prerequisite Failure: Synthesis a script manifest before generating growth strategy.', 'error');
       return;
     }
+
+    if (!strategyId) {
+      setGeneratedGrowthStrategy(null);
+      return;
+    }
+
     setIsGeneratingGrowthStrategy(true);
     try {
-      const strategy = await generateGrowthStrategy(generatedScript, selectedModel);
-      setGeneratedGrowthStrategy(strategy);
+      const result = await growthApi.generateStrategy(strategyId, generatedScript, selectedModel);
+      setGeneratedGrowthStrategy(result.content);
       showNotification?.('Neural Synthesis Complete: YouTube Growth Strategy Manifested', 'success');
+    } catch (error: any) {
+      console.error(error);
+      showNotification?.('Synthesis Failure: ' + (error.response?.data?.detail || error.message || 'Unknown Error'), 'error');
+    } finally {
+      setIsGeneratingGrowthStrategy(false);
+    }
+  };
+
+  const handleGenerateDistribution = async () => {
+    if (!generatedScript) {
+      showNotification?.('Prerequisite Failure: Synthesis a script manifest before generating distribution plan.', 'error');
+      return;
+    }
+    setIsGeneratingDistribution(true);
+    try {
+      const plan = await generateDistributionStrategy(generatedScript, selectedModel);
+      setGeneratedDistributionPlan(plan);
+      showNotification?.('Neural Synthesis Complete: Cross-Platform Distribution Matrix Mapped', 'success');
     } catch (error: any) {
       console.error(error);
       showNotification?.('Synthesis Failure: ' + (error.message || 'Unknown Error'), 'error');
     } finally {
-      setIsGeneratingGrowthStrategy(false);
+      setIsGeneratingDistribution(false);
     }
   };
 
@@ -115,7 +142,8 @@ export function SEOPage() {
       handleGenerateMetadata,
       handleGenerateDescription,
       handleGenerateAltText,
-      handleGenerateGrowthStrategy
+      handleGenerateGrowthStrategy,
+      handleGenerateDistribution
     });
   }, [generatedScript, selectedModel]);
 
@@ -156,9 +184,9 @@ export function SEOPage() {
       case 'distribution':
         return (
           <DistributionTab
-            content={generatedDescription}
-            isGenerating={isGeneratingDescription}
-            onGenerate={handleGenerateDescription}
+            content={generatedDistributionPlan}
+            isGenerating={isGeneratingDistribution}
+            onGenerate={handleGenerateDistribution}
           />
         );
       case 'growth':
