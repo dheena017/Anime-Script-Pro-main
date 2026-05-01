@@ -1,7 +1,11 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { apiRequest } from '@/lib/api-utils';
 import { ProductionUnit } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
+import { engineApi } from '../services/api/engine';
+import { worldApi } from '../services/api/world';
+import { productionApi } from '../services/api/production';
+import { AI_EVENTS } from '../services/generators/core';
 
 interface GeneratorContextType {
   worldLore: any;
@@ -117,6 +121,10 @@ interface GeneratorContextType {
   setGeneratedGrowthStrategy: (s: string | null) => void;
   isGeneratingGrowthStrategy: boolean;
   setIsGeneratingGrowthStrategy: (l: boolean) => void;
+  generatedDistributionPlan: string | null;
+  setGeneratedDistributionPlan: (s: string | null) => void;
+  isGeneratingDistribution: boolean;
+  setIsGeneratingDistribution: (l: boolean) => void;
 }
 
 export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
@@ -136,6 +144,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedAltText, setGeneratedAltText] = useState<string | null>(null);
   const [generatedGrowthStrategy, setGeneratedGrowthStrategy] = useState<string | null>(null);
   const [isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy] = useState(false);
+  const [generatedDistributionPlan, setGeneratedDistributionPlan] = useState<string | null>(null);
+  const [isGeneratingDistribution, setIsGeneratingDistribution] = useState(false);
   const [visualData, setVisualData] = useState<Record<number, string[]>>({});
   const [videoData, setVideoData] = useState<Record<number, string>>({});
 
@@ -217,7 +227,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
 
     const fetchHistory = async () => {
-      if (!user?.id) return; // Defensive check
+      if (!user?.id) return;
       try {
         const projects = await apiRequest<any[]>(`/api/projects?user_id=${user.id}`);
         setHistory((projects || []).map(p => ({
@@ -236,19 +246,20 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     };
 
     fetchHistory();
-    // Poll every 30 seconds or use a socket in the future
-    const interval = setInterval(fetchHistory, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
+  }, [user?.id]);
 
-  // Load Engine Config
+  // Combine initial loading of all modular data
   useEffect(() => {
     if (!user?.id) return;
 
-    const loadConfig = async () => {
+    const loadAllData = async () => {
       try {
-        const { engineApi } = await import('../services/api/engine');
-        const config = await engineApi.getConfig(user.id);
+        const [config, lore, production] = await Promise.all([
+          engineApi.getConfig(user.id),
+          worldApi.getLore(user.id),
+          productionApi.getContent(user.id)
+        ]);
+
         if (config) {
           setTemperature(config.temperature);
           setMaxTokens(config.max_tokens);
@@ -257,45 +268,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           setAudience(config.audience);
           setIsEngineInitialized(true);
         }
-      } catch (error) {
-        console.error("Failed to load engine config:", error);
-      }
-    };
 
-    loadConfig();
-  }, [user?.id]);
-
-  // Auto-save Engine Config
-  useEffect(() => {
-    if (!user?.id || !isEngineInitialized) return;
-
-    const timeout = setTimeout(async () => {
-      try {
-        const { engineApi } = await import('../services/api/engine');
-        await engineApi.updateConfig(user.id, {
-          temperature,
-          max_tokens: maxTokens,
-          selected_model: selectedModel,
-          vibe: tone,
-          audience: audience
-        });
-        console.log("Engine configuration synced to cloud.");
-      } catch (error) {
-        console.error("Failed to sync engine config:", error);
-      }
-    }, 2000); // 2 second debounce
-
-    return () => clearTimeout(timeout);
-  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, isEngineInitialized]);
-
-  // Load World Lore
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const loadWorldLore = async () => {
-      try {
-        const { worldApi } = await import('../services/api/world');
-        const lore = await worldApi.getLore(user.id);
         if (lore) {
           setArchitecture(lore.architecture);
           setAtlas(lore.atlas);
@@ -305,13 +278,45 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           if (lore.full_lore_blob) setGeneratedWorld(lore.full_lore_blob);
           setIsWorldInitialized(true);
         }
+
+        if (production) {
+          setCastProfiles(production.cast_profiles);
+          setCastData(production.cast_data);
+          setGeneratedScript(production.script_content);
+          setGeneratedSeriesPlan(production.series_plan);
+          setGeneratedMetadata(production.seo_metadata);
+          setGeneratedGrowthStrategy(production.growth_strategy);
+          setGeneratedDistributionPlan(production.distribution_plan);
+          setIsProductionInitialized(true);
+        }
       } catch (error) {
-        console.error("Failed to load world lore:", error);
+        console.error("Critical error loading modular studio data:", error);
       }
     };
 
-    loadWorldLore();
+    loadAllData();
   }, [user?.id]);
+
+  // Auto-save Engine Config
+  useEffect(() => {
+    if (!user?.id || !isEngineInitialized) return;
+
+    const timeout = setTimeout(async () => {
+      try {
+        await engineApi.updateConfig(user.id, {
+          temperature,
+          max_tokens: maxTokens,
+          selected_model: selectedModel,
+          vibe: tone,
+          audience: audience
+        });
+      } catch (error) {
+        console.warn("Engine sync failed:", error);
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, isEngineInitialized]);
 
   // Auto-save World Lore
   useEffect(() => {
@@ -319,7 +324,6 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
     const timeout = setTimeout(async () => {
       try {
-        const { worldApi } = await import('../services/api/world');
         await worldApi.updateLore(user.id, {
           architecture,
           atlas,
@@ -328,40 +332,13 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           culture,
           full_lore_blob: generatedWorld
         });
-        console.log("World lore synced to cloud.");
       } catch (error) {
-        console.error("Failed to sync world lore:", error);
+        console.warn("Lore sync failed:", error);
       }
-    }, 3000); // 3 second debounce
+    }, 5000);
 
     return () => clearTimeout(timeout);
   }, [user?.id, architecture, atlas, historyLore, systems, culture, generatedWorld, isWorldInitialized]);
-
-  // Load Production Content
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const loadProduction = async () => {
-      try {
-        const { productionApi } = await import('../services/api/production');
-        const content = await productionApi.getContent(user.id);
-        if (content) {
-          setCastProfiles(content.cast_profiles);
-          setCastData(content.cast_data);
-          setGeneratedScript(content.script_content);
-          setGeneratedSeriesPlan(content.series_plan);
-          setGeneratedMetadata(content.seo_metadata);
-          setGeneratedGrowthStrategy(content.growth_strategy);
-          // Map other fields as needed
-          setIsProductionInitialized(true);
-        }
-      } catch (error) {
-        console.error("Failed to load production content:", error);
-      }
-    };
-
-    loadProduction();
-  }, [user?.id]);
 
   // Auto-save Production Content
   useEffect(() => {
@@ -369,50 +346,43 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
     const timeout = setTimeout(async () => {
       try {
-        const { productionApi } = await import('../services/api/production');
         await productionApi.updateContent(user.id, {
           cast_profiles: castProfiles,
           cast_data: castData,
           script_content: generatedScript,
           series_plan: generatedSeriesPlan,
           seo_metadata: generatedMetadata,
-          growth_strategy: generatedGrowthStrategy
+          growth_strategy: generatedGrowthStrategy,
+          distribution_plan: generatedDistributionPlan
         });
-        console.log("Production content synced to cloud.");
       } catch (error) {
         console.error("Failed to sync production content:", error);
       }
-    }, 5000); // 5 second debounce for larger data objects
+    }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, castProfiles, castData, generatedScript, generatedSeriesPlan, generatedMetadata, isProductionInitialized]);
+  }, [user?.id, castProfiles, castData, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, isProductionInitialized]);
+
   // Neural Telemetry Sync
   useEffect(() => {
-    const syncTelemetry = async () => {
-      const { AI_EVENTS } = await import('../services/generators/core');
-      const { engineApi } = await import('../services/api/engine');
-
-      const handleTelemetry = async (e: any) => {
-        try {
-          await engineApi.recordTelemetry({
-            model: e.detail.model,
-            latency_ms: e.detail.latency,
-            status: e.detail.error ? 'ERROR' : 'SUCCESS',
-            endpoint: 'studio_general',
-            request_summary: e.detail.text?.substring(0, 100),
-            error_message: e.detail.error,
-            metadata: { fallbacks: e.detail.fallbacks }
-          }, user?.id);
-        } catch (err) {
-          console.warn("Failed to record remote telemetry:", err);
-        }
-      };
-
-      AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
-      return () => AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
+    const handleTelemetry = async (e: any) => {
+      try {
+        await engineApi.recordTelemetry({
+          model: e.detail.model,
+          latency_ms: e.detail.latency,
+          status: e.detail.error ? 'ERROR' : 'SUCCESS',
+          endpoint: 'studio_general',
+          request_summary: e.detail.text?.substring(0, 100),
+          error_message: e.detail.error,
+          metadata: { fallbacks: e.detail.fallbacks }
+        }, user?.id);
+      } catch (err) {
+        console.warn("Failed to record remote telemetry:", err);
+      }
     };
 
-    syncTelemetry();
+    AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
+    return () => AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
   }, [user?.id]);
 
   return (
@@ -475,7 +445,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       systems, setSystems,
       culture, setCulture,
       generatedGrowthStrategy, setGeneratedGrowthStrategy,
-      isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy
+      isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
+      generatedDistributionPlan, setGeneratedDistributionPlan,
+      isGeneratingDistribution, setIsGeneratingDistribution
     }}>
       {children}
       {notification && (
