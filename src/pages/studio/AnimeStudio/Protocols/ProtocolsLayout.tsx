@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { ProtocolsToolbar } from './ProtocolsToolbar';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, RefreshCw } from 'lucide-react';
