@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X, Layout, Music, Code, LucideIcon, TrendingUp, CheckCircle, Database, Cpu, Zap } from 'lucide-react';
