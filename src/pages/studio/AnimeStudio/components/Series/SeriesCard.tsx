@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Milestone, Activity, Volume2, Camera, Video, LayoutGrid,  PlayCircle, MapPin, Clock, Users, Heart } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
