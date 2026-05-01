@@ -31,6 +31,7 @@ export function LoginPage() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.5 }}
         onClick={() => navigate('/')}
+        aria-label="Return to landing page"
         className="absolute top-8 left-8 z-20 flex items-center gap-2 text-zinc-500 hover:text-studio transition-colors group"
       >
         <div className="p-2 rounded-xl bg-zinc-900/50 border border-zinc-800/50 group-hover:border-studio/50 transition-all">
@@ -59,7 +60,7 @@ export function LoginPage() {
               transition={{ delay: i * 0.2 }}
               className="relative overflow-hidden rounded-2xl border border-white/5"
             >
-              <img src={`/${src}`} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+              <img src={`/${src}`} alt={`Anime inspiration background ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
             </motion.div>
           ))}
         </div>
@@ -83,7 +84,7 @@ export function LoginPage() {
                 </h2>
                 <div className="flex items-center gap-3">
                   <div className="h-[1px] w-12 bg-studio/30" />
-                  <p className="text-zinc-500 text-[10px] font-black uppercase tracking-[0.4em]">
+                  <p className="text-zinc-400 text-[10px] font-black uppercase tracking-[0.4em]">
                     Neural Access Authorized
                   </p>
                 </div>
@@ -112,7 +113,7 @@ export function LoginPage() {
                             transition={{ duration: 2, repeat: Infinity }}
                          />
                       </div>
-                      <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-500">
+                      <div className="flex justify-between text-[9px] uppercase font-black tracking-widest text-zinc-400">
                          <span>Neural Processing</span>
                          <span className="text-studio">65% ACTIVE</span>
                       </div>
@@ -161,7 +162,7 @@ export function LoginPage() {
 
         {/* Footer Metrics */}
         <div className="w-full mt-12 flex flex-col sm:flex-row items-center justify-between px-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-           <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-500">
+           <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-400">
               <div className="flex items-center gap-1.5">
                  <ShieldCheck className="w-3 h-3 text-studio" />
                  <span>Encrypted</span>
@@ -171,7 +172,7 @@ export function LoginPage() {
                  <span>Fast Lane</span>
               </div>
            </div>
-           <p className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-600 mt-4 sm:mt-0">
+           <p className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-500 mt-4 sm:mt-0">
               Studio Architect v2.0
            </p>
         </div>
