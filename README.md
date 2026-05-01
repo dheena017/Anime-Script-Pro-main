@@ -26,6 +26,7 @@ The studio has been modernized to handle a complex **Image-to-Video** pipeline:
 - **Intelligence Layer**: FastAPI + Python (100% Async / SQLModel)
 - **Neural Models**: Multi-Model Swarm (Gemini 2.5 Pro / Flash, Imagen-3, Veo-2.0)
 - **Verification**: Playwright E2E + Backend Unit/Integration Suite
+- **Feature Docs**: See [FEATURES.md](./FEATURES.md) for a detailed feature catalog.
 
 ---
 

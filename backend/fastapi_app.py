@@ -189,6 +189,7 @@ from api.users import router as users_router
 from api.media import router as media_router
 from api.notifications import router as notifications_router
 from api.auth import router as auth_router
+from api.logs import router as logs_router
 from api.stats import router as stats_router
 from api.admin import router as admin_router
 from api.world import router as world_router
@@ -241,6 +242,7 @@ app.include_router(users_router)
 app.include_router(media_router)
 app.include_router(notifications_router)
 app.include_router(auth_router)
+app.include_router(logs_router)
 app.include_router(stats_router)
 app.include_router(admin_router)
 app.include_router(world_router)

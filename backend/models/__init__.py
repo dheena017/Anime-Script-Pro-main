@@ -9,6 +9,7 @@ from .system import (
 from .engine import EngineConfig, AITelemetry
 from .world import WorldLore, CastMember, NarrativeBeat, ReusableCharacter
 from .project_content import ProjectContent
+from .logs import SystemLog
 
 # Export all models for easier importing
 __all__ = [
@@ -18,5 +19,6 @@ __all__ = [
     "WorldLore", "CastMember", "NarrativeBeat", "ReusableCharacter",
     "Template", "MediaAsset", "UserFavorite", "SavedPrompt", "PromptLibrary", "Prompt",
     "Category", "Tutorial", "Notification", "SEOEntry", "HelpCategory", "FAQ",
-    "DocSection", "DocArticle", "ScreeningRoomEntry", "CommunityPost"
+    "DocSection", "DocArticle", "ScreeningRoomEntry", "CommunityPost",
+    "SystemLog"
 ]
