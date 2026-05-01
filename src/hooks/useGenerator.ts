@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { GeneratorContext } from '../contexts/GeneratorContext';
+import { GeneratorContext } from '@/contexts/GeneratorContext';
 
 export function useGenerator() {
   const context = useContext(GeneratorContext);
@@ -8,3 +8,5 @@ export function useGenerator() {
   }
   return context;
 }
+
+
