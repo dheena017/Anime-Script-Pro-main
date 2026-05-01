@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -25,9 +25,9 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
         src={src}
         alt={alt}
         onLoad={() => setIsLoaded(true)}
-        className={`transition-opacity duration-700 ease-in-out ${
+        className={`transition-opacity duration-700 ease-in-out w-full h-full object-cover ${
           isLoaded ? 'opacity-100' : 'opacity-0'
-        } ${props.className || 'w-full h-full object-cover'}`}
+        }`}
         loading="lazy"
         decoding="async"
         fetchPriority={fetchPriority}

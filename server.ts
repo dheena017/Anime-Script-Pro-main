@@ -1,4 +1,6 @@
 
+/// <reference types="node" />
+
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import path from "path";
@@ -19,6 +21,7 @@ const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
 const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
 const bold = (text: string) => `\x1b[1m${text}\x1b[0m`;
 const gray = (text: string) => `\x1b[90m${text}\x1b[0m`;
+const magenta = (text: string) => `\x1b[35m${text}\x1b[0m`;
 
 
 
@@ -82,29 +85,30 @@ export async function createServer() {
       return rewritten;
     },
     on: {
-      proxyReq: (proxyReq: any, req: any, _res: any) => {
+      proxyReq: (proxyReq: any, req: any) => {
         // Detailed Proxy Logging
-        if (process.env.DEBUG_PROXY === 'true') {
-          console.log(`${cyan('[PROXY]')} >> ${bold(req.method)} ${req.originalUrl} -> ${proxyReq.path}`);
+        if (process.env.DEBUG_PROXY === 'true' || process.env.NODE_ENV !== 'production') {
+          console.log(`${magenta('[PROXY]')} >> ${bold(req.method)} ${req.originalUrl} -> ${proxyReq.path}`);
         }
         // Add a development bypass header when running locally to help developer login flows
-        try {
-          if (process.env.NODE_ENV !== 'production') {
-            proxyReq.setHeader('x-bypass-auth', 'true');
-          }
-        } catch (e) {
-          // ignore
+        if (process.env.NODE_ENV !== 'production') {
+          proxyReq.setHeader('x-bypass-auth', 'true');
         }
       },
-      proxyRes: (proxyRes: any, req: any, _res: any) => {
-        if (process.env.DEBUG_PROXY === 'true') {
-          console.log(`${cyan('[PROXY]')} << ${proxyRes.statusCode} from ${req.originalUrl}`);
+      proxyRes: (proxyRes: any, req: any) => {
+        if (process.env.DEBUG_PROXY === 'true' || process.env.NODE_ENV !== 'production') {
+          const status = proxyRes.statusCode >= 400 ? red(proxyRes.statusCode.toString()) : green(proxyRes.statusCode.toString());
+          console.log(`${magenta('[PROXY]')} << ${status} from ${req.originalUrl}`);
         }
       },
       error: (err: any, req: any, res: any) => {
-        console.error(`${red('[PROXY CRITICAL]')} Connection refused for ${req.originalUrl}: ${err.message}`);
+        console.error(`${red('[PROXY CRITICAL]')} Connection error for ${req.originalUrl}: ${err.message}`);
         if (res && !res.headersSent) {
-          res.status(502).json({ error: "Intelligence Layer Unreachable", details: err.message });
+          res.status(502).json({ 
+            error: "Intelligence Layer Unreachable", 
+            details: "The FastAPI backend is not responding. Please ensure it is running with 'npm run backend'.",
+            message: err.message 
+          });
         }
       }
     }
@@ -204,12 +208,7 @@ async function startServer() {
   const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8002";
 
   app.listen(PORT, "0.0.0.0", async () => {
-    const cyan = (text: string) => `\x1b[36m${text}\x1b[0m`;
-    const green = (text: string) => `\x1b[32m${text}\x1b[0m`;
-    const yellow = (text: string) => `\x1b[33m${text}\x1b[0m`;
-    const red = (text: string) => `\x1b[31m${text}\x1b[0m`;
-    const bold = (text: string) => `\x1b[1m${text}\x1b[0m`;
-    const gray = (text: string) => `\x1b[90m${text}\x1b[0m`;
+    // Using global styling utilities
 
     let pkg = { name: "Anime Script Pro", version: "1.0.0" };
     try {

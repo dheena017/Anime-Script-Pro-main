@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ShieldCheck, Zap, Play, Sparkles } from 'lucide-react';
+import { ShieldCheck, Zap, Play, ArrowLeft } from 'lucide-react';
 import { AuthCard } from '@/components/auth/AuthCard.jsx';
 import { LoginForm } from '@/components/auth/LoginForm.jsx';
 import { SocialLoginButton } from '@/components/auth/SocialLoginButton.jsx';
