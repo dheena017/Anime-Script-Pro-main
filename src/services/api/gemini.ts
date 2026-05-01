@@ -4,7 +4,8 @@ export {
   generateMetadata, 
   generateYouTubeDescription, 
   generateAltTexts,
-  generateGrowthStrategy 
+  generateGrowthStrategy,
+  generateDistributionStrategy 
 } from "../generators/metadata";
 export * from "../generators/image";
 export * from "../generators/series";
