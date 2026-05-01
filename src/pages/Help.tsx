@@ -19,7 +19,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { cn } from '../lib/utils';
-import { supportService, HelpCategory, FAQ } from '../services/supportService';
+import { supportService, HelpCategory, FAQ } from '../services/api/support';
 
 const ICON_MAP: Record<string, any> = {
   Zap,

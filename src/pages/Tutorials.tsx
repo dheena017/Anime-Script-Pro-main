@@ -18,7 +18,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { motion } from 'motion/react';
-import { tutorialService, Tutorial } from '../services/tutorialService';
+import { tutorialService, Tutorial } from '../services/api/tutorials';
 import { StudioLoading } from '../components/studio/StudioLoading';
 
 

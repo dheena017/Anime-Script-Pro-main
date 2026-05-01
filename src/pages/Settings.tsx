@@ -17,7 +17,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { ScrollArea } from '../components/ui/scroll-area';
-import { settingsService, UserBalance } from '../services/settingsService';
+import { settingsService, UserBalance } from '../services/api/settings';
 
 // Import sub-pages
 import { ProfileSettings } from './settings/Profile';

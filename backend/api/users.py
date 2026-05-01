@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api", tags=["Users"])
 
 @router.get("/profiles/{user_id}", response_model=UserProfile)
 async def get_user_profile(user_id: str):
+    logger.info(f"NEURAL SIGNAL: Synchronizing Architect Profile for identity segment: {user_id[:8]}")
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
         result = await session.execute(statement)
@@ -25,6 +26,7 @@ async def get_user_profile(user_id: str):
 
 @router.post("/profiles/{user_id}", response_model=UserProfile)
 async def update_user_profile(user_id: str, payload: dict):
+    logger.warning(f"NEURAL SIGNAL: Overwriting identity metadata for segment: {user_id[:8]}")
     async with AsyncSession(async_engine) as session:
         statement = select(UserProfile).where(UserProfile.user_id == user_id)
         result = await session.execute(statement)
@@ -47,6 +49,7 @@ async def update_user_profile(user_id: str, payload: dict):
 
 @router.get("/settings/{user_id}", response_model=UserSettings)
 async def get_user_settings(user_id: str):
+    logger.info(f"NEURAL SIGNAL: Fetching protocol configurations for identity segment: {user_id[:8]}")
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
         result = await session.execute(statement)
@@ -60,6 +63,7 @@ async def get_user_settings(user_id: str):
 
 @router.post("/settings/{user_id}", response_model=UserSettings)
 async def update_user_settings(user_id: str, payload: dict):
+    logger.warning(f"NEURAL SIGNAL: Reconfiguring protocol parameters for identity segment: {user_id[:8]}")
     async with AsyncSession(async_engine) as session:
         statement = select(UserSettings).where(UserSettings.user_id == user_id)
         result = await session.execute(statement)
@@ -83,6 +87,7 @@ async def update_user_settings(user_id: str, payload: dict):
 
 @router.get("/balances/{user_id}", response_model=UserBalance)
 async def get_user_balance(user_id: str):
+    logger.info(f"NEURAL SIGNAL: Verifying resource allocation (Tier: MASTER ARCHITECT) for segment: {user_id[:8]}")
     async with AsyncSession(async_engine) as session:
         statement = select(UserBalance).where(UserBalance.user_id == user_id)
         result = await session.execute(statement)

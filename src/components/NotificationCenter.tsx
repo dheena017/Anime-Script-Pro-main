@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, ExternalLink, X } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
-import { notificationService } from '../services/notificationService';
+import { notificationService } from '../services/api/notifications';
 import { Link } from 'react-router-dom';
 
 export function NotificationCenter() {

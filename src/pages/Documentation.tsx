@@ -15,7 +15,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Button } from '../components/ui/button';
-import { supportService, DocSection, DocArticle } from '../services/supportService';
+import { supportService, DocSection, DocArticle } from '../services/api/support';
 
 const ICON_MAP: Record<string, any> = {
   Globe,

@@ -18,8 +18,9 @@ import { Card } from '../components/ui/card';
 import { cn } from '../lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import { TodoWidget } from '../components/TodoWidget';
-import { projectService, Project } from '../services/projectService';
+import { projectService, Project } from '../services/api/projects';
 import { StudioLoading } from '../components/studio/StudioLoading';
+import { logsApi, SystemLog } from '@/services/api/logs';
 
 
 export default function Dashboard() {
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ total: 0, week: 0, recent: null as Project | null });
   const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+  const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +52,10 @@ export default function Dashboard() {
 
     setDataLoading(true);
     try {
-      const projects = await projectService.getProjects();
+      const [projects, logs] = await Promise.all([
+        projectService.getProjects(),
+        logsApi.getLogs(5)
+      ]);
 
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
@@ -63,6 +68,7 @@ export default function Dashboard() {
         recent: projects[0] || null
       });
       setRecentProjects(projects.slice(0, 4));
+      setSystemLogs(logs);
     } catch (e) {
       console.error("Dashboard fetchStats error:", e);
     } finally {
@@ -234,16 +240,20 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="p-8 bg-black/40 border border-white/5 rounded-[2rem] space-y-6">
-                   {recentProjects.length > 0 ? (
-                     recentProjects.slice(0, 3).map((p) => (
-                       <div key={p.id} className="flex items-start gap-4">
-                          <div className="w-1.5 h-1.5 rounded-full bg-studio mt-2 shrink-0 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                   {systemLogs.length > 0 ? (
+                     systemLogs.map((log, idx) => (
+                       <div key={log.id || idx} className="flex items-start gap-4 group/log">
+                          <div className={cn(
+                            "w-1.5 h-1.5 rounded-full mt-2 shrink-0 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.5)]",
+                            log.level === 'CRITICAL' ? 'bg-red-500 shadow-red-500/50' : 
+                            log.level === 'WARNING' ? 'bg-yellow-500 shadow-yellow-500/50' : 'bg-studio shadow-studio/50'
+                          )} />
                           <div className="space-y-1">
-                            <p className="text-[12px] font-bold text-zinc-200 leading-relaxed uppercase tracking-tight">
-                              Production "{p.title}" Synchronized.
+                            <p className="text-[12px] font-bold text-zinc-200 leading-relaxed uppercase tracking-tight group-hover/log:text-white transition-colors">
+                              {log.message}
                             </p>
                             <p className="text-[9px] text-zinc-500 font-medium uppercase tracking-[0.1em]">
-                               Architect Node Active // ID: {p.id} // {new Date(p.updated_at).toLocaleTimeString()}
+                               {log.source} // {log.level} // {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'JUST NOW'}
                             </p>
                           </div>
                        </div>
@@ -253,7 +263,7 @@ export default function Dashboard() {
                         <div className="w-2 h-2 rounded-full bg-zinc-800 mt-2 shrink-0" />
                         <div className="space-y-2">
                           <p className="text-[13px] font-bold text-zinc-500 leading-relaxed uppercase">
-                            System Standby. No active transmissions detected.
+                            System Standby. No neural logs detected.
                           </p>
                         </div>
                      </div>

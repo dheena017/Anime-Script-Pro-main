@@ -13,6 +13,7 @@ import {
 import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { logsApi, SystemLog } from '@/services/api/logs';
 
 const formatUptime = (seconds: number) => {
   if (!seconds || seconds < 0) return 'n/a';
@@ -25,6 +26,7 @@ const formatUptime = (seconds: number) => {
 export default function SystemStatus() {
   const [health, setHealth] = useState<{ status: string; timestamp: string; orchestrator: { uptime: number; memory: Record<string, number>; platform: string; arch: string; }; backend: { url: string; status: string; }; } | null>(null);
   const [aiStatus, setAiStatus] = useState<{ openai: string; anthropic: string; groq: string; backend: string; providerCount: number; } | null>(null);
+  const [logs, setLogs] = useState<SystemLog[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,9 +35,10 @@ export default function SystemStatus() {
     setError(null);
 
     try {
-      const [healthRes, aiRes] = await Promise.all([
+      const [healthRes, aiRes, logsData] = await Promise.all([
         fetch('/_orchestrator/health'),
-        fetch('/_orchestrator/ai')
+        fetch('/_orchestrator/ai'),
+        logsApi.getLogs(10)
       ]);
 
       if (!healthRes.ok) throw new Error('Failed to load orchestrator health');
@@ -46,6 +49,7 @@ export default function SystemStatus() {
 
       setHealth(healthJson);
       setAiStatus(aiJson.ai);
+      setLogs(logsData);
     } catch (err: any) {
       console.error('Status sync failed:', err);
       setError(err?.message || 'Unable to load system telemetry');
@@ -229,31 +233,46 @@ export default function SystemStatus() {
       <Card className="bg-zinc-900/50 border-zinc-800 overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent pointer-events-none" />
         <CardHeader>
-          <CardTitle className="text-lg font-black text-white uppercase tracking-widest">Incident History</CardTitle>
+          <CardTitle className="text-lg font-black text-white uppercase tracking-widest">Neural Incident Logs</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {[
-            { date: 'Apr 24, 2026', title: 'Asset Pipeline Congestion', type: 'resolved', detail: 'Increased neural buffer size to handle high-resolution character mesh generations.' },
-            { date: 'Apr 18, 2026', title: 'Gemini API Latency Spike', type: 'resolved', detail: 'Upstream provider acknowledged node congestion. Auto-failover to backup cluster performed.' },
-            { date: 'Apr 12, 2026', title: 'Database Maintenance', type: 'scheduled', detail: 'Routine index optimization for vectorized script archives.' },
-          ].map((incident, i) => (
-            <div key={i} className="flex gap-6 pb-6 border-b border-zinc-800/50 last:border-0 last:pb-0">
-              <div className="w-24 shrink-0">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">{incident.date}</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <h4 className="text-sm font-bold text-zinc-200">{incident.title}</h4>
-                  <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded ${
-                    incident.type === 'resolved' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-sky-500/10 text-sky-500'
-                  }`}>
-                    {incident.type}
-                  </span>
+          {logs.length > 0 ? (
+            logs.map((log, i) => (
+              <div key={log.id || i} className="flex gap-6 pb-6 border-b border-zinc-800/50 last:border-0 last:pb-0 group/log">
+                <div className="w-24 shrink-0">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+                    {log.timestamp ? new Date(log.timestamp).toLocaleDateString() : 'TODAY'}
+                  </p>
+                  <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-tighter mt-1">
+                    {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'NOW'}
+                  </p>
                 </div>
-                <p className="text-xs text-zinc-500 leading-relaxed max-w-2xl">{incident.detail}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <h4 className="text-sm font-bold text-zinc-200 group-hover/log:text-emerald-400 transition-colors">{log.message}</h4>
+                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded ${
+                      log.level === 'CRITICAL' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 
+                      log.level === 'WARNING' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 
+                      'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+                    }`}>
+                      {log.level}
+                    </span>
+                    <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Source: {log.source}</span>
+                  </div>
+                  <p className="text-xs text-zinc-500 leading-relaxed max-w-2xl">
+                    Trace ID: {log.id || 'n/a'} | Node: ARCHITECT-01 | Status: PERSISTED
+                  </p>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="py-12 text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-zinc-800/50 flex items-center justify-center mx-auto">
+                <Activity className="w-6 h-6 text-zinc-600" />
+              </div>
+              <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">No neural incidents recorded in current cycle.</p>
             </div>
-          ))}
+          )}
         </CardContent>
       </Card>
     </div>

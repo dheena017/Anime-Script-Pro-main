@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { notificationService } from '../services/notificationService';
-import { projectService } from '../services/projectService';
+import { notificationService } from '../services/api/notifications';
+import { projectService } from '../services/api/projects';
 
 const LOCAL_USER_ID = 'local-dev-architect-id';
 
