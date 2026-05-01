@@ -4,6 +4,7 @@ const API_BASE = '/api/production';
 
 export interface ProjectContent {
   growth_strategy: string | null;
+  distribution_plan: string | null;
   id?: number;
   user_id: string;
   project_id?: number;
