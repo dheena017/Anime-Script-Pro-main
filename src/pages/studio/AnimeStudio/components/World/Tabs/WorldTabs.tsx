@@ -7,7 +7,7 @@ import {
   Globe2 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export type WorldTab = 'architecture' | 'atlas' | 'history' | 'systems' | 'culture';
 
