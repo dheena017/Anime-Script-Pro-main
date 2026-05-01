@@ -237,6 +237,7 @@ from api.help import router as help_router
 from api.engine import router as engine_router
 from api.production import router as production_router
 from api.todos import router as todos_router
+from api.growth import router as growth_router
 
 # Core system routes
 @app.get("/", tags=["system"])
@@ -300,6 +301,7 @@ app.include_router(media_router, tags=["Production"])
 app.include_router(library_router, tags=["Production"])
 app.include_router(seo_router, tags=["Production"])
 app.include_router(todos_router, tags=["Production"])
+app.include_router(growth_router, tags=["Production"])
 
 app.include_router(users_router, tags=["Architect Context"])
 app.include_router(notifications_router, tags=["Architect Context"])
