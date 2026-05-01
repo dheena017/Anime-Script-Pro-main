@@ -29,7 +29,8 @@ export default defineConfig({
   /* Reporter configuration for detailed error messages */
   reporter: [
     ['html', { open: 'never' }],
-    ['list', { printSteps: true }] // Provides real-time step output in terminal
+    ['list', { printSteps: true }], // Provides real-time step output in terminal
+    ['./playwright-reporters/fix-reporter.ts']
   ],
 
   /* Shared settings for all projects */
