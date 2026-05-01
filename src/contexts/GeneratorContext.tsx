@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { apiRequest } from '../lib/api-utils';
-import { ProductionUnit } from '../lib/sequence-utils';
-import { useAuth } from '../hooks/useAuth';
+import { apiRequest } from '@/lib/api-utils';
+import { ProductionUnit } from '@/lib/sequence-utils';
+import { useAuth } from '@/hooks/useAuth';
 
 interface GeneratorContextType {
   worldLore: any;
@@ -485,3 +485,5 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     </GeneratorContext.Provider>
   );
 }
+
+
