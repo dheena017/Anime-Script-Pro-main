@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { MapPin, Users, Heart, Target } from 'lucide-react';
 
