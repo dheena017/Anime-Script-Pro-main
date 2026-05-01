@@ -32,12 +32,25 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-[#080809] text-[#e4e4e7] min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200;
+    @apply bg-[#080809] text-[#e4e4e7] min-h-screen selection:bg-red-500/30 selection:text-red-200 antialiased;
     background-image: 
       radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.05) 0%, transparent 60%),
       radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.02) 0%, transparent 40%);
     background-attachment: fixed;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+  }
+
+  /* Premium Noise Overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.02;
+    pointer-events: none;
+    z-index: 9999;
   }
   
   /* Modern Thin Scrollbar */
@@ -121,11 +134,37 @@
 
 /* Glass & Technical Components */
 .glass {
-  @apply bg-zinc-950/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  @apply bg-zinc-950/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative;
+}
+
+.glass::after {
+  content: "";
+  @apply absolute inset-0 rounded-[inherit] border border-white/5 pointer-events-none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%, rgba(255,255,255,0.02) 100%);
 }
 
 .technical-card {
-  @apply bg-[#080808]/40 backdrop-blur-xl border border-zinc-900 shadow-2xl relative overflow-hidden;
+  @apply bg-[#080808]/60 backdrop-blur-xl border border-zinc-900 shadow-2xl relative overflow-hidden;
+}
+
+.glow-text {
+  text-shadow: 0 0 10px var(--studio-glow), 0 0 20px var(--studio-glow);
+}
+
+.scanline {
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(6, 182, 212, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+  opacity: 0.1;
+  position: absolute;
+  bottom: 100%;
+  animation: scanline 10s linear infinite;
+}
+
+@keyframes scanline {
+  0% { bottom: 100%; }
+  100% { bottom: -100px; }
 }
 
 /* Anime Script Markdown Overrides */
