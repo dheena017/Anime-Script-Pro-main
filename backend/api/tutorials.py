@@ -2,7 +2,7 @@ import os
 import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from loguru import logger
 from backend.models import Tutorial

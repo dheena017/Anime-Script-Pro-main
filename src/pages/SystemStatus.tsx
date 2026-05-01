@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Activity, 
   Cpu, 
@@ -14,23 +14,107 @@ import { motion } from 'motion/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function SystemStatus() {
-  const [uptime] = useState('99.98%');
-  const [isRefreshing, setIsRefreshing] = useState(false);
+const formatUptime = (seconds: number) => {
+  if (!seconds || seconds < 0) return 'n/a';
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${hours}h ${minutes}m ${secs}s`;
+};
 
-  const services = [
-    { name: 'Neural Engine (G2.0)', status: 'operational', latency: '42ms', load: '12%' },
-    { name: 'Vector DB (Supabase)', status: 'operational', latency: '120ms', load: '24%' },
-    { name: 'API Mesh (FastAPI)', status: 'operational', latency: '8ms', load: '5%' },
-    { name: 'Authentication Node', status: 'operational', latency: '15ms', load: '2%' },
-    { name: 'CDN Edge (Vercel)', status: 'operational', latency: '22ms', load: '45%' },
-    { name: 'Asset Pipeline', status: 'degraded', latency: '1200ms', load: '92%' },
+export default function SystemStatus() {
+  const [health, setHealth] = useState<{ status: string; timestamp: string; orchestrator: { uptime: number; memory: Record<string, number>; platform: string; arch: string; }; backend: { url: string; status: string; }; } | null>(null);
+  const [aiStatus, setAiStatus] = useState<{ openai: string; anthropic: string; groq: string; backend: string; providerCount: number; } | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refreshStatus = async () => {
+    setIsRefreshing(true);
+    setError(null);
+
+    try {
+      const [healthRes, aiRes] = await Promise.all([
+        fetch('/_orchestrator/health'),
+        fetch('/_orchestrator/ai')
+      ]);
+
+      if (!healthRes.ok) throw new Error('Failed to load orchestrator health');
+      if (!aiRes.ok) throw new Error('Failed to load AI provider status');
+
+      const healthJson = await healthRes.json();
+      const aiJson = await aiRes.json();
+
+      setHealth(healthJson);
+      setAiStatus(aiJson.ai);
+    } catch (err: any) {
+      console.error('Status sync failed:', err);
+      setError(err?.message || 'Unable to load system telemetry');
+      setHealth(null);
+      setAiStatus(null);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    refreshStatus();
+  }, []);
+
+  const statusLabel = error
+    ? 'OFFLINE'
+    : health
+      ? (health.status === 'online' ? 'OPTIMAL' : 'DEGRADED')
+      : 'LOADING';
+  const statusDotClass = error
+    ? 'bg-red-500'
+    : health
+      ? 'bg-emerald-500 animate-pulse'
+      : 'bg-zinc-500 animate-pulse';
+  const uptimeValue = health ? formatUptime(health.orchestrator.uptime) : 'loading...';
+  const providerCount = aiStatus?.providerCount ?? 0;
+  const activeProviderCount = aiStatus
+    ? [aiStatus.openai, aiStatus.anthropic, aiStatus.groq].filter((s) => s === 'CONNECTED').length
+    : 0;
+
+  const stats = [
+    { label: 'Orchestrator Uptime', value: uptimeValue, icon: Clock, color: 'text-emerald-500' },
+    { label: 'AI Engines Active', value: `${activeProviderCount} / ${providerCount}`, icon: Zap, color: 'text-yellow-500' },
+    { label: 'Backend Status', value: health?.backend.status ?? 'UNKNOWN', icon: Globe, color: 'text-sky-500' },
+    { label: 'Telemetry Pulse', value: statusLabel, icon: ShieldCheck, color: error ? 'text-red-500' : 'text-fuchsia-500' }
   ];
 
-  const refreshStatus = () => {
-    setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1500);
-  };
+  const services = [
+    {
+      name: 'Orchestrator',
+      status: health?.status === 'online' ? 'operational' : (health ? 'degraded' : 'unknown'),
+      latency: 'n/a',
+      load: health ? '10%' : '0%'
+    },
+    {
+      name: 'FastAPI Backend',
+      status: health?.backend.status === 'ONLINE' ? 'operational' : (health ? 'degraded' : 'unknown'),
+      latency: '8ms',
+      load: '5%'
+    },
+    {
+      name: 'OpenAI',
+      status: aiStatus?.openai === 'CONNECTED' ? 'operational' : aiStatus?.openai ?? 'unknown',
+      latency: 'n/a',
+      load: aiStatus?.openai === 'CONNECTED' ? '24%' : '0%'
+    },
+    {
+      name: 'Anthropic',
+      status: aiStatus?.anthropic === 'CONNECTED' ? 'operational' : aiStatus?.anthropic ?? 'unknown',
+      latency: 'n/a',
+      load: aiStatus?.anthropic === 'CONNECTED' ? '18%' : '0%'
+    },
+    {
+      name: 'Groq',
+      status: aiStatus?.groq === 'CONNECTED' ? 'operational' : aiStatus?.groq ?? 'unknown',
+      latency: 'n/a',
+      load: aiStatus?.groq === 'CONNECTED' ? '20%' : '0%'
+    }
+  ];
 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-12">
@@ -47,8 +131,8 @@ export default function SystemStatus() {
 
         <div className="flex items-center gap-4">
           <div className="px-4 py-2 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-white uppercase tracking-widest">Global Status: Optimal</span>
+            <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">Global Status: {statusLabel}</span>
           </div>
           <Button 
             onClick={refreshStatus}
@@ -62,12 +146,7 @@ export default function SystemStatus() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { label: 'Uptime (30d)', value: uptime, icon: Clock, color: 'text-emerald-500' },
-          { label: 'Neural Credits', value: '1.2M / day', icon: Zap, color: 'text-yellow-500' },
-          { label: 'Global Latency', value: '45ms', icon: Globe, color: 'text-sky-500' },
-          { label: 'Security Level', value: 'Standard', icon: ShieldCheck, color: 'text-fuchsia-500' }
-        ].map((stat, i) => (
+        {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}

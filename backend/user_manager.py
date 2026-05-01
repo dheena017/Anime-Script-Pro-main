@@ -18,7 +18,7 @@ from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, schemas as fa_schemas
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users_db_sqlmodel import SQLModelUserDatabase
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import User
 from backend.database import get_async_session

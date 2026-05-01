@@ -1,7 +1,7 @@
 import os
 from sqlmodel import create_engine, SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import AsyncGenerator
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/anime_script_pro.db")

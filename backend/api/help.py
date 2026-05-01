@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from backend.models import HelpCategory, FAQ, DocSection, DocArticle
 from backend.database import async_engine

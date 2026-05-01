@@ -150,6 +150,19 @@ export async function createServer() {
     res.json(trafficLog);
   });
 
+  app.get('/_orchestrator/ai', (_req, res) => {
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8001";
+    res.json({
+      ai: {
+        openai: openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING API KEY"),
+        anthropic: anthropic ? "CONNECTED" : (process.env.ANTHROPIC_API_KEY ? "AUTH OK" : "MISSING API KEY"),
+        groq: groq ? "CONNECTED" : (process.env.GROQ_API_KEY ? "AUTH OK" : "MISSING API KEY"),
+        backend: backendUrl,
+        providerCount: [openai, anthropic, groq].filter(Boolean).length,
+      }
+    });
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
@@ -210,16 +223,35 @@ async function startServer() {
     console.log(`${bold("[SYS]")}    Resources:     ${cyan(`${freeMem}GB/${totalMem}GB Free | CPU Load: ${cpuLoad}`)}`);
 
     let fastApiStatus = "UNKNOWN";
+    let fastApiProbe = "No response";
+    const nodeVersion = process.version;
+    const envName = process.env.NODE_ENV || "development";
+    const supabaseUrlStatus = process.env.VITE_SUPABASE_URL ? "READY" : "MISSING";
+    const supabaseKeyStatus = process.env.VITE_SUPABASE_ANON_KEY ? "READY" : "MISSING";
+
+    const aiProviders = [
+      { name: "OpenAI", active: !!openai, envKey: !!process.env.OPENAI_API_KEY },
+      { name: "Anthropic", active: !!anthropic, envKey: !!process.env.ANTHROPIC_API_KEY },
+      { name: "Groq", active: !!groq, envKey: !!process.env.GROQ_API_KEY },
+    ];
+    const activeProviders = aiProviders.filter(p => p.active).length;
+    const configuredProviders = aiProviders.filter(p => p.envKey).length;
 
     try {
       const response = await fetch(`${BACKEND_URL}/health`).catch(() => null);
       if (response && response.ok) {
         fastApiStatus = "ONLINE";
+        const json = await response.json().catch(() => null);
+        fastApiProbe = json && typeof json === 'object'
+          ? `status=${json.status || 'ok'} version=${json.version || 'n/a'}`
+          : "healthy";
       } else {
         fastApiStatus = "OFFLINE";
+        fastApiProbe = response ? `status=${response.status}` : "no connection";
       }
     } catch (error: any) {
       fastApiStatus = "OFFLINE";
+      fastApiProbe = error?.message || "fetch failed";
     }
 
     // Core Services Check
@@ -228,14 +260,18 @@ async function startServer() {
     const check = (name: string, status: string, isOk: boolean) => {
       const statusText = isOk ? green(status) : red(status);
       const symbol = isOk ? "✅" : "❌";
-      console.log(`${symbol} ${name.padEnd(15)} : ${statusText}`);
+      console.log(`${symbol} ${name.padEnd(18)} : ${statusText}`);
     };
 
-    check("OpenAI", openai ? "CONNECTED" : "OFFLINE", !!openai);
-    check("Anthropic", anthropic ? "CONNECTED" : "OFFLINE", !!anthropic);
-    check("Groq", groq ? "CONNECTED" : "OFFLINE", !!groq);
-    check("FastAPI", fastApiStatus, fastApiStatus === "ONLINE");
-    check("Supabase", process.env.VITE_SUPABASE_URL ? "READY" : "MISSING", !!process.env.VITE_SUPABASE_URL);
+    check("Node.js", nodeVersion, true);
+    check("Environment", envName, true);
+    check("OpenAI", openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING"), !!openai);
+    check("Anthropic", anthropic ? "CONNECTED" : (process.env.ANTHROPIC_API_KEY ? "AUTH OK" : "MISSING"), !!anthropic);
+    check("Groq", groq ? "CONNECTED" : (process.env.GROQ_API_KEY ? "AUTH OK" : "MISSING"), !!groq);
+    check("AI Providers", `${activeProviders}/${aiProviders.length} active (${configuredProviders} configured)`, activeProviders > 0);
+    check("FastAPI", `${fastApiStatus} (${fastApiProbe})`, fastApiStatus === "ONLINE");
+    check("Supabase URL", supabaseUrlStatus, !!process.env.VITE_SUPABASE_URL);
+    check("Supabase Key", supabaseKeyStatus, !!process.env.VITE_SUPABASE_ANON_KEY);
 
     if (fastApiStatus === "ONLINE") {
       console.log(`\n${bold(green("[SUCCESS]"))} Intelligence Layer verified at ${BACKEND_URL}`);

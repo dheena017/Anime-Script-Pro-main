@@ -9,7 +9,7 @@ from loguru import logger
 
 logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
 from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import async_engine
 from backend.models import Project
