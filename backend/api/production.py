@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from backend.database import AsyncSession, get_async_session
-from backend.models.project_content import ProjectContent
+from backend.models import ProjectContent
 from datetime import datetime
 from typing import Optional, List
 

@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 from .user import User, UserProfile, UserBalance, UserSettings
-from .production import Project, ProductionSession, Episode, Scene, Series, Script, ScriptVersion, Storyboard
+from .projects import Project, ProductionSession, Episode, Scene, Series, Script, ScriptVersion, Storyboard, ProjectContent
 from .assets import Template, MediaAsset, UserFavorite, SavedPrompt, PromptLibrary, Prompt
 from .system import (
     Category, Tutorial, Notification, SEOEntry, HelpCategory, FAQ, 
@@ -8,14 +8,13 @@ from .system import (
 )
 from .engine import EngineConfig, AITelemetry
 from .world import WorldLore, CastMember, NarrativeBeat, ReusableCharacter
-from .project_content import ProjectContent
 from .logs import SystemLog
 
 # Export all models for easier importing
 __all__ = [
     "SQLModel",
     "User", "UserProfile", "UserBalance", "UserSettings",
-    "Project", "ProductionSession", "Episode", "Scene", "Series", "Script", "ScriptVersion", "Storyboard",
+    "Project", "ProductionSession", "Episode", "Scene", "Series", "Script", "ScriptVersion", "Storyboard", "ProjectContent",
     "WorldLore", "CastMember", "NarrativeBeat", "ReusableCharacter",
     "Template", "MediaAsset", "UserFavorite", "SavedPrompt", "PromptLibrary", "Prompt",
     "Category", "Tutorial", "Notification", "SEOEntry", "HelpCategory", "FAQ",

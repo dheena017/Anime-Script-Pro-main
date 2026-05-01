@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { createClient } from '../supabase/client';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../contexts/AppContext';
 import { apiRequest } from '../lib/api-utils';
 import { StudioLoading } from '../components/studio/StudioLoading';
 

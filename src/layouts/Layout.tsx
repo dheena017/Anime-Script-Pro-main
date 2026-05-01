@@ -13,7 +13,7 @@ import {
   ChevronDown,
   Search
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../contexts/AppContext';
 import { NeuralConsole } from '../components/studio/NeuralConsole';
 import { NotificationCenter } from '../components/NotificationCenter';
 import { useGenerator } from '../hooks/useGenerator';

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createClient } from '../supabase/client';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../contexts/AppContext';
 
 const WIZARD_OPTIONS = [
   {

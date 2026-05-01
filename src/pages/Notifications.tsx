@@ -8,7 +8,7 @@ import {
   Trash2,
   MailOpen
 } from 'lucide-react';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../contexts/AppContext';
 import { createClient } from '../supabase/client';
 
 export default function NotificationsPage() {

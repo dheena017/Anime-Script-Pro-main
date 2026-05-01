@@ -4,7 +4,7 @@ import { Layout } from './layouts/Layout';
 import { ErrorBoundary } from './lib/error-utils';
 import { TooltipProvider } from './components/ui/tooltip';
 import { GeneratorProvider } from './contexts/GeneratorContext';
-import { AppProvider } from './context/AppContext';
+import { AppProvider } from './contexts/AppContext';
 
 // Core Pages (Lazy)
 
