@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout, Camera, Layers, Film, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export type StoryboardTab = 'frames' | 'angles' | 'composition' | 'animatic' | 'audio';
 
