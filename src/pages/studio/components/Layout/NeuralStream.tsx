@@ -8,11 +8,11 @@ import { cn } from '@/lib/utils';
 
 export const NeuralStream: React.FC = () => {
   const { masterLogs } = useGenerator();
-  const supabaseLogs = useRealtimeLogs();
+  const backendLogs = useRealtimeLogs();
   
   // Combine logs, prioritizing masterLogs for active session feedback
-  const displayLogs = [...masterLogs, ...supabaseLogs].sort((a, b) => 
-    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  const displayLogs = [...masterLogs, ...backendLogs].sort((a, b) => 
+    new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime()
   ).slice(0, 30);
 
   return (
@@ -35,17 +35,18 @@ export const NeuralStream: React.FC = () => {
             <div className="p-4 space-y-2">
               {displayLogs.map((log) => (
                 <div key={log.id} className="flex items-start gap-3 text-[10px] animate-in fade-in slide-in-from-left-1">
-                  <span className="text-zinc-800 font-bold shrink-0 mt-0.5">[{new Date(log.created_at).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+                  <span className="text-zinc-800 font-bold shrink-0 mt-0.5">[{new Date(log.created_at || log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-studio font-black tracking-tighter uppercase shrink-0">{log.module}:</span>
+                      <span className="text-studio font-black tracking-tighter uppercase shrink-0">{log.module || log.source}:</span>
                       <span className={cn(
                         "font-black uppercase tracking-[0.2em] px-1.5 py-0.5 rounded text-[7px]",
-                        log.status === 'PROCESSED' || log.status === 'Success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                        log.status === 'Generating' || log.status === 'Synthesizing' ? 'bg-studio/10 text-studio border border-studio/20 animate-pulse' :
+                        (log.status === 'PROCESSED' || log.status === 'Success' || log.level === 'INFO') ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        (log.status === 'Generating' || log.status === 'Synthesizing') ? 'bg-studio/10 text-studio border border-studio/20 animate-pulse' :
+                        log.level === 'ERROR' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
                         'bg-zinc-900 text-zinc-600 border border-zinc-800'
                       )}>
-                        {log.status}
+                        {log.status || log.level}
                       </span>
                     </div>
                     <span className="text-zinc-400 font-medium break-words leading-relaxed whitespace-pre-wrap">

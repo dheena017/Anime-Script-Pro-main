@@ -2,6 +2,7 @@ import React from 'react';
 import { Terminal, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { signalBus, NeuralSignalEvent } from '@/lib/api-utils';
 
 export function NeuralConsole() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -20,14 +21,26 @@ export function NeuralConsole() {
     let i = 0;
     const interval = setInterval(() => {
       if (i < bootLogs.length) {
-        setLogs(prev => [...prev.slice(-4), `> ${bootLogs[i]}`]);
+        setLogs(prev => [...prev.slice(-4), `SYSTEM: ${bootLogs[i]}`]);
         i++;
       } else {
         clearInterval(interval);
       }
     }, 400);
 
-    return () => clearInterval(interval);
+    const handleSignal = (e: any) => {
+      const { signalId, method, url, status, duration } = e.detail as NeuralSignalEvent;
+      const cleanUrl = url.split('?')[0].slice(0, 20);
+      const logMsg = `[${signalId}] ${method} ${cleanUrl} -> ${status} (${duration}ms)`;
+      setLogs(prev => [...prev.slice(-8), logMsg]);
+    };
+
+    signalBus.addEventListener('neural_signal', handleSignal);
+
+    return () => {
+      clearInterval(interval);
+      signalBus.removeEventListener('neural_signal', handleSignal);
+    };
   }, []);
 
   return (
@@ -55,7 +68,8 @@ export function NeuralConsole() {
                   <span className="text-studio font-bold">#</span>
                   <span className={cn(
                     "uppercase tracking-tighter",
-                    log.includes("INITIALIZED") || log.includes("READY") ? "text-emerald-500" : "text-zinc-400"
+                    log.includes("INITIALIZED") || log.includes("READY") || log.includes("200") ? "text-emerald-500" : 
+                    log.includes("404") || log.includes("500") ? "text-red-500" : "text-zinc-400"
                   )}>{log}</span>
                 </div>
               ))}

@@ -5,7 +5,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { ScriptHeader } from '../../components/Script/ScriptHeader';
 import { ScriptToolbar } from '../../components/Script/ScriptToolbar';
-import { generateScript } from '@/services/geminiService';
+import { generateScript } from '@/services/api/gemini';
 import { ScriptTab } from '@/pages/studio/components/Script/Tabs/ScriptTabs';
 
 export const ScriptContext = React.createContext<{

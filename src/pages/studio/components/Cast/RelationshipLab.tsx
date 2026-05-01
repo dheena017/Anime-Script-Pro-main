@@ -16,7 +16,7 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useGenerator } from '@/hooks/useGenerator';
-import { generateRelationships } from '@/services/geminiService';
+import { generateRelationships } from '@/services/api/gemini';
 
 interface Connection {
   id: string;

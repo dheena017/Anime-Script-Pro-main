@@ -55,7 +55,7 @@ export async function createServer() {
 
   // AI Generation is now handled by the Python FastAPI backend for superior stability and fallback logic.
   // The Node.js handler has been retired.
-  
+
   // --- Premium Request Logger Middleware ---
   app.use((req, res, next) => {
     const start = Date.now();
@@ -72,7 +72,7 @@ export async function createServer() {
   // Mounted at /api to handle all /api routes including /api/generate and auth routes.
 
   app.use('/api', createProxyMiddleware({
-    target: process.env.BACKEND_URL || "http://localhost:8001",
+    target: process.env.BACKEND_URL || "http://localhost:8002",
     changeOrigin: true,
     proxyTimeout: 90000,
     timeout: 90000,
@@ -86,6 +86,14 @@ export async function createServer() {
         // Detailed Proxy Logging
         if (process.env.DEBUG_PROXY === 'true') {
           console.log(`${cyan('[PROXY]')} >> ${bold(req.method)} ${req.originalUrl} -> ${proxyReq.path}`);
+        }
+        // Add a development bypass header when running locally to help developer login flows
+        try {
+          if (process.env.NODE_ENV !== 'production') {
+            proxyReq.setHeader('x-bypass-auth', 'true');
+          }
+        } catch (e) {
+          // ignore
         }
       },
       proxyRes: (proxyRes: any, req: any, _res: any) => {
@@ -123,7 +131,7 @@ export async function createServer() {
 
   // --- Orchestrator Health Dashboard ---
   app.get('/_orchestrator/health', async (_req, res) => {
-    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8002";
     let backendOnline = false;
     try {
       const response = await fetch(`${BACKEND_URL}/health`);
@@ -151,7 +159,7 @@ export async function createServer() {
   });
 
   app.get('/_orchestrator/ai', (_req, res) => {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8001";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8002";
     res.json({
       ai: {
         openai: openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING API KEY"),
@@ -193,7 +201,7 @@ export async function createServer() {
 async function startServer() {
   const { app, openai, anthropic, groq } = await createServer();
   const PORT = 3000;
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8001";
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8002";
 
   app.listen(PORT, "0.0.0.0", async () => {
     const cyan = (text: string) => `\x1b[36m${text}\x1b[0m`;
@@ -206,12 +214,12 @@ async function startServer() {
     let pkg = { name: "Anime Script Pro", version: "1.0.0" };
     try {
       pkg = JSON.parse(fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
-    } catch {}
+    } catch { }
 
     console.log("\n" + bold(cyan("================================================================")));
     console.log(bold(cyan(`   🌌 ${pkg.name.toUpperCase()} - v${pkg.version}`)));
     console.log(bold(cyan("================================================================")));
-    
+
     console.log(`${bold("[STATUS]")} Orchestrator:  ${green(`Running on http://localhost:${PORT}`)}`);
     console.log(`${bold("[ENV]")}    Environment:   ${yellow(process.env.NODE_ENV || "development")}`);
     console.log(`${bold("[PORT]")}   Service Port:  ${PORT}`);
@@ -256,7 +264,7 @@ async function startServer() {
 
     // Core Services Check
     console.log("\n" + bold("--- SYSTEM INTEGRITY CHECK ---"));
-    
+
     const check = (name: string, status: string, isOk: boolean) => {
       const statusText = isOk ? green(status) : red(status);
       const symbol = isOk ? "✅" : "❌";

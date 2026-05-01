@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { generateCharacters } from '@/services/geminiService';
+import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 import { useOutletContext } from 'react-router-dom';
 import { CastEmptyState } from '../components/Cast/CastEmptyState';

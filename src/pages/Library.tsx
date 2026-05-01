@@ -43,6 +43,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { StudioLoading } from '@/components/studio/StudioLoading';
+import { projectService, Project } from '@/services/api/projects';
 
 
 interface Script {
@@ -114,11 +115,9 @@ export function LibraryPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/projects`);
-        if (!res.ok) throw new Error("Failed to connect to production archive");
-        const data = await res.json();
+        const data = await projectService.getProjects();
         
-        const mappedData = data.map((p: any) => ({
+        const mappedData = data.map((p: Project) => ({
           id: p.id.toString(),
           prompt: p.prompt || p.title,
           script: p.prod_metadata?.script || "Archived Production...",
@@ -173,15 +172,11 @@ export function LibraryPage() {
     if (window.confirm('Are you sure you want to revert to this version?')) {
       try {
         // Update the project/script content on the backend
-        const res = await fetch(`/api/projects/${selectedScriptForVersions.id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prod_metadata: { ...selectedScriptForVersions, script: version.script }
-          })
+        const success = await projectService.updateProject(parseInt(selectedScriptForVersions.id), {
+          prod_metadata: JSON.stringify({ ...selectedScriptForVersions, script: version.script })
         });
 
-        if (res.ok) {
+        if (success) {
           setIsVersionsModalOpen(false);
           // Refresh the library
           window.location.reload();
@@ -195,10 +190,8 @@ export function LibraryPage() {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this script?')) {
       try {
-        const res = await fetch(`/api/projects/${id}`, {
-          method: "DELETE"
-        });
-        if (res.ok) {
+        const success = await projectService.deleteProject(parseInt(id));
+        if (success) {
           setScripts(prev => prev.filter(s => s.id !== id));
         }
       } catch (error) {

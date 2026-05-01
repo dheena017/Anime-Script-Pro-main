@@ -1,0 +1,16 @@
+{
+  "name": "Anime Script Pro",
+  "short_name": "Anime Script Pro",
+  "description": "AI-powered anime production studio for scripts, worlds, cast, storyboards, and prompt workflows.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1123",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
 import { apiRequest } from '@/lib/api-utils';
-import { generateImagePrompts } from '@/services/geminiService';
+import { generateImagePrompts } from '@/services/api/gemini';
 
 // Context
 import { ScreeningContext } from './Screening/ScreeningLayout';

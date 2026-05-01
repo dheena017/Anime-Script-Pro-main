@@ -5,7 +5,7 @@ import { Search, Sparkles, Image as ImageIcon, MonitorPlay, Heart, Copy, Refresh
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
-import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/geminiService';
+import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 import { SEOEmptyState } from '../components/SEO/SEOEmptyState';
 

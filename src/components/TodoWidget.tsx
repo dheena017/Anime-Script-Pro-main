@@ -5,40 +5,62 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
-interface Todo {
-  id: string;
-  text: string;
-  completed: boolean;
-}
+import { todoService, Todo } from '@/services/api/todos';
+import { useAuth } from '@/hooks/useAuth';
 
 export const TodoWidget: React.FC = () => {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<Todo[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [, setLoading] = useState(true);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('production-todos');
-    if (saved) {
-      setTasks(JSON.parse(saved));
+  const fetchTasks = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const data = await todoService.getTodos(user.id);
+      setTasks(data);
+    } catch (e) {
+      console.error("Failed to fetch tasks:", e);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    localStorage.setItem('production-todos', JSON.stringify(tasks));
-  }, [tasks]);
+    fetchTasks();
+  }, [user]);
 
-  const addTask = (e: React.FormEvent) => {
+  const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTask.trim()) return;
-    setTasks([...tasks, { id: crypto.randomUUID(), text: newTask, completed: false }]);
-    setNewTask('');
+    if (!newTask.trim() || !user) return;
+    try {
+      const todo = await todoService.createTodo(user.id, newTask);
+      setTasks([...tasks, todo]);
+      setNewTask('');
+    } catch (e) {
+      console.error("Failed to add task:", e);
+    }
   };
 
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  const toggleTask = async (id: number, completed: boolean) => {
+    try {
+      const updated = await todoService.updateTodo(id, !completed);
+      setTasks(tasks.map(t => t.id === id ? updated : t));
+    } catch (e) {
+      console.error("Failed to toggle task:", e);
+    }
   };
 
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter(t => t.id !== id));
+  const deleteTask = async (id: number) => {
+    try {
+      const success = await todoService.deleteTodo(id);
+      if (success) {
+        setTasks(tasks.filter(t => t.id !== id));
+      }
+    } catch (e) {
+      console.error("Failed to delete task:", e);
+    }
   };
 
   return (
@@ -71,7 +93,7 @@ export const TodoWidget: React.FC = () => {
               className="group flex items-center justify-between p-3 bg-black/20 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-all"
             >
               <div className="flex items-center gap-3 overflow-hidden">
-                <button onClick={() => toggleTask(task.id)} className="shrink-0">
+                <button onClick={() => toggleTask(task.id, task.completed)} className="shrink-0">
                   {task.completed ? <Check className="w-4 h-4 text-emerald-500" /> : <Square className="w-4 h-4 text-zinc-600" />}
                 </button>
                 <span className={`text-xs ${task.completed ? 'line-through text-zinc-600' : 'text-zinc-300'} truncate`}>

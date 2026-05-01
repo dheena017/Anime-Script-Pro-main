@@ -9,6 +9,28 @@ from backend.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Users"])
 
+@router.get("/users/profile")
+async def get_current_user(user_id: str = Depends(get_auth_user_id)):
+    """
+    Returns the current authenticated user's profile information.
+    """
+    async with AsyncSession(async_engine) as session:
+        statement = select(UserProfile).where(UserProfile.user_id == user_id)
+        result = await session.execute(statement)
+        profile = result.scalars().first()
+        
+        if not profile:
+            profile = UserProfile(user_id=user_id, handle=f"architect_{user_id[:5]}")
+            session.add(profile)
+            await session.commit()
+            await session.refresh(profile)
+            
+        return {
+            "id": user_id,
+            "email": f"{profile.handle}@studio.pro", # Fallback email if not found
+            "profile": profile
+        }
+
 @router.get("/profiles/{user_id}", response_model=UserProfile)
 async def get_user_profile(user_id: str):
     logger.info(f"NEURAL SIGNAL: Synchronizing Architect Profile for identity segment: {user_id[:8]}")

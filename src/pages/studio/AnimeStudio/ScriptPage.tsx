@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { continueScript, generateScript, generateMetadata, generateImagePrompts } from '@/services/geminiService';
+import { continueScript, generateScript, generateMetadata, generateImagePrompts } from '@/services/api/gemini';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 import { useAuth } from '@/hooks/useAuth';

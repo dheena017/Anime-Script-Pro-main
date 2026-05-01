@@ -15,7 +15,9 @@ import {
 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { NeuralConsole } from '../components/studio/NeuralConsole';
+import { NeuralErrorSentinel } from '../components/studio/NeuralErrorSentinel';
 import { NotificationCenter } from '../components/NotificationCenter';
+import { NeuralPulseLayer } from '../components/NeuralPulseLayer';
 import { useGenerator } from '../hooks/useGenerator';
 
 export function Layout() {
@@ -40,6 +42,8 @@ export function Layout() {
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.05)_0%,transparent_70%)] blur-[100px] rounded-full mix-blend-screen" />
         <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.03)_0%,transparent_70%)] blur-[80px] rounded-full mix-blend-screen" />
       </div>
+
+      <NeuralPulseLayer />
 
       {/* Sidebar: show/hide on all screens */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
@@ -173,6 +177,7 @@ export function Layout() {
         </footer>
       </div>
       <NeuralConsole />
+      <NeuralErrorSentinel />
     </div>
   );
 }

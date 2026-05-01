@@ -1,7 +1,4 @@
-import { createClient } from '../supabase/client';
 import { apiRequest } from '@/lib/api-utils';
-
-const supabase = createClient();
 
 // Fallback user ID for development
 const LOCAL_STRATEGIC_USER = "local-dev-architect-id";
@@ -19,8 +16,7 @@ export interface CommunityPost {
 
 export const communityService = {
   async getUserId() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id || LOCAL_STRATEGIC_USER;
+    return LOCAL_STRATEGIC_USER;
   },
 
   async getPosts(limit: number = 20, offset: number = 0): Promise<CommunityPost[]> {

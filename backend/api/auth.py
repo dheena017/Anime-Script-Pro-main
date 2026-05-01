@@ -7,6 +7,7 @@ from backend.database import AsyncSession, async_engine
 from backend.auth_utils import verify_password, create_access_token, create_refresh_token
 from backend.user_manager import auth_backend, fastapi_users
 from loguru import logger
+import os
 from backend.models import User as UserTable # For pydantic schemas if needed
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
@@ -24,6 +25,34 @@ async def secure_login(
     response: Response,
     login_data: LoginRequest
 ):
+    # Development Bypass: allow ENV or BYPASS_AUTH env var OR a dev header from local proxy
+    is_dev = os.getenv("ENV") == "development" or os.getenv("BYPASS_AUTH") == "true" or request.headers.get('x-bypass-auth') == 'true'
+    try:
+        header_items = list(request.headers.items())
+    except Exception:
+        header_items = str(request.headers)
+    logger.info(f"AUTH DEBUG: is_dev={is_dev}, email={login_data.email}, password={login_data.password}, headers={header_items}")
+    if is_dev and login_data.email == "email@gmail.com" and login_data.password == "password":
+        logger.info(f"Development login successful for: {login_data.email}")
+        user_id = "local-dev-architect-id"
+        access_token = create_access_token(data={"sub": user_id})
+        refresh_token = create_refresh_token(data={"sub": user_id})
+        
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite="strict",
+            max_age=7 * 24 * 60 * 60
+        )
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": 15 * 60
+        }
+
     try:
         async with AsyncSession(async_engine) as db:
             statement = select(User).where(User.email == login_data.email)

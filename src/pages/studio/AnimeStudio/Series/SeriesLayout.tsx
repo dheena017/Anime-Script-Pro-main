@@ -5,7 +5,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { SeriesHeader } from '../../components/Series/SeriesHeader';
 import { SeriesToolbar } from '../../components/Series/SeriesToolbar';
-import { generateSeriesPlan } from '@/services/geminiService';
+import { generateSeriesPlan } from '@/services/api/gemini';
 import { SeriesTab } from '@/pages/studio/components/Series/Tabs/SeriesTabs';
 
 export default function SeriesLayout() {

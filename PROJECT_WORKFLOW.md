@@ -90,9 +90,9 @@ The studio uses a premium **Glassmorphism** aesthetic. Follow these tokens:
 ---
 
 ## 🔑 5. Security & Auth
-*   **Local Development**: Auth is automatically bypassed if `ENV=development` in `.env`.
-*   **Production**: Uses Supabase/FastAPI-Users JWT tokens.
-*   **User ID**: Always use the `get_auth_user_id` dependency in the backend to ensure data privacy.
+*   **Local Development**: Auth is managed by the FastAPI backend using JWT tokens stored in `localStorage`. 
+*   **Database Persistence**: All data is stored locally in `anime_script_pro.db` (SQLite).
+*   **User ID**: The `get_auth_user_id` dependency in the backend ensures data privacy by extracting user identity from the local JWT.
 
 ---
 

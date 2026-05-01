@@ -1,7 +1,4 @@
-import { createClient } from '../supabase/client';
 import { apiRequest } from '@/lib/api-utils';
-
-const supabase = createClient();
 
 // Fallback user ID for development
 const LOCAL_STRATEGIC_USER = "local-dev-architect-id";
@@ -58,8 +55,9 @@ export interface UserSettingsPayload {
 
 export const settingsService = {
   async getUserId() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id || LOCAL_STRATEGIC_USER;
+    // We now rely on the backend to identify the user via the JWT token.
+    // This function returns the local-dev ID as a default for URL construction.
+    return LOCAL_STRATEGIC_USER;
   },
 
   // --- User Settings ---

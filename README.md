@@ -41,7 +41,7 @@ npm run dev
 ### 2. Python AI Backend (Manual Start)
 ```bash
 .\backend\venv\Scripts\activate
-uvicorn backend.fastapi_app:app --reload --port 8001
+uvicorn backend.fastapi_app:app --reload --port 8002
 ```
 
 ### 3. Environment Configuration (`.env`)

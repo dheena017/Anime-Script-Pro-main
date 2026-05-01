@@ -35,11 +35,11 @@ class UserCreate(fa_schemas.BaseUserCreate):
 class UserUpdate(fa_schemas.BaseUserUpdate):
     pass
 
-SECRET = "CHANGE_THIS_SECRET_KEY"
+from backend.auth_utils import SECRET_KEY
 
 class UserManager(BaseUserManager[User, str]):
-    reset_password_token_secret = SECRET
-    verification_token_secret = SECRET
+    reset_password_token_secret = SECRET_KEY
+    verification_token_secret = SECRET_KEY
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLModelUserDatabase(session, User)
@@ -48,7 +48,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
     yield UserManager(user_db)
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+    return JWTStrategy(secret=SECRET_KEY, lifetime_seconds=3600)
 
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 

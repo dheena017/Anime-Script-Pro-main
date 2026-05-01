@@ -11,8 +11,18 @@ const GithubIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+import { useAuth } from '../hooks/useAuth';
+import React from 'react';
+
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-[#020203] flex items-center justify-center p-4 relative overflow-hidden font-sans">

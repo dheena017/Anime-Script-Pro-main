@@ -30,7 +30,7 @@ from loguru import logger
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.staticfiles import StaticFiles
 
 
@@ -87,13 +87,39 @@ logging.getLogger('sqlalchemy.pool').setLevel(logging.WARNING)
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 logging.getLogger('sqlmodel').setLevel(logging.WARNING)
 
+# --- Studio Architect Metadata ---
+tags_metadata = [
+    {
+        "name": "Neural Engine",
+        "description": "Core AI synthesis operations for world building, character DNA, and script materialization.",
+    },
+    {
+        "name": "Production",
+        "description": "Project lifecycle management and autonomous production cycles.",
+    },
+    {
+        "name": "Architect Context",
+        "description": "User profiles, settings, and resource allocation (balances).",
+    },
+    {
+        "name": "Neural Admin",
+        "description": "High-level protocols for system administration and user oversight.",
+    },
+]
+
 app = FastAPI(
-    title="Anime Script Pro API",
-    version="1.0.0",
-    description="Backend API for Anime Script Pro. Provides authentication, project, and AI endpoints.",
-    docs_url=None,  # Disable default docs
-    redoc_url=None, # Disable default redoc
-    debug=True,
+    title="Studio Architect: Neural Engine API",
+    description="""
+    The core neural backbone for Anime-Script-Pro. 
+    Implements high-fidelity AI synthesis, autonomous production orchestration, and architect-level context management.
+    
+    *   **Neural Signals**: Every request is tracked via a unique Signal ID.
+    *   **God Mode**: Supports autonomous 10-state production cycles.
+    """,
+    version="2.0.0-GOD-MODE",
+    openapi_tags=tags_metadata,
+    docs_url=None,   # Managed by custom route
+    redoc_url=None   # Managed by custom route
 )
 
 # Mount local static files for Swagger UI
@@ -124,15 +150,20 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     )
 
 # --- Exception Handlers ---
+from backend.neural_utils import wrap_neural_response, log_neural_event
+
 def error_response(status_code: int, detail: str, request: Request, error: str = None, body=None):
-    content = {"detail": detail, "path": request.url.path}
-    if error: content["error"] = error
-    if body: content["body"] = body
+    signal_id = log_neural_event(f"ERROR: {detail}", category="FAILURE", level="ERROR")
+    content = wrap_neural_response({
+        "detail": detail,
+        "path": request.url.path,
+        "error": error,
+        "body": body
+    }, signal_id=signal_id)
     return JSONResponse(status_code=status_code, content=content)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Unhandled error: {exc}")
     return error_response(500, "Internal server error", request, error=str(exc))
 
 @app.exception_handler(FastAPIRequestValidationError)
@@ -141,23 +172,25 @@ async def validation_exception_handler(request: Request, exc: FastAPIRequestVali
 
 @app.exception_handler(SQLAlchemyError)
 async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
-    logger.error(f"Database error: {exc}")
     err_str = str(exc) if getattr(app, 'debug', False) else "A database error occurred."
-    return error_response(500, "A database error occurred.", request, error=err_str)
+    return error_response(500, "Database synchronization failure", request, error=err_str)
 
 # --- Middleware ---
+from backend.neural_utils import NeuralTracer
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     import time
     start_time = time.perf_counter()
     
+    signal_id = NeuralTracer.generate_signal_id()
     method = request.method
     path = request.url.path
     query = request.url.query
     client_ip = request.client.host if request.client else "unknown"
     
     # 1. LOG THE INCOMING REQUEST (The "Trigger")
-    logger.info(f"📥 INCOMING: {method} {path}{'?' + query if query else ''} from {client_ip}")
+    logger.info(f"📥 INCOMING [{signal_id}]: {method} {path}{'?' + query if query else ''} from {client_ip}")
     
     try:
         # 2. THE LOGIC (The "Processing")
@@ -173,11 +206,14 @@ async def log_requests(request: Request, call_next):
             status_tag = f"<red>{response.status_code}</red>"
 
         # 3. LOG THE OUTGOING RESPONSE (The "Response")
-        logger.info(f"📤 OUTGOING: {method} {path} | Status: {status_tag} | Latency: {process_time:.2f}ms")
+        logger.info(f"📤 OUTGOING [{signal_id}]: {method} {path} | Status: {status_tag} | Latency: {process_time:.2f}ms")
+        
+        # Add Signal ID to headers for frontend tracing
+        response.headers["X-Signal-ID"] = signal_id
         
         return response
     except Exception as e:
-        logger.error(f"❌ CRITICAL: Cycle broken during {method} {path}")
+        logger.error(f"❌ CRITICAL [{signal_id}]: Cycle broken during {method} {path}")
         logger.error(f"   Reason: {str(e)}")
         raise
 
@@ -201,6 +237,7 @@ from api.community import router as community_router
 from api.help import router as help_router
 from api.engine import router as engine_router
 from api.production import router as production_router
+from api.todos import router as todos_router
 
 # Core system routes
 @app.get("/", tags=["system"])
@@ -210,6 +247,16 @@ async def root():
 @app.get("/health", tags=["system"])
 async def health():
     return {"status": "ok"}
+
+@app.get("/api/debug-env", tags=["system"], include_in_schema=False)
+async def debug_env():
+    import os
+    return {
+        "ENV": os.getenv("ENV"),
+        "VITE_ENV": os.getenv("VITE_ENV"),
+        "BYPASS_AUTH": os.getenv("BYPASS_AUTH"),
+        "CWD": os.getcwd()
+    }
 
 @app.get("/api/health", tags=["system"], include_in_schema=False)
 async def api_health():
@@ -226,34 +273,47 @@ async def custom_swagger_ui_html():
         openapi_url=app.openapi_url or "/openapi.json",
         title=app.title + " - Swagger UI",
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="/static/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui.css",
+        swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
+        swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
+    )
+
+@app.get("/redoc", include_in_schema=False)
+async def custom_redoc_html():
+    return get_redoc_html(
+        openapi_url=app.openapi_url or "/openapi.json",
+        title=app.title + " - ReDoc",
+        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js",
     )
 
 # --- Compatibility Aliases ---
 from api.ai import generate_content
 app.post("/api/generate", tags=["AI Engine"], response_model=GenerationResponse)(generate_content)
 
-# Include routers
-app.include_router(templates_router)
-app.include_router(projects_router)
-app.include_router(scripts_router)
-app.include_router(users_router)
-app.include_router(media_router)
-app.include_router(notifications_router)
-app.include_router(auth_router)
-app.include_router(logs_router)
-app.include_router(stats_router)
-app.include_router(admin_router)
-app.include_router(world_router)
-app.include_router(ai_router)
-app.include_router(tutorials_router)
-app.include_router(library_router)
-app.include_router(seo_router)
-app.include_router(community_router)
-app.include_router(help_router)
-app.include_router(engine_router)
-app.include_router(production_router)
+# Include routers with specialized tags
+app.include_router(ai_router, tags=["Neural Engine"])
+app.include_router(engine_router, tags=["Neural Engine"])
+app.include_router(scripts_router, tags=["Neural Engine"])
+app.include_router(world_router, tags=["Neural Engine"])
+
+app.include_router(projects_router, tags=["Production"])
+app.include_router(production_router, tags=["Production"])
+app.include_router(media_router, tags=["Production"])
+app.include_router(library_router, tags=["Production"])
+app.include_router(seo_router, tags=["Production"])
+app.include_router(todos_router, tags=["Production"])
+
+app.include_router(users_router, tags=["Architect Context"])
+app.include_router(notifications_router, tags=["Architect Context"])
+app.include_router(stats_router, tags=["Architect Context"])
+app.include_router(tutorials_router, tags=["Architect Context"])
+app.include_router(help_router, tags=["Architect Context"])
+app.include_router(community_router, tags=["Architect Context"])
+app.include_router(templates_router, tags=["Architect Context"])
+
+app.include_router(admin_router, tags=["Neural Admin"])
+app.include_router(logs_router, tags=["Neural Admin"])
+
+app.include_router(auth_router, tags=["Auth Protocols"])
 
 # FastAPI Users Auth Routers
 app.include_router(
@@ -268,7 +328,7 @@ app.include_router(
 )
 app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
-    prefix="/api/users",
+    prefix="/api/identity",
     tags=["users"],
 )
 

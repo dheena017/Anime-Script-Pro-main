@@ -3,10 +3,10 @@ import {
   TooltipContent, 
   TooltipProvider, 
   TooltipTrigger 
-} from '@/components/ui/tooltip';
+} from '../../../../components/ui/tooltip';
 import { ChevronLeft, ChevronRight, Cpu, Users, RefreshCw, Sparkles, Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '../../../../components/ui/button';
+import { cn } from '../../../../lib/utils';
 
 interface CastHeaderProps {
   onRegenerate: () => void;

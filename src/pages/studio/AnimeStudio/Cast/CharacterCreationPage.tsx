@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
 import { CastContext } from './CastLayout';
-import { generateCharacters } from '@/services/geminiService';
+import { generateCharacters } from '@/services/api/gemini';
 
 export function CharacterCreationPage() {
   const {

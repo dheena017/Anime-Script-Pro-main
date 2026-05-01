@@ -6,7 +6,7 @@ import {
   generateMetadata, 
   generateYouTubeDescription, 
   generateAltTexts 
-} from '@/services/geminiService';
+} from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
 // Context

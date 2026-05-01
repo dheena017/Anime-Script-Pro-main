@@ -1,12 +1,10 @@
-import { createClient } from '../supabase/client';
 import { apiRequest } from '@/lib/api-utils';
-
-const supabase = createClient();
 
 // Fallback user ID for development
 const LOCAL_STRATEGIC_USER = "local-dev-architect-id";
 
 export interface Project {
+  vibe: string | undefined;
   id: number;
   user_id: string;
   title: string;
@@ -15,10 +13,11 @@ export interface Project {
   art_style?: string;
   episode_length: string;
   description?: string;
+  tone?: string;
   prompt?: string;
   status: string;
   model_used: string;
-  prod_metadata: any;
+  prod_metadata: { [key: string]: any };
   created_at: string;
   updated_at: string;
   is_active: boolean;
@@ -26,8 +25,7 @@ export interface Project {
 
 export const projectService = {
   async getUserId() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id || LOCAL_STRATEGIC_USER;
+    return LOCAL_STRATEGIC_USER;
   },
 
   async getProjects(): Promise<Project[]> {
@@ -56,6 +54,18 @@ export const projectService = {
       });
     } catch (e) {
       console.error("Error creating project:", e);
+      return null;
+    }
+  },
+
+  async updateProject(projectId: number, projectData: Partial<Project>): Promise<Project | null> {
+    try {
+      return await apiRequest<Project>(`/api/projects/${projectId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(projectData)
+      });
+    } catch (e) {
+      console.error(`Error updating project ${projectId}:`, e);
       return null;
     }
   },

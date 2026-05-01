@@ -9,19 +9,18 @@ import {
   MailOpen
 } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
-import { createClient } from '../supabase/client';
+import { notificationService } from '../services/api/notifications';
 
 export default function NotificationsPage() {
   const { notifications, refreshAppData } = useApp();
-  const supabase = createClient();
 
-  const markAsRead = async (id: string) => {
-    await supabase.from('notifications').update({ read: true }).eq('id', id);
+  const markAsRead = async (id: number) => {
+    await notificationService.markAsRead(id);
     refreshAppData();
   };
 
-  const deleteNotification = async (id: string) => {
-    await supabase.from('notifications').delete().eq('id', id);
+  const deleteNotification = async (id: number) => {
+    await notificationService.deleteNotification(id);
     refreshAppData();
   };
 

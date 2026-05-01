@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { generateScript } from '@/services/geminiService';
+import { generateScript } from '@/services/api/gemini';
 
 import { motion, AnimatePresence } from 'motion/react';
 import { AnimeStudioNavigation as StudioNavigation } from './components/Layout/AnimeStudioNavigation';

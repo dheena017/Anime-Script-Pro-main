@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { generateScript } from '@/services/geminiService';
+import { generateScript } from '@/services/api/gemini';
 import { ProductionCore } from '@/pages/studio/components/Layout/ProductionCore';
 import { AnimeStudioNavigation as StudioNavigation } from '@/pages/studio/components/Layout/AnimeStudioNavigation';
 import { SessionLogs } from '@/pages/studio/components/Layout/SessionLogs';
@@ -115,7 +115,7 @@ export default function AnimeLayout() {
       const { generateWorld } = await import('@/services/generators/world');
       const { generateCharacters } = await import('@/services/generators/characters');
       const { generateSeriesPlan } = await import('@/services/generators/series');
-      const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/geminiService');
+      const { generateScript, generateImagePrompts, generateMetadata } = await import('@/services/api/gemini');
 
       // PHASE 1: WORLD Lore
       addLog("WORLD", "STARTING", "Synthesizing World Lore Source of Truth...");

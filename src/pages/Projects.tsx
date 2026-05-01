@@ -15,7 +15,6 @@ import {
   Eye
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { createClient } from '../supabase/client';
 import { useApp } from '../contexts/AppContext';
 import { apiRequest } from '../lib/api-utils';
 import { StudioLoading } from '../components/studio/StudioLoading';
@@ -29,8 +28,6 @@ export default function ProjectsPage() {
   const [showCreatedMsg, setShowCreatedMsg] = useState(false);
   const navigate = useNavigate();
 
-  // Supabase client and app context utilities
-  const supabase = createClient();
   const { setCurrentProject, refreshAppData } = useApp();
 
   // Show success banner when arriving from project creation
@@ -46,11 +43,7 @@ export default function ProjectsPage() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const data = await apiRequest<any[]>('/api/projects', {
-        headers: { Authorization: `Bearer ${session.access_token}` }
-      });
+      const data = await apiRequest<any[]>('/api/projects');
       if (data) setProjects(data);
     } catch (err) {
       console.error('Failed to fetch projects from API:', err);
@@ -67,10 +60,8 @@ export default function ProjectsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to purge this project data?')) return;
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       await apiRequest(`/api/projects/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${session?.access_token}` }
+        method: 'DELETE'
       });
       // Update UI after deletion
       setCurrentProject(null);

@@ -78,6 +78,9 @@ const LoadingSpinner = () => (
 );
 
 import { AITelemetryOverlay } from './components/AITelemetryOverlay';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+
+import { AuthProvider } from './contexts/AuthContext';
 
 export default function App() {
   React.useEffect(() => {
@@ -86,9 +89,10 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <AppProvider>
-        <GeneratorProvider>
-          <TooltipProvider>
+      <AuthProvider>
+        <AppProvider>
+          <GeneratorProvider>
+            <TooltipProvider>
             <Router>
               <Suspense fallback={<LoadingSpinner />}>
                 <AITelemetryOverlay />
@@ -100,7 +104,7 @@ export default function App() {
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
-                  <Route element={<Layout />}>
+                  <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                     <Route path="/anime" element={<AnimeLayout />}>
                       <Route index element={<AnimePortal />} />
 
@@ -183,6 +187,7 @@ export default function App() {
           </TooltipProvider>
         </GeneratorProvider>
       </AppProvider>
-    </ErrorBoundary>
+    </AuthProvider>
+  </ErrorBoundary>
   );
 }

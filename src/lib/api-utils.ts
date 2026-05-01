@@ -5,6 +5,17 @@ export class ApiError extends Error {
   }
 }
 
+// Global Signal Bus for real-time Neural events
+export const signalBus = new EventTarget();
+
+export interface NeuralSignalEvent {
+  signalId: string;
+  method: string;
+  url: string;
+  status: number;
+  duration: number;
+}
+
 export function cleanJson(content: string): any {
   try {
     // Strip markdown backticks if present
@@ -23,13 +34,8 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 async function getAuthToken(): Promise<string | null> {
   try {
-    // Try to get from localStorage (Supabase standard)
-    const sbKey = Object.keys(localStorage).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-    if (sbKey) {
-      const tokenData = JSON.parse(localStorage.getItem(sbKey) || '{}');
-      return tokenData.access_token || null;
-    }
-    return null;
+    // Return backend token (custom)
+    return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
   } catch {
     return null;
   }
@@ -62,19 +68,29 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
     });
 
     const duration = Date.now() - start;
+    const signalId = response.headers.get('X-Signal-ID') || 'NO-SIGNAL';
+
+    // Dispatch to Signal Bus
+    signalBus.dispatchEvent(new CustomEvent('neural_signal', {
+      detail: { signalId, method, url, status: response.status, duration }
+    }));
 
     if (!response.ok) {
-      console.error(`%c[Backend] %cERROR: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
+      console.error(`%c[Backend] %cERROR [${signalId}]: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
       let errorData;
       try {
-        errorData = await response.json();
+        const raw = await response.json();
+        // Handle wrapped vs unwrapped errors
+        errorData = raw.data || raw;
       } catch {
-        errorData = { error: response.statusText };
+        errorData = { detail: response.statusText };
       }
-      throw new ApiError(errorData.error || 'API Request failed', response.status, errorData);
+      
+      const message = errorData.detail || errorData.error || 'API Request failed';
+      throw new ApiError(message, response.status, { ...errorData, signalId });
     }
 
-    console.info(`%c[Backend] %cSUCCESS: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
+    console.info(`%c[Backend] %cSUCCESS [${signalId}]: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
     return await response.json();
   } catch (error) {
     if (error instanceof ApiError) throw error;

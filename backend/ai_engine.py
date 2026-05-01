@@ -85,10 +85,19 @@ class AIEngine:
         """
         logger.info(f"PROCESS: [🗺️] Architecting World Lore: <cyan>{title}</cyan> (User: {user_id})")
         client = await self._get_client(user_id)
+        
+        import time
+        start_time = time.perf_counter()
+        
         response = await client.aio.models.generate_content(
             model=self.model_name,
             contents=prompt,
         )
+        
+        duration = time.perf_counter() - start_time
+        char_count = len(response.text)
+        logger.success(f"SYNTHESIS: World Lore solidified. Metrics: {char_count} chars synthesized in {duration:.2f}s using {self.model_name}")
+        
         return response.text
 
     async def generate_characters(self, lore: str, count=3, user_id: str = None):
@@ -107,12 +116,20 @@ class AIEngine:
 
         Return only a JSON array of objects.
         """
-        logger.info(f"PROCESS: [🧬] Sequencing Character DNA... (User: {user_id})")
+        logger.info(f"PROCESS: [🧬] Sequencing Character DNA for {count} targets... (User: {user_id})")
         client = await self._get_client(user_id)
+        
+        import time
+        start_time = time.perf_counter()
+        
         response = await client.aio.models.generate_content(
             model=self.model_name,
             contents=prompt,
         )
+        
+        duration = time.perf_counter() - start_time
+        logger.success(f"SYNTHESIS: {count} Characters sequenced. Latency: {duration:.2f}s | Engine: {self.model_name}")
+        
         return response.text
 
     async def generate_script_beats(self, title: str, lore: str, characters: str, user_id: str = None):
@@ -133,10 +150,18 @@ class AIEngine:
         """
         logger.info(f"PROCESS: [🎬] Scripting Pilot Beats... (User: {user_id})")
         client = await self._get_client(user_id)
+        
+        import time
+        start_time = time.perf_counter()
+        
         response = await client.aio.models.generate_content(
             model=self.model_name,
             contents=prompt,
         )
+        
+        duration = time.perf_counter() - start_time
+        logger.success(f"SYNTHESIS: 10 Script Beats materialized. Latency: {duration:.2f}s")
+        
         return response.text
 
 ai_engine = AIEngine()

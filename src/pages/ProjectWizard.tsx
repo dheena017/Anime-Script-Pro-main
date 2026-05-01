@@ -9,7 +9,6 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createClient } from '../supabase/client';
 import { useApp } from '../contexts/AppContext';
 
 const WIZARD_OPTIONS = [
@@ -39,34 +38,27 @@ const WIZARD_OPTIONS = [
   }
 ];
 
+import { projectService } from '../services/api/projects';
+
 export default function ProjectWizard() {
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setCurrentProject, refreshAppData } = useApp();
-  const supabase = createClient();
 
   const handleCreate = async (opt: any) => {
     if (!title.trim()) return;
     
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Auth required');
+      const project = await projectService.createProject({
+        title,
+        content_type: opt.title,
+        model_used: 'gemini-2.0-flash',
+        status: 'draft'
+      });
 
-      const { data: project, error } = await supabase
-        .from('projects')
-        .insert({
-          title,
-          user_id: user.id,
-          content_type: opt.title,
-          model_used: 'gemini-2.0-flash', // Defaulting to the high-speed architect model
-          status: 'draft'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      if (!project) throw new Error('Failed to create project');
 
       setCurrentProject(project);
       await refreshAppData();

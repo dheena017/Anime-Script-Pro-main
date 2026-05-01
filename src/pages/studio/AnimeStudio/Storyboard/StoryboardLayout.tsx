@@ -5,7 +5,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { StoryboardHeader } from '../../components/Storyboard/StoryboardHeader';
 import { StoryboardToolbar } from '../../components/Storyboard/StoryboardToolbar';
-import { generateImagePrompts } from '@/services/geminiService';
+import { generateImagePrompts } from '@/services/api/gemini';
 import { StoryboardTab } from '@/pages/studio/components/Storyboard/Tabs/StoryboardTabs';
 
 export const StoryboardContext = React.createContext<{

@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { fetchTemplates, ProductionTemplate } from '@/services/templateService';
+import { fetchTemplates, ProductionTemplate } from '@/services/api/templates';
 import { StudioLoading } from '@/components/studio/StudioLoading';
 
 

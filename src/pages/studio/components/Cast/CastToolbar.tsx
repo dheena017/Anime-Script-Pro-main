@@ -1,15 +1,15 @@
 import React from 'react';
 import { Activity, Copy, Download, Maximize, Minimize } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../../../lib/utils';
 import { CastTabs, CastTab } from './Tabs/CastTabs';
-import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { Button } from '../../../../components/ui/button';
+import { useGenerator } from '../../../../hooks/useGenerator';
 import { 
   Tooltip, 
   TooltipContent, 
   TooltipProvider, 
   TooltipTrigger 
-} from '@/components/ui/tooltip';
+} from '../../../../components/ui/tooltip';
 
 export type { CastTab };
 

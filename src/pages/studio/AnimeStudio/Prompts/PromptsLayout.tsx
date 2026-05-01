@@ -5,7 +5,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { PromptsHeader } from '../../components/Prompts/PromptsHeader';
 import { PromptsToolbar } from '../../components/Prompts/PromptsToolbar';
-import { generateImagePrompts } from '@/services/geminiService';
+import { generateImagePrompts } from '@/services/api/gemini';
 import { PromptsTab } from '../../components/Prompts/Tabs/PromptsTabs';
 
 export const PromptsContext = React.createContext<{

@@ -5,7 +5,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { SEOHeader } from '../../components/SEO/SEOHeader';
 import { SEOToolbar } from '../../components/SEO/SEOToolbar';
-import { generateMetadata } from '@/services/geminiService';
+import { generateMetadata } from '@/services/api/gemini';
 import { SEOTab } from '../../components/SEO/Tabs/SEOTabs';
 
 export const SEOContext = React.createContext<{

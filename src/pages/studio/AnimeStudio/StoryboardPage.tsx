@@ -12,7 +12,7 @@ import {
   rewriteForTension, 
   suggestDuration,
   generateSceneVideo
-} from '@/services/geminiService';
+} from '@/services/api/gemini';
 import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
 
 // Sub-components

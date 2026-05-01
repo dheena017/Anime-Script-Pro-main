@@ -4,6 +4,8 @@ import { LogIn, ShieldCheck, Zap, ArrowLeft, Play, Cpu, Camera, Film } from 'luc
 import { AuthCard } from '../components/auth/AuthCard.jsx';
 import { LoginForm } from '../components/auth/LoginForm.jsx';
 import { SocialLoginButton } from '../components/auth/SocialLoginButton.jsx';
+import { useAuth } from '../hooks/useAuth';
+import React from 'react';
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -13,6 +15,13 @@ const GithubIcon = ({ className }: { className?: string }) => (
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-[#020203] flex items-center justify-center p-4 relative overflow-hidden font-sans">

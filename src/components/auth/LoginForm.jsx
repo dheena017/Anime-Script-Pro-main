@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Mail } from 'lucide-react';
 import { InputField } from './InputField';
@@ -8,14 +8,17 @@ import { Checkbox } from './Checkbox';
 import { SubmitButton } from './SubmitButton';
 import { FormLabel } from './FormLabel';
 import { ErrorMessage } from './ErrorMessage';
+import { useAuth } from '../../hooks/useAuth';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState('email@gmail.com');
+  const [password, setPassword] = useState('password');
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     const savedEmail = localStorage.getItem('rememberedEmail');
@@ -37,11 +40,14 @@ export function LoginForm() {
         localStorage.removeItem('rememberedEmail');
       }
 
-      await axios.post('/api/auth/login', { email, password, rememberMe });
-      navigate('/dashboard');
+      await login(email, password, rememberMe);
+      
+      // If there's a redirected 'from' location, go there, otherwise go to dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      navigate(from, { replace: true });
     } catch (err) {
       setErrorMessage(
-        err.response?.data?.message || err.message || 'An error occurred during login'
+        err.response?.data?.detail || err.response?.data?.message || err.message || 'An error occurred during login'
       );
     } finally {
       setIsLoading(false);

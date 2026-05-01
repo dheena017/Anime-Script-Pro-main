@@ -40,43 +40,43 @@ export class ProductionOrchestrator {
   async executeFullCycle(onProgress?: (phase: string, data?: any) => void): Promise<OrchestrationResult> {
     try {
       // STATE 01: WORLD Lore
-      if (onProgress) onProgress("STATE 01: Initializing Anime World Lore...");
+      if (onProgress) onProgress("SIGNAL_INIT: Synchronizing Universal Lore Parameters...");
       const world = await this.initializeFoundation();
 
       // STATE 02: Narrative SCALPEL
-      if (onProgress) onProgress("STATE 02: Structuring 60 Episode Series Plan...");
+      if (onProgress) onProgress("PROTOCOL_SCALPEL: Fracturing Narrative into 60-Episode Arcs...");
       const { series } = await this.buildSeries(world);
 
       // STATE 03: CHARACTER DNA
-      if (onProgress) onProgress("STATE 03: Synthesizing Cast Visual DNA...");
+      if (onProgress) onProgress("SYNTHESIS_DNA: Extracting Visual DNA for Principal Cast...");
       const cast = await this.buildCast(world);
 
       // STATE 04: SERIES Roadmap
-      if (onProgress) onProgress("STATE 04: Architecting Series Roadmap...");
+      if (onProgress) onProgress("ROADMAP_INIT: Finalizing Temporal Production Roadmap...");
       await this.saveSeriesPlan(series);
 
       // STATE 05: SCRIPT Engine
-      if (onProgress) onProgress("STATE 05: Initializing Script Engine Pilot...");
+      if (onProgress) onProgress("MANIFEST_SCRIPT: Materializing Script Pilot via Shogun Engine...");
       await this.materializePilot(world, cast, series[0]);
 
       // STATE 06: VISUAL Manifest
-      if (onProgress) onProgress("STATE 06: Scaffolding 960 Scene Storyboards...");
+      if (onProgress) onProgress("SCAFFOLD_VISUAL: Deploying 960-Unit Storyboard Grid...");
       const sequences = await this.scaffoldGeneration(series);
 
       // STATE 07: GLOBAL Reach
-      if (onProgress) onProgress("STATE 07: Optimizing SEO Metadata...");
+      if (onProgress) onProgress("SEO_OPTIMIZE: Hardening Global Metadata for Premiere...");
       await this.prepareSEO();
 
       // STATE 08: ASSET Synthesis
-      if (onProgress) onProgress("STATE 08: Refining Visual Prompts...");
+      if (onProgress) onProgress("PROMPT_REFINERY: Refining Latent Visual Prompts...");
       await this.preparePrompts();
 
       // STATE 09: PREMIERE Hub
-      if (onProgress) onProgress("STATE 09: Initializing Screening Room Premiere...");
+      if (onProgress) onProgress("PREMIERE_READY: Opening Screening Room Access Portals...");
       await this.prepareScreening();
 
       // STATE 10: CORE Logic
-      if (onProgress) onProgress("STATE 10: Finalizing Studio Engine Parameters...");
+      if (onProgress) onProgress("NEURAL_COMPLETE: Finalizing Studio Engine Parameters...");
       await new Promise(r => setTimeout(r, 1000)); // Final engine sync
 
       return {

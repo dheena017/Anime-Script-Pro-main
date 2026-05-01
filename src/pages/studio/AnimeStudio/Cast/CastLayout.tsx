@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { useGenerator } from '@/hooks/useGenerator';
-import { useAuth } from '@/hooks/useAuth';
-import { CastHeader } from '@/pages/studio/components/Cast/CastHeader';
-import { CastToolbar, CastTab } from '@/pages/studio/components/Cast/CastToolbar';
-import { generateCharacters } from '@/services/geminiService';
+import { useGenerator } from '../../../../hooks/useGenerator';
+import { useAuth } from '../../../../hooks/useAuth';
+import { CastHeader } from '../../components/Cast/CastHeader';
+import { CastToolbar, CastTab } from '../../components/Cast/CastToolbar';
+import { generateCharacters } from '../../../../services/api/gemini';
 
 export const CastContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -36,7 +36,7 @@ export default function CastLayout() {
 
     setIsSaving(true);
     try {
-      const { productionApi } = await import('@/services/api/production');
+      const { productionApi } = await import('../../../../services/api/production');
       await productionApi.updateContent(user.id, {
         cast_profiles: castProfiles,
         cast_data: castData,

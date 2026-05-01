@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { generateImagePrompts } from '@/services/geminiService';
+import { generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 
 // Context

@@ -19,7 +19,6 @@ import {
   Database
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { createClient } from '../supabase/client';
 import { useApp } from '../contexts/AppContext';
 import { cn } from '../lib/utils';
 import { apiRequest } from '../lib/api-utils';
@@ -42,16 +41,12 @@ export default function CreateProject() {
 
   const navigate = useNavigate();
   const { setCurrentProject, refreshAppData } = useApp();
-  const supabase = createClient();
 
   const handleInitialize = async () => {
     if (!title.trim()) return;
 
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Authentication required.');
-
       const project = await apiRequest<any>('/api/projects', {
         method: 'POST',
         body: JSON.stringify({
@@ -62,17 +57,11 @@ export default function CreateProject() {
           episode_length: episodeLength,
           status: 'draft',
           content_type: 'ANIME'
-        }),
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
+        })
       });
 
       await apiRequest(`/api/generate/god-mode/${project.id}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
+        method: 'POST'
       });
 
       setCurrentProject(project);

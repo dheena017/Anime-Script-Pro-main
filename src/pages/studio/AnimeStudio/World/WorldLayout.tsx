@@ -4,7 +4,7 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { WorldHeader } from '@/pages/studio/components/World/WorldHeader';
 import { WorldToolbar } from '@/pages/studio/components/World/WorldToolbar';
-import { generateWorld } from '@/services/geminiService';
+import { generateWorld } from '@/services/api/gemini';
 import { WorldTab } from '@/pages/studio/components/World/Tabs/WorldTabs';
 
 import { createContext } from 'react';

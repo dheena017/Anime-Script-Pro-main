@@ -1,7 +1,7 @@
 import React from 'react';
 import { TrendingUp, Users, Share2, ArrowRight, AlertCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { communityService, CommunityPost } from '@/services/communityService';
+import { communityService, CommunityPost } from '@/services/api/community';
 import { StudioLoading } from '@/components/studio/StudioLoading';
 
 
@@ -59,7 +59,7 @@ export function CommunityPage() {
               <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-2">Collective DB</span>
               <div className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
-                 <span className="text-[10px] font-black text-white uppercase tracking-tighter">SUPABASE SYNCED</span>
+                 <span className="text-[10px] font-black text-white uppercase tracking-tighter">LOCAL SQLITE SYNCED</span>
               </div>
            </div>
            <div className="flex flex-col items-start px-6 border-l border-zinc-900/30">
