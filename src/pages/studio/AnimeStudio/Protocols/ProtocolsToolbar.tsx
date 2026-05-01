@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
-import { 
-  ScrollText, 
-  Globe, 
-  UserPlus, 
-  ImageIcon, 
+import { motion } from 'framer-motion';
+import {
+  ScrollText,
+  Globe,
+  UserPlus,
+  ImageIcon,
   Zap, 
   Layers, 
   Search, 
