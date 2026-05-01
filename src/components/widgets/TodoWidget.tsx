@@ -28,8 +28,10 @@ export const TodoWidget: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, [user]);
+    if (user?.id) {
+      fetchTasks();
+    }
+  }, [user?.id]);
 
   const addTask = async (e: React.FormEvent) => {
     e.preventDefault();
