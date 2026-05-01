@@ -132,6 +132,8 @@ class ProjectContent(SQLModel, table=True):
     # Production Data
     storyboard: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
     seo_metadata: Optional[str] = Field(default=None)
+    growth_strategy: Optional[str] = Field(default=None)
+    distribution_plan: Optional[str] = Field(default=None)
     
     # Protocols & Prompts
     custom_prompts: Dict[str, str] = Field(default_factory=dict, sa_type=JSON)
