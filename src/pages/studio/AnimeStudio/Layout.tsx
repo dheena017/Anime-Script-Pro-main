@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 // Local Studio Components
 import { ProductionCore } from './components/Layout/ProductionCore';
 import { SessionLogs } from './components/Layout/SessionLogs';
-import { AnimeStudioSideBar } from './components/AnimeStudioSideBar';
+import { AnimeStudioNavigation } from './components/AnimeStudioNavigation';
 import { AnimeStudioTopBar } from './components/AnimeStudioTopBar';
 
 import '@/styles/creative-engine.css';
@@ -269,20 +269,18 @@ export default function AnimeLayout() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#020203] flex overflow-hidden z-[1000] studio-engine-root">
-      {/* Dedicated Studio Sidebar */}
-      <AnimeStudioSideBar 
-        basePath={basePath}
-        handleGenerate={handleMasterGenerate}
-        isLoading={isLoading}
+    <div className="fixed inset-0 bg-[#020203] flex flex-col overflow-hidden z-[1000] studio-engine-root">
+      {/* Dedicated Studio Top Bar */}
+      <AnimeStudioTopBar 
+        onToggleEngine={toggleEngine}
+        isEngineOpen={sidebarOpen}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 relative h-full">
-        {/* Dedicated Studio Top Bar */}
-        <AnimeStudioTopBar 
-          onToggleEngine={toggleEngine}
-          isEngineOpen={sidebarOpen}
-        />
+      {/* Global Studio Navigation */}
+      <AnimeStudioNavigation basePath={basePath} />
+
+      <div className="flex-1 flex overflow-hidden relative h-full">
+        <div className="flex-1 flex flex-col min-w-0 relative h-full">
 
         {/* Main Production Workspace */}
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">
@@ -338,11 +336,11 @@ export default function AnimeLayout() {
               />
             </div>
           </div>
+          </div>
         </div>
-      </div>
 
-      {/* Creative Engine Sidepanel */}
-      <ProductionCore
+        {/* Creative Engine Sidepanel */}
+        <ProductionCore
         isOpen={sidebarOpen}
         onToggle={toggleEngine}
         prompt={prompt} setPrompt={setPrompt}
@@ -373,6 +371,7 @@ export default function AnimeLayout() {
         theme={theme}
         setTheme={setTheme}
       />
+      </div>
     </div>
   );
 }
