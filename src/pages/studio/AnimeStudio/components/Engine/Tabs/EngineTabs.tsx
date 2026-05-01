@@ -1,7 +1,7 @@
 import React from 'react';
 import { Cpu, Terminal, Zap, Activity, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export type EngineTab = 'status' | 'console' | 'calibration' | 'optimization' | 'logs';
 
