@@ -1,24 +1,21 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
-import { Sidebar } from '../components/Sidebar';
-import { cn } from '../lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { StudioSideBar as Sidebar } from '@/components/studio/layout/StudioSideBar';
+import { cn } from '@/lib/utils';
 import {
   User,
-  Menu,
-  X,
-  ScrollText,
   HelpCircle,
   FolderGit2,
   ChevronDown,
   Search
 } from 'lucide-react';
-import { useApp } from '../contexts/AppContext';
-import { NeuralConsole } from '../components/studio/NeuralConsole';
-import { NeuralErrorSentinel } from '../components/studio/NeuralErrorSentinel';
-import { NotificationCenter } from '../components/NotificationCenter';
-import { NeuralPulseLayer } from '../components/NeuralPulseLayer';
-import { useGenerator } from '../hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
+import { NeuralConsole } from '@/components/studio/NeuralConsole';
+import { NeuralErrorSentinel } from '@/components/studio/NeuralErrorSentinel';
+import { NotificationCenter } from '@/components/widgets/NotificationCenter';
+import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
+import { useGenerator } from '@/hooks/useGenerator';
 
 export function Layout() {
   const { isFullscreen } = useGenerator();
@@ -45,33 +42,33 @@ export function Layout() {
 
       <NeuralPulseLayer />
 
-      {/* Sidebar: show/hide on all screens */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {/* Unified Sidebar */}
+      <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
+      
+      {/* Content Backdrop / Blur when Sidebar is open */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(15px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/60 z-[450] cursor-pointer"
+          />
+        )}
+      </AnimatePresence>
 
-      <div className="flex-1 flex flex-col min-w-0 bg-[#050505] pt-[60px]">
-        <header className="fixed top-0 right-0 left-0 z-[100] border-b border-zinc-800/50 bg-black/40 backdrop-blur-xl shrink-0">
+      <div 
+        className="flex-1 flex flex-col min-w-0 bg-[#050505] pt-[60px] transition-all duration-300"
+      >
+        <header 
+          className="fixed top-0 right-0 left-0 z-[400] border-b border-zinc-800/50 bg-black/40 backdrop-blur-xl shrink-0 transition-all duration-300"
+        >
           <div className="max-w-full mx-auto px-4 sm:px-6 py-3 flex items-center justify-between w-full h-[60px]">
             <div className="flex items-center gap-4">
-              <button
-                className="text-zinc-400 hover:text-white transition-colors"
-                onClick={() => setIsSidebarOpen((open) => !open)}
-                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-              >
-                {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-
-              {!isSidebarOpen && (
-                <Link to="/" className="flex items-center gap-3 group no-underline ml-2">
-                  <div className="w-8 h-8 bg-black border border-[#bd4a4a] rounded flex items-center justify-center shadow-[0_0_15px_rgba(189,74,74,0.3)] group-hover:scale-110 transition-transform">
-                    <ScrollText className="text-[#bd4a4a] w-5 h-5" />
-                  </div>
-                  <span className="font-black tracking-tighter text-sm uppercase text-white">Studio <span className="text-[#bd4a4a]">Architect</span></span>
-                </Link>
-              )}
-
               {/* Project Selector - Studio Only */}
               {isStudioMode && (
-                <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline", !isSidebarOpen ? "ml-8" : "ml-2")}>
+                <Link to="/library" className={cn("hidden lg:flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group no-underline")}>
                   <FolderGit2 className="w-4 h-4 text-[#bd4a4a]" />
                   <div className="flex flex-col">
                     <span className="text-[10px] text-zinc-500 uppercase font-black tracking-widest leading-none">Architect</span>
@@ -84,12 +81,15 @@ export function Layout() {
 
             {/* Global Search Bar */}
             <div className="hidden xl:flex flex-1 max-w-md mx-8 relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-[#bd4a4a] transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-red-500 transition-all duration-300" />
               <input
                 type="text"
                 placeholder="Global Search Manifests..."
-                className="w-full bg-white/5 border border-white/5 rounded-full pl-11 pr-4 py-2 text-xs font-bold text-white placeholder:text-zinc-700 focus:outline-none focus:border-[#bd4a4a]/30 focus:bg-white/10 transition-all uppercase tracking-widest"
+                className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-11 pr-4 py-2.5 text-[10px] font-black text-white placeholder:text-zinc-600 focus:outline-none focus:border-red-500/30 focus:bg-white/[0.06] transition-all uppercase tracking-[0.2em] shadow-inner"
               />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[8px] font-black text-zinc-500 tracking-tighter">
+                ⌘ K
+              </div>
             </div>
 
             <div className="flex items-center gap-6">
@@ -181,3 +181,5 @@ export function Layout() {
     </div>
   );
 }
+
+
