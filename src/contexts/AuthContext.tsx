@@ -13,11 +13,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
+  const AUTH_REQUEST_TIMEOUT_MS = 5000;
 
   const fetchCurrentUser = async (token: string) => {
     try {
       const response = await axios.get('/api/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: AUTH_REQUEST_TIMEOUT_MS
       });
       setUser(response.data);
     } catch (err) {
@@ -78,3 +80,5 @@ export const useAuthContext = () => {
   }
   return context;
 };
+
+
