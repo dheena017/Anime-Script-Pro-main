@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { apiRequest } from '@/lib/api-utils';
 
 const API_BASE = '/api/world';
 
@@ -17,23 +17,23 @@ export interface WorldLore {
 
 export const worldApi = {
   getLore: async (userId: string, projectId?: number): Promise<WorldLore | null> => {
-    const response = await axios.get(`${API_BASE}/lore/${userId}`, {
-      params: { project_id: projectId }
+    return apiRequest<WorldLore>(`${API_BASE}/lore/${userId}`, {
+      method: 'GET',
+      headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
-    return response.data;
   },
 
   updateLore: async (userId: string, update: Partial<WorldLore>, projectId?: number): Promise<WorldLore> => {
-    const response = await axios.post(`${API_BASE}/lore/${userId}`, update, {
-      params: { project_id: projectId }
+    return apiRequest<WorldLore>(`${API_BASE}/lore/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify(update),
+      headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
-    return response.data;
   },
 
   getHistory: async (userId: string, limit: number = 10): Promise<WorldLore[]> => {
-    const response = await axios.get(`${API_BASE}/history/${userId}`, {
-      params: { limit }
+    return apiRequest<WorldLore[]>(`${API_BASE}/history/${userId}?limit=${limit}`, {
+      method: 'GET'
     });
-    return response.data;
   }
 };

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { apiRequest } from '@/lib/api-utils';
 
 const API_BASE = '/api/production';
 
@@ -21,16 +21,17 @@ export interface ProjectContent {
 
 export const productionApi = {
   getContent: async (userId: string, projectId?: number): Promise<ProjectContent | null> => {
-    const response = await axios.get(`${API_BASE}/${userId}`, {
-      params: { project_id: projectId }
+    return apiRequest<ProjectContent>(`${API_BASE}/${userId}`, {
+      method: 'GET',
+      headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
-    return response.data;
   },
 
   updateContent: async (userId: string, update: Partial<ProjectContent>, projectId?: number): Promise<ProjectContent> => {
-    const response = await axios.post(`${API_BASE}/${userId}`, update, {
-      params: { project_id: projectId }
+    return apiRequest<ProjectContent>(`${API_BASE}/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify(update),
+      headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
-    return response.data;
   }
 };

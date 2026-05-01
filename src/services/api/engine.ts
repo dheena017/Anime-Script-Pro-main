@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { apiRequest } from '@/lib/api-utils';
 
 const API_BASE = '/api/engine';
 
@@ -25,25 +25,28 @@ export interface TelemetryData {
 
 export const engineApi = {
   getConfig: async (userId: string): Promise<EngineConfig> => {
-    const response = await axios.get(`${API_BASE}/config/${userId}`);
-    return response.data;
+    return apiRequest<EngineConfig>(`${API_BASE}/config/${userId}`, {
+      method: 'GET'
+    });
   },
 
   updateConfig: async (userId: string, update: Partial<EngineConfig>): Promise<EngineConfig> => {
-    const response = await axios.post(`${API_BASE}/config/${userId}`, update);
-    return response.data;
+    return apiRequest<EngineConfig>(`${API_BASE}/config/${userId}`, {
+      method: 'POST',
+      body: JSON.stringify(update)
+    });
   },
 
   recordTelemetry: async (data: TelemetryData, userId?: string): Promise<void> => {
-    await axios.post(`${API_BASE}/telemetry`, data, {
-      params: { user_id: userId }
+    await apiRequest(`${API_BASE}/telemetry${userId ? `?user_id=${userId}` : ''}`, {
+      method: 'POST',
+      body: JSON.stringify(data)
     });
   },
 
   getRecentTelemetry: async (limit: number = 50): Promise<any[]> => {
-    const response = await axios.get(`${API_BASE}/telemetry/recent`, {
-      params: { limit }
+    return apiRequest<any[]>(`${API_BASE}/telemetry/recent?limit=${limit}`, {
+      method: 'GET'
     });
-    return response.data;
   }
 };
