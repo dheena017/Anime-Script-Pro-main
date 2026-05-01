@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { History, Hourglass, Landmark, ScrollText } from 'lucide-react';
 
 export const WorldHistory: React.FC = () => {
