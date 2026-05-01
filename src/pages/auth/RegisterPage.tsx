@@ -25,7 +25,7 @@ export function RegisterPage() {
   }, [user, loading, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#020203] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+    <main className="min-h-screen bg-[#020203] flex items-center justify-center p-4 relative overflow-hidden font-sans">
       {/* Back Button */}
       <motion.button
         initial={{ opacity: 0, x: -20 }}
@@ -174,9 +174,6 @@ export function RegisterPage() {
            </p>
         </div>
       </motion.div>
-    </div>
+    </main>
   );
 }
-
-
-
