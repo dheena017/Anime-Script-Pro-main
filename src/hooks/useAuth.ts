@@ -1,4 +1,4 @@
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export interface AuthState {
   user: any | null;
@@ -16,3 +16,5 @@ export function useAuth(): AuthState {
     signOut: context.logout 
   };
 }
+
+
