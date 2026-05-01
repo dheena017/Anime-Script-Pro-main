@@ -46,4 +46,7 @@ class ReusableCharacter(SQLModel, table=True):
     backstory: Optional[str] = None
     personality: Optional[str] = None
     visual_traits: Optional[str] = None
+    visual_prompt: Optional[str] = None
+    seed: int = Field(default=12345)
+    reference_image_url: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)

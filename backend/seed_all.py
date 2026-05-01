@@ -198,11 +198,22 @@ def seed_all():
         if not session.exec(select(MediaAsset)).first():
             logger.info("Indexing Visual DNA...")
             assets = [
-                MediaAsset(user_id=LOCAL_USER_ID, name="Jin-Woo Main Profile", url="assets/jinwoo_01.png", asset_type="IMAGE"),
-                MediaAsset(user_id=LOCAL_USER_ID, name="Neo-Tokyo Skyline", url="assets/city_skyline.png", asset_type="IMAGE"),
-                MediaAsset(user_id=LOCAL_USER_ID, name="Neural Interface UI", url="assets/ui_interface.png", asset_type="IMAGE")
+                MediaAsset(user_id=LOCAL_USER_ID, name="Cyberpunk Noir Protagonist", url="https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=800", asset_type="IMAGE", prompt="A gritty shonen protagonist in a neon-drenched cyberpunk alleyway, detailed techwear, cinematic lighting."),
+                MediaAsset(user_id=LOCAL_USER_ID, name="Neo-Tokyo Horizon", url="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=800", asset_type="IMAGE", prompt="Breathtaking wide shot of Neo-Tokyo skyline at sunset, floating megastructures, synthwave aesthetic."),
+                MediaAsset(user_id=LOCAL_USER_ID, name="Neural Interface Core", url="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800", asset_type="IMAGE", prompt="Internal view of a neural processing core, glowing circuit paths, ethereal blue energy pulses.")
             ]
             for a in assets: session.add(a)
+
+            # 5.5 Seed User Favorites
+            if not session.exec(select(UserFavorite)).first():
+                logger.info("Syncing Bookmarked Visions...")
+                # Fetch the assets we just added to get their IDs
+                session.flush()
+                favs = [
+                    UserFavorite(user_id=LOCAL_USER_ID, asset_id=assets[0].id),
+                    UserFavorite(user_id=LOCAL_USER_ID, asset_id=assets[1].id)
+                ]
+                for f in favs: session.add(f)
 
         # 6. Seed User Data
         if not session.exec(select(UserProfile).where(UserProfile.user_id == LOCAL_USER_ID)).first():
@@ -214,9 +225,46 @@ def seed_all():
                 bio="Architect of the Anime Script Pro production environment.",
                 avatar_url="https://api.dicebear.com/7.x/avataaars/svg?seed=Architect"
             )
-            balance = UserBalance(user_id=LOCAL_USER_ID, credits=15000)
+            existing_balance = session.exec(select(UserBalance).where(UserBalance.user_id == LOCAL_USER_ID)).first()
+            if existing_balance:
+                existing_balance.credits = 15000
+                existing_balance.level = 42
+                existing_balance.experience = 8450
+                session.add(existing_balance)
+            else:
+                balance = UserBalance(user_id=LOCAL_USER_ID, credits=15000, level=42, experience=8450)
+                session.add(balance)
+            
+            # Update Settings with studio defaults
+            settings = session.exec(select(UserSettings).where(UserSettings.user_id == LOCAL_USER_ID)).first()
+            if not settings:
+                settings = UserSettings(
+                    user_id=LOCAL_USER_ID,
+                    studio_defaults={
+                        "aspectRatio": "16:9",
+                        "defaultModelStyle": "Cyberpunk",
+                        "theme": "dark"
+                    },
+                    notifications={"email": {"upscale": True, "generation": True, "security": True}}
+                )
+                session.add(settings)
+            
+            # Seed some Library data
+            if not session.exec(select(SavedPrompt).where(SavedPrompt.user_id == LOCAL_USER_ID)).first():
+                p1 = SavedPrompt(user_id=LOCAL_USER_ID, label="Cyber Noir Signature", prompt_text="High contrast, deep shadows, neon highlights, 90s anime style.")
+                session.add(p1)
+            
+            if not session.exec(select(ReusableCharacter).where(ReusableCharacter.user_id == LOCAL_USER_ID)).first():
+                c1 = ReusableCharacter(
+                    user_id=LOCAL_USER_ID, 
+                    name="Kaine (Dev Build)", 
+                    visual_prompt="Spiky black hair, cybernetic left eye, worn-out grey duster coat.",
+                    seed=9999,
+                    reference_image_url="https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&q=80&w=400"
+                )
+                session.add(c1)
+
             session.add(profile)
-            session.add(balance)
 
         # 7. Seed Notifications
         if not session.exec(select(Notification)).first():

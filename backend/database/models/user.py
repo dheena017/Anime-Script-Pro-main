@@ -27,6 +27,8 @@ class UserBalance(SQLModel, table=True):
     user_id: str = Field(unique=True, index=True)
     credits: int = Field(default=5000)
     current_tier: str = Field(default="MASTER ARCHITECT")
+    level: int = Field(default=1)
+    experience: int = Field(default=0)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserSettings(SQLModel, table=True):
@@ -37,6 +39,7 @@ class UserSettings(SQLModel, table=True):
     security: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     notifications: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     ai_models: Dict = Field(default_factory=dict, sa_column=Column(JSON))
+    studio_defaults: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     storage: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     billing: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)

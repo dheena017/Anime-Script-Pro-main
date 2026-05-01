@@ -98,6 +98,7 @@ async def update_user_settings(user_id: str, payload: dict):
         if "security" in payload: settings.security = payload["security"]
         if "notifications" in payload: settings.notifications = payload["notifications"]
         if "ai_models" in payload: settings.ai_models = payload["ai_models"]
+        if "studio_defaults" in payload: settings.studio_defaults = payload["studio_defaults"]
         if "storage" in payload: settings.storage = payload["storage"]
         if "billing" in payload: settings.billing = payload["billing"]
         
@@ -115,7 +116,7 @@ async def get_user_balance(user_id: str):
         result = await session.execute(statement)
         balance = result.scalars().first()
         if not balance:
-            balance = UserBalance(user_id=user_id, credits=5000, current_tier="MASTER ARCHITECT")
+            balance = UserBalance(user_id=user_id, credits=5000, current_tier="MASTER ARCHITECT", level=1, experience=0)
             session.add(balance)
             await session.commit()
             await session.refresh(balance)
