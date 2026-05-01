@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Building2, Castle, Ruler, Layers } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 
