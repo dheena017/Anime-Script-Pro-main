@@ -1,12 +1,12 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from './layouts/Layout';
-import { ErrorBoundary } from './lib/error-utils';
-import { TooltipProvider } from './components/ui/tooltip';
-import { GeneratorProvider } from './contexts/GeneratorContext';
-import { AppProvider } from './contexts/AppContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { AITelemetryOverlay } from './components/neural/AITelemetryOverlay';
+import { Layout } from '@/layouts/Layout';
+import { ErrorBoundary } from '@/lib/error-utils';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AppProvider } from '@/contexts/AppContext';
+import { GeneratorProvider } from '@/contexts/GeneratorContext';
+import { AITelemetryOverlay } from '@/components/neural/AITelemetryOverlay';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { StudioLayout } from '@/layouts/StudioLayout';
 
