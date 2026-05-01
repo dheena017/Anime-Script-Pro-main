@@ -7,7 +7,7 @@ import {
   Database 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export type ScriptTab = 'teleprompter' | 'linguistics' | 'beats' | 'dialogue' | 'metadata';
 
