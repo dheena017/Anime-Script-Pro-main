@@ -22,7 +22,7 @@ export function AuthCard({ children, title = "Architect Login", description = "P
                </React.Fragment>
             ))}
           </CardTitle>
-          <CardDescription className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[9px]">
+          <CardDescription className="text-zinc-400 font-black uppercase tracking-[0.3em] text-[9px]">
             {description}
           </CardDescription>
         </div>

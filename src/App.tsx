@@ -1,14 +1,14 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '@/layouts/Layout';
+const Layout = lazy(() => import('@/layouts/Layout').then(m => ({ default: m.Layout })));
 import { ErrorBoundary } from '@/lib/error-utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AppProvider } from '@/contexts/AppContext';
-import { GeneratorProvider } from '@/contexts/GeneratorContext';
-import { AITelemetryOverlay } from '@/components/neural/AITelemetryOverlay';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { StudioLayout } from '@/layouts/StudioLayout';
+const StudioLayout = lazy(() => import('@/layouts/StudioLayout').then(m => ({ default: m.StudioLayout })));
+const GeneratorProvider = lazy(() => import('@/contexts/GeneratorContext').then(m => ({ default: m.GeneratorProvider })));
+const AITelemetryOverlay = lazy(() => import('@/components/neural/AITelemetryOverlay').then(m => ({ default: m.AITelemetryOverlay })));
+const ProtectedRoute = lazy(() => import('@/components/auth/ProtectedRoute').then(m => ({ default: m.ProtectedRoute })));
 
 // Core Pages (Lazy)
 const LoginPage = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -19,14 +19,15 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Modular UI Components
-import { SpeedLines, DigitalScanline, HUDDecoration } from './ui/Effects';
+// Modular UI Components (Lazy Loaded for Performance)
+import { DigitalScanline, HUDDecoration } from './ui/Effects';
 import { NavItem, DropdownLink } from './ui/NavComponents';
 import { HeroPromptBar } from './ui/HeroPromptBar';
-import { Gallery } from './ui/Gallery';
-import { Features } from './ui/Features';
-import { FAQ } from './ui/FAQ';
-import { Footer } from './ui/Footer';
+
+const Gallery = lazy(() => import('./ui/Gallery').then(m => ({ default: m.Gallery })));
+const Features = lazy(() => import('./ui/Features').then(m => ({ default: m.Features })));
+const FAQ = lazy(() => import('./ui/FAQ').then(m => ({ default: m.FAQ })));
+const Footer = lazy(() => import('./ui/Footer').then(m => ({ default: m.Footer })));
 
 // Data & Constants
 import { 
@@ -66,9 +67,9 @@ export default function LandingPage() {
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-studio/10 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[120px] animate-pulse" />
         <div className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
-        <SpeedLines />
+        {/* <SpeedLines /> */}
         <DigitalScanline />
         <HUDDecoration />
       </div>
@@ -160,6 +161,7 @@ export default function LandingPage() {
             <button
               className="lg:hidden p-2 text-zinc-400"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle Mobile Menu"
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
@@ -210,7 +212,7 @@ export default function LandingPage() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-purple-500 to-studio drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] relative z-10">
               INTO STUDIO-QUALITY ANIME.
             </span>
-            <div className="absolute inset-0 -z-0 bg-studio/5 blur-[100px] rounded-full scale-110 animate-pulse" />
+            <div className="absolute inset-0 -z-0 bg-studio/5 blur-[100px] rounded-full scale-110" />
           </motion.h1>
 
           <motion.p
@@ -221,6 +223,10 @@ export default function LandingPage() {
           >
             The fastest AI generator for anime, manga, and concept art. Type a prompt. Get perfect anime art in seconds. Start creating for free.
           </motion.p>
+
+          <a href="#how-it-works" className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:bg-studio focus:text-black focus:p-4 focus:rounded-xl">
+            Skip to How It Works
+          </a>
 
           {/* AI PROMPT BAR */}
           <HeroPromptBar
@@ -266,19 +272,23 @@ export default function LandingPage() {
               </div>
               <video
                 className="w-full h-auto aspect-video object-cover"
-                autoPlay
                 muted
                 loop
                 playsInline
                 width="1280"
                 height="720"
                 poster="/cyberpunk_thumbnail_1776537282821.png"
+                preload="none"
               >
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
+                <track kind="captions" />
                 Your browser does not support the video tag.
               </video>
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                <Button className="w-20 h-20 rounded-full bg-studio text-black hover:scale-110 transition-transform shadow-[0_0_30px_rgba(6,182,212,0.5)] flex items-center justify-center">
+                <Button 
+                  aria-label="Play Video Demo"
+                  className="w-20 h-20 rounded-full bg-studio text-black hover:scale-110 transition-transform shadow-[0_0_30px_rgba(6,182,212,0.5)] flex items-center justify-center"
+                >
                   <Play className="w-10 h-10 fill-black translate-x-1" />
                 </Button>
               </div>
@@ -286,7 +296,7 @@ export default function LandingPage() {
           </motion.section>
 
           {/* Modular Sections */}
-          <section className="max-w-7xl mx-auto py-20">
+          <section id="how-it-works" className="max-w-7xl mx-auto py-20">
             <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">
               How It Works
             </h2>
@@ -298,10 +308,10 @@ export default function LandingPage() {
                 className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
-                  <Code className="w-8 h-8 text-studio" />
+                  <Code className="w-8 h-8 text-studio" aria-hidden="true" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Describe</h3>
-                <p className="text-zinc-400">Type your prompt or describe your scene.</p>
+                <p className="text-zinc-400 font-medium">Type your prompt or describe your scene.</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -311,10 +321,10 @@ export default function LandingPage() {
                 className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
-                  <Palette className="w-8 h-8 text-studio" />
+                  <Palette className="w-8 h-8 text-studio" aria-hidden="true" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Customize</h3>
-                <p className="text-zinc-400">Choose your style – Cyberpunk, 90s Cel‑Shaded, Watercolor, etc.</p>
+                <p className="text-zinc-400 font-medium">Choose your style – Cyberpunk, 90s Cel‑Shaded, Watercolor, etc.</p>
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -324,22 +334,26 @@ export default function LandingPage() {
                 className="flex flex-col items-center text-center p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/30 hover:-translate-y-2 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] transition-all duration-300 group"
               >
                 <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center mb-6 group-hover:bg-studio/20 group-hover:scale-110 transition-all">
-                  <Download className="w-8 h-8 text-studio" />
+                  <Download className="w-8 h-8 text-studio" aria-hidden="true" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Download</h3>
-                <p className="text-zinc-400">Get high‑res, royalty‑free anime art in seconds.</p>
+                <p className="text-zinc-400 font-medium">Get high‑res, royalty‑free anime art in seconds.</p>
               </motion.div>
             </div>
           </section>
 
-          <Gallery 
-            images={galleryImages} 
-            activePrompt={activePrompt} 
-            setActivePrompt={setActivePrompt} 
-            onTryPrompt={() => navigate('/login')} 
-          />
+          <Suspense fallback={<div className="h-96" />}>
+            <Gallery 
+              images={galleryImages} 
+              activePrompt={activePrompt} 
+              setActivePrompt={setActivePrompt} 
+              onTryPrompt={() => navigate('/login')} 
+            />
+          </Suspense>
 
-          <Features />
+          <Suspense fallback={<div className="h-96" />}>
+            <Features />
+          </Suspense>
 
           {/* Pricing Summary */}
           <section className="max-w-7xl mx-auto py-20 text-center">
@@ -355,11 +369,15 @@ export default function LandingPage() {
             </Button>
           </section>
 
-          <FAQ />
+          <Suspense fallback={<div className="h-64" />}>
+            <FAQ />
+          </Suspense>
         </div>
       </main>
 
-      <Footer />
+      <Suspense fallback={<div className="h-64" />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

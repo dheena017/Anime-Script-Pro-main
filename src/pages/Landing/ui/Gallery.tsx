@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { GalleryItem } from '../constants';
 
 interface GalleryProps {
@@ -39,14 +40,12 @@ export const Gallery: React.FC<GalleryProps> = ({
             className="relative group cursor-pointer rounded-2xl overflow-hidden hover:shadow-[0_10px_30px_rgba(6,182,212,0.2)] hover:-translate-y-1 transition-all duration-300 border border-transparent hover:border-studio/30"
             onClick={() => setActivePrompt(item.prompt)}
           >
-            <img
+            <OptimizedImage
               src={item.src}
               alt={`Generated anime art inspiration ${idx + 1}`}
-              loading="lazy"
-              decoding="async"
-              width="400"
-              height="224"
-              className="w-full h-56 object-cover transition-transform duration-700 group-hover:scale-110"
+              className="w-full h-56 transition-transform duration-700 group-hover:scale-110"
+              width={400}
+              height={224}
             />
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all duration-300 p-6">
               <span className="text-white text-sm font-medium text-center leading-relaxed translate-y-4 group-hover:translate-y-0 transition-transform duration-300">

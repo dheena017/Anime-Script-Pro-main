@@ -32,19 +32,20 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
         <div className="absolute -inset-[1px] bg-gradient-to-r from-studio/50 via-purple-500/50 to-studio/50 rounded-[1.75rem] blur-sm opacity-40 group-hover:opacity-70 transition-opacity" />
         <div className="relative bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
           <div className="flex items-start gap-3">
-            <textarea
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleGenerate();
-                }
-              }}
-              placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
-              rows={3}
-              className="flex-1 bg-transparent border-none outline-none text-white text-base md:text-lg font-medium placeholder:text-zinc-600 py-3 px-2 resize-none max-h-[9rem] overflow-y-auto hide-scrollbar leading-relaxed"
-            />
+              <textarea
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleGenerate();
+                  }
+                }}
+                placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
+                aria-label="Describe the anime art you want to generate"
+                rows={3}
+                className="flex-1 bg-transparent border-none outline-none text-white text-base md:text-lg font-medium placeholder:text-zinc-600 py-3 px-2 resize-none max-h-[9rem] overflow-y-auto hide-scrollbar leading-relaxed"
+              />
           </div>
           <div className="flex items-center justify-end pt-2 px-1">
             <Button

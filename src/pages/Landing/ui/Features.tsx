@@ -27,7 +27,7 @@ export const Features = () => {
             className="p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-studio/20 transition-all group text-left"
           >
             <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center mb-6 group-hover:bg-studio/10 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]">
-              <f.icon className="w-6 h-6 text-zinc-400 group-hover:text-studio transition-colors" />
+              <f.icon className="w-6 h-6 text-zinc-400 group-hover:text-studio transition-colors" aria-hidden="true" />
             </div>
             <h3 className="text-xl font-bold text-white mb-2 group-hover:text-studio transition-colors">{f.title}</h3>
             <p className="text-zinc-500 text-sm leading-relaxed">{f.text}</p>

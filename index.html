@@ -6,12 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="application-name" content="Anime Script Pro" />
     <meta name="author" content="Anime Script Pro" />
-    <meta name="description" content="Anime Script Pro is an AI-powered anime production studio for world building, script generation, character design, storyboard planning, and prompt orchestration." />
-    <meta name="keywords" content="anime studio, AI production, script generation, storyboarding, character design, prompt engineering, FastAPI, React, anime workflow" />
+    <meta name="description" content="Anime Script Pro is an AI-powered anime production studio for world building, script generation, character design, storyboard planning, and prompt orchestration. Build worlds, design cast, and generate scripts." />
+    <meta name="keywords" content="anime studio, AI production, script generation, storyboarding, character design, prompt engineering, FastAPI, React, anime workflow, manga production" />
     <meta name="robots" content="index,follow" />
     <meta name="color-scheme" content="dark" />
     <title>Anime Script Pro | AI Anime Production Studio</title>
     <meta name="theme-color" content="#1a1a2e" />
+    
+    <!-- Performance Optimization: Preconnect to critical origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
@@ -31,12 +36,35 @@
     <meta name="twitter:title" content="Anime Script Pro | AI Anime Production Studio" />
     <meta name="twitter:description" content="Build worlds, design cast, generate scripts, and orchestrate a cinematic anime production workflow." />
     <meta name="twitter:image" content="/og-image.svg" />
+    <style>
+      body { 
+        background: #030303; 
+        color: #fff; 
+        min-height: 100vh; 
+        margin: 0; 
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      #root:focus { outline: none; }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+    </style>
   </head>
   <body style="background:#0f1123; color:#fff; min-height:100vh; margin:0; font-family:sans-serif;">
     <noscript>
       <strong>We're sorry but Anime Script Pro requires JavaScript to run. Please enable it to continue.</strong>
     </noscript>
-    <div id="root" tabindex="-1" aria-label="Anime Script Pro App Root"></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
