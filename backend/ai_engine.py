@@ -164,4 +164,25 @@ class AIEngine:
         
         return response.text
 
+    async def generate_content(self, prompt: str, system_instruction: str = None, user_id: str = None):
+        logger.info(f"PROCESS: [🧠] Neural Synthesis triggered. Instruction length: {len(system_instruction or '')}")
+        client = await self._get_client(user_id)
+        
+        config = None
+        if system_instruction:
+            config = types.GenerateContentConfig(
+                system_instruction=system_instruction
+            )
+            
+        response = await client.aio.models.generate_content(
+            model=self.model_name,
+            contents=prompt,
+            config=config
+        )
+        return response.text
+
 ai_engine = AIEngine()
+
+async def call_ai(model: str, prompt: str, system_instruction: str = None, user_id: str = None):
+    engine = AIEngine(model_name=model)
+    return await engine.generate_content(prompt, system_instruction, user_id)
