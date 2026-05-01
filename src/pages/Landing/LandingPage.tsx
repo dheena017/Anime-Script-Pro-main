@@ -217,7 +217,7 @@ export default function LandingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="max-w-2xl mx-auto text-zinc-500 text-lg md:text-xl font-medium leading-relaxed"
+            className="max-w-2xl mx-auto text-zinc-400 text-lg md:text-xl font-medium leading-relaxed"
           >
             The fastest AI generator for anime, manga, and concept art. Type a prompt. Get perfect anime art in seconds. Start creating for free.
           </motion.p>
@@ -270,6 +270,8 @@ export default function LandingPage() {
                 muted
                 loop
                 playsInline
+                width="1280"
+                height="720"
                 poster="/cyberpunk_thumbnail_1776537282821.png"
               >
                 <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
