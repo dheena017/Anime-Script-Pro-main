@@ -77,10 +77,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    if (!authLoading) {
+    if (user?.id) {
       fetchStats();
     }
-  }, [user, authLoading]);
+  }, [user?.id]);
 
   const isLoading = authLoading || (user && dataLoading);
 
@@ -119,12 +119,12 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-8 text-right">
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Neural Status</p>
+              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Neural Status</p>
               <p className="text-xs font-bold text-emerald-400 uppercase tracking-tighter">OPTIMAL SYNC</p>
             </div>
             <div className="w-[1px] h-10 bg-white/10" />
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Active Node</p>
+              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Active Node</p>
               <p className="text-xs font-bold text-studio uppercase tracking-tighter">CENTRAL HUB-01</p>
             </div>
           </div>
@@ -142,14 +142,14 @@ export default function Dashboard() {
               <div className={cn("absolute inset-0 bg-gradient-to-br pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700", stat.color)} />
               
               <div className="flex items-center justify-between mb-10 relative z-10">
-                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.4em]">{stat.label}</p>
+                <p className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.4em]">{stat.label}</p>
                 <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 group-hover:border-white/10 transition-colors">
                   <stat.icon className="w-5 h-5 text-zinc-600 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                 </div>
               </div>
               
               <div className="space-y-3 relative z-10">
-                <h3 className="text-6xl font-black text-white tracking-tighter truncate leading-none group-hover:translate-x-1 transition-transform duration-500">{stat.val}</h3>
+                <div className="text-6xl font-black text-white tracking-tighter truncate leading-none group-hover:translate-x-1 transition-transform duration-500">{stat.val}</div>
                 <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-black tracking-[0.2em] uppercase">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                   {stat.sub}
@@ -164,7 +164,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <LayoutGrid className="w-5 h-5 text-studio" />
-              <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.4em]">Initialize Environment</h3>
+              <h2 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.4em]">Initialize Environment</h2>
             </div>
             <div className="h-[1px] flex-1 bg-white/5 mx-8 hidden md:block" />
             <span className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Select Production Mode</span>
@@ -178,6 +178,7 @@ export default function Dashboard() {
               <button
                 key={studio.type}
                 onClick={() => navigate(studio.path)}
+                aria-label={`Initialize ${studio.name}`}
                 className={cn(
                   "p-10 rounded-[3rem] border border-white/5 bg-white/[0.01] transition-all text-left group hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden",
                   studio.color
@@ -192,8 +193,8 @@ export default function Dashboard() {
                     <ChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </div>
-                <span className="text-2xl font-black text-white uppercase tracking-tighter mb-2 block relative z-10">{studio.name}</span>
-                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed uppercase tracking-widest relative z-10">{studio.desc}</p>
+                <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 block relative z-10">{studio.name}</h3>
+                <p className="text-[10px] text-zinc-400 font-medium leading-relaxed uppercase tracking-widest relative z-10">{studio.desc}</p>
               </button>
             ))}
           </div>
@@ -217,6 +218,7 @@ export default function Dashboard() {
                   key={idx}
                   whileHover={{ y: -8 }}
                   onClick={() => navigate(item.path)}
+                  aria-label={item.title}
                   className="flex flex-col text-left p-10 glass border border-white/5 rounded-[3rem] group relative overflow-hidden aspect-[4/3] justify-between transition-all"
                 >
                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-studio/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -229,8 +231,8 @@ export default function Dashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <h4 className="text-3xl font-black text-white tracking-tighter leading-none group-hover:text-studio transition-colors">{item.title}</h4>
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{item.desc}</p>
+                    <h3 className="text-3xl font-black text-white tracking-tighter leading-none group-hover:text-studio transition-colors">{item.title}</h3>
+                    <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{item.desc}</p>
                   </div>
                 </motion.button>
               ))}
@@ -239,7 +241,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <Card className="glass rounded-[3rem] p-12 space-y-8">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">System Logs</h3>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">System Logs</h2>
                   <div className="flex gap-1">
                     <div className="w-1 h-1 rounded-full bg-studio" />
                     <div className="w-1 h-1 rounded-full bg-fuchsia-500" />
@@ -279,7 +281,7 @@ export default function Dashboard() {
               </Card>
 
               <Card className="glass rounded-[3rem] p-12 space-y-8">
-                <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Fast Lane</h3>
+                <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">Fast Lane</h2>
                 <div className="grid grid-cols-1 gap-4">
                   {[
                     { label: 'Character Cast', path: '/anime/cast' },
@@ -291,7 +293,7 @@ export default function Dashboard() {
                       onClick={() => navigate(step.path)}
                       className="w-full flex items-center justify-between p-6 bg-black/20 border border-white/5 rounded-2xl hover:bg-studio/5 hover:border-studio/20 transition-all group"
                     >
-                      <span className="text-[11px] font-black text-zinc-400 group-hover:text-white transition-colors uppercase tracking-[0.2em]">{step.label}</span>
+                      <span className="text-[11px] font-black text-zinc-300 group-hover:text-white transition-colors uppercase tracking-[0.2em]">{step.label}</span>
                       <div className="w-8 h-8 rounded-full bg-black/40 border border-white/10 flex items-center justify-center">
                         <ArrowRight className="w-4 h-4 text-zinc-700 group-hover:text-studio group-hover:translate-x-1 transition-all" />
                       </div>
