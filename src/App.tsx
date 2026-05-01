@@ -1,38 +1,39 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './layouts/Layout';
 import { ErrorBoundary } from './lib/error-utils';
 import { TooltipProvider } from './components/ui/tooltip';
 import { GeneratorProvider } from './contexts/GeneratorContext';
 import { AppProvider } from './contexts/AppContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { AITelemetryOverlay } from './components/neural/AITelemetryOverlay';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { StudioLayout } from '@/layouts/StudioLayout';
 
 // Core Pages (Lazy)
+const LoginPage = lazy(() => import('./pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
+const NotificationsPage = lazy(() => import('./pages/dashboard/Notifications'));
+const CreateProject = lazy(() => import('./pages/projects/CreateProject'));
+const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'));
+const ProfilePage = lazy(() => import('./pages/dashboard/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const LandingPage = lazy(() => import('./pages/Landing/LandingPage'));
+const AuthPage = lazy(() => import('./pages/auth/Auth'));
+const PricingPage = lazy(() => import('./pages/marketing/Pricing'));
+const HelpPage = lazy(() => import('./pages/marketing/Help'));
+const ApiReferencePage = lazy(() => import('./pages/projects/ApiReference'));
+const LoreDatabasePage = lazy(() => import('./pages/projects/LoreDatabase'));
+const ContactPage = lazy(() => import('./pages/marketing/Contact'));
+const TermsPage = lazy(() => import('./pages/marketing/Terms'));
 
-const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import('./pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
-const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
-const LibraryPage = lazy(() => import('./pages/Library').then(m => ({ default: m.LibraryPage })));
-const CommunityPage = lazy(() => import('./pages/Community').then(m => ({ default: m.CommunityPage })));
-const DiscoverPage = lazy(() => import('./pages/DiscoverPage').then(m => ({ default: m.DiscoverPage })));
-const SettingsPage = lazy(() => import('./pages/Settings').then(m => ({ default: m.SettingsPage })));
-const TutorialsPage = lazy(() => import('./pages/Tutorials'));
-const NotificationsPage = lazy(() => import('./pages/Notifications'));
-const CreateProject = lazy(() => import('./pages/CreateProject'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
-const LandingPage = lazy(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
-const AuthPage = lazy(() => import('./pages/Auth'));
-const PricingPage = lazy(() => import('./pages/Pricing'));
-const HelpPage = lazy(() => import('./pages/Help'));
-const DocumentationPage = lazy(() => import('./pages/Documentation'));
-const SystemStatus = lazy(() => import('./pages/SystemStatus'));
-const Changelog = lazy(() => import('./pages/Changelog'));
-const FeedbackPage = lazy(() => import('./pages/Feedback'));
-const ApiReferencePage = lazy(() => import('./pages/ApiReference'));
-const LoreDatabasePage = lazy(() => import('./pages/LoreDatabase'));
-const ContactPage = lazy(() => import('./pages/Contact'));
-const TermsPage = lazy(() => import('./pages/Terms'));
-
+// New Modular Pages
+const SystemModule = lazy(() => import('./pages/studio/system/Index'));
+const DiscoverModule = lazy(() => import('./pages/studio/Discover/Index'));
+const CommunityModule = lazy(() => import('./pages/studio/Community/Index'));
+const AcademyModule = lazy(() => import('./pages/studio/Tutorials/Index'));
+const SettingsModule = lazy(() => import('./pages/studio/Settings/Index'));
+const LibraryModule = lazy(() => import('./pages/studio/Library/Index'));
 
 // Anime Studio Components (Lazy)
 const AnimeLayout = lazy(() => import('./pages/studio/AnimeStudio/Layout'));
@@ -69,44 +70,50 @@ const Showrunner = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages
 const SEOMaster = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/SEOMaster'));
 const ProductionAide = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/ProductionAide'));
 
-
-
 const LoadingSpinner = () => (
   <div className="min-h-screen bg-[#050505] flex items-center justify-center">
     <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin" />
   </div>
 );
 
-import { AITelemetryOverlay } from './components/AITelemetryOverlay';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-
-import { AuthProvider } from './contexts/AuthContext';
-
 export default function App() {
-  React.useEffect(() => {
-    // Application initialized
-  }, []);
-
   return (
     <ErrorBoundary>
       <AuthProvider>
         <AppProvider>
           <GeneratorProvider>
             <TooltipProvider>
-            <Router>
-              <Suspense fallback={<LoadingSpinner />}>
-                <AITelemetryOverlay />
-                <Routes>
+              <Router>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AITelemetryOverlay />
+                  <Routes>
 
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
 
-                  <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                    <Route path="/anime" element={<AnimeLayout />}>
-                      <Route index element={<AnimePortal />} />
+                    {/* STUDIO ARCHITECT INFRASTRUCTURE */}
+                    <Route element={<ProtectedRoute><StudioLayout /></ProtectedRoute>}>
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                    
+                    {/* Modular Sections */}
+                      <Route path="/library" element={<LibraryModule />} />
+                      <Route path="/discover" element={<DiscoverModule />} />
+                      <Route path="/community" element={<CommunityModule />} />
+                      <Route path="/tutorials" element={<AcademyModule />} />
+                      <Route path="/system/*" element={<SystemModule />} />
+                      <Route path="/settings" element={<SettingsModule />} />
+                      <Route path="/notifications" element={<NotificationsPage />} />
+                      <Route path="/create-project" element={<CreateProject />} />
+                    </Route>
+
+                    {/* LEGACY ANIME STUDIO (TO BE REFACTORED) */}
+                    <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                      <Route path="/anime" element={<AnimeLayout />}>
+                        <Route index element={<AnimePortal />} />
 
                       <Route path="world" element={<WorldLayout />}>
                         <Route index element={<AnimeWorld />} />
@@ -144,50 +151,40 @@ export default function App() {
                         <Route index element={<AnimeEngine />} />
                       </Route>
 
-                      <Route path="protocols" element={<ProtocolsLayout />}>
-                        <Route index element={<Navigate to="script" replace />} />
-                        <Route path="script" element={<ScriptArchitect />} />
-                        <Route path="world" element={<LoreOracle />} />
-                        <Route path="cast" element={<SoulForge />} />
-                        <Route path="visual" element={<VisualSynthesizer />} />
-                        <Route path="motion" element={<MotionChoreographer />} />
-                        <Route path="series" element={<Showrunner />} />
-                        <Route path="seo" element={<SEOMaster />} />
-                        <Route path="utils" element={<ProductionAide />} />
+                        <Route path="protocols" element={<ProtocolsLayout />}>
+                          <Route index element={<Navigate to="script" replace />} />
+                          <Route path="script" element={<ScriptArchitect />} />
+                          <Route path="world" element={<LoreOracle />} />
+                          <Route path="cast" element={<SoulForge />} />
+                          <Route path="visual" element={<VisualSynthesizer />} />
+                          <Route path="motion" element={<MotionChoreographer />} />
+                          <Route path="series" element={<Showrunner />} />
+                          <Route path="seo" element={<SEOMaster />} />
+                          <Route path="utils" element={<ProductionAide />} />
+                        </Route>
+                        <Route path="template" element={<AnimeTemplate />} />
                       </Route>
 
-                      <Route path="template" element={<AnimeTemplate />} />
+                      <Route path="/pricing" element={<PricingPage />} />
+                      <Route path="/help" element={<HelpPage />} />
+                      <Route path="/documentation" element={<Navigate to="/system/docs" replace />} />
+                      <Route path="/status" element={<Navigate to="/system/health" replace />} />
+                      <Route path="/changelog" element={<Navigate to="/system/changelog" replace />} />
+                      <Route path="/feedback" element={<Navigate to="/system/feedback" replace />} />
+                      <Route path="/projects/new" element={<CreateProject />} />
+                      <Route path="/api-reference" element={<ApiReferencePage />} />
+                      <Route path="/lore-database" element={<LoreDatabasePage />} />
+                      <Route path="/contact" element={<ContactPage />} />
+                      <Route path="/terms" element={<TermsPage />} />
                     </Route>
-
-
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/profile" element={<ProfilePage />} />
-                    <Route path="/library" element={<LibraryPage />} />
-                    <Route path="/discover" element={<DiscoverPage />} />
-                    <Route path="/community" element={<CommunityPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
-                    <Route path="/tutorials" element={<TutorialsPage />} />
-                    <Route path="/notifications" element={<NotificationsPage />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/help" element={<HelpPage />} />
-                    <Route path="/documentation" element={<DocumentationPage />} />
-                    <Route path="/status" element={<SystemStatus />} />
-                    <Route path="/changelog" element={<Changelog />} />
-                    <Route path="/feedback" element={<FeedbackPage />} />
-                    <Route path="/create-project" element={<CreateProject />} />
-                    <Route path="/projects/new" element={<CreateProject />} />
-                    <Route path="/api-reference" element={<ApiReferencePage />} />
-                    <Route path="/lore-database" element={<LoreDatabasePage />} />
-                    <Route path="/contact" element={<ContactPage />} />
-                    <Route path="/terms" element={<TermsPage />} />
-                  </Route>
-                </Routes>
-              </Suspense>
-            </Router>
-          </TooltipProvider>
-        </GeneratorProvider>
-      </AppProvider>
-    </AuthProvider>
-  </ErrorBoundary>
+                  </Routes>
+                </Suspense>
+              </Router>
+            </TooltipProvider>
+          </GeneratorProvider>
+        </AppProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
+
