@@ -3,17 +3,17 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 import { useOutletContext } from 'react-router-dom';
-import { CastEmptyState } from '../components/Cast/CastEmptyState';
-import { CastTab } from '../components/Cast/Tabs/CastTabs';
+import { CastEmptyState } from './components/Cast/CastEmptyState';
+import { CastTab } from './components/Cast/Tabs/CastTabs';
 import { Dna } from 'lucide-react';
 
 // Modularized Tab Components
-import { MatrixTab } from '../components/Cast/Tabs/MatrixTab';
-import { RegistryTab } from '../components/Cast/Tabs/RegistryTab';
-import { IntegrityTab } from '../components/Cast/Tabs/IntegrityTab';
-import { AddLeadTab } from '../components/Cast/Tabs/AddLeadTab';
-import { DNATab } from '../components/Cast/Tabs/DNATab';
-import { DynamicsTab } from '../components/Cast/Tabs/DynamicsTab';
+import { MatrixTab } from './components/Cast/Tabs/MatrixTab';
+import { RegistryTab } from './components/Cast/Tabs/RegistryTab';
+import { IntegrityTab } from './components/Cast/Tabs/IntegrityTab';
+import { AddLeadTab } from './components/Cast/Tabs/AddLeadTab';
+import { DNATab } from './components/Cast/Tabs/DNATab';
+import { DynamicsTab } from './components/Cast/Tabs/DynamicsTab';
 
 export function CastPage() {
   const { activeTab } = useOutletContext<{ activeTab: CastTab }>();
@@ -107,28 +107,26 @@ export function CastPage() {
 
 
   return (
-    <div data-testid="marker-character-cast">
+    <div data-testid="marker-character-cast" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'registry' 
-          ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50" 
+          ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50" 
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className={cn(
-          "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
+          "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
           activeTab === 'registry' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
         )} />
         
-        <div className="w-full p-0">
-          <div className="p-12 max-w-[1400px] mx-auto">
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {renderTabContent()}
-            </div>
-          </div>
+        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+          {renderTabContent()}
         </div>
       </Card>
     </div>
   );
 }
+
+
 
 

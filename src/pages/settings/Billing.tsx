@@ -3,7 +3,7 @@ import { CreditCard, Rocket, Check, Zap, Grip, TerminalSquare, Leaf, Loader2, Sa
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 
 export function BillingSettings() {
 
@@ -139,3 +139,5 @@ export function BillingSettings() {
     </div>
   );
 }
+
+

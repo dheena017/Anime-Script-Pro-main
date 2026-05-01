@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 
 import { Loader2, Zap, Database, Globe } from 'lucide-react';
@@ -108,3 +108,5 @@ export function StudioLoading({
     </div>
   );
 }
+
+

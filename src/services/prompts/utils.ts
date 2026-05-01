@@ -12,3 +12,5 @@ export const SUGGEST_DURATION_PROMPT = `
     A normal speaking rate is approximately 130-150 words per minute.
     Return ONLY the time in seconds with an 's' suffix (e.g., '12s').
 `;
+
+

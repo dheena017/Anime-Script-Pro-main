@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { SeriesHeader } from '../../components/Series/SeriesHeader';
-import { SeriesToolbar } from '../../components/Series/SeriesToolbar';
 import { generateSeriesPlan } from '@/services/api/gemini';
-import { SeriesTab } from '@/pages/studio/components/Series/Tabs/SeriesTabs';
+import { SeriesHeader } from '../components/Series/SeriesHeader';
+import { SeriesToolbar } from '../components/Series/SeriesToolbar';
+import { SeriesTab } from '../components/Series/Tabs/SeriesTabs';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -132,3 +132,5 @@ export default function SeriesLayout() {
     </div>
   );
 }
+
+

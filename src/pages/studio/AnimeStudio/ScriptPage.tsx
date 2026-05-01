@@ -9,18 +9,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { apiRequest } from '@/lib/api-utils';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { ScriptTab } from '../components/Script/Tabs/ScriptTabs';
+import { ScriptTab } from './components/Script/Tabs/ScriptTabs';
 
 // Sub-components
-import { ScriptEmptyState } from '../components/Script/ScriptEmptyState';
+import { ScriptEmptyState } from './components/Script/ScriptEmptyState';
 import { ScriptContext } from './Script/ScriptLayout';
 
 // Modular tab views
-import { TeleprompterTab } from '../components/Script/Tabs/TeleprompterTab';
-import { LinguisticsTab } from '../components/Script/Tabs/LinguisticsTab';
-import { BeatSheetTab } from '../components/Script/Tabs/BeatSheetTab';
-import { DialogueTab } from '../components/Script/Tabs/DialogueTab';
-import { MetadataTab } from '../components/Script/Tabs/MetadataTab';
+import { TeleprompterTab } from './components/Script/Tabs/TeleprompterTab';
+import { LinguisticsTab } from './components/Script/Tabs/LinguisticsTab';
+import { BeatSheetTab } from './components/Script/Tabs/BeatSheetTab';
+import { DialogueTab } from './components/Script/Tabs/DialogueTab';
+import { MetadataTab } from './components/Script/Tabs/MetadataTab';
 
 export function ScriptPage() {
   const { user } = useAuth();
@@ -395,21 +395,21 @@ export function ScriptPage() {
   };
 
   return (
-    <div data-testid="marker-production-script">
+    <div data-testid="marker-production-script" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'teleprompter'
-          ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50"
+          ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50"
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className={cn(
-          "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
+          "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
           activeTab === 'teleprompter' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
         )} />
 
         <div className="w-full p-0">
           <div className={cn(
-            "p-12 mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700",
+            "p-8 lg:p-10 mx-auto",
             activeTab === 'teleprompter' ? "max-w-4xl" : "max-w-5xl"
           )}>
             {renderTabContent()}
@@ -419,4 +419,6 @@ export function ScriptPage() {
     </div>
   );
 }
+
+
 

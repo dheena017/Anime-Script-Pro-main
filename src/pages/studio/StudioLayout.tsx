@@ -5,9 +5,9 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateScript } from '@/services/api/gemini';
 
-import { motion, AnimatePresence } from 'motion/react';
-import { AnimeStudioNavigation as StudioNavigation } from './components/Layout/AnimeStudioNavigation';
-import { SessionLogs } from './components/Layout/SessionLogs';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AnimeStudioNavigation as StudioNavigation } from './AnimeStudio/components/Layout/AnimeStudioNavigation';
+import { SessionLogs } from './AnimeStudio/components/Layout/SessionLogs';
 
 export function StudioLayout({ type }: { type?: string }) {
   const { user } = useAuth();
@@ -141,3 +141,5 @@ export function StudioLayout({ type }: { type?: string }) {
     </div>
   );
 }
+
+

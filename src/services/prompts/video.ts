@@ -19,3 +19,5 @@ export const VIDEO_PROMPT_GENERATION_PROMPT = (contentType: string, script: stri
     Format as a numbered Markdown list.
     Return ONLY the list.
 `;
+
+

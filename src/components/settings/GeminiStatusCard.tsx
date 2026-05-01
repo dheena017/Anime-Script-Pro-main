@@ -9,7 +9,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 interface GeminiStatusCardProps {
   apiKey: string;
@@ -134,3 +134,5 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError 
     </div>
   );
 }
+
+

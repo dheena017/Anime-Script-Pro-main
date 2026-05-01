@@ -33,3 +33,5 @@ export const VIBE_LIBRARY: Record<string, VibePreset> = {
     styleParams: "Minimalist environments, symbolic imagery, smooth motion"
   }
 };
+
+

@@ -1,6 +1,6 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { RelationshipLab } from '../components/Cast/RelationshipLab';
+import { RelationshipLab } from './components/Cast/RelationshipLab';
 
 export function RelationshipPage() {
   return (
@@ -17,3 +17,5 @@ export function RelationshipPage() {
     </motion.div>
   );
 }
+
+

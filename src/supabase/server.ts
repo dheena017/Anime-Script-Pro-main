@@ -38,3 +38,4 @@ export const createClient = (req: any, res: any) => {
     return createServerClient("https://placeholder-project.supabase.co", "placeholder-key", { cookies: { getAll() { return []; }, setAll() {} } });
   }
 };
+

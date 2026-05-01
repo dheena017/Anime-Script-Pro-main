@@ -2,10 +2,10 @@ import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { WorldHeader } from '@/pages/studio/components/World/WorldHeader';
-import { WorldToolbar } from '@/pages/studio/components/World/WorldToolbar';
+import { WorldHeader } from '../components/World/WorldHeader';
+import { WorldToolbar } from '../components/World/WorldToolbar';
 import { generateWorld } from '@/services/api/gemini';
-import { WorldTab } from '@/pages/studio/components/World/Tabs/WorldTabs';
+import { WorldTab } from '../components/World/Tabs/WorldTabs';
 
 import { createContext } from 'react';
 
@@ -123,3 +123,5 @@ export default function WorldLayout() {
     </div>
   );
 }
+
+

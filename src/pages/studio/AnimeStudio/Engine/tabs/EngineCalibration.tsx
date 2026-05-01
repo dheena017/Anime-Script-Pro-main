@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Zap, Target, Cpu, Sparkles } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { cn } from '@/lib/utils';
@@ -195,3 +195,5 @@ export const EngineCalibration: React.FC = () => {
     </div>
   );
 };
+
+

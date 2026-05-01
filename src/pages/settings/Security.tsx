@@ -3,7 +3,7 @@ import { ShieldAlert, KeyRound, Crosshair, Lock, EyeOff, Loader2, Save } from 'l
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { cn } from '../../lib/utils';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 
 export function SecuritySettings() {
 
@@ -139,3 +139,5 @@ export function SecuritySettings() {
     </div>
   );
 }
+
+

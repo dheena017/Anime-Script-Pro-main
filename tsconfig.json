@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "baseUrl": ".",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ES2022",
@@ -33,10 +32,14 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
+    "*.ts",
     "src",
-    "backend"
+    "backend",
+    "playwright-reporters"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*_old.tsx",
+    "**/*_old.ts"
   ]
 }

@@ -205,3 +205,5 @@ export const templateMarkdown = `
 - **Visual:** Fade to black with neon-glyph overlay.
 - **Audio:** Heartbeat rhythm fading into silence.
 `;
+
+

@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Search, Sparkles, Image as ImageIcon, MonitorPlay, Heart, Copy, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
-import { SEOEmptyState } from '../components/SEO/SEOEmptyState';
 
 import { useLocation } from 'react-router-dom';
+import { SEOEmptyState } from './components/SEO/SEOEmptyState';
 
 export function AssetsPage() {
   const location = useLocation();

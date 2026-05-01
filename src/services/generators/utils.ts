@@ -26,3 +26,5 @@ export async function suggestDuration(narration: string, model: string = "gemini
   }
 }
 
+
+

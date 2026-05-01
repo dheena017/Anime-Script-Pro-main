@@ -1,10 +1,10 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '../../../../hooks/useGenerator';
 import { useAuth } from '../../../../hooks/useAuth';
-import { CastHeader } from '../../components/Cast/CastHeader';
-import { CastToolbar, CastTab } from '../../components/Cast/CastToolbar';
+import { CastHeader } from '../components/Cast/CastHeader';
+import { CastToolbar, CastTab } from '../components/Cast/CastToolbar';
 import { generateCharacters } from '../../../../services/api/gemini';
 
 export const CastContext = React.createContext<{
@@ -132,4 +132,6 @@ export default function CastLayout() {
     </CastContext.Provider>
   );
 }
+
+
 

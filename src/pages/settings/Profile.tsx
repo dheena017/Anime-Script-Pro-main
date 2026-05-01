@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Camera, Sparkles, Eye, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 import { StudioLoading } from '../../components/studio/StudioLoading';
 
 
@@ -158,3 +158,5 @@ export function ProfileSettings() {
     </div>
   );
 }
+
+

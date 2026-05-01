@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { ScreeningHeader } from '../../components/Screening/ScreeningHeader';
-import { ScreeningToolbar } from '../../components/Screening/ScreeningToolbar';
-import { ScreeningTab } from '../../components/Screening/Tabs/ScreeningTabs';
+import { ScreeningHeader } from '../components/Screening/ScreeningHeader';
+import { ScreeningToolbar } from '../components/Screening/ScreeningToolbar';
+import { ScreeningTab } from '../components/Screening/Tabs/ScreeningTabs';
 
 export const ScreeningContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -94,3 +94,5 @@ export default function ScreeningLayout() {
     </ScreeningContext.Provider>
   );
 }
+
+

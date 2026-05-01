@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { UI_PROMPT_SUGGESTIONS } from '@/services/prompts';
 
 interface OmniPromptProps {
@@ -115,4 +115,6 @@ export const OmniPrompt: React.FC<OmniPromptProps> = ({
     </div>
   );
 };
+
+
 

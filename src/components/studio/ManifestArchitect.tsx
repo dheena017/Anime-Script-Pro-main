@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Box, Layers, PlaySquare, ChevronRight, Calculator, Table } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -156,3 +156,5 @@ export function ManifestScaffolder({ onContinue, isLoading }: ManifestScaffolder
     </div>
   );
 }
+
+

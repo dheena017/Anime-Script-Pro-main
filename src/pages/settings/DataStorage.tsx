@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Database, RefreshCw, ArchiveX, FolderSync, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 
 export function DataStorageSettings() {
 
@@ -87,3 +87,5 @@ export function DataStorageSettings() {
     </div>
   );
 }
+
+

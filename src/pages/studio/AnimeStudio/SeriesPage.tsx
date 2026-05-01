@@ -5,15 +5,15 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { generateProductionSequences } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
-import { SeriesTab } from '../components/Series/Tabs/SeriesTabs';
+import { SeriesTab } from './components/Series/Tabs/SeriesTabs';
 
 // Modularized Tab Components
-import { RoadmapTab } from '../components/Series/Tabs/RoadmapTab';
-import { BlueprintTab } from '../components/Series/Tabs/BlueprintTab';
-import { ArcsTab } from '../components/Series/Tabs/ArcsTab';
-import { AssetsTab } from '../components/Series/Tabs/AssetsTab';
-import { TimelineTab } from '../components/Series/Tabs/TimelineTab';
-import { SeriesEmptyState } from '../components/Series/SeriesEmptyState';
+import { RoadmapTab } from './components/Series/Tabs/RoadmapTab';
+import { BlueprintTab } from './components/Series/Tabs/BlueprintTab';
+import { ArcsTab } from './components/Series/Tabs/ArcsTab';
+import { AssetsTab } from './components/Series/Tabs/AssetsTab';
+import { TimelineTab } from './components/Series/Tabs/TimelineTab';
+import { SeriesEmptyState } from './components/Series/SeriesEmptyState';
 
 export function SeriesPage() {
   const navigate = useNavigate();
@@ -164,27 +164,25 @@ export function SeriesPage() {
   };
 
   return (
-    <div data-testid="marker-series-planning">
+    <div data-testid="marker-series-planning" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'roadmap' 
-          ? "border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)] hover:border-studio/50" 
+          ? "border-studio/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] hover:border-studio/50" 
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className={cn(
-          "absolute inset-0 border-[1px] rounded-[2.5rem] pointer-events-none transition-colors duration-700",
+          "absolute inset-0 border-[1px] rounded-3xl pointer-events-none transition-colors duration-700",
           activeTab === 'roadmap' ? "border-studio/20 group-hover/card:border-studio/40" : "border-white/5"
         )} />
         
-        <div className="w-full p-0">
-          <div className="p-12 max-w-[1400px] mx-auto">
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              {renderTabContent()}
-            </div>
-          </div>
+        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+          {renderTabContent()}
         </div>
       </Card>
     </div>
   );
 }
+
+
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
-import { AssetsHeader } from '../../components/Assets/AssetsHeader';
+import { AssetsHeader } from '../components/Assets/AssetsHeader';  
 import { generateMetadata, generateYouTubeDescription, generateImagePrompts } from '@/services/api/gemini';
 
 export default function AssetsLayout() {

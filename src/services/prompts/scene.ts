@@ -10,3 +10,5 @@ export const SCENE_GENERATION_PROMPT = (type: string, worldLore: string | null, 
     Return ONLY a valid JSON object with:
     { "narration": "...", "visuals": "...", "sound": "..." }
 `;
+
+

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { AlertCircle, X, ShieldAlert, RefreshCw } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useEffect, useState } from 'react';
+import { X, ShieldAlert, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { signalBus } from '@/lib/api-utils';
 
 export function NeuralErrorSentinel() {
@@ -8,7 +8,7 @@ export function NeuralErrorSentinel() {
 
   useEffect(() => {
     const handleSignal = (e: any) => {
-      const { status, signalId, url } = e.detail;
+      const { status, signalId } = e.detail;
       if (status >= 400) {
         // Find a more descriptive message if possible
         const message = status === 404 ? "Target Protocol Not Found" : 
@@ -88,3 +88,5 @@ export function NeuralErrorSentinel() {
     </div>
   );
 }
+
+

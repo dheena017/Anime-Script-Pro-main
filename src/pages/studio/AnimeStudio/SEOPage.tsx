@@ -13,12 +13,12 @@ import { cn } from '@/lib/utils';
 import { SEOContext } from './SEO/SEOLayout';
 
 // Tabs
-import { SEOTab } from '../components/SEO/Tabs/SEOTabs';
-import { KeywordsTab } from '../components/SEO/Tabs/KeywordsTab';
-import { DescriptionTab } from '../components/SEO/Tabs/DescriptionTab';
-import { AltTextTab } from '../components/SEO/Tabs/AltTextTab';
-import { TagsTab } from '../components/SEO/Tabs/TagsTab';
-import { DistributionTab } from '../components/SEO/Tabs/DistributionTab';
+import { SEOTab } from './components/SEO/Tabs/SEOTabs';
+import { KeywordsTab } from './components/SEO/Tabs/KeywordsTab';
+import { DescriptionTab } from './components/SEO/Tabs/DescriptionTab';
+import { AltTextTab } from './components/SEO/Tabs/AltTextTab';
+import { TagsTab } from './components/SEO/Tabs/TagsTab';
+import { DistributionTab } from './components/SEO/Tabs/DistributionTab';
 
 export function SEOPage() {
   const { activeTab } = useOutletContext<{ activeTab: SEOTab }>();
@@ -166,4 +166,6 @@ export function SEOPage() {
     </div>
   );
 }
+
+
 

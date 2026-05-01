@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Cpu, BrainCircuit, Activity, DatabaseZap, Sparkles, Wand2, Mic, Image as ImageIcon, BoxSelect, Loader2, Save, Key, Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 import { ExternalModelNetwork } from '../../components/settings/ExternalModelNetwork';
 import { GeminiStatusCard } from '../../components/settings/GeminiStatusCard';
 import { getAIClient } from '../../services/generators/core';
@@ -364,3 +364,5 @@ export function AIModelSettings() {
     </div>
   );
 }
+
+

@@ -18,3 +18,5 @@ export const WORLD_GENERATION_PROMPT = (contentType: string) => `
     
     Return ONLY the world description in professional Markdown.
 `;
+
+

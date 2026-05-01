@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Trash2, Search, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AI_EVENTS, AIMetadata } from '@/services/generators/core';
@@ -183,3 +183,5 @@ export const EngineConsole: FC = () => {
     </div>
   );
 };
+
+

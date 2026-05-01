@@ -41,3 +41,5 @@ export async function generateAltTexts(script: string, model: string = "gemini-1
   }
 }
 
+
+

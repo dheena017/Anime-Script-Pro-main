@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { PromptsHeader } from '../../components/Prompts/PromptsHeader';
-import { PromptsToolbar } from '../../components/Prompts/PromptsToolbar';
 import { generateImagePrompts } from '@/services/api/gemini';
-import { PromptsTab } from '../../components/Prompts/Tabs/PromptsTabs';
+import { PromptsHeader } from '../components/Prompts/PromptsHeader';
+import { PromptsToolbar } from '../components/Prompts/PromptsToolbar';
+import { PromptsTab } from '../components/Prompts/Tabs/PromptsTabs';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -116,3 +116,5 @@ export default function PromptsLayout() {
     </PromptsContext.Provider>
   );
 }
+
+

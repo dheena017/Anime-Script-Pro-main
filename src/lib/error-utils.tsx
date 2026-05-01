@@ -1,8 +1,8 @@
 import React from 'react';
 import { auth } from '../firebase';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export enum OperationType {
   CREATE = 'create',
@@ -94,7 +94,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
               <p className="text-zinc-400 text-sm leading-relaxed">
                 {errorMessage}
               </p>
-              <Button 
+              <Button
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => window.location.reload()}
               >
@@ -110,3 +110,5 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
     return this.props.children;
   }
 }
+
+

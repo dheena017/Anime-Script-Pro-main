@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { RadioTower, MonitorPlay, MessageSquareWarning, Users, Smartphone, Loader2, Save } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
-import { settingsService } from '../../services/settingsService';
+import { settingsService } from '../../services/api/settings';
 
 export function NotificationSettings() {
 
@@ -114,3 +114,5 @@ function ToggleSwitch({ active, toggle, color }: { active: boolean, toggle: () =
     </button>
   );
 }
+
+

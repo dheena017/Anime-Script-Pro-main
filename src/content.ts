@@ -93,3 +93,4 @@ export const exampleMarkdown = `
 | **4:30** | Cut to the capital city. A glowing, holy paladin opens her eyes. "The King has returned," she whispers. | **Paladin:** "Find the vessel. Burn it." | **SFX:** Holy chime, armor clinking. |
 | **4:45** | Outro Screen. Black background, purple fiery text. | **VO:** "Can Kaelen control the monster within, or will it consume him? Subscribe for Episode 2 and find out!" | **BGM:** High energy outro drop. |
 `;
+

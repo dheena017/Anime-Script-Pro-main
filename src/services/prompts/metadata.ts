@@ -46,3 +46,5 @@ export const ALT_TEXT_GENERATION_PROMPT = (script: string | null) => `
     Each alt text should be no more than one sentence and should clearly describe the scene and mood.
     Format the output as a Markdown list.
 `;
+
+

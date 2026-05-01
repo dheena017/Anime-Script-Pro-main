@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { StoryboardHeader } from '../../components/Storyboard/StoryboardHeader';
-import { StoryboardToolbar } from '../../components/Storyboard/StoryboardToolbar';
 import { generateImagePrompts } from '@/services/api/gemini';
-import { StoryboardTab } from '@/pages/studio/components/Storyboard/Tabs/StoryboardTabs';
+
+import { StoryboardHeader } from '../components/Storyboard/StoryboardHeader';
+import { StoryboardToolbar } from '../components/Storyboard/StoryboardToolbar';
+import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -120,3 +121,5 @@ export default function StoryboardLayout() {
     </StoryboardContext.Provider>
   );
 }
+
+

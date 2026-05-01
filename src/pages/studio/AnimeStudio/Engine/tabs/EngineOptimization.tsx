@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Activity, Gauge, TrendingUp, Zap, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { engineApi } from '@/services/api/engine';
@@ -161,3 +161,5 @@ export const EngineOptimization: React.FC = () => {
     </div>
   );
 };
+
+

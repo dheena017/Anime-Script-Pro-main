@@ -9,11 +9,11 @@ import { cn } from '@/lib/utils';
 import { PromptsContext } from './Prompts/PromptsLayout';
 
 // Tabs
-import { PromptsTab } from '../components/Prompts/Tabs/PromptsTabs';
-import { ImagePromptsTab } from '../components/Prompts/Tabs/ImagePromptsTab';
-import { MotionPromptsTab } from '../components/Prompts/Tabs/MotionPromptsTab';
-import { StylePromptsTab } from '../components/Prompts/Tabs/StylePromptsTab';
-import { NegativePromptsTab } from '../components/Prompts/Tabs/NegativePromptsTab';
+import { PromptsTab } from './components/Prompts/Tabs/PromptsTabs';
+import { ImagePromptsTab } from './components/Prompts/Tabs/ImagePromptsTab';
+import { MotionPromptsTab } from './components/Prompts/Tabs/MotionPromptsTab';
+import { StylePromptsTab } from './components/Prompts/Tabs/StylePromptsTab';
+import { NegativePromptsTab } from './components/Prompts/Tabs/NegativePromptsTab';
 
 export function PromptsPage() {
   const { activeTab } = useOutletContext<{ activeTab: PromptsTab }>();
@@ -93,4 +93,6 @@ export function PromptsPage() {
     </div>
   );
 }
+
+
 

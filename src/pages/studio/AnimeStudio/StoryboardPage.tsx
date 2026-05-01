@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useOutletContext } from 'react-router-dom';
@@ -13,18 +13,18 @@ import {
   suggestDuration,
   generateSceneVideo
 } from '@/services/api/gemini';
-import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
+import { StoryboardTab } from './components/Storyboard/Tabs/StoryboardTabs';
 
 // Sub-components
-import { PlanningGuide } from '../components/Storyboard/PlanningGuide';
+import { PlanningGuide } from './components/Storyboard/PlanningGuide';
 import { StoryboardContext } from './Storyboard/StoryboardLayout';
 
 // Modular tab components
-import { FramesTab } from '../components/Storyboard/Tabs/FramesTab';
-import { AnglesTab } from '../components/Storyboard/Tabs/AnglesTab';
-import { CompositionTab } from '../components/Storyboard/Tabs/CompositionTab';
-import { AnimaticTab } from '../components/Storyboard/Tabs/AnimaticTab';
-import { AudioTab } from '../components/Storyboard/Tabs/AudioTab';
+import { FramesTab } from './components/Storyboard/Tabs/FramesTab';
+import { AnglesTab } from './components/Storyboard/Tabs/AnglesTab';
+import { CompositionTab } from './components/Storyboard/Tabs/CompositionTab';
+import { AnimaticTab } from './components/Storyboard/Tabs/AnimaticTab';
+import { AudioTab } from './components/Storyboard/Tabs/AudioTab';
 
 interface Scene {
   id: string;
@@ -430,24 +430,24 @@ export function StoryboardPage() {
   };
 
   return (
-    <div data-testid="marker-visual-storyboard">
+    <div data-testid="marker-visual-storyboard" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
 
       <Card className={cn(
-        "bg-[#030303] overflow-hidden rounded-[2.5rem] relative group/card transition-all duration-700",
+        "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'frames'
-          ? "border-fuchsia-500/20 shadow-[0_0_40px_rgba(217,70,239,0.08)] hover:border-fuchsia-500/40"
+          ? "border-fuchsia-500/20 shadow-[0_0_50px_rgba(217,70,239,0.15)] hover:border-fuchsia-500/40"
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
-        <div className="w-full p-0">
-          <div className="p-12 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {renderTabContent()}
-          </div>
+        <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+          {renderTabContent()}
         </div>
       </Card>
     </div>
   );
 }
+
+
 

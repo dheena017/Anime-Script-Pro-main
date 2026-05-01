@@ -34,3 +34,4 @@ export const YOUTUBE_STRATEGY_HOOKS = [
   { type: "The 'Hidden Identity'", text: "Everyone thinks he's a lowly servant, but the Emperor just realized this 'nobody' is the master who trained him." },
   { type: "The 'Betrayal Cycle'", text: "They left him for dead in the Abyss. 10 years later, he's back... and he's not alone." }
 ];
+

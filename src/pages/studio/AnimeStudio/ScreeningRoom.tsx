@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -10,12 +10,12 @@ import { generateImagePrompts } from '@/services/api/gemini';
 import { ScreeningContext } from './Screening/ScreeningLayout';
 
 // Sub-components
-import { ScreeningTab } from '../components/Screening/Tabs/ScreeningTabs';
-import { ScreeningViewport } from '../components/Screening/ScreeningViewport';
-import { ScreeningTimeline } from '../components/Screening/ScreeningTimeline';
-import { ScreeningMetadata } from '../components/Screening/ScreeningMetadata';
-import { ScreeningEmptyState } from '../components/Screening/ScreeningEmptyState';
-import { RenderPhase, Scene } from '../components/Screening/types';
+import { ScreeningTab } from './components/Screening/Tabs/ScreeningTabs';
+import { ScreeningViewport } from './components/Screening/ScreeningViewport';
+import { ScreeningTimeline } from './components/Screening/ScreeningTimeline';
+import { ScreeningMetadata } from './components/Screening/ScreeningMetadata';
+import { ScreeningEmptyState } from './components/Screening/ScreeningEmptyState';
+import { RenderPhase, Scene } from './components/Screening/types';
 import { Monitor } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -215,3 +215,5 @@ async function simulateVideoRender(_prompts: string) {
     }, 2000);
   });
 }
+
+

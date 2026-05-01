@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollText, Search, Sword, Globe, Zap, Ghost, Brain, Flame, Heart, Trophy, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useNavigate } from 'react-router-dom';
 
 // Sub-components
-import { TemplateCard } from '../components/Template/TemplateCard';
-import { TemplateDetailModal } from '../components/Template/TemplateDetailModal';
+import { TemplateCard } from './components/Template/TemplateCard';
+import { TemplateDetailModal } from './components/Template/TemplateDetailModal';
 
 // Icon Mapper
 const ICON_MAP: Record<string, any> = {
@@ -129,3 +129,5 @@ export function TemplatePage() {
     </motion.div>
   );
 }
+
+

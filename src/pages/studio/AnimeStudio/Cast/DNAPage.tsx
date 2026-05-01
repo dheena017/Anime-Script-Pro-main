@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { BarChart3, ShieldCheck, Activity, Brain } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
@@ -66,3 +66,5 @@ export function DNAPage() {
     </div>
   );
 }
+
+

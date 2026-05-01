@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { EngineHeader } from '../../components/Engine/EngineHeader';
-import { EngineToolbar } from '../../components/Engine/EngineToolbar';
-import { EngineTab } from '../../components/Engine/Tabs/EngineTabs';
+import { EngineHeader } from '../components/Engine/EngineHeader';
+import { EngineToolbar } from '../components/Engine/EngineToolbar';
+import { EngineTab } from '../components/Engine/Tabs/EngineTabs';
 
 export const EngineContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -90,3 +90,5 @@ export default function EngineLayout() {
     </EngineContext.Provider>
   );
 }
+
+

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Terminal, X, ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { signalBus, NeuralSignalEvent } from '@/lib/api-utils';
 
@@ -106,3 +106,5 @@ export function NeuralConsole() {
     </div>
   );
 }
+
+

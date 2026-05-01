@@ -2,7 +2,7 @@ import { generateWorld } from "./generators/world";
 import { generateCharacters } from "./generators/characters";
 import { generateSeriesPlan } from "./generators/series";
 import { generateScript } from "./generators/script";
-import { generateProductionSequences, ProductionUnit } from "../lib/sequence-utils";
+import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
 
@@ -341,3 +341,5 @@ export class ProductionOrchestrator {
     return scriptMarkdown;
   }
 }
+
+

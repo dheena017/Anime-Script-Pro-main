@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { SEOHeader } from '../../components/SEO/SEOHeader';
-import { SEOToolbar } from '../../components/SEO/SEOToolbar';
 import { generateMetadata } from '@/services/api/gemini';
-import { SEOTab } from '../../components/SEO/Tabs/SEOTabs';
+import { SEOHeader } from '../components/SEO/SEOHeader';
+import { SEOToolbar } from '../components/SEO/SEOToolbar';
+import { SEOTab } from '../components/SEO/Tabs/SEOTabs';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -115,3 +115,5 @@ export default function SEOLayout() {
     </SEOContext.Provider>
   );
 }
+
+

@@ -32,3 +32,4 @@ export const supabase = supabaseCreateClient(
  * same singleton — it is safe to call but the pattern is discouraged.
  */
 export const createClient = () => supabase;
+

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { ScriptHeader } from '../../components/Script/ScriptHeader';
-import { ScriptToolbar } from '../../components/Script/ScriptToolbar';
+import { ScriptHeader } from '../components/Script/ScriptHeader';
+import { ScriptToolbar } from '../components/Script/ScriptToolbar';
 import { generateScript } from '@/services/api/gemini';
-import { ScriptTab } from '@/pages/studio/components/Script/Tabs/ScriptTabs';
+import { ScriptTab } from '../components/Script/Tabs/ScriptTabs';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -130,3 +130,5 @@ export default function ScriptLayout() {
     </ScriptContext.Provider>
   );
 }
+
+

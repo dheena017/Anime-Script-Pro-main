@@ -22,12 +22,12 @@ import { Card } from '@/components/ui/card';
 import { EngineContext } from './Engine/EngineLayout';
 
 // Tabs
-import { EngineTab } from '@/pages/studio/components/Engine/Tabs/EngineTabs';
+import { EngineTab } from './components/Engine/Tabs/EngineTabs';
 import { EngineConsole } from './Engine/tabs/EngineConsole';
 import { EngineCalibration } from './Engine/tabs/EngineCalibration';
 import { EngineOptimization } from './Engine/tabs/EngineOptimization';
 import { EngineLogs } from './Engine/tabs/EngineLogs';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 
 const ANIME_TEMPLATES = [
@@ -315,4 +315,6 @@ export function EnginePage() {
     </div>
   );
 }
+
+
 

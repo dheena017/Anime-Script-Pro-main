@@ -52,3 +52,5 @@ export const ProfileVault: React.FC<ProfileVaultProps> = ({ generations, favorit
       </motion.div>
    );
 };
+
+

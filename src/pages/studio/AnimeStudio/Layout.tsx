@@ -1,14 +1,17 @@
-import React from 'react';
-import '@/styles/creative-engine.css';
+import React, { useEffect, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
-import { generateScript } from '@/services/api/gemini';
-import { ProductionCore } from '@/pages/studio/components/Layout/ProductionCore';
-import { AnimeStudioNavigation as StudioNavigation } from '@/pages/studio/components/Layout/AnimeStudioNavigation';
-import { SessionLogs } from '@/pages/studio/components/Layout/SessionLogs';
+
+// Local Studio Components
+import { ProductionCore } from './components/Layout/ProductionCore';
+import { SessionLogs } from './components/Layout/SessionLogs';
+import { AnimeStudioSideBar } from './components/AnimeStudioSideBar';
+import { AnimeStudioTopBar } from './components/AnimeStudioTopBar';
+
+import '@/styles/creative-engine.css';
+import { generateScript } from '@/services/generators/script';
 
 /**
  * AnimeLayout - Production Node v2.1
@@ -38,39 +41,41 @@ export default function AnimeLayout() {
   };
 
   const {
+    // Basic Parameters
     prompt, setPrompt,
-    setGeneratedScript,
-    setGeneratedCharacters,
-    generatedSeriesPlan,
-    setGeneratedSeriesPlan,
     tone, setTone,
     audience, setAudience,
     episode, setEpisode,
     session, setSession,
-    setContentType,
+    numScenes, setNumScenes,
     selectedModel, setSelectedModel,
     isLoading, setIsLoading,
-    generatedScript,
-    setCurrentScriptId,
-    currentScriptId,
-    history,
+    isSaving, setIsSaving,
+    
+    // Generated Content
+    generatedScript, setGeneratedScript,
+    generatedCharacters, setGeneratedCharacters,
+    generatedSeriesPlan, setGeneratedSeriesPlan,
+    generatedWorld, setGeneratedWorld,
+    currentScriptId, setCurrentScriptId,
+    
+    // UI & State Helpers
+    setContentType,
+    setCastData, setCastList,
+    setCharacterRelationships,
+    setVisualData,
     setGeneratedMetadata,
     setGeneratedImagePrompts,
-
-    recapperPersona, setRecapperPersona,
-    characterRelationships, setCharacterRelationships,
-    numScenes, setNumScenes,
-    generatedWorld, setGeneratedWorld, generatedCharacters,
-    setCastData, setCastList,
-    isSaving, setIsSaving,
-    setVisualData,
     addLog,
     theme, setTheme,
     showNotification,
+    history,
+    characterRelationships,
+    recapperPersona, setRecapperPersona,
   } = useGenerator();
 
-
-  React.useEffect(() => {
+  // Initialize content type for this layout
+  useEffect(() => {
     setContentType('Anime');
   }, [setContentType]);
 
@@ -102,7 +107,11 @@ export default function AnimeLayout() {
     }
   };
 
-  const handleMasterGenerate = async () => {
+  /**
+   * Master Orchestration Loop
+   * Triggers the full sequential production cycle.
+   */
+  const handleMasterGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
       showNotification?.('Missing Core Parameter: Enter a production prompt to initialize God Mode.', 'error');
       return;
@@ -112,6 +121,7 @@ export default function AnimeLayout() {
     showNotification?.('GOD MODE ACTIVE: Initiating Sequential Synthesis...', 'success');
 
     try {
+      // Dynamic imports to optimize initial bundle
       const { generateWorld } = await import('@/services/generators/world');
       const { generateCharacters } = await import('@/services/generators/characters');
       const { generateSeriesPlan } = await import('@/services/generators/series');
@@ -123,9 +133,7 @@ export default function AnimeLayout() {
       setGeneratedWorld(world);
       addLog("WORLD", "COMPLETED", "Lore synchronized to core.");
 
-
-
-      // PHASE 3: Cast DNA
+      // PHASE 2: Cast DNA
       addLog("CAST", "STARTING", "Sequencing Character DNA...");
       const castResult = await generateCharacters(prompt, selectedModel, 'Anime', world);
       if (typeof castResult === 'object' && castResult.characters) {
@@ -140,13 +148,13 @@ export default function AnimeLayout() {
       }
       addLog("CAST", "COMPLETED", "Cast manifest generated.");
 
-      // PHASE 4: Series Architecture
+      // PHASE 3: Series Architecture
       addLog("SERIES", "STARTING", "Architecting Series Hierarchy...");
       const seriesPlan = await generateSeriesPlan(prompt, selectedModel, 'Anime', 12, world, typeof castResult === 'string' ? castResult : castResult.markdown);
       setGeneratedSeriesPlan(seriesPlan);
       addLog("SERIES", "COMPLETED", "Series hierarchy mapped to beats.");
 
-      // PHASE 5: Script Synthesis
+      // PHASE 4: Script Synthesis
       addLog("SCRIPT", "STARTING", "Synthesizing Episode 1 Script...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       const script = await generateScript(
@@ -156,25 +164,18 @@ export default function AnimeLayout() {
       setGeneratedScript(script);
       addLog("SCRIPT", "COMPLETED", "Script synthesis successful.");
 
-      // PHASE 6: Visual DNA (Storyboard)
+      // PHASE 5: Visual DNA (Storyboard)
       addLog("STORYBOARD", "STARTING", "Manifesting Visual DNA for Scenes...");
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
-      // Simulate visual data for storyboard unlocking
       setVisualData({ 0: ["pending"] }); 
       addLog("STORYBOARD", "COMPLETED", "Visual prompts architected.");
 
-      // PHASE 7: SEO Matrix
+      // PHASE 6: SEO Matrix
       addLog("SEO", "STARTING", "Synchronizing SEO Metadata...");
       const seo = await generateMetadata(script, selectedModel);
       setGeneratedMetadata(seo);
       addLog("SEO", "COMPLETED", "SEO Matrix online.");
-
-      // PHASE 8: Prompts (Already done in storyboard phase but can be specific)
-      addLog("PROMPTS", "COMPLETED", "Image generation prompts archived.");
-
-      // PHASE 9: Screening Room
-      addLog("SCREENING", "READY", "Production pipeline finalized. Screening room open.");
 
       showNotification?.('God Mode Synchronization Complete: Full Production Scaffolded', 'success');
       navigate(`${basePath}/world`);
@@ -185,7 +186,13 @@ export default function AnimeLayout() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addLog, navigate, basePath, setIsLoading]);
+  
+  useEffect(() => {
+    const handleGenerateSignal = () => handleMasterGenerate();
+    window.addEventListener('studio-generate-all', handleGenerateSignal);
+    return () => window.removeEventListener('studio-generate-all', handleGenerateSignal);
+  }, [handleMasterGenerate]);
 
 
   const handleGenerate = async () => {
@@ -262,40 +269,52 @@ export default function AnimeLayout() {
   };
 
   return (
-    <div className="w-full min-h-screen transition-all duration-500 bg-[#020203] relative overflow-hidden">
-      {/* Global Ambient Glow */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-cyan-500/5 blur-[150px] -z-10 animate-pulse-glow" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 blur-[120px] -z-10" />
+    <div className="fixed inset-0 bg-[#020203] flex overflow-hidden z-[1000] studio-engine-root">
+      {/* Dedicated Studio Sidebar */}
+      <AnimeStudioSideBar 
+        basePath={basePath}
+        handleGenerate={handleMasterGenerate}
+        isLoading={isLoading}
+      />
 
-      <div className={cn(
-        "w-full max-w-[1920px] mx-auto px-4 sm:px-6 py-6 lg:py-8 space-y-8 transition-all duration-500 relative z-10"
-      )}>
-        <div className="grid grid-cols-1 gap-8">
-          <div className="flex flex-col gap-6">
-            <StudioNavigation
-              basePath={basePath}
-              handleGenerate={handleMasterGenerate}
-              isLoading={isLoading}
-              rightSidebarOpen={sidebarOpen}
-              onToggleRightSidebar={toggleEngine}
-            />
+      <div className="flex-1 flex flex-col min-w-0 relative h-full">
+        {/* Dedicated Studio Top Bar */}
+        <AnimeStudioTopBar 
+          onToggleEngine={toggleEngine}
+          isEngineOpen={sidebarOpen}
+        />
 
-            <div id="studio-content-area" className="flex-1 min-h-[500px] lg:min-h-[850px] bg-gradient-to-br from-[#111318] to-[#0a0b0e] border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.4)] rounded-3xl relative overflow-y-auto custom-scrollbar">
+        {/* Main Production Workspace */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+          {/* Background Atmospheric Layer */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
+          </div>
+
+          <div className="w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
+            <div id="studio-content-area" className="w-full min-h-[600px] bg-[#0a0b0e]/80 backdrop-blur-3xl border border-zinc-800/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] relative overflow-hidden">
               <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-              <div className="relative z-10 w-full h-full p-2 lg:p-4">
+              
+              <div className="relative z-10 w-full h-full">
                 <React.Suspense fallback={
-                  <div className="flex items-center justify-center w-full h-full min-h-[400px]">
-                    <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin" />
+                  <div className="flex items-center justify-center w-full h-[600px]">
+                    <div className="w-10 h-10 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin shadow-[0_0_15px_rgba(239,68,68,0.2)]" />
                   </div>
                 }>
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={location.pathname}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      className="w-full h-full"
+                      initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 1.02, y: -10 }}
+                      transition={{ 
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30,
+                        mass: 0.8
+                      }}
+                      className="w-full h-full p-6"
                     >
                       <Outlet />
                     </motion.div>
@@ -303,24 +322,26 @@ export default function AnimeLayout() {
                 </React.Suspense>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div id="production-logs" className="mt-4">
-          <SessionLogs
-            history={history}
-            setPrompt={setPrompt}
-            setTone={setTone}
-            setAudience={setAudience}
-            setEpisode={setEpisode}
-            setSession={setSession}
-            setContentType={setContentType}
-            setSelectedModel={setSelectedModel}
-            setGeneratedMetadata={setGeneratedMetadata}
-          />
+            {/* Production Intelligence Console */}
+            <div className="mt-8">
+              <SessionLogs
+                history={history}
+                setPrompt={setPrompt}
+                setTone={setTone}
+                setAudience={setAudience}
+                setEpisode={setEpisode}
+                setSession={setSession}
+                setContentType={setContentType}
+                setSelectedModel={setSelectedModel}
+                setGeneratedMetadata={setGeneratedMetadata}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* Creative Engine Sidepanel */}
       <ProductionCore
         isOpen={sidebarOpen}
         onToggle={toggleEngine}
@@ -332,7 +353,6 @@ export default function AnimeLayout() {
         numScenes={numScenes} setNumScenes={setNumScenes}
         selectedModel={selectedModel} setSelectedModel={setSelectedModel}
         recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-
         characterRelationships={characterRelationships || ''}
         setCharacterRelationships={setCharacterRelationships}
         worldBuilding={generatedWorld || ''}

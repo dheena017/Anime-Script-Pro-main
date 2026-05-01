@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Clock
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { logsApi, SystemLog } from '@/services/api/logs';

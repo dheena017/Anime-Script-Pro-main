@@ -88,3 +88,5 @@ export const MOCK_SCRIPT = `
 | 5 | ASCENSION | Sachi | [DSP] (Terrified) Anya! Behind you! | Sachi runs into the alley, her plasma katana glowing faintly. | Plasma trails, soft glow around Sachi. | Fast-paced orchestral staccato. | Urgency | The burden of protection. | Sachi, Plasma Katana | 1:00 - 1:15 |
 | 6 | ZENITH | Rika | [DSP] (Coldly) Optimization is inevitable, Anya Kisaragi. | Rika leaps from the roof, data-shards forming wings of light. | Data-shard particles, bloom effect. | Digital screech, choir swell. | Domination | The crushing weight of progress. | Rika | 1:15 - 1:30 |
 `;
+
+
