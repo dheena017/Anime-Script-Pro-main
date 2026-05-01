@@ -41,73 +41,87 @@ async function getAuthToken(): Promise<string | null> {
   }
 }
 
+const pendingRequests = new Map<string, Promise<any>>();
+
 export async function apiRequest<T>(url: string, options?: RequestInit & { timeout?: number }): Promise<T> {
   const { timeout = 30000, ...fetchOptions } = options || {};
-  const start = Date.now();
-
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  const finalUrl = url.startsWith('http')
-    ? url
-    : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
-  const token = await getAuthToken();
-
   const method = fetchOptions.method || 'GET';
-  console.info(`%c[Frontend] %cSENDING: ${method} ${url}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8');
-
-  try {
-    const response = await fetch(finalUrl, {
-      ...fetchOptions,
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-        ...options?.headers,
-      },
-    });
-
-    const duration = Date.now() - start;
-    const signalId = response.headers.get('X-Signal-ID') || 'NO-SIGNAL';
-
-    // Dispatch to Signal Bus
-    signalBus.dispatchEvent(new CustomEvent('neural_signal', {
-      detail: { signalId, method, url, status: response.status, duration }
-    }));
-
-    if (!response.ok) {
-      console.error(`%c[Backend] %cERROR [${signalId}]: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
-      let errorData;
-      try {
-        const raw = await response.json();
-        // Handle wrapped vs unwrapped errors
-        errorData = raw.data || raw;
-      } catch {
-        errorData = { detail: response.statusText };
-      }
-      
-      const message = errorData.detail || errorData.error || 'API Request failed';
-      throw new ApiError(message, response.status, { ...errorData, signalId });
-    }
-
-    console.info(`%c[Backend] %cSUCCESS [${signalId}]: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
-    return await response.json();
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-
-    const errorName = typeof error === 'object' && error !== null ? (error as any).name : undefined;
-    const errorMessage = typeof error === 'object' && error !== null ? String((error as any).message || (error as any)) : String(error);
-
-    console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
-
-    if (errorName === 'AbortError' || errorMessage.toLowerCase().includes('aborted')) {
-      throw new ApiError(`Request timed out after ${timeout}ms`, 408);
-    }
-
-    throw new ApiError(errorMessage || 'Network error');
-  } finally {
-    clearTimeout(id);
+  
+  // Deduplicate GET requests
+  const requestKey = `${method}:${url}`;
+  if (method === 'GET' && pendingRequests.has(requestKey)) {
+    console.info(`%c[Frontend] %cDEDUPLICATED: ${method} ${url}`, 'color: #8b5cf6; font-weight: bold', 'color: #94a3b8');
+    return pendingRequests.get(requestKey);
   }
+
+  const promise = (async () => {
+    const start = Date.now();
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    const finalUrl = url.startsWith('http')
+      ? url
+      : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
+    const token = await getAuthToken();
+
+    console.info(`%c[Frontend] %cSENDING: ${method} ${url}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8');
+
+    try {
+      const response = await fetch(finalUrl, {
+        ...fetchOptions,
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          ...options?.headers,
+        },
+      });
+
+      const duration = Date.now() - start;
+      const signalId = response.headers.get('X-Signal-ID') || 'NO-SIGNAL';
+
+      // Dispatch to Signal Bus
+      signalBus.dispatchEvent(new CustomEvent('neural_signal', {
+        detail: { signalId, method, url, status: response.status, duration }
+      }));
+
+      if (!response.ok) {
+        console.error(`%c[Backend] %cERROR [${signalId}]: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
+        let errorData;
+        try {
+          const raw = await response.json();
+          errorData = raw.data || raw;
+        } catch {
+          errorData = { detail: response.statusText };
+        }
+        
+        const message = errorData.detail || errorData.error || 'API Request failed';
+        throw new ApiError(message, response.status, { ...errorData, signalId });
+      }
+
+      console.info(`%c[Backend] %cSUCCESS [${signalId}]: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
+      return await response.json();
+    } catch (error) {
+      if (error instanceof ApiError) throw error;
+      const errorName = typeof error === 'object' && error !== null ? (error as any).name : undefined;
+      const errorMessage = typeof error === 'object' && error !== null ? String((error as any).message || (error as any)) : String(error);
+
+      console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
+      if (errorName === 'AbortError' || errorMessage.toLowerCase().includes('aborted')) {
+        throw new ApiError(`Request timed out after ${timeout}ms`, 408);
+      }
+      throw new ApiError(errorMessage || 'Network error');
+    } finally {
+      clearTimeout(id);
+      if (method === 'GET') pendingRequests.delete(requestKey);
+    }
+  })();
+
+  if (method === 'GET') {
+    pendingRequests.set(requestKey, promise);
+  }
+
+  return promise;
 }
 
 
