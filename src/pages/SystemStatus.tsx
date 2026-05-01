@@ -127,6 +127,11 @@ export default function SystemStatus() {
           <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px] pl-1">
             Real-time telemetry from the studio's neural infrastructure.
           </p>
+          {error && (
+            <div className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+              Telemetry sync failed: {error}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center gap-4">

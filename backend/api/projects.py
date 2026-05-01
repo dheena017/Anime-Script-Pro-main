@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from backend.database import AsyncSession, AsyncSession, async_engine
 from typing import List, Optional
 from loguru import logger
 from backend.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Projects"])

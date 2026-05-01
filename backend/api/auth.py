@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from backend.models import User
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.auth_utils import verify_password, create_access_token, create_refresh_token
 from backend.user_manager import auth_backend, fastapi_users
 from loguru import logger

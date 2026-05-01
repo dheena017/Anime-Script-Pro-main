@@ -18,10 +18,12 @@ from fastapi import Depends
 from fastapi_users import BaseUserManager, FastAPIUsers, schemas as fa_schemas
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users_db_sqlmodel import SQLModelUserDatabase
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import User
-from backend.database import get_async_session
+from backend.database import get_async_session, AsyncSession
+from loguru import logger
+
+logger.info("AUTH: Initializing User Management System...")
 
 # --- FastAPI Users Pydantic Schemas ---
 class UserRead(fa_schemas.BaseUser):

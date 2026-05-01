@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models import User
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])
 

@@ -9,9 +9,8 @@ from loguru import logger
 
 logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.models import Project
 from backend.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FileText, Shield, AlertTriangle } from 'lucide-react';
 
 export function TermsPage() {

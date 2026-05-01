@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from loguru import logger
 from backend.models import MediaAsset, UserFavorite
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Media"])

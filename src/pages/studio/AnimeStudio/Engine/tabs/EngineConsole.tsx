@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import type { FC } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Terminal, Trash2, Search, Play, Square, AlertCircle, CheckCircle2, Info } from 'lucide-react';
+import { Terminal, Trash2, Search, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AI_EVENTS, AIMetadata } from '@/services/generators/core';
 
@@ -12,7 +13,7 @@ interface LogEntry {
   details?: any;
 }
 
-export const EngineConsole: React.FC = () => {
+export const EngineConsole: FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filter, setFilter] = useState('');
   const [autoScroll, setAutoScroll] = useState(true);

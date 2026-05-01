@@ -251,7 +251,7 @@ export function ScriptPage() {
     
     setIsGeneratingImagePrompts(true);
     try {
-      const prompts = await generateImagePrompts(generatedScript, selectedModel, contentType);
+      const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
       showNotification?.('Visual Prompts generated', 'success');
       navigate('/anime/prompts');

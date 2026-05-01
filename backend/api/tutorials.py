@@ -2,11 +2,10 @@ import os
 import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from loguru import logger
 from backend.models import Tutorial
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 from backend.user_manager import current_active_user
 

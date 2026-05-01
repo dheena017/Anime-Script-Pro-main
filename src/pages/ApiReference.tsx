@@ -1,5 +1,4 @@
-import React from 'react';
-import { Book, Code, Terminal, Zap } from 'lucide-react';
+import { Terminal, Zap } from 'lucide-react';
 
 export function ApiReferencePage() {
   return (

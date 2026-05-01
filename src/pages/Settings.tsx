@@ -40,20 +40,51 @@ export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [balance, setBalance] = useState<UserBalance | null>(null);
   const [isOnline, setIsOnline] = useState(true);
+  const [backendStatus, setBackendStatus] = useState('UNKNOWN');
+  const [aiProviders, setAiProviders] = useState<{ active: number; configured: number; openai: string; anthropic: string; groq: string; } | null>(null);
 
   useEffect(() => {
     const hydrateTelemetry = async () => {
       try {
-        const [balanceData, healthRes] = await Promise.all([
+        const [balanceData, healthRes, aiRes] = await Promise.all([
           settingsService.getBalance(),
-          fetch('/api/health').catch(() => ({ ok: false }))
+          fetch('/_orchestrator/health').catch(() => ({ ok: false } as Response)),
+          fetch('/_orchestrator/ai').catch(() => ({ ok: false } as Response))
         ]);
-        
+
         setBalance(balanceData);
         setIsOnline(healthRes.ok || false);
+
+        if (healthRes.ok) {
+          const healthJson = await healthRes.json().catch(() => null);
+          setBackendStatus(healthJson?.backend?.status ?? 'UNKNOWN');
+        } else {
+          setBackendStatus('OFFLINE');
+        }
+
+        if (aiRes.ok) {
+          const aiJson = await aiRes.json().catch(() => null);
+          const openaiStatus = aiJson?.ai?.openai ?? 'UNKNOWN';
+          const anthropicStatus = aiJson?.ai?.anthropic ?? 'UNKNOWN';
+          const groqStatus = aiJson?.ai?.groq ?? 'UNKNOWN';
+          const configured = [openaiStatus, anthropicStatus, groqStatus].filter((s: string) => s !== 'UNKNOWN').length;
+          const active = [openaiStatus, anthropicStatus, groqStatus].filter((s: string) => s === 'CONNECTED').length;
+
+          setAiProviders({
+            openai: openaiStatus,
+            anthropic: anthropicStatus,
+            groq: groqStatus,
+            active,
+            configured
+          });
+        } else {
+          setAiProviders(null);
+        }
       } catch (e) {
         console.error("Telemetry sync failed:", e);
         setIsOnline(false);
+        setBackendStatus('OFFLINE');
+        setAiProviders(null);
       }
     };
 
@@ -123,13 +154,21 @@ export function SettingsPage() {
                   </>
                 )}
               </div>
+              <p className="text-[8px] text-zinc-500 uppercase tracking-[0.2em] mt-1">FastAPI: {backendStatus}</p>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-2">Active Tier</span>
+              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-2">AI Providers</span>
               <div className="flex items-center gap-2">
                 <Zap className="w-3 h-3 text-yellow-500 fill-current" />
-                <span className="text-[10px] font-black text-white uppercase tracking-tighter">{balance?.current_tier || 'LOADING...'}</span>
+                <span className="text-[10px] font-black text-white uppercase tracking-tighter">
+                  {aiProviders ? `${aiProviders.active}/${aiProviders.configured} ACTIVE` : 'LOADING...'}
+                </span>
               </div>
+              {aiProviders && (
+                <p className="text-[8px] text-zinc-500 uppercase tracking-[0.2em] mt-1">
+                  OpenAI: {aiProviders.openai}, Anthropic: {aiProviders.anthropic}, Groq: {aiProviders.groq}
+                </p>
+              )}
             </div>
             <div className="flex flex-col items-end">
               <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest leading-none mb-2">Neural Credits</span>
@@ -204,6 +243,46 @@ export function SettingsPage() {
                 <p className="text-[8px] font-bold text-zinc-700 uppercase tracking-widest">
                   {isOnline ? "Protocol Version 4.0.2 Stable" : "Emergency Offline Protocol Active"}
                 </p>
+              </div>
+            </div>
+
+            <div className="p-6 bg-zinc-900/10 border border-zinc-900/50 rounded-[2rem] space-y-4">
+              <div className="flex items-center gap-3">
+                <Cpu className="w-4 h-4 text-zinc-600" />
+                <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Orchestrator Status</span>
+              </div>
+              <div className="space-y-3">
+                <div className="rounded-2xl bg-zinc-950/80 border border-white/5 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-500">FastAPI Backend</span>
+                    <span className={cn(
+                      "px-2 py-1 text-[10px] font-black uppercase rounded-full",
+                      backendStatus === 'ONLINE' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/10' : 'bg-red-500/10 text-red-300 border border-red-500/10'
+                    )}>{backendStatus}</span>
+                  </div>
+                </div>
+                <div className="rounded-2xl bg-zinc-950/80 border border-white/5 p-4 space-y-3">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-500">AI Providers</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                      {aiProviders ? `${aiProviders.active}/${aiProviders.configured} active` : 'Syncing...'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {['OpenAI', 'Anthropic', 'Groq'].map((provider) => {
+                      const status = aiProviders ? (aiProviders[provider.toLowerCase() as 'openai' | 'anthropic' | 'groq'] ?? 'UNKNOWN') : 'SYNCING';
+                      return (
+                        <div key={provider} className="flex items-center justify-between gap-4 text-[10px] uppercase tracking-[0.3em] text-zinc-400">
+                          <span>{provider}</span>
+                          <span className={cn(
+                            "px-2 py-1 rounded-full font-black text-[10px]",
+                            status === 'CONNECTED' ? 'bg-emerald-500/10 text-emerald-300' : status === 'AUTH OK' ? 'bg-yellow-500/10 text-yellow-300' : 'bg-red-500/10 text-red-300'
+                          )}>{status}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </nav>

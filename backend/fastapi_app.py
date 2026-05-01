@@ -25,7 +25,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 from sqlmodel import SQLModel, Session, select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from loguru import logger
 from slowapi import Limiter
@@ -74,7 +73,7 @@ def configure_logging() -> None:
 # Add project root to path to allow absolute imports when run directly
 # (This is also safe when imported as a module.)
 
-from backend.database import engine, async_engine, get_async_session
+from backend.database import engine, async_engine, get_async_session, AsyncSession
 from backend.models import Tutorial
 from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
 from backend.deps import get_auth_user_id
@@ -152,23 +151,34 @@ async def log_requests(request: Request, call_next):
     import time
     start_time = time.perf_counter()
     
-    # Capture relevant request details
     method = request.method
     path = request.url.path
     query = request.url.query
+    client_ip = request.client.host if request.client else "unknown"
     
-    logger.info(f"INCOMING: {method} {path}{'?' + query if query else ''}")
+    # 1. LOG THE INCOMING REQUEST (The "Trigger")
+    logger.info(f"📥 INCOMING: {method} {path}{'?' + query if query else ''} from {client_ip}")
     
     try:
+        # 2. THE LOGIC (The "Processing")
         response = await call_next(request)
         process_time = (time.perf_counter() - start_time) * 1000
         
-        status_color = "green" if response.status_code < 400 else "yellow" if response.status_code < 500 else "red"
-        logger.info(f"OUTGOING: {method} {path} | <{status_color}>{response.status_code}</{status_color}> | Latency: {process_time:.2f}ms")
+        # Determine status color
+        if response.status_code < 400:
+            status_tag = f"<green>{response.status_code}</green>"
+        elif response.status_code < 500:
+            status_tag = f"<yellow>{response.status_code}</yellow>"
+        else:
+            status_tag = f"<red>{response.status_code}</red>"
+
+        # 3. LOG THE OUTGOING RESPONSE (The "Response")
+        logger.info(f"📤 OUTGOING: {method} {path} | Status: {status_tag} | Latency: {process_time:.2f}ms")
         
         return response
     except Exception as e:
-        logger.error(f"CRITICAL: Middleware caught exception during {method} {path}: {str(e)}")
+        logger.error(f"❌ CRITICAL: Cycle broken during {method} {path}")
+        logger.error(f"   Reason: {str(e)}")
         raise
 
 # --- Routers ---
@@ -323,7 +333,7 @@ async def on_startup():
         else:
             logger.info(f"DATABASE: Persistence verified ({count} tutorials found). Skipping seed.")
 
-    logger.success("SYSTEM: Anime Script Pro Production Suite is ONLINE.")
+    logger.success("🚀 SYSTEM ONLINE: Anime Script Pro Production Suite is ready for requests.")
 
 @app.on_event("shutdown")
 async def on_shutdown():

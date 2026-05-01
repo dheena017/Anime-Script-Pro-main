@@ -1,8 +1,20 @@
 import os
 from sqlmodel import create_engine, SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession as SQLAlchemyAsyncSession
 from typing import AsyncGenerator
+
+from loguru import logger
+
+class AsyncSession(SQLAlchemyAsyncSession):
+    """
+    Custom AsyncSession that adds back the .exec() method from SQLModel 
+    for better compatibility with the existing codebase.
+    """
+    async def exec(self, statement, *args, **kwargs):
+        logger.debug(f"DATABASE: Executing statement: {statement}")
+        result = await self.execute(statement, *args, **kwargs)
+        return result.scalars()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/anime_script_pro.db")
 
@@ -28,4 +40,5 @@ async_session = async_sessionmaker(
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
+        logger.debug("DATABASE: New async session initialized.")
         yield session

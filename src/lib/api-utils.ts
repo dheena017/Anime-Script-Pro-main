@@ -37,6 +37,7 @@ async function getAuthToken(): Promise<string | null> {
 
 export async function apiRequest<T>(url: string, options?: RequestInit & { timeout?: number }): Promise<T> {
   const { timeout = 30000, ...fetchOptions } = options || {};
+  const start = Date.now();
 
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
@@ -45,6 +46,9 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
     ? url
     : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
   const token = await getAuthToken();
+
+  const method = fetchOptions.method || 'GET';
+  console.info(`%c[Frontend] %cSENDING: ${method} ${url}`, 'color: #3b82f6; font-weight: bold', 'color: #94a3b8');
 
   try {
     const response = await fetch(finalUrl, {
@@ -57,7 +61,10 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       },
     });
 
+    const duration = Date.now() - start;
+
     if (!response.ok) {
+      console.error(`%c[Backend] %cERROR: ${response.status} ${response.statusText} (${duration}ms)`, 'color: #ef4444; font-weight: bold', 'color: #94a3b8');
       let errorData;
       try {
         errorData = await response.json();
@@ -67,12 +74,15 @@ export async function apiRequest<T>(url: string, options?: RequestInit & { timeo
       throw new ApiError(errorData.error || 'API Request failed', response.status, errorData);
     }
 
+    console.info(`%c[Backend] %cSUCCESS: ${response.status} (${duration}ms)`, 'color: #10b981; font-weight: bold', 'color: #94a3b8');
     return await response.json();
   } catch (error) {
     if (error instanceof ApiError) throw error;
 
     const errorName = typeof error === 'object' && error !== null ? (error as any).name : undefined;
     const errorMessage = typeof error === 'object' && error !== null ? String((error as any).message || (error as any)) : String(error);
+
+    console.error(`%c[System] %cNETWORK ERROR: ${errorMessage}`, 'color: #f59e0b; font-weight: bold', 'color: #94a3b8');
 
     if (errorName === 'AbortError' || errorMessage.toLowerCase().includes('aborted')) {
       throw new ApiError(`Request timed out after ${timeout}ms`, 408);

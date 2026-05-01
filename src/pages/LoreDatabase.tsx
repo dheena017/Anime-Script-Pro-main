@@ -1,5 +1,4 @@
-import React from 'react';
-import { Database, Search, Library, Compass } from 'lucide-react';
+import { Database, Search } from 'lucide-react';
 
 export function LoreDatabasePage() {
   return (

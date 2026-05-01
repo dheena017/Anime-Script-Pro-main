@@ -1,9 +1,7 @@
-import React from 'react';
 import { Video, Play, Clock, Move } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
-export const MotionPromptsTab: React.FC = () => {
+export const MotionPromptsTab = () => {
   const motionPresets = [
     { name: 'Cinematic Pan', speed: 'Slow', type: 'Camera' },
     { name: 'Dynamic Zoom', speed: 'Fast', type: 'Focus' },

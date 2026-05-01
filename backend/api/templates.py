@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from typing import List, Optional, Dict
 from backend.models import Template
-from backend.database import async_engine
+from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 from backend.schemas import TemplateIn, TemplateOut
 
