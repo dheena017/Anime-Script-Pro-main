@@ -117,8 +117,9 @@ app = FastAPI(
     """,
     version="2.0.0-GOD-MODE",
     openapi_tags=tags_metadata,
-    docs_url=None,   # Managed by custom route
-    redoc_url=None   # Managed by custom route
+    docs_url=None,   
+    redoc_url=None,
+    openapi_url="/openapi.json"
 )
 
 # Mount local static files for Swagger UI
@@ -273,8 +274,8 @@ async def custom_swagger_ui_html():
         openapi_url=app.openapi_url or "/openapi.json",
         title=app.title + " - Swagger UI",
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js",
-        swagger_css_url="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css",
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
     )
 
 @app.get("/redoc", include_in_schema=False)
@@ -282,7 +283,7 @@ async def custom_redoc_html():
     return get_redoc_html(
         openapi_url=app.openapi_url or "/openapi.json",
         title=app.title + " - ReDoc",
-        redoc_js_url="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js",
+        redoc_js_url="/static/redoc.standalone.js",
     )
 
 # --- Compatibility Aliases ---
