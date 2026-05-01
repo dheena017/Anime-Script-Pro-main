@@ -1,7 +1,7 @@
 import React from 'react';
 import { Hash, Tag, Globe, FileText, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 
 export type SEOTab = 'keywords' | 'description' | 'alt-texts' | 'tags' | 'distribution' | 'growth';
 
