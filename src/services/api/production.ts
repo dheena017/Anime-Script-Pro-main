@@ -3,6 +3,7 @@ import { apiRequest } from '@/lib/api-utils';
 const API_BASE = '/api/production';
 
 export interface ProjectContent {
+  growth_strategy: string | null;
   id?: number;
   user_id: string;
   project_id?: number;

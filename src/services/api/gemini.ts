@@ -1,6 +1,11 @@
 export * from "../generators/core";
 export * from "../generators/script";
-export * from "../generators/metadata";
+export { 
+  generateMetadata, 
+  generateYouTubeDescription, 
+  generateAltTexts,
+  generateGrowthStrategy 
+} from "../generators/metadata";
 export * from "../generators/image";
 export * from "../generators/series";
 export * from "../generators/characters";

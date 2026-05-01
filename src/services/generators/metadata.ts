@@ -41,5 +41,18 @@ export async function generateAltTexts(script: string, model: string = "gemini-1
   }
 }
 
+export async function generateGrowthStrategy(script: string, model: string = "gemini-1.5-flash-latest", contentType: string = "Anime") {
+  const { GROWTH_STRATEGY_PROMPT } = await import("../prompts/metadata");
+  const systemInstruction = GROWTH_STRATEGY_PROMPT(contentType, script);
+
+  try {
+    const text = await callAI(model, `Develop a comprehensive YouTube growth strategy for this script: ${script}`, systemInstruction);
+    return text || "Failed to generate growth strategy.";
+  } catch (error) {
+    console.error("Error generating growth strategy:", error);
+    return "Error: " + (error instanceof Error ? error.message : String(error));
+  }
+}
+
 
 

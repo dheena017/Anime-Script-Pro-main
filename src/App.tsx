@@ -37,6 +37,8 @@ const LibraryModule = lazy(() => import('./pages/studio/Library/Index'));
 
 // Anime Studio Components (Lazy)
 const AnimeLayout = lazy(() => import('./pages/studio/AnimeStudio/Layout'));
+const ManhwaLayout = lazy(() => import('./pages/studio/ManhwaStudio/Layout'));
+const ComicLayout = lazy(() => import('./pages/studio/ComicStudio/Layout'));
 const AnimePortal = lazy(() => import('./pages/studio/AnimeStudio/Portal'));
 const AnimeScript = lazy(() => import('./pages/studio/AnimeStudio/ScriptPage').then(m => ({ default: m.ScriptPage })));
 const AnimeCast = lazy(() => import('./pages/studio/AnimeStudio/CastPage').then(m => ({ default: m.CastPage })));
@@ -163,6 +165,16 @@ export default function App() {
                           <Route path="utils" element={<ProductionAide />} />
                         </Route>
                         <Route path="template" element={<AnimeTemplate />} />
+                      </Route>
+
+                      {/* 2. MANHWA STUDIO (SCAFFOLD) */}
+                      <Route path="/manhwa" element={<ManhwaLayout />}>
+                        <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Manhwa Portal</h1></div>} />
+                      </Route>
+
+                      {/* 3. COMIC STUDIO (SCAFFOLD) */}
+                      <Route path="/comic" element={<ComicLayout />}>
+                        <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Comic Portal</h1></div>} />
                       </Route>
 
                       <Route path="/pricing" element={<PricingPage />} />

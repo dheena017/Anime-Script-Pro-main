@@ -3,7 +3,7 @@ import { Hash, Tag, Globe, FileText, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 
-export type SEOTab = 'keywords' | 'description' | 'alt-texts' | 'tags' | 'distribution';
+export type SEOTab = 'keywords' | 'description' | 'alt-texts' | 'tags' | 'distribution' | 'growth';
 
 interface SEOTabsProps {
   activeTab: SEOTab;
@@ -20,6 +20,7 @@ export const SEOTabs: React.FC<SEOTabsProps> = ({
     { id: 'alt-texts', label: 'Alt Texts', icon: Globe, color: 'text-amber-400' },
     { id: 'tags', label: 'Meta Tags', icon: Tag, color: 'text-fuchsia-400' },
     { id: 'distribution', label: 'Distribution', icon: Share2, color: 'text-rose-400' },
+    { id: 'growth', label: 'Growth Strategy', icon: Globe, color: 'text-orange-400' },
   ];
 
   return (

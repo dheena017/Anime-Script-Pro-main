@@ -5,8 +5,10 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { 
   generateMetadata, 
   generateYouTubeDescription, 
-  generateAltTexts 
+  generateAltTexts,
+  generateGrowthStrategy 
 } from '@/services/api/gemini';
+import { GrowthTab } from './components/SEO/Tabs/GrowthTab';
 import { cn } from '@/lib/utils';
 
 // Context
@@ -31,6 +33,8 @@ export function SEOPage() {
     isGeneratingDescription, setIsGeneratingDescription,
     generatedAltText, setGeneratedAltText,
     isGeneratingAltText, setIsGeneratingAltText,
+    generatedGrowthStrategy, setGeneratedGrowthStrategy,
+    isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
     generatedScript, selectedModel, showNotification
   } = useGenerator();
 
@@ -88,11 +92,30 @@ export function SEOPage() {
     }
   };
 
+  const handleGenerateGrowthStrategy = async () => {
+    if (!generatedScript) {
+      showNotification?.('Prerequisite Failure: Synthesis a script manifest before generating growth strategy.', 'error');
+      return;
+    }
+    setIsGeneratingGrowthStrategy(true);
+    try {
+      const strategy = await generateGrowthStrategy(generatedScript, selectedModel);
+      setGeneratedGrowthStrategy(strategy);
+      showNotification?.('Neural Synthesis Complete: YouTube Growth Strategy Manifested', 'success');
+    } catch (error: any) {
+      console.error(error);
+      showNotification?.('Synthesis Failure: ' + (error.message || 'Unknown Error'), 'error');
+    } finally {
+      setIsGeneratingGrowthStrategy(false);
+    }
+  };
+
   useEffect(() => {
     setHandlers({
       handleGenerateMetadata,
       handleGenerateDescription,
-      handleGenerateAltText
+      handleGenerateAltText,
+      handleGenerateGrowthStrategy
     });
   }, [generatedScript, selectedModel]);
 
@@ -136,6 +159,14 @@ export function SEOPage() {
             content={generatedDescription}
             isGenerating={isGeneratingDescription}
             onGenerate={handleGenerateDescription}
+          />
+        );
+      case 'growth':
+        return (
+          <GrowthTab
+            content={generatedGrowthStrategy}
+            isGenerating={isGeneratingGrowthStrategy}
+            onGenerate={handleGenerateGrowthStrategy}
           />
         );
       default:

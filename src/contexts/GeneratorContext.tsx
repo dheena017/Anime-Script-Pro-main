@@ -113,6 +113,10 @@ interface GeneratorContextType {
   setSystems: (s: string | null) => void;
   culture: string | null;
   setCulture: (s: string | null) => void;
+  generatedGrowthStrategy: string | null;
+  setGeneratedGrowthStrategy: (s: string | null) => void;
+  isGeneratingGrowthStrategy: boolean;
+  setIsGeneratingGrowthStrategy: (l: boolean) => void;
 }
 
 export const GeneratorContext = createContext<GeneratorContextType | undefined>(undefined);
@@ -130,6 +134,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedDescription, setGeneratedDescription] = useState<string | null>(null);
   const [generatedWorld, setGeneratedWorld] = useState<string | null>(null);
   const [generatedAltText, setGeneratedAltText] = useState<string | null>(null);
+  const [generatedGrowthStrategy, setGeneratedGrowthStrategy] = useState<string | null>(null);
+  const [isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy] = useState(false);
   const [visualData, setVisualData] = useState<Record<number, string[]>>({});
   const [videoData, setVideoData] = useState<Record<number, string>>({});
 
@@ -345,6 +351,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           setGeneratedScript(content.script_content);
           setGeneratedSeriesPlan(content.series_plan);
           setGeneratedMetadata(content.seo_metadata);
+          setGeneratedGrowthStrategy(content.growth_strategy);
           // Map other fields as needed
           setIsProductionInitialized(true);
         }
@@ -368,7 +375,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           cast_data: castData,
           script_content: generatedScript,
           series_plan: generatedSeriesPlan,
-          seo_metadata: generatedMetadata
+          seo_metadata: generatedMetadata,
+          growth_strategy: generatedGrowthStrategy
         });
         console.log("Production content synced to cloud.");
       } catch (error) {
@@ -465,7 +473,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       atlas, setAtlas,
       historyLore, setHistoryLore,
       systems, setSystems,
-      culture, setCulture
+      culture, setCulture,
+      generatedGrowthStrategy, setGeneratedGrowthStrategy,
+      isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy
     }}>
       {children}
       {notification && (
