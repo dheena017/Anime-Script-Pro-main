@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List, Optional, Dict, Any
-from backend.models import SavedPrompt, ReusableCharacter, CastMember
+from backend.database.models import SavedPrompt, ReusableCharacter, CastMember
 from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 

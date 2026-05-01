@@ -3,7 +3,7 @@ from sqlmodel import select
 from backend.database import AsyncSession, AsyncSession, async_engine
 from typing import List, Optional
 from loguru import logger
-from backend.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
+from backend.database.models import Project, Series, ProductionSession, Episode, PromptLibrary, Category, Script, CastMember
 from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 
@@ -178,7 +178,7 @@ async def batch_create_scenes(payload: dict):
     async with AsyncSession(async_engine) as session:
         created = []
         for s in scenes_data:
-            from backend.models import Scene
+            from backend.database.models import Scene
             db_scene = Scene(
                 project_id=int(project_id),
                 episode_id=int(episode_id),
@@ -198,7 +198,7 @@ async def batch_create_scenes(payload: dict):
 async def get_scenes(project_id: int):
     """Get scenes for a project."""
     async with AsyncSession(async_engine) as session:
-        from backend.models import Scene
+        from backend.database.models import Scene
         statement = select(Scene).where(Scene.project_id == project_id)
         results = await session.exec(statement)
         return results.all()

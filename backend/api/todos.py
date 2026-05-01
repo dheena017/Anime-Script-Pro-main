@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List
 from backend.database import get_async_session, AsyncSession
-from backend.models.projects import Todo
+from backend.database.models.projects import Todo
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/todos", tags=["Production Queue"])

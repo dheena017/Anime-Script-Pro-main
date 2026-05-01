@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List, Optional
 from datetime import datetime
 from backend.database import AsyncSession, get_async_session
-from backend.models.engine import EngineConfig, AITelemetry
+from backend.database.models.engine import EngineConfig, AITelemetry
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/engine", tags=["Engine Nexus"])

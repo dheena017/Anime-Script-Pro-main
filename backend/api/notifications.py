@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List
-from backend.models import Notification
+from backend.database.models import Notification
 from backend.database import AsyncSession, AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 

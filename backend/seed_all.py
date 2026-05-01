@@ -6,7 +6,7 @@ from loguru import logger
 
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from backend.models import (
+from backend.database.models import (
     Tutorial, CommunityPost, Project, Template, 
     UserProfile, UserBalance, MediaAsset, Category,
     Series, Episode, Script, HelpCategory, FAQ, DocSection, DocArticle, Notification,
@@ -15,7 +15,7 @@ from backend.models import (
 
 
 # Point to the exact database file used by the backend
-DATABASE_URL = "sqlite:///backend/anime_script_pro.db"
+DATABASE_URL = "sqlite:///backend/database/anime_script_pro.db"
 engine = create_engine(DATABASE_URL)
 
 LOCAL_USER_ID = "local-dev-architect-id"

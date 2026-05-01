@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List
-from backend.models import SEOEntry
+from backend.database.models import SEOEntry
 from backend.database import AsyncSession, async_engine
 
 router = APIRouter(prefix="/api", tags=["SEO"])

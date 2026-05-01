@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
 from typing import List, Optional
-from backend.models import HelpCategory, FAQ, DocSection, DocArticle
+from backend.database.models import HelpCategory, FAQ, DocSection, DocArticle
 from backend.database import AsyncSession, async_engine
 
 router = APIRouter(prefix="/api", tags=["Support"])

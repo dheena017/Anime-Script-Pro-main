@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import select
 from loguru import logger
-from backend.models import User
+from backend.database.models import User
 from backend.database import AsyncSession, async_engine
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"])

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from typing import List, Optional
 from loguru import logger
-from backend.models import MediaAsset, UserFavorite
+from backend.database.models import MediaAsset, UserFavorite
 from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 

@@ -16,7 +16,7 @@ class AsyncSession(SQLAlchemyAsyncSession):
         result = await self.execute(statement, *args, **kwargs)
         return result.scalars()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/anime_script_pro.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///backend/database/anime_script_pro.db")
 
 # Create synchronous engine
 engine = create_engine(DATABASE_URL, echo=False)

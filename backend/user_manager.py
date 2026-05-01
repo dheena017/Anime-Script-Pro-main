@@ -19,7 +19,7 @@ from fastapi_users import BaseUserManager, FastAPIUsers, schemas as fa_schemas
 from fastapi_users.authentication import AuthenticationBackend, BearerTransport, JWTStrategy
 from fastapi_users_db_sqlmodel import SQLModelUserDatabase
 
-from backend.models import User
+from backend.database.models import User
 from backend.database import get_async_session, AsyncSession
 from loguru import logger
 

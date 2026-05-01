@@ -7,10 +7,10 @@ from loguru import logger
 
 # Add parent directory to path to import models
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from backend.models import Tutorial, CommunityPost, Project, Template
+from backend.database.models import Tutorial, CommunityPost, Project, Template
 
 # Point to the exact database file used by the backend
-DATABASE_URL = "sqlite:///backend/anime_script_pro.db"
+DATABASE_URL = "sqlite:///backend/database/anime_script_pro.db"
 engine = create_engine(DATABASE_URL)
 
 TUTORIALS_DATA = [

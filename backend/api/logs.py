@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 from backend.database import AsyncSession, async_engine
-from backend.models import SystemLog
+from backend.database.models import SystemLog
 from typing import List
 from loguru import logger
 

@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List, Optional
 from datetime import datetime
 from loguru import logger
-from backend.models import UserProfile, UserSettings, UserBalance
+from backend.database.models import UserProfile, UserSettings, UserBalance
 from backend.database import AsyncSession, async_engine
 from backend.deps import get_auth_user_id
 

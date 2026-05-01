@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlmodel import select
 from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
-from backend.models import User
+from backend.database.models import User
 from backend.database import AsyncSession, async_engine
 from backend.auth_utils import verify_password, create_access_token, create_refresh_token
 from backend.user_manager import auth_backend, fastapi_users
 from loguru import logger
 import os
-from backend.models import User as UserTable # For pydantic schemas if needed
+from backend.database.models import User as UserTable # For pydantic schemas if needed
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 

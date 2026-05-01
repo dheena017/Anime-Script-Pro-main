@@ -21,7 +21,6 @@ dist-ssr/
 __pycache__/
 backend/__pycache__/
 backend/venv/
-backend/anime_script_pro.db
 *.py[cod]
 *$py.class
 .pytest_cache/

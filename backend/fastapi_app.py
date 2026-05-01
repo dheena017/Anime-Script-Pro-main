@@ -73,8 +73,7 @@ def configure_logging() -> None:
 # Add project root to path to allow absolute imports when run directly
 # (This is also safe when imported as a module.)
 
-from backend.database import engine, async_engine, get_async_session, AsyncSession
-from backend.models import Tutorial
+from backend.database import engine, async_engine, get_async_session, AsyncSession, Tutorial
 from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
 from backend.deps import get_auth_user_id
 from backend.schemas import GenerationResponse

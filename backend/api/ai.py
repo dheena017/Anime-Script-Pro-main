@@ -11,7 +11,7 @@ logger.info(f"!!! AI MODULE INITIALIZED: {__file__} !!!")
 from sqlmodel import select
 
 from backend.database import AsyncSession, async_engine
-from backend.models import Project
+from backend.database.models import Project
 from backend.deps import get_auth_user_id
 from backend.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
@@ -78,7 +78,7 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     # 1. Try to fetch user-provided key from database settings
     user_api_key = None
     try:
-        from backend.models.user import UserSettings
+        from backend.database.models.user import UserSettings
         async with AsyncSession(async_engine) as session:
             statement = select(UserSettings).where(UserSettings.user_id == user_id)
             result = await session.exec(statement)
