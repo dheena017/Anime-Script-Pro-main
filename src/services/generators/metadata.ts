@@ -54,5 +54,18 @@ export async function generateGrowthStrategy(script: string, model: string = "ge
   }
 }
 
+export async function generateDistributionStrategy(script: string, model: string = "gemini-1.5-flash-latest") {
+  const { REPURPOSE_MATRIX_PROMPT } = await import("../prompts/youtube_strategies");
+  const systemInstruction = REPURPOSE_MATRIX_PROMPT(script);
+
+  try {
+    const text = await callAI(model, `Develop a cross-platform distribution matrix for this script: ${script}`, systemInstruction);
+    return text || "Failed to generate distribution strategy.";
+  } catch (error) {
+    console.error("Error generating distribution strategy:", error);
+    return "Error: " + (error instanceof Error ? error.message : String(error));
+  }
+}
+
 
 
