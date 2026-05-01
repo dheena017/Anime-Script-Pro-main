@@ -83,11 +83,9 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <AppProvider>
-          <GeneratorProvider>
-            <TooltipProvider>
+          <TooltipProvider>
               <Router>
                 <Suspense fallback={<LoadingSpinner />}>
-                  <AITelemetryOverlay />
                   <Routes>
 
                     <Route path="/" element={<LandingPage />} />
@@ -97,7 +95,14 @@ export default function App() {
                     <Route path="/auth" element={<AuthPage />} />
 
                     {/* STUDIO ARCHITECT INFRASTRUCTURE */}
-                    <Route element={<ProtectedRoute><StudioLayout /></ProtectedRoute>}>
+                    <Route element={
+                      <ProtectedRoute>
+                        <GeneratorProvider>
+                          <AITelemetryOverlay />
+                          <StudioLayout />
+                        </GeneratorProvider>
+                      </ProtectedRoute>
+                    }>
                       <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/profile" element={<ProfilePage />} />
                     
@@ -113,7 +118,13 @@ export default function App() {
                     </Route>
 
                     {/* LEGACY ANIME STUDIO (TO BE REFACTORED) */}
-                    <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                    <Route element={
+                      <ProtectedRoute>
+                        <GeneratorProvider>
+                          <Layout />
+                        </GeneratorProvider>
+                      </ProtectedRoute>
+                    }>
                       <Route path="/anime" element={<AnimeLayout />}>
                         <Route index element={<AnimePortal />} />
 
@@ -193,8 +204,7 @@ export default function App() {
                 </Suspense>
               </Router>
             </TooltipProvider>
-          </GeneratorProvider>
-        </AppProvider>
+          </AppProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
