@@ -71,3 +71,16 @@ firebase-applet-config.json
 screenshots/
 temp_assets/
 scratch/
+
+# Local Python virtual environments (project-specific)
+anime_venv/
+backend_env/
+
+# SQLite backups and miscellaneous DB files
+backend/*.db.backup*
+*.sqlite3
+
+# Local caches
+.cache/
+.parcel-cache/
+.turbo/
