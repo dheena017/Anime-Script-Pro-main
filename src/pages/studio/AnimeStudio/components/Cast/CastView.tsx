@@ -20,17 +20,17 @@ export const CastView: React.FC<CastViewProps> = ({
   setIsLiked,
   onViewCharacter,
   viewMode = 'grid'
-}: CastViewProps) {
+}) => {
   const { castData, castList, setCastList, isEditing, setIsEditing } = useGenerator();
 
   // Combine data sources
   const displayCast = castData?.characters || castList || [];
 
-  const handleUpdateCharacter = (index: number, updates: any) => {
+  const handleUpdateCharacter = React.useCallback((index: number, updates: any) => {
     const newList = [...displayCast];
     newList[index] = { ...newList[index], ...updates };
     setCastList(newList);
-  };
+  }, [displayCast, setCastList]);
 
   return (
     <div className="space-y-12">
@@ -107,5 +107,6 @@ export const CastView: React.FC<CastViewProps> = ({
     </div>
   );
 };
+
 
 

@@ -42,7 +42,7 @@ interface FramesTabProps {
   handleAddScene: () => void;
 }
 
-export const FramesTab: React.FC<FramesTabProps> = ({
+export const FramesTab = React.memo<FramesTabProps>(({
   scenes,
   visualData,
   videoData,
@@ -72,13 +72,13 @@ export const FramesTab: React.FC<FramesTabProps> = ({
     return <EmptyState handleAddScene={handleAddScene} />;
   }
 
-  const handleSetEditForm = (form: Partial<Scene> | ((prevState: Partial<Scene>) => Partial<Scene>)) => {
+  const handleSetEditForm = React.useCallback((form: Partial<Scene> | ((prevState: Partial<Scene>) => Partial<Scene>)) => {
     if (typeof form === 'function') {
       setEditForm(form(editForm));
     } else {
       setEditForm(form);
     }
-  };
+  }, [setEditForm, editForm]);
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
@@ -132,6 +132,7 @@ export const FramesTab: React.FC<FramesTabProps> = ({
       </Droppable>
     </DragDropContext>
   );
-};
+});
+
 
 

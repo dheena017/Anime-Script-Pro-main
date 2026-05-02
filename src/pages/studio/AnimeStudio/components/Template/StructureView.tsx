@@ -22,7 +22,7 @@ export const StructureView: React.FC<StructureViewProps> = ({
     <Card className="glass-panel border-cyan-500/10 shadow-[-20px_0_100px_rgba(0,0,0,0.5)] overflow-hidden min-h-[700px] relative">
       <div className="absolute inset-0 opacity-[0.05] bg-[linear-gradient(to_right,#22d3ee20_1px,transparent_1px),linear-gradient(to_bottom,#22d3ee20_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0" />
       
-      <div className="p-8 border-b border-cyan-500/10 bg-black/40 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+      <div className="p-8 border-b border-cyan-500/10 bg-black/40 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-cyan-500/10 rounded-xl text-cyan-400 border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
@@ -78,5 +78,6 @@ export const StructureView: React.FC<StructureViewProps> = ({
     </Card>
   );
 };
+
 
 

@@ -20,7 +20,7 @@ interface CastCardProps {
   onViewCharacter?: (charName: string) => void;
 }
 
-export const CastCard: React.FC<CastCardProps> = ({
+export const CastCard = React.memo<CastCardProps>(({
   character,
   index,
   isEditing,
@@ -243,6 +243,7 @@ export const CastCard: React.FC<CastCardProps> = ({
       </div>
     </motion.div>
   );
-};
+});
+
 
 

@@ -3,7 +3,8 @@ import { Layers, Copy, Download, Maximize, Minimize, FileText } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import { SeriesTabs, SeriesTab } from './Tabs/SeriesTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
+
 import {
   Tooltip,
   TooltipContent,
@@ -36,7 +37,7 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
   onManifestClick,
   onExportClick,
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -189,5 +190,6 @@ export const SeriesToolbar: React.FC<SeriesToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 

@@ -18,7 +18,7 @@ interface CastCardProps {
   onUpdate: (updates: any) => void;
 }
 
-export const CastCard: React.FC<CastCardProps> = ({
+export const CastCard = React.memo<CastCardProps>(({
   character,
   index,
   isEditing,
@@ -26,10 +26,10 @@ export const CastCard: React.FC<CastCardProps> = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="group relative bg-[#050505] border border-zinc-900 rounded-[2.5rem] overflow-hidden hover:border-studio/40 transition-all duration-500 hover:shadow-[0_0_40px_rgba(var(--studio-rgb),0.05)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className="group relative bg-[#050505] border border-zinc-900 rounded-[2.5rem] overflow-hidden hover:border-studio/40 transition-all duration-300 hover:shadow-[0_0_40px_rgba(var(--studio-rgb),0.05)]"
     >
       {/* Header / Identity */}
       <div className="p-8 border-b border-zinc-900 bg-gradient-to-br from-zinc-950 to-[#050505] relative overflow-hidden">
@@ -244,5 +244,6 @@ export const CastCard: React.FC<CastCardProps> = ({
     </motion.div>
   );
 };
+
 
 

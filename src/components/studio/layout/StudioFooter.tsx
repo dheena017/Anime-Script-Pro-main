@@ -18,7 +18,7 @@ export const StudioFooter: React.FC = () => {
   const { syncCore, isSaving } = useGenerator();
 
   return (
-    <footer className="bg-black/80 backdrop-blur-2xl border-t border-white/5 p-8 pb-6 relative z-50">
+    <footer className="bg-black/80 backdrop-blur-md border-t border-white/5 p-8 pb-6 relative z-50">
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
         {/* Brand Section */}
         <div className="md:col-span-5">
@@ -126,3 +126,4 @@ export const StudioFooter: React.FC = () => {
     </footer>
   );
 };
+

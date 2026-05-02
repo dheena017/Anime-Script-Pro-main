@@ -3,7 +3,7 @@ import { Activity, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CastTabs, CastTab } from './Tabs/CastTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 import { 
   Tooltip, 
   TooltipContent, 
@@ -30,7 +30,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -155,6 +155,7 @@ export const CastToolbar: React.FC<CastToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

@@ -3,7 +3,7 @@ import { ScrollText, Search, Layout, Volume2, Wand2, Download, RefreshCw, Copy, 
 import { cn } from '@/lib/utils';
 import { ScriptTabs, ScriptTab } from './Tabs/ScriptTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 
 import {
   Tooltip,
@@ -47,7 +47,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
   onPrev,
   onNext
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -286,6 +286,7 @@ export const ScriptToolbar: React.FC<ScriptToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

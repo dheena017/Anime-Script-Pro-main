@@ -95,7 +95,7 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
         </div>
       ) : (
         <div className="prose prose-invert max-w-none">
-          <div className="p-10 rounded-[2.5rem] bg-[#050505]/60 border border-white/5 backdrop-blur-xl">
+          <div className="p-10 rounded-[2.5rem] bg-[#050505]/60 border border-white/5 backdrop-blur-md">
              <ReactMarkdown
                components={{
                  h1: ({node, ...props}) => <h1 className="text-xl font-black text-white uppercase tracking-tighter mb-6 mt-10 first:mt-0" {...props} />,
@@ -127,5 +127,6 @@ export const DistributionTab: React.FC<DistributionTabProps> = ({
     </div>
   );
 };
+
 
 

@@ -11,7 +11,7 @@ interface SceneTimelineProps {
   scenes: Scene[];
 }
 
-export const SceneTimeline: React.FC<SceneTimelineProps> = ({ scenes }) => {
+export const SceneTimeline = React.memo<SceneTimelineProps>(({ scenes }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -61,6 +61,7 @@ export const SceneTimeline: React.FC<SceneTimelineProps> = ({ scenes }) => {
       </div>
     </div>
   );
-};
+});
+
 
 

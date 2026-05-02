@@ -5,7 +5,7 @@ import {
   TooltipTrigger 
 } from '@/components/ui/tooltip';
 import { ScreeningTab, ScreeningTabs } from './Tabs/ScreeningTabs';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 import { Download, Maximize, Copy, Minimize, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
   activeSession = 1,
   setActiveSession = () => {}
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -162,6 +162,7 @@ export const ScreeningToolbar: React.FC<ScreeningToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

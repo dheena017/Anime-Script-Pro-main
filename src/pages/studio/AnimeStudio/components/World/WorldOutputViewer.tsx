@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Zap } from 'lucide-react';
 import { WORLD_VIEWER_PROSE_CLASSES } from './ViewerStyles';
 import { TableOfContents } from './TableOfContents';
+import React from 'react';
 
 interface WorldOutputViewerProps {
   isEditing: boolean;
@@ -11,7 +12,7 @@ interface WorldOutputViewerProps {
   onContentChange: (val: string) => void;
 }
 
-export function WorldOutputViewer({ isEditing, content, prompt, onContentChange }: WorldOutputViewerProps) {
+export const WorldOutputViewer = React.memo(({ isEditing, content, prompt, onContentChange }: WorldOutputViewerProps) => {
   if (isEditing) {
     return (
       <textarea
@@ -33,7 +34,7 @@ export function WorldOutputViewer({ isEditing, content, prompt, onContentChange 
   };
 
   // Custom markdown renderers to add animations and ID tags for TOC linking
-  const customComponents = {
+  const customComponents = React.useMemo(() => ({
     h2: ({ node, ...props }: any) => {
       const text = extractText(props.children);
       const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
@@ -57,7 +58,7 @@ export function WorldOutputViewer({ isEditing, content, prompt, onContentChange 
         {...props} 
       />
     )
-  };
+  }), []);
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-4 gap-12 relative group">
@@ -115,6 +116,7 @@ export function WorldOutputViewer({ isEditing, content, prompt, onContentChange 
       </div>
     </div>
   );
-}
+});
+
 
 

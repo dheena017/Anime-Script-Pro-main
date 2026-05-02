@@ -13,3 +13,4 @@ export const RegistryTab: React.FC<RegistryTabProps> = ({ isLiked, setIsLiked, o
 };
 
 
+

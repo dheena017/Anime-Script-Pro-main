@@ -58,12 +58,10 @@ export function AnimeStudioNavigation({
   return (
     <div className="w-full px-4 pt-4 pb-2 relative z-[100] studio-navigation-bar">
       <div className="max-w-7xl mx-auto">
-        <div className="relative flex items-center justify-between h-16 px-3 bg-[#050505]/80 backdrop-blur-3xl border border-studio/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-          {/* Top light trace */}
-          <div className="absolute top-0 left-1/4 w-1/2 h-px bg-gradient-to-r from-transparent via-studio/50 to-transparent" />
+        <div className="relative flex items-center justify-between h-16 px-3 bg-[#050505]/80 backdrop-blur-md border border-studio/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+
           
-          {/* Background Scanline Effect */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(6,182,212,0.02)_50%,transparent_100%)] bg-[length:100%_4px] pointer-events-none" />
+
 
           {/* DESKTOP NAVIGATION (Hidden on Mobile) */}
           <div className="hidden lg:flex items-center gap-1 overflow-x-auto no-scrollbar py-2">
@@ -168,7 +166,7 @@ export function AnimeStudioNavigation({
               initial={{ opacity: 0, y: -20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              className="absolute top-24 left-4 right-4 bg-[#050505]/95 backdrop-blur-2xl border border-studio/20 rounded-[2.5rem] p-6 shadow-2xl z-[100] max-h-[70vh] overflow-y-auto overflow-x-hidden"
+              className="absolute top-24 left-4 right-4 bg-[#050505]/95 backdrop-blur-md border border-studio/20 rounded-[2.5rem] p-6 shadow-2xl z-[100] max-h-[70vh] overflow-y-auto overflow-x-hidden"
             >
               <div className="grid grid-cols-2 gap-3">
                 {STUDIO_NAV.map((item) => {
@@ -203,4 +201,5 @@ export function AnimeStudioNavigation({
     </div>
   );
 };
+
 

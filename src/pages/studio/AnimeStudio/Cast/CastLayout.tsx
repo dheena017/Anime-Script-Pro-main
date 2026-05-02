@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useGenerator } from '../../../../hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '../../../../hooks/useGenerator';
 import { useAuth } from '../../../../hooks/useAuth';
+import { useApp } from '@/contexts/AppContext';
 import { CastHeader } from '../components/Cast/CastHeader';
 import { CastToolbar, CastTab } from '../components/Cast/CastToolbar';
 import { generateCharacters } from '../../../../services/api/gemini';
@@ -15,15 +15,16 @@ export default function CastLayout() {
   const navigate = useNavigate();
   const [handlers, setHandlers] = React.useState<any>({});
 
+  const { showNotification } = useApp();
   const {
-    isGeneratingCharacters, setIsGeneratingCharacters,
     prompt, selectedModel, contentType, generatedWorld,
-    setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships,
-    session, episode, showNotification,
-    generatedCharacters,
-    isSaving,
-    syncCore
-  } = useGenerator();
+    session, episode, generatedCharacters, isSaving, isGeneratingCharacters
+  } = useGeneratorState();
+
+  const {
+    setIsGeneratingCharacters, setCastData, setCastList, 
+    setGeneratedCharacters, setCharacterRelationships, syncCore
+  } = useGeneratorDispatch();
 
   useAuth();
 
@@ -125,17 +126,12 @@ export default function CastLayout() {
           />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ activeTab }} />
-        </motion.div>
+        <Outlet context={{ activeTab }} />
       </div>
     </CastContext.Provider>
   );
 }
+
 
 
 

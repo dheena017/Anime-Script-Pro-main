@@ -23,7 +23,7 @@ export const ScreeningTimeline: React.FC<ScreeningTimelineProps> = ({
            <div className="w-1.5 h-1.5 rounded-full bg-studio/40" />
         </div>
       </div>
-      <ScrollArea className="h-[700px] border border-zinc-800 rounded-3xl bg-black/40 backdrop-blur-xl">
+      <ScrollArea className="h-[700px] border border-zinc-800 rounded-3xl bg-black/40 backdrop-blur-md">
         <div className="p-4 space-y-3">
           {isLoading ? (
             Array.from({ length: 8 }).map((_, i) => (
@@ -66,5 +66,6 @@ export const ScreeningTimeline: React.FC<ScreeningTimelineProps> = ({
     </div>
   );
 };
+
 
 

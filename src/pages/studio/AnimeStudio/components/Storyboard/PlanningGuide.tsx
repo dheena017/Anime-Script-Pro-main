@@ -11,7 +11,7 @@ export const PlanningGuide: React.FC = () => {
       exit={{ opacity: 0, height: 0 }}
       className="overflow-hidden"
     >
-      <Card className="bg-[#0c0d11]/50 backdrop-blur-3xl border-white/5 p-10 relative overflow-hidden rounded-[3rem]">
+      <Card className="bg-[#0c0d11]/50 backdrop-blur-md border-white/5 p-10 relative overflow-hidden rounded-[3rem]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-studio/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-fuchsia-500/5 blur-[100px] rounded-full pointer-events-none" />
         
@@ -70,5 +70,6 @@ export const PlanningGuide: React.FC = () => {
     </motion.div>
   );
 };
+
 
 

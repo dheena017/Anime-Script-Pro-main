@@ -1,5 +1,4 @@
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { WorldHeader } from '../components/World/WorldHeader';
@@ -90,16 +89,11 @@ export default function WorldLayout() {
       </div>
 
       <WorldContext.Provider value={{ activeTab, setActiveTab: handleTabChange }}>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ activeTab }} />
-        </motion.div>
+        <Outlet context={{ activeTab }} />
       </WorldContext.Provider>
     </div>
   );
 }
+
 
 

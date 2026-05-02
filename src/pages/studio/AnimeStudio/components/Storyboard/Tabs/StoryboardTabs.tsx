@@ -20,7 +20,7 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
   ];
 
   return (
-    <div className="flex items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-2xl relative overflow-x-auto no-scrollbar group">
+    <div className="flex items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-md relative overflow-x-auto no-scrollbar group">
       <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       {tabs.map((tab) => (
         <button
@@ -48,5 +48,6 @@ export const StoryboardTabs: React.FC<StoryboardTabsProps> = ({ activeTab, setAc
     </div>
   );
 };
+
 
 

@@ -65,7 +65,7 @@ export default function AssetsLayout() {
         setIsLiked={setIsLiked}
       />
 
-      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-xl border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
+      <div className="flex items-center justify-between p-4 bg-[#050505]/60 backdrop-blur-md border border-studio/20 rounded-2xl mb-8 shadow-2xl relative overflow-hidden group">
         <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
         <div className="flex items-center gap-12 z-10 w-full">
           <div className="flex items-center gap-3 px-4 py-2 bg-studio/10 border border-studio/20 rounded-xl">
@@ -85,3 +85,4 @@ export default function AssetsLayout() {
     </div>
   );
 }
+

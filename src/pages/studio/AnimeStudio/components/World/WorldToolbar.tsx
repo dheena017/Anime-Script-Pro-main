@@ -3,7 +3,8 @@ import { Box, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { WorldTabs, WorldTab } from './Tabs/WorldTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
+
 import {
   Tooltip,
   TooltipContent,
@@ -30,7 +31,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -155,6 +156,7 @@ export const WorldToolbar: React.FC<WorldToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

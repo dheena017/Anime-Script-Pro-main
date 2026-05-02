@@ -10,7 +10,7 @@ interface ArchivePanelProps {
 
 export const ArchivePanel: React.FC<ArchivePanelProps> = ({ history, onRestore }) => {
   return (
-    <Card className="bg-[#050505]/80 border border-zinc-900 rounded-[2rem] overflow-hidden group shadow-2xl backdrop-blur-xl h-full">
+    <Card className="bg-[#050505]/80 border border-zinc-900 rounded-[2rem] overflow-hidden group shadow-2xl backdrop-blur-md h-full">
       <CardHeader className="p-5 border-b border-zinc-900 flex flex-row items-center justify-between">
         <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 text-zinc-500">
           <History className="w-4 h-4 text-zinc-700" />
@@ -67,5 +67,6 @@ export const ArchivePanel: React.FC<ArchivePanelProps> = ({ history, onRestore }
     </Card>
   );
 };
+
 
 

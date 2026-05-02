@@ -32,7 +32,7 @@ export const StudioToolbar: React.FC<StudioToolbarProps> = ({
   };
 
   return (
-    <div className="flex items-center gap-4 h-12 px-4 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-xl">
+    <div className="flex items-center gap-4 h-12 px-4 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md">
       <div className="flex items-center gap-4 pr-4 border-r border-white/10">
         {/* Status Indicator */}
         <div className="flex items-center gap-2">
@@ -78,5 +78,6 @@ export const StudioToolbar: React.FC<StudioToolbarProps> = ({
     </div>
   );
 };
+
 
 

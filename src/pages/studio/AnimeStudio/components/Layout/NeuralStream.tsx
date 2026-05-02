@@ -1,22 +1,30 @@
 import React from 'react';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useLogs } from '@/contexts/LogContext';
 import { useRealtimeLogs } from '@/hooks/useRealtimeLogs';
 import { Activity } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { LogEntry } from '@/contexts/LogContext';
+import { SystemLog } from '@/services/api/logs';
 
-export const NeuralStream: React.FC = () => {
-  const { masterLogs } = useGenerator();
+type UnifiedLog = LogEntry & SystemLog;
+
+export const NeuralStream = React.memo(() => {
+  const { masterLogs } = useLogs();
   const backendLogs = useRealtimeLogs();
   
   // Combine logs, prioritizing masterLogs for active session feedback
-  const displayLogs = [...masterLogs, ...backendLogs].sort((a, b) => 
-    new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime()
-  ).slice(0, 30);
+  const displayLogs = React.useMemo(() => {
+    return ([...masterLogs, ...backendLogs] as UnifiedLog[]).sort((a, b) => {
+      const timeA = new Date(a.created_at || a.timestamp || 0).getTime();
+      const timeB = new Date(b.created_at || b.timestamp || 0).getTime();
+      return timeB - timeA;
+    }).slice(0, 30);
+  }, [masterLogs, backendLogs]);
 
   return (
-    <Card className="bg-[#050505]/80 border border-studio/20 rounded-[2rem] overflow-hidden group shadow-2xl backdrop-blur-xl h-full">
+    <Card className="bg-[#050505]/80 border border-studio/20 rounded-[2rem] overflow-hidden group shadow-2xl backdrop-blur-md h-full">
       <CardHeader className="p-5 border-b border-studio/10 flex flex-row items-center justify-between bg-studio/5">
         <CardTitle className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3 text-studio">
           <div className="w-2 h-2 rounded-full bg-studio animate-pulse shadow-studio" />
@@ -35,7 +43,7 @@ export const NeuralStream: React.FC = () => {
             <div className="p-4 space-y-2">
               {displayLogs.map((log) => (
                 <div key={log.id} className="flex items-start gap-3 text-[10px] animate-in fade-in slide-in-from-left-1">
-                  <span className="text-zinc-800 font-bold shrink-0 mt-0.5">[{new Date(log.created_at || log.timestamp).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
+                  <span className="text-zinc-800 font-bold shrink-0 mt-0.5">[{new Date(log.created_at || log.timestamp || 0).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
                   <div className="flex flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-studio font-black tracking-tighter uppercase shrink-0">{log.module || log.source}:</span>
@@ -61,6 +69,7 @@ export const NeuralStream: React.FC = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
 
 

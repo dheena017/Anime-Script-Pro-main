@@ -46,7 +46,7 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
               Generated Manifest: {productionSequence.length} Units
             </span>
           </div>
-          <ScrollArea className="h-[400px] border border-white/5 rounded-[2rem] bg-[#050505]/80 backdrop-blur-xl">
+          <ScrollArea className="h-[400px] border border-white/5 rounded-[2rem] bg-[#050505]/80 backdrop-blur-md">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 p-8">
               {productionSequence.map((unit, idx) => (
                 <div 
@@ -72,5 +72,6 @@ export const BlueprintTab: React.FC<BlueprintTabProps> = ({
     </div>
   );
 };
+
 
 

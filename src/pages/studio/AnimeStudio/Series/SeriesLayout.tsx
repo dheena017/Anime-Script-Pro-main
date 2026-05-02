@@ -1,6 +1,5 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateSeriesPlan } from '@/services/api/gemini';
@@ -120,15 +119,10 @@ export default function SeriesLayout() {
         />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
-      </motion.div>
+      <Outlet context={{ showScaffolder, setShowScaffolder, activeTab }} />
     </div>
   );
 }
+
 
 

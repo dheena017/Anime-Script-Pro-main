@@ -18,7 +18,7 @@ import {
   TooltipProvider
 } from "@/components/ui/tooltip";
 
-export function RelationshipMatrix() {
+export const RelationshipMatrix = React.memo(() => {
   const { characterRelationships, castProfiles, castList, castData } = useGenerator();
   
   // Extract character names from castList or fallback to castProfiles
@@ -209,6 +209,7 @@ export function RelationshipMatrix() {
       </div>
     </TooltipProvider>
   );
-}
+});
+
 
 

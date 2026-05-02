@@ -48,15 +48,6 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
     rose: 'text-rose-500 border-rose-500/20 bg-rose-500/5 group-hover:border-rose-500/40 shadow-rose-500/20',
   }[accentColor] || 'text-studio border-studio/20 bg-studio/5 shadow-studio';
 
-  const glowClass = {
-    studio: 'bg-studio/10',
-    fuchsia: 'bg-fuchsia-500/10',
-    cyan: 'bg-cyan-500/10',
-    amber: 'bg-amber-500/10',
-    indigo: 'bg-indigo-500/10',
-    emerald: 'bg-emerald-500/10',
-    rose: 'bg-rose-500/10',
-  }[accentColor] || 'bg-studio/10';
 
 
   return (
@@ -65,21 +56,15 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
       "animate-in fade-in zoom-in duration-700",
       className
     )}>
-      {/* Dynamic Background Elements */}
-      <div className={cn("absolute inset-0 blur-[120px] rounded-full pointer-events-none opacity-50", glowClass)} />
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:radial-gradient(white,transparent)] opacity-10" />
+
       
       {/* Floating particles or decorative elements could go here */}
-      <div className="absolute top-10 left-10 w-1 h-1 bg-white/20 rounded-full animate-ping" />
-      <div className="absolute bottom-20 right-20 w-1 h-1 bg-white/20 rounded-full animate-ping delay-700" />
+
 
       <div className="relative z-10 flex flex-col items-center text-center space-y-12 max-w-4xl mx-auto">
         {/* Main Icon */}
         <div className="group relative">
-          <div className={cn(
-            "absolute inset-0 blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-700",
-            glowClass
-          )} />
+
           <div className={cn(
             "relative w-24 h-24 md:w-32 md:h-32 rounded-[2.5rem] bg-black border flex items-center justify-center transition-all duration-500 group-hover:scale-110",
             accentClass
@@ -104,7 +89,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
             {features.map((feature, i) => (
               <Card 
                 key={i} 
-                className="p-6 bg-black/40 border-zinc-900/50 backdrop-blur-xl hover:border-studio/30 transition-all group/card overflow-hidden relative"
+                className="p-6 bg-black/40 border-zinc-900/50 backdrop-blur-md hover:border-studio/30 transition-all group/card overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-studio/5 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity" />
                 <feature.icon className="w-6 h-6 text-studio/40 group-hover/card:text-studio mb-4 transition-colors relative z-10" />
@@ -142,5 +127,6 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
     </div>
   );
 };
+
 
 

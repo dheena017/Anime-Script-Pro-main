@@ -1,8 +1,10 @@
-import { useGenerator } from '@/hooks/useGenerator';
+import React from 'react';
 import { History, Cpu, Activity } from 'lucide-react';
+import { useLogs } from '@/contexts/LogContext';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
 
 interface SessionLogsProps {
   history: any[];
@@ -27,7 +29,7 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
   setSelectedModel,
   setGeneratedMetadata
 }) => {
-  const { masterLogs: realtimeLogs } = useGenerator();
+  const { masterLogs: realtimeLogs } = useLogs();
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
@@ -136,5 +138,6 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
     </div>
   );
 };
+
 
 

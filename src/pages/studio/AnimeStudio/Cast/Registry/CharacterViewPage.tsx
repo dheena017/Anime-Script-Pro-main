@@ -1,10 +1,10 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   Edit3,
   Share2,
   User,
-  Zap,
   Shield,
   Target,
   Skull,
@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 export default function CastViewPage() {
   const { characterId } = useParams();
   const navigate = useNavigate();
-  const { castData, castList, contentType, setIsLoading, addLog } = useGenerator();
+  const { castData, castList, contentType, addLog } = useGenerator();
   const [isManifesting, setIsManifesting] = useState(false);
   const [portraitUrl, setPortraitUrl] = useState<string | null>(null);
 
@@ -39,6 +39,8 @@ export default function CastViewPage() {
         <Button onClick={() => navigate(-1)} variant="outline">Go Back</Button>
       </div>
     );
+  }
+
   const handleManifest = async () => {
     setIsManifesting(true);
     addLog("NEURAL_ENGINE", "MANIFESTING", `Synthesizing Visual DNA for ${character.name}...`);
@@ -93,7 +95,7 @@ export default function CastViewPage() {
         <div className="lg:col-span-2 space-y-8">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-studio/20 to-purple-500/20 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-            <Card className="relative p-8 md:p-12 bg-black/40 border-white/5 backdrop-blur-3xl rounded-[3rem] overflow-hidden">
+            <Card className="relative p-8 md:p-12 bg-black/40 border-white/5 backdrop-blur-md rounded-[3rem] overflow-hidden">
                <div className="flex flex-col md:flex-row gap-8 items-start">
                   <div className="w-32 h-32 rounded-3xl bg-zinc-900 border-2 border-studio/20 flex items-center justify-center text-studio shrink-0 shadow-[0_0_30px_rgba(6,182,212,0.1)] relative overflow-hidden group/portrait">
                     {portraitUrl ? (
@@ -220,3 +222,4 @@ export default function CastViewPage() {
     </div>
   );
 }
+

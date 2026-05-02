@@ -61,3 +61,4 @@ export const LoreChronicle: React.FC<LoreChronicleProps> = ({ lore }) => {
 };
 
 
+

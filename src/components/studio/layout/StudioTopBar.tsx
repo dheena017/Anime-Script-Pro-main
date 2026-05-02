@@ -21,7 +21,7 @@ export const StudioTopBar: React.FC<{
 
   return (
     <header 
-      className="fixed top-0 left-0 right-0 h-[60px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/60 backdrop-blur-2xl z-[400] transition-all duration-300 ease-out"
+      className="fixed top-0 left-0 right-0 h-[60px] border-b border-zinc-800/40 flex items-center justify-between px-6 bg-black/60 backdrop-blur-md z-[400] transition-all duration-300 ease-out"
     >
       <div className="flex items-center gap-5">
         <button
@@ -62,7 +62,7 @@ export const StudioTopBar: React.FC<{
 
       {/* Center Production Controls - Only visible in Studio Mode */}
       {isStudioMode && (
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 border border-zinc-800/50 p-1.5 rounded-2xl backdrop-blur-3xl shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/40 border border-zinc-800/50 p-1.5 rounded-2xl backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
            <Button
             variant="ghost"
             size="sm"
@@ -162,3 +162,4 @@ export const StudioTopBar: React.FC<{
     </header>
   );
 };
+

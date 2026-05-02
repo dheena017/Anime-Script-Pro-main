@@ -119,7 +119,7 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
         </div>
       ) : (
         <div className="prose prose-invert max-w-none">
-          <div className="p-10 rounded-[2.5rem] bg-[#050505]/60 border border-white/5 backdrop-blur-xl relative">
+          <div className="p-10 rounded-[2.5rem] bg-[#050505]/60 border border-white/5 backdrop-blur-md relative">
              <div className="absolute top-8 right-8 animate-pulse">
                 <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
              </div>
@@ -142,3 +142,4 @@ export const GrowthTab: React.FC<GrowthTabProps> = ({
     </div>
   );
 };
+

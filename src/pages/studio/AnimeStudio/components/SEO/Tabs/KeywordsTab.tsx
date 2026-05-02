@@ -39,7 +39,7 @@ export const KeywordsTab: React.FC<KeywordsTabProps> = ({ content, isGenerating,
       </div>
 
       <Card className={cn(
-        'bg-[#050505]/50 border transition-all duration-700 backdrop-blur-3xl overflow-hidden relative rounded-[2.5rem] group/card min-h-[500px]',
+        'bg-[#050505]/50 border transition-all duration-700 backdrop-blur-md overflow-hidden relative rounded-[2.5rem] group/card min-h-[500px]',
         content ? 'border-studio/30 shadow-[0_0_40px_rgba(6,182,212,0.1)]' : 'border-white/5 hover:border-studio/20'
       )}>
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
@@ -67,5 +67,6 @@ export const KeywordsTab: React.FC<KeywordsTabProps> = ({ content, isGenerating,
     </div>
   );
 };
+
 
 

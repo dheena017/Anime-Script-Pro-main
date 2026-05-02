@@ -3,12 +3,12 @@ import { Search, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SEOTabs, SEOTab } from './Tabs/SEOTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+import { useApp } from '@/contexts/AppContext';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
 } from '@/components/ui/tooltip';
 
 export type { SEOTab };
@@ -30,7 +30,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -142,6 +142,7 @@ export const SEOToolbar: React.FC<SEOToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

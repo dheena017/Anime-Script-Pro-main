@@ -123,3 +123,4 @@ export function AnimeStudioSideBar({ basePath, handleGenerate, isLoading }: Anim
     </aside>
   );
 }
+

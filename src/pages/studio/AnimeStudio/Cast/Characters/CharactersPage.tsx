@@ -59,7 +59,7 @@ export default function CharactersPage() {
       </div>
 
       {/* Search & View Toggle */}
-      <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-2xl backdrop-blur-xl">
+      <div className="flex items-center justify-between gap-4 p-4 bg-zinc-900/40 border border-white/5 rounded-2xl backdrop-blur-md">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
           <Input 
@@ -120,3 +120,4 @@ export default function CharactersPage() {
     </div>
   );
 }
+

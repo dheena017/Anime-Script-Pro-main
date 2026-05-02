@@ -3,7 +3,7 @@ import { Cpu, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EngineTabs, EngineTab } from './Tabs/EngineTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 
 export type { EngineTab };
 
@@ -24,7 +24,7 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -113,5 +113,6 @@ export const EngineToolbar: React.FC<EngineToolbarProps> = ({
     </div>
   );
 };
+
 
 

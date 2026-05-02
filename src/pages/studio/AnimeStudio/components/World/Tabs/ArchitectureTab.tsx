@@ -25,3 +25,4 @@ export const ArchitectureTab: React.FC<ArchitectureTabProps> = ({
 };
 
 
+

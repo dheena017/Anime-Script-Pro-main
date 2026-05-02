@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Milestone, Activity, Volume2, Camera, Video, LayoutGrid, PlayCircle, MapPin, Clock, Users, Heart, Eye } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -31,7 +32,7 @@ interface SeriesCardProps {
   onViewEpisode?: (episodeNum: string) => void;
 }
 
-export function SeriesCard({
+export const SeriesCard = React.memo<SeriesCardProps>(({
   ep,
   idx,
   isEditing,
@@ -39,15 +40,15 @@ export function SeriesCard({
   onUpdateAssetMatrix,
   onFocusEpisode,
   onViewEpisode
-}: SeriesCardProps) {
+}) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       className="relative z-10 h-full"
     >
-      <Card className="bg-[#050505]/40 backdrop-blur-3xl border-studio/10 p-8 hover:border-studio/40 transition-all duration-700 group relative overflow-hidden rounded-[3rem] shadow-[0_0_0_rgba(6,182,212,0)] hover:shadow-[0_40px_80px_-20px_rgba(6,182,212,0.3)] border-t border-l border-white/10 group/card_inner h-full flex flex-col">
+      <Card className="bg-[#050505]/40 backdrop-blur-md border-studio/10 p-8 hover:border-studio/40 transition-all duration-700 group relative overflow-hidden rounded-[3rem] shadow-[0_0_0_rgba(6,182,212,0)] hover:shadow-[0_40px_80px_-20px_rgba(6,182,212,0.3)] border-t border-l border-white/10 group/card_inner h-full flex flex-col">
 
         {/* Cinematic Scanning Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] pointer-events-none" />
@@ -255,6 +256,7 @@ export function SeriesCard({
       </Card>
     </motion.div>
   );
-}
+});
+
 
 

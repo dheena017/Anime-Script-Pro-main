@@ -42,12 +42,10 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
   return (
     <TooltipProvider>
       <div className="relative group">
-        {/* Cinematic Ambient Glow */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 via-studio/10 to-orange-500/20 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition-opacity duration-1000" />
 
-        <div className="relative flex flex-col lg:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden gap-6 lg:gap-0">
-          {/* Background Scanline Effect */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(249,115,22,0.05)_50%,transparent_100%)] bg-[length:100%_4px] pointer-events-none animate-scanline" />
+
+        <div className="relative flex flex-col lg:flex-row items-center justify-between p-4 md:p-5 bg-[#050505]/95 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl overflow-hidden gap-6 lg:gap-0">
+
           
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 z-10 w-full lg:w-auto">
             <div className="relative shrink-0">
@@ -77,7 +75,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 <TooltipTrigger>
                   <Button 
                     variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-xl group/back shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] rounded-full transition-all duration-500 backdrop-blur-md group/back shadow-2xl"
                     onClick={onPrev}
                   >
                     <ChevronLeft className="w-4 h-4 mr-2 group-hover/back:-translate-x-1 transition-transform" />
@@ -95,7 +93,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
                 <TooltipTrigger>
                   <Button 
                     variant="outline" 
-                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-xl group/btn shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-8 bg-[#050505] border-white/10 text-zinc-100 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[11px] rounded-full transition-all duration-500 backdrop-blur-md group/btn shadow-2xl"
                     onClick={onRegenerate}
                     disabled={isGenerating}
                   >
@@ -135,7 +133,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
               <Tooltip>
                 <TooltipTrigger>
                   <Button 
-                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 backdrop-blur-xl group/next shadow-2xl"
+                    className="relative w-full sm:w-auto h-12 px-10 rounded-full bg-[#050505] border border-white/10 text-zinc-400 hover:text-orange-500 hover:border-orange-500/50 font-black uppercase tracking-widest text-[10px] transition-all duration-500 backdrop-blur-md group/next shadow-2xl"
                     onClick={onNext}
                   >
                     <span className="relative z-10 flex items-center gap-2">
@@ -155,6 +153,7 @@ export const StoryboardHeader: React.FC<StoryboardHeaderProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

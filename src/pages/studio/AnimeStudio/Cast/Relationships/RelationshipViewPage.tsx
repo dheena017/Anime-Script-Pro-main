@@ -72,7 +72,7 @@ export default function RelationshipViewPage() {
       </div>
 
       {/* Hero Visualizer */}
-      <Card className="p-12 bg-zinc-950/40 border-white/5 backdrop-blur-3xl relative overflow-hidden group">
+      <Card className="p-12 bg-zinc-950/40 border-white/5 backdrop-blur-md relative overflow-hidden group">
          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(217,70,239,0.05)_0%,transparent_70%)]" />
          
          <div className="relative z-10 flex flex-col items-center justify-center space-y-12">
@@ -166,3 +166,4 @@ export default function RelationshipViewPage() {
     </div>
   );
 }
+

@@ -3,7 +3,7 @@ import { Zap, Copy, Download, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PromptsTabs, PromptsTab } from './Tabs/PromptsTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 import { 
   Tooltip, 
   TooltipContent, 
@@ -30,7 +30,7 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
   episode = '1',
   content = null
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -142,5 +142,6 @@ export const PromptsToolbar: React.FC<PromptsToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 

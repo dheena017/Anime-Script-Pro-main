@@ -29,7 +29,7 @@ export function TableOfContents({ content }: TableOfContentsProps) {
   if (headings.length === 0) return null;
 
   return (
-    <div className="sticky top-10 p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-6 shadow-2xl backdrop-blur-xl">
+    <div className="sticky top-10 p-6 bg-black/40 border border-white/5 rounded-[2rem] space-y-6 shadow-2xl backdrop-blur-md">
       <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-4">
         <List className="w-4 h-4 text-studio" /> Quick Navigation
       </h4>
@@ -52,5 +52,6 @@ export function TableOfContents({ content }: TableOfContentsProps) {
     </div>
   );
 }
+
 
 

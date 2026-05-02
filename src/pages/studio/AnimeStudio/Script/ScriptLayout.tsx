@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
+import { useApp } from '@/contexts/AppContext';
 import { ScriptHeader } from '../components/Script/ScriptHeader';
 import { ScriptToolbar } from '../components/Script/ScriptToolbar';
 import { generateScript } from '@/services/api/gemini';
@@ -17,15 +17,17 @@ export default function ScriptLayout() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [handlers, setHandlers] = React.useState<any>({});
 
+  const { showNotification } = useApp();
   const {
-    generatedScript, setGeneratedScript,
-    isLoading, setIsLoading,
-    prompt, tone, audience, session, episode, numScenes, selectedModel, contentType,
-    recapperPersona, characterRelationships, generatedWorld, generatedCharacters,
-    generatedSeriesPlan, showNotification,
-    isSaving, 
-    syncCore
-  } = useGenerator();
+    generatedScript, isLoading, prompt, tone, audience, 
+    session, episode, numScenes, selectedModel, contentType,
+    recapperPersona, characterRelationships, generatedWorld, 
+    generatedCharacters, generatedSeriesPlan, isSaving
+  } = useGeneratorState();
+
+  const {
+    setGeneratedScript, setIsLoading, syncCore
+  } = useGeneratorDispatch();
 
   useAuth();
 
@@ -98,16 +100,12 @@ export default function ScriptLayout() {
           />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Outlet context={{ activeTab }} />
-        </motion.div>
+        <Outlet context={{ activeTab }} />
       </div>
+      
     </ScriptContext.Provider>
   );
 }
+
 
 

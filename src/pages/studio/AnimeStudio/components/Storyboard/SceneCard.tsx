@@ -70,7 +70,6 @@ export const SceneCard = React.memo<SceneCardProps>(({
   setEditForm,
   handleGenerateVisual,
   videoData,
-  handleGenerateVideo,
   startEditing,
   cancelEditing,
   saveSceneEdits,
@@ -168,7 +167,7 @@ export const SceneCard = React.memo<SceneCardProps>(({
           )}
 
           {/* Scene Label & Drag Handle */}
-          <div className="absolute top-4 left-4 bg-[#050505]/80 backdrop-blur-xl border border-white/10 text-zinc-100 text-[10px] font-black px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-3 uppercase tracking-widest z-20 group-hover:border-studio/30 transition-all duration-700">
+          <div className="absolute top-4 left-4 bg-[#050505]/80 backdrop-blur-md border border-white/10 text-zinc-100 text-[10px] font-black px-3.5 py-2 rounded-2xl shadow-2xl flex items-center gap-3 uppercase tracking-widest z-20 group-hover:border-studio/30 transition-all duration-700">
             <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform">
               <GripVertical className="w-4 h-4 text-studio opacity-60 hover:opacity-100 transition-opacity" />
             </div>
@@ -176,36 +175,25 @@ export const SceneCard = React.memo<SceneCardProps>(({
             <span className="text-white font-mono">{String(index + 1).padStart(2, '0')}</span>
           </div>
 
-          {visualData[scene.originalIndex] && visualData[scene.originalIndex]?.[0] !== 'loading' && !videoData?.[scene.originalIndex] && (
-            <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-              <button 
-                onClick={() => navigate(`scenes/${scene.originalIndex}`)}
-                className="h-10 w-10 bg-studio/20 backdrop-blur-xl border border-studio/30 hover:bg-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-[0_0_20px_rgba(6,182,212,0.2)] flex items-center justify-center"
-                title="Focus View"
-              >
-                <Maximize2 className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
-                className="h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-studio hover:border-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-2xl flex items-center justify-center"
-                title="Regenerate Visual"
-              >
-                <Wand2 className="w-4 h-4" />
-              </button>
-              {handleGenerateVideo && (
-                <button 
-                  onClick={() => handleGenerateVideo(scene.originalIndex, visualData[scene.originalIndex][0], scene.linkedPrompt || scene.visuals)}
-                  className="h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-purple-500 hover:border-purple-500 text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-x-4 group-hover:translate-x-0 shadow-2xl flex items-center justify-center"
-                  title="Animate Frame (Video)"
-                >
-                  <Zap className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          )}
+          {/* Action Overlay */}
+          <div className="absolute inset-0 bg-studio/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 z-10 flex items-center justify-center gap-3">
+            <Button 
+              onClick={() => navigate(`scenes/${scene.originalIndex}`)}
+              className="bg-white text-black hover:bg-studio hover:text-black font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0"
+            >
+              <Maximize2 className="w-3.5 h-3.5 mr-2" /> View Focus
+            </Button>
+            <Button 
+              onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
+              variant="outline"
+              className="bg-black/80 text-white border-white/20 hover:border-studio font-black uppercase tracking-widest text-[9px] h-10 px-6 rounded-xl shadow-2xl transition-all transform translate-y-4 group-hover:translate-y-0 delay-75"
+            >
+              <Wand2 className="w-3.5 h-3.5 mr-2" /> Regenerate
+            </Button>
+          </div>
 
           <div className="absolute bottom-4 left-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-700 transform translate-y-4 group-hover:translate-y-0">
-            <div className="px-3 py-1.5 bg-[#050505]/80 backdrop-blur-xl border border-white/10 rounded-xl inline-block shadow-2xl">
+            <div className="px-3 py-1.5 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-xl inline-block shadow-2xl">
               <p className="text-[10px] text-zinc-300 font-black uppercase tracking-[0.2em]">{scene.section}</p>
             </div>
           </div>
@@ -368,78 +356,105 @@ export const SceneCard = React.memo<SceneCardProps>(({
               </div>
             </div>
           ) : (
-            <div className="animate-in fade-in duration-700">
-              <div className="flex justify-between items-start mb-5">
-                <div className="space-y-2 flex-1 pr-6">
-                  <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
-                  <p className="text-sm text-zinc-100 font-medium leading-relaxed tracking-wide">
-                    <span className="text-studio/40 font-serif mr-2 text-lg">"</span>
-                    {scene.narration}
-                    <span className="text-studio/40 font-serif ml-1 text-lg">"</span>
-                  </p>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-10 w-10 text-zinc-600 hover:text-studio hover:bg-studio/10 rounded-2xl flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0"
-                  onClick={() => startEditing(scene)}
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 group/visual relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
-                  <div className="flex items-center justify-between mb-3 relative z-10">
-                    <h4 className="text-[9px] font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
-                      <ImageIcon className="w-3.5 h-3.5" /> Visual Parameters
-                    </h4>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-7 px-3 text-[9px] text-studio hover:bg-studio/10 uppercase tracking-widest font-black opacity-0 group-hover/visual:opacity-100 transition-all duration-500"
-                      onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
-                      disabled={visualData[scene.originalIndex]?.[0] === 'loading'}
-                    >
-                      Generate
-                    </Button>
+            <div className="animate-in fade-in duration-700 space-y-4">
+                <div className="flex justify-between items-start mb-5">
+                  <div className="space-y-2 flex-1 pr-6">
+                    <h4 className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em] ml-1">Narration Layer</h4>
+                    <p className="text-sm text-zinc-100 font-medium leading-relaxed tracking-wide">
+                      <span className="text-studio/40 font-serif mr-2 text-lg">"</span>
+                      {scene.narration}
+                      <span className="text-studio/40 font-serif ml-1 text-lg">"</span>
+                    </p>
                   </div>
-                  <p className="text-xs text-zinc-400 font-mono leading-relaxed relative z-10">{scene.visuals}</p>
-                  {scene.linkedPrompt && (
-                    <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
-                      <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Neural DNA</span>
-                      <p className="text-[10px] text-zinc-500 font-mono italic bg-black/40 p-2 rounded-lg line-clamp-1 truncate hover:line-clamp-none transition-all cursor-default">
-                        {scene.linkedPrompt}
-                      </p>
-                    </div>
-                  )}
                 </div>
+                
+                <div className="space-y-4">
+                  <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 group/visual relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover/visual:opacity-100 transition-opacity duration-700" />
+                    <div className="flex items-center justify-between mb-3 relative z-10">
+                      <h4 className="text-[9px] font-black text-purple-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                        <ImageIcon className="w-3.5 h-3.5" /> Visual Parameters
+                      </h4>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-7 px-3 text-[9px] text-studio hover:bg-studio/10 uppercase tracking-widest font-black opacity-0 group-hover/visual:opacity-100 transition-all duration-500"
+                        onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
+                        disabled={visualData[scene.originalIndex]?.[0] === 'loading'}
+                      >
+                        Generate
+                      </Button>
+                    </div>
+                    <p className="text-xs text-zinc-400 font-mono leading-relaxed relative z-10">{scene.visuals}</p>
+                    {scene.linkedPrompt && (
+                      <div className="mt-4 pt-4 border-t border-white/5 space-y-2 relative z-10">
+                        <span className="text-[9px] font-black text-studio uppercase tracking-[0.3em] block ml-1">Linked Neural DNA</span>
+                        <p className="text-[10px] text-zinc-500 font-mono italic bg-black/40 p-2 rounded-lg line-clamp-1 truncate hover:line-clamp-none transition-all cursor-default">
+                          {scene.linkedPrompt}
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5">
-                    <h4 className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
-                      <Sparkles className="w-3.5 h-3.5" /> Audio Matrix
-                    </h4>
-                    <p className="text-xs text-zinc-400 font-mono leading-relaxed italic">{scene.sound || "No cues defined"}</p>
-                  </div>
-                  <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 flex flex-col justify-between">
-                    <h4 className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
-                      <Zap className="w-3.5 h-3.5" /> Temporal
-                    </h4>
-                    <div className="flex items-end justify-between">
-                      <span className="text-2xl font-black text-white font-mono tracking-tighter">{scene.duration}</span>
-                      <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Duration</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5">
+                      <h4 className="text-[9px] font-black text-blue-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
+                        <Sparkles className="w-3.5 h-3.5" /> Audio Matrix
+                      </h4>
+                      <p className="text-xs text-zinc-400 font-mono leading-relaxed italic">{scene.sound || "No cues defined"}</p>
+                    </div>
+                    <div className="bg-white/[0.01] p-4 rounded-2xl border border-white/5 flex flex-col justify-between">
+                      <h4 className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em] flex items-center gap-2 mb-3">
+                        <Zap className="w-3.5 h-3.5" /> Temporal
+                      </h4>
+                      <div className="flex items-end justify-between">
+                        <span className="text-2xl font-black text-white font-mono tracking-tighter">{scene.duration}</span>
+                        <span className="text-[9px] text-zinc-600 font-black uppercase tracking-widest mb-1">Duration</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           )}
+        </div>
+
+        {/* Scene Card Footer - Action Hub */}
+        <div className="px-6 py-4 border-t border-white/5 bg-white/[0.01] flex items-center justify-between mt-auto z-10 relative">
+           <Button 
+             variant="ghost" 
+             size="sm" 
+             onClick={() => navigate(`scenes/${scene.originalIndex}`)}
+             className="h-9 text-[10px] text-zinc-400 hover:text-studio hover:bg-studio/10 font-black uppercase tracking-widest rounded-xl transition-all gap-2"
+           >
+             <Maximize2 className="w-3.5 h-3.5" /> View Focus
+           </Button>
+           
+           <div className="h-4 w-[1px] bg-zinc-800" />
+
+           <Button 
+             variant="ghost" 
+             size="sm" 
+             onClick={() => (editingSceneId === scene.id ? cancelEditing() : startEditing(scene))}
+             className={cn(
+               "h-9 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all gap-2",
+               editingSceneId === scene.id ? "text-red-400 hover:bg-red-400/10" : "text-zinc-400 hover:text-white hover:bg-white/5"
+             )}
+           >
+             {editingSceneId === scene.id ? (
+               <>Abort Edit</>
+             ) : (
+               <>
+                 <Edit2 className="w-3.5 h-3.5" /> Quick Edit
+               </>
+             )}
+           </Button>
         </div>
       </Card>
     </div>
   );
 });
+
+
+
 
 

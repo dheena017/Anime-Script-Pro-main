@@ -70,7 +70,7 @@ export default function CharacterViewPage() {
             <div className="absolute inset-0 bg-studio/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
             <User className="w-32 h-32 text-zinc-800 group-hover:text-studio/20 transition-all duration-1000 group-hover:scale-110" />
             
-            <div className="absolute bottom-8 left-8 right-8 p-6 bg-black/60 backdrop-blur-xl border border-white/5 rounded-3xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+            <div className="absolute bottom-8 left-8 right-8 p-6 bg-black/60 backdrop-blur-md border border-white/5 rounded-3xl transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                <p className="text-[10px] font-black text-studio uppercase tracking-[0.2em] mb-1">Visual DNA</p>
                <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-2 italic">"{character.appearance || 'Generic aesthetic parameters.'}"</p>
             </div>
@@ -173,3 +173,4 @@ export default function CharacterViewPage() {
     </div>
   );
 }
+

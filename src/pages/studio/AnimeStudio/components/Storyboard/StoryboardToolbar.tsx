@@ -3,7 +3,8 @@ import { Palette, Mic2, Zap, Download, Copy, Maximize, Minimize, Plus } from 'lu
 import { cn } from '@/lib/utils';
 import { StoryboardTabs, StoryboardTab } from './Tabs/StoryboardTabs';
 import { Button } from '@/components/ui/button';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
+
 import {
   Tooltip,
   TooltipContent,
@@ -38,7 +39,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
   onEnhanceVisuals,
   isGlobalEnhancing
 }) => {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -204,6 +205,7 @@ export const StoryboardToolbar: React.FC<StoryboardToolbarProps> = ({
     </TooltipProvider>
   );
 };
+
 
 
 

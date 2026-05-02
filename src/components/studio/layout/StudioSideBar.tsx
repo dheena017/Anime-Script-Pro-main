@@ -168,7 +168,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
         mass: 0.7
       }}
       className={cn(
-        "fixed top-0 left-0 h-full border-r border-zinc-800/30 bg-black/95 backdrop-blur-3xl flex flex-col z-[500] shadow-[20px_0_80px_rgba(0,0,0,1)] overflow-hidden transition-all duration-300",
+        "fixed top-0 left-0 h-full border-r border-zinc-800/30 bg-black/95 backdrop-blur-md flex flex-col z-[500] shadow-[20px_0_80px_rgba(0,0,0,1)] overflow-hidden transition-all duration-300",
         collapsed ? "cursor-pointer hover:bg-red-500/10 border-red-500/20" : "cursor-default"
       )}
     >
@@ -303,7 +303,7 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
       </div>
 
       {!collapsed && (
-        <div className="p-6 border-t border-zinc-800/40 bg-black/60 backdrop-blur-xl">
+        <div className="p-6 border-t border-zinc-800/40 bg-black/60 backdrop-blur-md">
           <div className="bg-gradient-to-br from-zinc-900 to-black rounded-3xl p-5 border border-zinc-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] group relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 blur-[40px] -z-10 group-hover:bg-cyan-500/10 transition-colors" />
             <div className="flex items-center gap-3 mb-3">
@@ -324,3 +324,4 @@ export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCol
     </motion.aside>
   );
 });
+

@@ -135,7 +135,7 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
                 <div className="flex flex-col items-center gap-6">
                   <div 
                     onClick={onRender}
-                    className="w-24 h-24 rounded-full bg-studio/10 border border-studio/30 flex items-center justify-center group-hover:scale-110 transition-transform cursor-pointer backdrop-blur-xl group-hover:border-studio group-hover:bg-studio/20"
+                    className="w-24 h-24 rounded-full bg-studio/10 border border-studio/30 flex items-center justify-center group-hover:scale-110 transition-transform cursor-pointer backdrop-blur-md group-hover:border-studio group-hover:bg-studio/20"
                   >
                     <Play className="w-10 h-10 text-studio fill-current" />
                   </div>
@@ -180,5 +180,6 @@ export const ScreeningViewport: React.FC<ScreeningViewportProps> = ({
     </div>
   );
 };
+
 
 

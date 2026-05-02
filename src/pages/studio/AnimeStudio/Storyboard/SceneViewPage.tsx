@@ -204,7 +204,7 @@ export function SceneViewPage() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-10">
         {/* Visual Engine Column */}
         <div className="space-y-8">
-          <Card className="bg-black/60 backdrop-blur-3xl border-white/5 overflow-hidden rounded-[2.5rem] shadow-2xl relative group">
+          <Card className="bg-black/60 backdrop-blur-md border-white/5 overflow-hidden rounded-[2.5rem] shadow-2xl relative group">
              <div className="aspect-video bg-[#030303] flex items-center justify-center relative overflow-hidden">
                 {videoData[scene.originalIndex] ? (
                   <video 
@@ -272,7 +272,7 @@ export function SceneViewPage() {
 
         {/* Edit Engine Column */}
         <div className="space-y-8">
-           <Card className="bg-black/60 backdrop-blur-3xl border-white/5 p-10 rounded-[2.5rem] shadow-2xl space-y-10">
+           <Card className="bg-black/60 backdrop-blur-md border-white/5 p-10 rounded-[2.5rem] shadow-2xl space-y-10">
               <div className="space-y-6">
                  <div className="flex items-center justify-between">
                     <div className="space-y-1">
@@ -334,3 +334,4 @@ export function SceneViewPage() {
     </div>
   );
 }
+

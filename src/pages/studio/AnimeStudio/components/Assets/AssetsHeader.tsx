@@ -20,7 +20,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
   onPrev
 }) => {
   return (
-    <div className="flex items-center justify-between p-6 bg-[#0a0a0a]/80 backdrop-blur-xl border border-zinc-800 rounded-3xl mb-6">
+    <div className="flex items-center justify-between p-6 bg-[#0a0a0a]/80 backdrop-blur-md border border-zinc-800 rounded-3xl mb-6">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-studio/10 border border-studio/20 flex items-center justify-center shadow-studio">
@@ -63,5 +63,6 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
     </div>
   );
 };
+
 
 

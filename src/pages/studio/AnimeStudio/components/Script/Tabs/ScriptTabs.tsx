@@ -29,7 +29,7 @@ export const ScriptTabs: React.FC<ScriptTabsProps> = ({
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-2xl relative overflow-hidden group">
+    <div className="flex flex-wrap items-center gap-2 p-1.5 bg-[#080808]/60 border border-white/5 rounded-[1.5rem] backdrop-blur-md relative overflow-hidden group">
       <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
       
       {tabs.map((tab) => (
@@ -61,5 +61,6 @@ export const ScriptTabs: React.FC<ScriptTabsProps> = ({
     </div>
   );
 };
+
 
 

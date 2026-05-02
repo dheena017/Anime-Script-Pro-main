@@ -74,3 +74,4 @@ export function AnimeStudioTopBar({ onToggleEngine, isEngineOpen }: AnimeStudioT
     </header>
   );
 }
+

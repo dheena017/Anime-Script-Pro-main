@@ -40,7 +40,7 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
         animate={{ opacity: 1 }} 
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+        className="absolute inset-0 bg-black/90 backdrop-blur-md"
       />
       <motion.div
         layoutId={`modal-${template.id}`}
@@ -160,5 +160,6 @@ export const TemplateDetailModal: React.FC<TemplateDetailModalProps> = ({
     </div>
   );
 };
+
 
 

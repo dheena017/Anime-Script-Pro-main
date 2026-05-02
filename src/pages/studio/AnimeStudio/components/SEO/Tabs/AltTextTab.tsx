@@ -39,7 +39,7 @@ export const AltTextTab: React.FC<AltTextTabProps> = ({ content, isGenerating, o
       </div>
 
       <Card className={cn(
-        'bg-[#050505]/50 border transition-all duration-700 backdrop-blur-3xl overflow-hidden relative rounded-[2.5rem] group/card min-h-[500px]',
+        'bg-[#050505]/50 border transition-all duration-700 backdrop-blur-md overflow-hidden relative rounded-[2.5rem] group/card min-h-[500px]',
         content ? 'border-cyan-500/30 shadow-[0_0_40px_rgba(56,189,248,0.1)]' : 'border-white/5 hover:border-cyan-500/20'
       )}>
         <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
@@ -67,5 +67,6 @@ export const AltTextTab: React.FC<AltTextTabProps> = ({ content, isGenerating, o
     </div>
   );
 };
+
 
 

@@ -1,7 +1,7 @@
 import { Copy, Download, Maximize, Minimize, Heart, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 
 interface ViewerToolbarProps {
   content: string | null;
@@ -30,7 +30,7 @@ export function ViewerToolbar({
   hideProductionUnit = false,
   hideActions = false
 }: ViewerToolbarProps) {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen } = useApp();
 
   const toggleFullscreen = async () => {
     try {
@@ -63,10 +63,9 @@ export function ViewerToolbar({
   };
 
   return (
-    <div className="flex items-center justify-between w-full p-4 bg-[#050505]/60 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl relative overflow-hidden group/toolbar">
-      {/* Background Scanline Effect */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_0%,rgba(6,182,212,0.02)_50%,transparent_100%)] bg-[length:100%_4px] pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-studio/5 via-transparent to-studio/5 opacity-0 group-hover/toolbar:opacity-100 transition-opacity duration-1000" />
+    <div className="flex items-center justify-between w-full p-4 bg-[#050505]/60 backdrop-blur-md border border-white/5 rounded-2xl shadow-2xl relative overflow-hidden group/toolbar">
+
+
 
       <div className="flex items-center gap-12 z-10 w-full">
         {/* Left Section: Nexus Label */}
@@ -150,5 +149,6 @@ export function ViewerToolbar({
 
   );
 }
+
 
 

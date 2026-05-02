@@ -7,6 +7,8 @@ import { StudioFooter } from '@/components/studio/layout/StudioFooter';
 import { NeuralConsole } from '@/components/studio/NeuralConsole';
 import { NeuralErrorSentinel } from '@/components/studio/NeuralErrorSentinel';
 import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
+import { StudioLoading } from '@/components/studio/StudioLoading';
+import { DeferredRender } from '@/components/studio/DeferredRender';
 
 export const StudioLayout: React.FC = () => {
   const location = useLocation();
@@ -28,7 +30,7 @@ export const StudioLayout: React.FC = () => {
         {!collapsed && (
           <motion.div
             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(15px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             onClick={() => setCollapsed(true)}
             className="fixed inset-0 bg-black/60 z-[450] cursor-pointer"
@@ -46,19 +48,22 @@ export const StudioLayout: React.FC = () => {
           setCollapsed={setCollapsed} 
         />
 
-        <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
+        <div className="flex-1 overflow-y-auto relative flex flex-col">
           <div className="p-6 lg:p-10 flex-1 relative pb-32">
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={backdropTextureStyle} />
             <AnimatePresence>
               <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15, ease: "linear" }}
                 className="relative z-10 h-full"
+                style={{ willChange: 'opacity' }}
               >
-                <Outlet />
+                <DeferredRender delay={32} fallback={<StudioLoading fullPage={false} message="Rendering Module" submessage="Optimizing Visual Buffers..." />}>
+                  <Outlet />
+                </DeferredRender>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -73,5 +78,6 @@ export const StudioLayout: React.FC = () => {
     </div>
   );
 };
+
 
 
