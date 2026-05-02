@@ -13,8 +13,13 @@ import {
    Users,
    Command,
    Lock,
-   Mail,
-   Zap} from 'lucide-react';
+   Zap,
+   Trophy,
+   Activity,
+   CheckCircle2,
+   AlertCircle,
+   Cpu,
+   ShieldCheck} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,6 +30,8 @@ import { ProfileVault } from '@/components/profile/ProfileVault';
 import { ProfileLibrary } from '@/components/profile/ProfileLibrary';
 import { ProfileSettings } from '@/components/profile/ProfileSettings';
 import { ProfileSecurity } from '@/components/profile/ProfileSecurity';
+import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui/card';
 
 
 // Custom GitHub Icon SVG since Lucide-react doesn't include brand icons
@@ -33,6 +40,8 @@ export function ProfilePage() {
    const { user, loading: authLoading, signOut } = useAuth();
    const [loading, setLoading] = useState(true);
    const [saving, setSaving] = useState(false);
+   const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+   const [, setErrorMsg] = useState<string | null>(null);
    const [activeTab, setActiveTab] = useState<'vault' | 'library' | 'config' | 'security'>('vault');
 
    // Dialog States
@@ -73,6 +82,10 @@ export function ProfilePage() {
             if (!authLoading) setLoading(false);
             return;
          }
+         
+         setLoading(true);
+         setErrorMsg(null);
+         
          const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
          const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -87,16 +100,18 @@ export function ProfilePage() {
                fetch(`/api/settings/${user.id}`, { headers })
             ]);
 
+            if (!profileRes.ok) throw new Error("Neural identity node unreachable.");
+
             const profile = await profileRes.json();
             const balance = await balanceRes.json();
             const settings = await settingsRes.json();
 
-            setDisplayName(profile.display_name || 'Shogun Architect');
-            setHandle(profile.handle || `architect_${user.id.slice(0, 5)}`);
-            setBio(profile.bio || 'Architect of neural narratives.');
+            setDisplayName(profile.display_name || 'Architect');
+            setHandle(profile.handle || `user_${user.id.slice(0, 5)}`);
+            setBio(profile.bio || 'Architecting neural narratives.');
             setAvatarUrl(profile.avatar_url || '');
             setBannerUrl(profile.banner_url || '');
-            setJoinDate(new Date(profile.join_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
+            setJoinDate(new Date(profile.join_date || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
 
             setCredits(balance.credits || 0);
             setTier(balance.current_tier || 'Free');
@@ -112,18 +127,14 @@ export function ProfilePage() {
                setAspectRatio(settings.studio_defaults.aspectRatio || '16:9');
                setDefaultModelStyle(settings.studio_defaults.defaultModelStyle || 'Shonen');
                setTheme(settings.studio_defaults.theme || 'dark');
-               if (settings.studio_defaults.theme === 'light') {
-                  document.documentElement.classList.remove('dark');
-               } else {
-                  document.documentElement.classList.add('dark');
-               }
             }
             if (settings.notifications) {
                setEmailAlerts(settings.notifications.email || { upscale: true, generation: false, security: true });
             }
 
-         } catch (error) {
-            console.error("Neural fetch failed:", error);
+         } catch (error: any) {
+            console.error("Dossier retrieval failure:", error);
+            setErrorMsg(error.message || "Failed to establish secure link to dossier vault.");
          } finally {
             setLoading(false);
          }
@@ -135,6 +146,9 @@ export function ProfilePage() {
    const handleSave = async () => {
       if (!user) return;
       setSaving(true);
+      setSyncStatus('idle');
+      setErrorMsg(null);
+      
       const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
       const headers: HeadersInit = { 
          'Content-Type': 'application/json',
@@ -142,14 +156,13 @@ export function ProfilePage() {
       };
 
       try {
-         await fetch(`/api/profiles/${user.id}`, {
+         const profileUpdate = await fetch(`/api/profiles/${user.id}`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({
-               display_name: displayName, handle, bio, avatar_url: avatarUrl, banner_url: bannerUrl
-            })
+            body: JSON.stringify({ display_name: displayName, handle, bio, avatar_url: avatarUrl, banner_url: bannerUrl })
          });
-         await fetch(`/api/settings/${user.id}`, {
+
+         const settingsUpdate = await fetch(`/api/settings/${user.id}`, {
             method: 'POST',
             headers,
             body: JSON.stringify({
@@ -157,8 +170,18 @@ export function ProfilePage() {
                notifications: { email: emailAlerts }
             })
          });
+
+         if (profileUpdate.ok && settingsUpdate.ok) {
+            setSyncStatus('success');
+            setTimeout(() => setSyncStatus('idle'), 3000);
+         } else {
+            throw new Error("Authorization refused. Sync failed.");
+         }
+      } catch (err: any) {
+         setSyncStatus('error');
+         setErrorMsg(err.message || "Dossier sync failure.");
       } finally {
-         setTimeout(() => setSaving(false), 800);
+         setSaving(false);
       }
    };
 
@@ -218,54 +241,68 @@ export function ProfilePage() {
    const tabs = [
       { id: 'vault', label: 'Vault', icon: Grid },
       { id: 'library', label: 'Library', icon: BookOpen },
-      { id: 'config', label: 'Commands', icon: Command },
-      { id: 'security', label: 'Defense', icon: Lock }
+      { id: 'config', label: 'Directives', icon: Command },
+      { id: 'security', label: 'Security', icon: Lock }
    ];
 
 
 
    return (
       <div className={`max-w-[1400px] mx-auto space-y-12 pb-32 font-sans select-none ${theme === 'dark' ? 'bg-[#050505] text-white' : 'bg-zinc-50 text-black'}`}>
-         {/* 1. HERO HEADER */}
-         <div className="relative rounded-[2rem] md:rounded-[4rem] overflow-hidden border border-zinc-800/50 bg-black shadow-2xl group/hero">
-            <div className="relative min-h-[400px] md:h-[520px] overflow-hidden flex flex-col">
+         {/* 1. ARCHITECT HEADER SECTION */}
+         <div className="relative rounded-[3rem] overflow-hidden border border-white/5 bg-black/40 backdrop-blur-xl shadow-3xl group/hero">
+            <div className="relative min-h-[450px] md:h-[580px] flex flex-col">
                {bannerUrl ? (
-                  <img src={bannerUrl} className="absolute inset-0 w-full h-full object-cover opacity-40 md:opacity-60" alt="Banner" />
+                  <img src={bannerUrl} className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover/hero:scale-105 transition-transform duration-10000" alt="Banner" />
                ) : (
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-900 via-zinc-950 to-[#bd4a4a]/20" />
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-900 via-studio/10 to-fuchsia-500/10" />
                )}
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent" />
                
-               <div className="relative z-10 mt-auto p-6 md:p-16 flex flex-col md:flex-row items-start md:items-end gap-8 md:gap-12 w-full">
-                  <div className="w-32 h-32 md:w-48 md:h-48 rounded-3xl md:rounded-[3rem] bg-zinc-950 border-[4px] md:border-[6px] border-zinc-950 shadow-2xl overflow-hidden relative group/avatar shrink-0">
-                     {avatarUrl ? <img src={avatarUrl} className="w-full h-full object-cover" alt="Avatar" /> : <div className="w-full h-full flex items-center justify-center"><User className="w-12 md:w-20 h-12 md:h-20 text-zinc-900" /></div>}
-                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/avatar:opacity-100 transition-all flex items-center justify-center cursor-pointer"><Camera className="w-6 md:w-8 h-6 md:h-8 text-white" /></div>
-                  </div>
-                  
-                  <div className="flex-1 space-y-4 md:space-y-6 w-full">
-                     <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
-                        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} className="bg-transparent border-none p-0 h-auto text-3xl md:text-6xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-xl" placeholder="Architect Name" />
-                        <div className="flex gap-3">
-                           <div className="px-4 py-1 bg-[#bd4a4a] text-white text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-[0_0_30px_rgba(189,74,74,0.3)]">{tier} Tier</div>
-                           <div className="px-4 py-1 bg-zinc-900 border border-white/10 text-zinc-400 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] rounded-full flex items-center gap-2">
-                              <Zap className="w-3 h-3 text-[#bd4a4a]" />
-                              {credits.toLocaleString()} Credits
+               <div className="relative z-10 mt-auto p-8 md:p-16 flex flex-col md:flex-row items-start md:items-end gap-10 w-full">
+                  <div className="relative group/avatar shrink-0">
+                     <div className="w-32 h-32 md:w-56 md:h-56 rounded-[2.5rem] bg-zinc-950 border-[6px] border-zinc-950 shadow-2xl overflow-hidden">
+                        {avatarUrl ? (
+                           <img src={avatarUrl} className="w-full h-full object-cover" alt="Avatar" />
+                        ) : (
+                           <div className="w-full h-full flex items-center justify-center bg-zinc-900">
+                              <User className="w-16 h-16 text-zinc-800" />
                            </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer gap-2">
+                           <Camera className="w-8 h-8 text-white" />
+                           <span className="text-[10px] font-black uppercase tracking-widest text-white">Upload DNA</span>
                         </div>
                      </div>
-
-                     <div className="flex flex-wrap items-center gap-3 md:gap-6 text-zinc-500 font-black uppercase tracking-widest text-[8px] md:text-[10px]">
-                        <div className="flex items-center gap-2 bg-white/5 py-1 px-4 rounded-xl border border-white/5 backdrop-blur-md">
-                           <AtSign className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#bd4a4a]" />
-                           <input value={handle} onChange={(e) => setHandle(e.target.value)} className="bg-transparent border-none p-0 h-auto text-[10px] md:text-xs font-bold text-zinc-400 focus:outline-none w-24 md:w-32 lowercase tracking-widest" placeholder="handle" />
+                     <div className="absolute -bottom-4 -right-4 p-4 rounded-3xl bg-studio shadow-[0_0_20px_rgba(6,182,212,0.5)] border border-white/20">
+                        <ShieldCheck className="w-6 h-6 text-white" />
+                     </div>
+                  </div>
+                  
+                  <div className="flex-1 space-y-6 w-full">
+                     <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-4">
+                           <input 
+                              value={displayName} 
+                              onChange={(e) => setDisplayName(e.target.value)} 
+                              className="bg-transparent border-none p-0 h-auto text-4xl md:text-7xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-2xl" 
+                              placeholder="ARCHITECT NAME" 
+                           />
+                           <div className="flex gap-3">
+                              <div className="px-4 py-1.5 bg-studio/20 border border-studio/30 text-studio text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">{tier} PROTOCOL</div>
+                              <div className="px-4 py-1.5 bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">
+                                 {credits.toLocaleString()} NEURAL COINS
+                              </div>
+                           </div>
                         </div>
-                        <div className="hidden sm:flex items-center gap-2 bg-zinc-900/40 py-1 px-4 rounded-xl border border-white/5">
-                           <Mail className="w-3 h-3 md:w-3.5 md:h-3.5 text-blue-500/40" />
-                           <span className="text-[8px] md:text-[9px] lowercase tracking-widest">{user?.email || 'architect@studio.pro'}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                           <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#bd4a4a]/40" /> 
-                           <span className="whitespace-nowrap italic">Activated {joinDate}</span>
+                        <div className="flex items-center gap-2 group-hover/hero:translate-x-1 transition-transform">
+                           <AtSign className="w-4 h-4 text-studio" />
+                           <input 
+                              value={handle} 
+                              onChange={(e) => setHandle(e.target.value)} 
+                              className="bg-transparent border-none p-0 text-sm font-bold text-zinc-500 focus:outline-none lowercase tracking-[0.3em]" 
+                              placeholder="handle" 
+                           />
                         </div>
                      </div>
 
@@ -273,141 +310,266 @@ export function ProfilePage() {
                         <textarea 
                            value={bio} 
                            onChange={(e) => setBio(e.target.value)}
-                           className="bg-transparent border-none p-0 h-auto text-xs md:text-sm font-medium text-zinc-400 focus:outline-none w-full resize-none italic leading-relaxed"
-                           placeholder="Describe your architectural vision..."
+                           className="bg-transparent border-none p-0 w-full text-zinc-400 text-sm font-medium focus:outline-none resize-none italic leading-relaxed"
+                           placeholder="Define your architectural mission statement..."
                            rows={2}
                         />
                      </div>
 
-                     <div className="pt-2 md:pt-4 space-y-3">
-                        <div className="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.2em] text-zinc-500">
-                           <span>Architect Level {level}</span>
-                           <span>{experience.toLocaleString()} / {(level * 1000).toLocaleString()} EXP</span>
+                     <div className="flex flex-wrap items-center gap-8 pt-4">
+                        <div className="space-y-3 min-w-[280px]">
+                           <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+                              <div className="flex items-center gap-2">
+                                 <Cpu className="w-3 h-3 text-studio" />
+                                 <span>Neural Mastery Lvl {level}</span>
+                              </div>
+                              <span>{experience.toLocaleString()} / {(level * 2000).toLocaleString()} XP</span>
+                           </div>
+                           <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-white/5">
+                              <motion.div 
+                                 initial={{ width: 0 }}
+                                 animate={{ width: `${Math.min((experience / (level * 2000)) * 100, 100)}%` }}
+                                 className="h-full bg-gradient-to-r from-studio to-fuchsia-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                              />
+                           </div>
                         </div>
-                        <div className="h-1.5 md:h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-white/5">
-                           <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${Math.min((experience / (level * 1000)) * 100, 100)}%` }}
-                              className="h-full bg-gradient-to-r from-[#bd4a4a] to-[#ff5f5f] shadow-[0_0_15px_rgba(189,74,74,0.5)]"
-                           />
+                        <div className="flex items-center gap-3 py-2 px-5 bg-white/5 border border-white/10 rounded-2xl">
+                           <Calendar className="w-4 h-4 text-studio" />
+                           <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest italic">Node Activated {joinDate}</span>
                         </div>
                      </div>
                   </div>
 
-                  <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto pt-4 md:pt-0">
-                     <Button onClick={signOut} variant="outline" className="flex-1 md:flex-none border-zinc-800 text-zinc-500 hover:text-white hover:bg-white/5 rounded-2xl md:rounded-[2rem] px-6 md:px-8 h-12 md:h-16 font-black uppercase tracking-widest text-[8px] md:text-[9px] flex gap-3 transition-all">
-                        <LogOut className="w-3 h-3 md:w-3.5 md:h-3.5" /> Deactivate
+                  <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
+                     <Button 
+                        onClick={handleSave} 
+                        disabled={saving} 
+                        className={cn(
+                           "h-20 px-12 rounded-3xl font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 text-xs",
+                           syncStatus === 'success' ? "bg-emerald-500 hover:bg-emerald-600" :
+                           syncStatus === 'error' ? "bg-red-500 hover:bg-red-600" : "bg-studio hover:bg-studio/80"
+                        )}
+                     >
+                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 
+                         syncStatus === 'success' ? <CheckCircle2 className="w-5 h-5" /> :
+                         syncStatus === 'error' ? <AlertCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+                        {syncStatus === 'success' ? 'Synchronized' : syncStatus === 'error' ? 'Sync Refused' : 'Sync Dossier'}
                      </Button>
-                     <Button onClick={handleSave} disabled={saving} className="flex-[2] md:flex-none bg-[#bd4a4a] hover:bg-[#d45555] rounded-2xl md:rounded-[2rem] px-8 md:px-12 h-12 md:h-16 font-black uppercase tracking-widest text-[9px] md:text-[10px] flex gap-4 transition-all shadow-2xl text-white">
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Sync
+                     <Button 
+                        onClick={signOut} 
+                        variant="ghost" 
+                        className="h-14 rounded-2xl font-black uppercase tracking-widest text-zinc-600 hover:text-white hover:bg-white/5 transition-colors text-[10px]"
+                     >
+                        <LogOut className="w-3.5 h-3.5 mr-2" /> Deactivate Link
                      </Button>
                   </div>
                </div>
             </div>
          </div>
 
-         <div className="flex justify-center px-4 overflow-x-auto no-scrollbar">
-            <div className="flex bg-zinc-900/40 p-1.5 rounded-3xl md:rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-md shrink-0">
-               {tabs.map((tab) => (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 rounded-2xl md:rounded-[2rem] transition-all relative ${activeTab === tab.id ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>
-                     {activeTab === tab.id && <motion.div layoutId="tab-pill" className="absolute inset-0 bg-white/5 rounded-2xl md:rounded-[2.2rem] border border-white/10" />}
-                     <tab.icon className={`w-3.5 h-3.5 md:w-4 md:h-4 relative z-10 ${activeTab === tab.id ? 'text-[#bd4a4a]' : ''}`} />
-                     <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest relative z-10">{tab.label}</span>
-                  </button>
-               ))}
+         {/* 2. TELEMETRY & ACHIEVEMENTS */}
+         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            {/* LEFT: ACTIVITY & ACHIEVEMENTS */}
+            <div className="lg:col-span-8 space-y-12">
+               
+               {/* ACTIVITY TELEMETRY */}
+               <div className="space-y-6">
+                  <div className="flex items-center justify-between px-2">
+                     <div className="flex items-center gap-3">
+                        <Activity className="w-5 h-5 text-studio" />
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Neural Activity Telemetry</h2>
+                     </div>
+                     <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">Last 12 Solar Cycles</span>
+                  </div>
+                  <Card className="glass p-10 rounded-[3rem] border-white/5 flex gap-2 justify-between">
+                     {Array.from({ length: 48 }).map((_, i) => (
+                        <div 
+                           key={i} 
+                           className={cn(
+                              "w-3 h-12 rounded-full transition-all hover:scale-y-125 cursor-pointer",
+                              i % 7 === 0 ? "bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]" :
+                              i % 3 === 0 ? "bg-studio/40" : "bg-zinc-900"
+                           )}
+                           title={`${i + 1} transmissions detected`}
+                        />
+                     ))}
+                  </Card>
+               </div>
+
+               {/* TAB NAVIGATION */}
+               <div className="flex justify-center">
+                  <div className="flex bg-zinc-900/50 p-2 rounded-[2.5rem] border border-white/5 backdrop-blur-xl">
+                     {tabs.map((tab) => (
+                        <button 
+                           key={tab.id} 
+                           onClick={() => setActiveTab(tab.id as any)} 
+                           className={cn(
+                              "flex items-center gap-3 px-8 py-4 rounded-[2rem] transition-all relative",
+                              activeTab === tab.id ? "text-white" : "text-zinc-600 hover:text-zinc-400"
+                           )}
+                        >
+                           {activeTab === tab.id && (
+                              <motion.div layoutId="profile-tab" className="absolute inset-0 bg-white/5 border border-white/10 rounded-[2rem]" />
+                           )}
+                           <tab.icon className={cn("w-4 h-4 relative z-10", activeTab === tab.id && "text-studio")} />
+                           <span className="text-[10px] font-black uppercase tracking-[0.2em] relative z-10">{tab.label}</span>
+                        </button>
+                     ))}
+                  </div>
+               </div>
+
+               {/* TAB CONTENT */}
+               <div className="min-h-[600px]">
+                  <AnimatePresence mode="wait">
+                     <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                     >
+                        {activeTab === 'vault' && <ProfileVault generations={generations} favorites={favorites} />}
+                        {activeTab === 'library' && (
+                           <ProfileLibrary 
+                              savedPrompts={savedPrompts} 
+                              characters={characters} 
+                              onAddPrompt={() => setShowPromptModal(true)} 
+                              onAddDNA={() => setShowDNAModal(true)} 
+                           />
+                        )}
+                        {activeTab === 'config' && (
+                           <ProfileSettings 
+                              aspectRatio={aspectRatio} 
+                              setAspectRatio={setAspectRatio} 
+                              theme={theme} 
+                              toggleTheme={toggleTheme} 
+                              emailAlerts={emailAlerts} 
+                              setEmailAlerts={setEmailAlerts} 
+                           />
+                        )}
+                        {activeTab === 'security' && <ProfileSecurity onDeactivate={signOut} />}
+                     </motion.div>
+                  </AnimatePresence>
+               </div>
+            </div>
+
+            {/* RIGHT: ACHIEVEMENT SHELF & STATUS */}
+            <div className="lg:col-span-4 space-y-12">
+               
+               {/* ACHIEVEMENT SHELF */}
+               <div className="space-y-6">
+                  <div className="flex items-center gap-3 px-2">
+                     <Trophy className="w-5 h-5 text-fuchsia-500" />
+                     <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Achievement Shelf</h2>
+                  </div>
+                  <Card className="glass p-10 rounded-[3rem] border-white/5 space-y-8">
+                     {[
+                        { title: 'Neural Pioneer', desc: 'First 10 transmissions', icon: Zap, color: 'text-studio', bg: 'bg-studio/10' },
+                        { title: 'Master Architect', desc: 'Lvl 10 achieved', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+                        { title: 'Data Weaver', desc: '50 assets archived', icon: Command, color: 'text-fuchsia-500', bg: 'bg-fuchsia-500/10' },
+                     ].map((badge, idx) => (
+                        <div key={idx} className="flex items-center gap-6 group cursor-help">
+                           <div className={cn("p-4 rounded-2xl transition-all group-hover:scale-110", badge.bg, badge.color)}>
+                              <badge.icon className="w-6 h-6" />
+                           </div>
+                           <div className="space-y-1">
+                              <h4 className="text-sm font-bold text-white uppercase tracking-tight">{badge.title}</h4>
+                              <p className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">{badge.desc}</p>
+                           </div>
+                        </div>
+                     ))}
+                     <Button variant="outline" className="w-full border-zinc-800 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white">
+                        View All Achievements
+                     </Button>
+                  </Card>
+               </div>
+
+               {/* NODE INTEGRITY */}
+               <Card className="glass p-10 rounded-[3rem] border-white/5 bg-gradient-to-br from-studio/5 to-transparent">
+                  <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500 mb-8">Node Integrity Monitor</h3>
+                  <div className="space-y-8">
+                     <div className="flex flex-col items-center justify-center p-10 rounded-full border-[8px] border-zinc-900 w-48 h-48 mx-auto relative">
+                        <div className="absolute inset-0 rounded-full border-[8px] border-studio border-t-transparent animate-spin-slow opacity-20" />
+                        <span className="text-5xl font-black text-white italic tracking-tighter">88%</span>
+                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Optimized</span>
+                     </div>
+                     <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest text-center leading-relaxed">
+                        Identity node is performing at peak efficiency. Complete dossier setup for 100% sync.
+                     </p>
+                  </div>
+               </Card>
             </div>
          </div>
 
-         {/* 3. CONTENT */}
-         <div className="px-6 min-h-[500px]">
-            <AnimatePresence mode="wait">
-               {activeTab === 'vault' && (
-                  <ProfileVault 
-                     generations={generations} 
-                     favorites={favorites} 
-                  />
-               )}
-
-               {activeTab === 'library' && (
-                  <ProfileLibrary 
-                     savedPrompts={savedPrompts} 
-                     characters={characters} 
-                     onAddPrompt={() => setShowPromptModal(true)} 
-                     onAddDNA={() => setShowDNAModal(true)} 
-                  />
-               )}
-
-               {activeTab === 'config' && (
-                  <ProfileSettings 
-                     aspectRatio={aspectRatio} 
-                     setAspectRatio={setAspectRatio} 
-                     theme={theme} 
-                     toggleTheme={toggleTheme} 
-                     emailAlerts={emailAlerts} 
-                     setEmailAlerts={setEmailAlerts} 
-                  />
-               )}
-
-               {activeTab === 'security' && (
-                  <ProfileSecurity onDeactivate={signOut} />
-               )}
-            </AnimatePresence>
-         </div>
-
-         {/* 4. MODALS */}
+         {/* 3. MODALS */}
          <Dialog open={showPromptModal} onOpenChange={setShowPromptModal}>
-            <DialogContent className="bg-zinc-950 border-zinc-800 rounded-[3rem] p-10 font-sans max-w-xl text-white">
-               <DialogHeader className="space-y-3">
+            <DialogContent className="bg-[#0a0a0b] border-white/5 rounded-[3rem] p-12 max-w-xl text-white shadow-3xl">
+               <DialogHeader className="space-y-4">
                   <DialogTitle className="text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3">
-                     <Command className="w-7 h-7 text-[#bd4a4a]" /> Forge Template
+                     <Command className="w-8 h-8 text-studio" /> Forge Blueprint
                   </DialogTitle>
-                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Define a reusable neural blueprint for rapid generation.</DialogDescription>
+                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Initialize a reusable neural transmission template.</DialogDescription>
                </DialogHeader>
-               <div className="space-y-8 py-8">
+               <div className="space-y-8 py-10">
                   <div className="space-y-3">
-                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Template Label</Label>
-                     <Input value={newPrompt.label} onChange={(e) => setNewPrompt({ ...newPrompt, label: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-14 text-white font-bold" placeholder="Cyberpunk 1990s Noir" />
+                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Protocol Name</Label>
+                     <Input value={newPrompt.label} onChange={(e) => setNewPrompt({ ...newPrompt, label: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" placeholder="CYBERPUNK_NOIR_01" />
                   </div>
                   <div className="space-y-3">
-                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Neural Directives (Prompt)</Label>
-                     <textarea value={newPrompt.text} onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })} className="w-full bg-zinc-900 border-zinc-800 rounded-2xl p-6 text-white font-medium text-sm min-h-[150px] focus:outline-none focus:border-[#bd4a4a]/50" placeholder="1990s cel-shaded anime style, gritty city streets, neon haze..." />
+                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Directives (Neural Text)</Label>
+                     <textarea value={newPrompt.text} onChange={(e) => setNewPrompt({ ...newPrompt, text: e.target.value })} className="w-full bg-zinc-900 border-zinc-800 rounded-[2rem] p-8 text-white font-medium text-sm min-h-[180px] focus:outline-none focus:border-studio/50 transition-all" placeholder="Enter production directives..." />
                   </div>
                </div>
                <DialogFooter>
-                  <Button onClick={addPrompt} className="w-full h-16 bg-[#bd4a4a] text-white font-black uppercase tracking-[0.3em] text-[10px] rounded-[2rem] shadow-2xl">Initialize Template</Button>
+                  <Button onClick={addPrompt} className="w-full h-20 bg-studio text-white font-black uppercase tracking-[0.4em] text-xs rounded-[2rem] shadow-2xl hover:bg-studio/80">Authorize Protocol</Button>
                </DialogFooter>
             </DialogContent>
          </Dialog>
 
          <Dialog open={showDNAModal} onOpenChange={setShowDNAModal}>
-            <DialogContent className="bg-zinc-950 border-zinc-800 rounded-[3rem] p-10 font-sans max-w-2xl text-white">
-               <DialogHeader className="space-y-3">
+            <DialogContent className="bg-[#0a0a0b] border-white/5 rounded-[4rem] p-12 max-w-2xl text-white shadow-3xl">
+               <DialogHeader className="space-y-4">
                   <DialogTitle className="text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-3">
-                     <Users className="w-7 h-7 text-[#bd4a4a]" /> Forge DNA Sheet
+                     <Users className="w-8 h-8 text-fuchsia-500" /> DNA Sequencing
                   </DialogTitle>
-                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Lock in visual consistency for a reusable cast member.</DialogDescription>
+                  <DialogDescription className="text-xs font-black text-zinc-600 uppercase tracking-widest">Establish visual consistency for recurring cast members.</DialogDescription>
                </DialogHeader>
-               <div className="grid grid-cols-2 gap-10 py-8">
+               <div className="grid grid-cols-2 gap-12 py-10">
                   <div className="space-y-8">
                      <div className="space-y-3">
-                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Character Identity</Label>
-                        <Input value={newDNA.name} onChange={(e) => setNewDNA({ ...newDNA, name: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-14 text-white font-bold" placeholder="Protagonist X" />
+                        <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Subject ID</Label>
+                        <Input value={newDNA.name} onChange={(e) => setNewDNA({ ...newDNA, name: e.target.value })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" placeholder="PROTAGONIST_ALPHA" />
                      </div>
                      <div className="space-y-3">
                         <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Neural Seed</Label>
-                        <Input type="number" value={newDNA.seed} onChange={(e) => setNewDNA({ ...newDNA, seed: parseInt(e.target.value) })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-14 text-white font-bold" />
+                        <Input type="number" value={newDNA.seed} onChange={(e) => setNewDNA({ ...newDNA, seed: parseInt(e.target.value) })} className="bg-zinc-900 border-zinc-800 rounded-2xl h-16 text-white font-bold px-6" />
                      </div>
                   </div>
                   <div className="space-y-3">
-                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Visual DNA (Prompt)</Label>
-                     <textarea value={newDNA.prompt} onChange={(e) => setNewDNA({ ...newDNA, prompt: e.target.value })} className="w-full bg-zinc-900 border-zinc-800 rounded-2xl p-6 text-white font-medium text-sm min-h-[185px] focus:outline-none focus:border-[#bd4a4a]/50" placeholder="A teenage shonen protagonist with spiky white hair, wearing a red techwear jacket..." />
+                     <Label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Visual DNA (Physical Traits)</Label>
+                     <textarea value={newDNA.prompt} onChange={(e) => setNewDNA({ ...newDNA, prompt: e.target.value })} className="w-full bg-zinc-900 border-zinc-800 rounded-[2rem] p-8 text-white font-medium text-sm min-h-[220px] focus:outline-none focus:border-fuchsia-500/50 transition-all" placeholder="Define visual markers..." />
                   </div>
                </div>
                <DialogFooter>
-                  <Button onClick={addDNA} className="w-full h-16 bg-[#bd4a4a] text-white font-black uppercase tracking-[0.3em] text-[10px] rounded-[2rem] shadow-2xl">Authorize DNA Transfer</Button>
+                  <Button onClick={addDNA} className="w-full h-20 bg-fuchsia-500 text-white font-black uppercase tracking-[0.4em] text-xs rounded-[2rem] shadow-2xl hover:bg-fuchsia-400 transition-all">Authorize DNA Link</Button>
                </DialogFooter>
             </DialogContent>
          </Dialog>
+
+         <style>{`
+            .glass {
+               background: rgba(10, 10, 11, 0.4);
+               backdrop-filter: blur(16px);
+               -webkit-backdrop-filter: blur(16px);
+            }
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            @keyframes spin-slow {
+               from { transform: rotate(0deg); }
+               to { transform: rotate(360deg); }
+            }
+            .animate-spin-slow { animation: spin-slow 12s linear infinite; }
+         `}</style>
       </div>
    );
 }
