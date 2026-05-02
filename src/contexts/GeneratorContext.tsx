@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { apiRequest } from '@/lib/api-utils';
 import { ProductionUnit } from '@/lib/sequence-utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -47,6 +47,7 @@ interface GeneratorContextType {
   setRecapperPersona: (p: string) => void;
   characterRelationships: string | null;
   setCharacterRelationships: (r: string | null) => void;
+  syncCore: () => Promise<void>;
   masterLogs: any[];
   addLog: (module: string, status: string, message?: string) => void;
   tone: string;
@@ -156,7 +157,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [characterRelationships, setCharacterRelationships] = useState<string | null>(null);
   const [masterLogs, setMasterLogs] = useState<any[]>([]);
 
-  const addLog = (module: string, status: string, message?: string) => {
+  const addLog = useCallback((module: string, status: string, message?: string) => {
     const newLog = {
       id: Math.random().toString(36).substr(2, 9),
       created_at: new Date().toISOString(),
@@ -164,8 +165,21 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
       status,
       message
     };
+    
+    // Styled Console Output for Master Logs
+    const moduleColor = module === 'NEURAL_ENGINE' ? '#8b5cf6' : '#3b82f6';
+    const statusColor = status === 'ERROR' || status === 'FAILED' ? '#ef4444' : 
+                      status === 'COMPLETED' || status === 'SUCCESS' ? '#10b981' : '#f59e0b';
+
+    console.info(
+      `%c[${module}] %c${status} %c${message || ''}`,
+      `color: ${moduleColor}; font-weight: bold;`,
+      `color: ${statusColor}; font-weight: 800; text-transform: uppercase;`,
+      'color: #94a3b8;'
+    );
+
     setMasterLogs(prev => [newLog, ...prev].slice(0, 50));
-  };
+  }, []);
   const [tone, setTone] = useState('Hype/Energetic');
   const [audience, setAudience] = useState('General Fans');
   const [episode, setEpisode] = useState('1');
@@ -215,10 +229,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  const showNotification = (message: string, type: 'error' | 'success' | 'info' = 'info') => {
+  const showNotification = useCallback((message: string, type: 'error' | 'success' | 'info' = 'info') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
-  };
+  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -229,7 +243,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     const fetchHistory = async () => {
       if (!user?.id) return;
       try {
-        const projects = await apiRequest<any[]>(`/api/projects?user_id=${user.id}`);
+        const projects = await apiRequest<any[]>(`/api/projects?user_id=${user.id}`, { label: 'Project History' });
         setHistory((projects || []).map(p => ({
           id: p.id,
           title: p.name || 'Untitled',
@@ -241,7 +255,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           modelUsed: p.model_used
         })));
       } catch (error) {
-        console.error("Failed to fetch history:", error);
+        console.error("%c[Frontend] %cFailed to fetch history:", 'color: #3b82f6; font-weight: bold', 'color: #94a3b8', error);
       }
     };
 
@@ -282,6 +296,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         if (production) {
           setCastProfiles(production.cast_profiles);
           setCastData(production.cast_data);
+          setCharacterRelationships(production.cast_relationships);
           setGeneratedScript(production.script_content);
           setGeneratedSeriesPlan(production.series_plan);
           setGeneratedMetadata(production.seo_metadata);
@@ -290,7 +305,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           setIsProductionInitialized(true);
         }
       } catch (error) {
-        console.error("Critical error loading modular studio data:", error);
+        console.error("%c[System] %cCriticall error loading modular studio data:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
       }
     };
 
@@ -311,7 +326,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           audience: audience
         });
       } catch (error) {
-        console.warn("Engine sync failed:", error);
+        console.warn("%c[System] %cEngine sync failed:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', error);
       }
     }, 5000);
 
@@ -333,7 +348,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           full_lore_blob: generatedWorld
         });
       } catch (error) {
-        console.warn("Lore sync failed:", error);
+        console.warn("%c[System] %cLore sync failed:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', error);
       }
     }, 5000);
 
@@ -349,6 +364,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
         await productionApi.updateContent(user.id, {
           cast_profiles: castProfiles,
           cast_data: castData,
+          cast_relationships: characterRelationships,
           script_content: generatedScript,
           series_plan: generatedSeriesPlan,
           seo_metadata: generatedMetadata,
@@ -356,14 +372,77 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           distribution_plan: generatedDistributionPlan
         });
       } catch (error) {
-        console.error("Failed to sync production content:", error);
+        console.error("%c[System] %cFailed to sync production content:", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error);
       }
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, castProfiles, castData, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, isProductionInitialized]);
+  }, [user?.id, castProfiles, castData, characterRelationships, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, visualData, videoData, isProductionInitialized]);
 
-  // Neural Telemetry Sync
+  const syncCore = useCallback(async () => {
+    if (!user?.id) {
+      showNotification("Authentication required for synchronization", "error");
+      return;
+    }
+
+    setIsSaving(true);
+    addLog("SYNC", "INITIALIZED", "Initiating global state synchronization protocol...");
+    showNotification("Synchronizing Core Manifest...", "info");
+
+    try {
+      // PHASE 1: Neural Config Sync
+      addLog("ENGINE", "SYNCING", "Synchronizing neural parameters and config...");
+      await engineApi.updateConfig(user.id, {
+        temperature,
+        max_tokens: maxTokens,
+        selected_model: selectedModel,
+        vibe: tone,
+        audience: audience
+      });
+      addLog("ENGINE", "COMPLETED", "Neural configuration synchronized.");
+
+      // PHASE 2: World Lore Sync
+      addLog("WORLD", "SYNCING", "Writing World Lore assets to neural archive...");
+      await worldApi.updateLore(user.id, {
+        architecture,
+        atlas,
+        history: historyLore,
+        systems,
+        culture,
+        full_lore_blob: generatedWorld
+      });
+      addLog("WORLD", "COMPLETED", "World Lore synchronized.");
+
+      // PHASE 3: Production Asset Sync (Tabs data)
+      addLog("PRODUCTION", "SYNCING", "Persisting Cast, Series, and Script manifests...");
+      await productionApi.updateContent(user.id, {
+        cast_profiles: castProfiles,
+        cast_data: castData,
+        cast_relationships: characterRelationships,
+        script_content: generatedScript,
+        series_plan: generatedSeriesPlan,
+        seo_metadata: generatedMetadata,
+        growth_strategy: generatedGrowthStrategy,
+        distribution_plan: generatedDistributionPlan,
+        storyboard: {
+          visuals: visualData,
+          videos: videoData
+        }
+      });
+      addLog("PRODUCTION", "COMPLETED", "All production tabs synchronized.");
+
+      showNotification("CORE SYNCHRONIZED", "success");
+      addLog("CORE", "SUCCESS", "Full system state synchronized with central database.");
+    } catch (error: any) {
+      console.error("Core Sync Failed:", error);
+      showNotification("SYNCHRONIZATION FAILURE", "error");
+      addLog("CORE", "FAILURE", `Sync failed: ${error.message || 'Network error'}`);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, architecture, atlas, historyLore, systems, culture, generatedWorld, castProfiles, castData, characterRelationships, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, visualData, videoData, addLog, showNotification]);
+
+  // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {
     const handleTelemetry = async (e: any) => {
       try {
@@ -377,78 +456,113 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
           metadata: { fallbacks: e.detail.fallbacks }
         }, user?.id);
       } catch (err) {
-        console.warn("Failed to record remote telemetry:", err);
+        console.warn("%c[System] %cFailed to record remote telemetry:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', err);
       }
     };
 
+    const handleStart = (e: any) => {
+      addLog("NEURAL_ENGINE", "INITIALIZED", `Activating ${e.detail.model} for synthesis...`);
+    };
+
+    const handleComplete = (e: any) => {
+      addLog("NEURAL_ENGINE", "COMPLETED", `Synthesis finished via ${e.detail.model} (${e.detail.latency.toFixed(0)}ms)`);
+    };
+
+    const handleFallback = (e: any) => {
+      addLog("NEURAL_ENGINE", "RETRYING", `Switching from ${e.detail.failedModel} to ${e.detail.nextModel} due to friction.`);
+    };
+
     AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
-    return () => AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
-  }, [user?.id]);
+    AI_EVENTS.addEventListener('ai_generation_start', handleStart as EventListener);
+    AI_EVENTS.addEventListener('ai_generation_complete', handleComplete as EventListener);
+    AI_EVENTS.addEventListener('ai_fallback', handleFallback as EventListener);
+
+    return () => {
+      AI_EVENTS.removeEventListener('ai_generation_complete', handleTelemetry);
+      AI_EVENTS.removeEventListener('ai_generation_start', handleStart as EventListener);
+      AI_EVENTS.removeEventListener('ai_generation_complete', handleComplete as EventListener);
+      AI_EVENTS.removeEventListener('ai_fallback', handleFallback as EventListener);
+    };
+  }, [user?.id, addLog]);
+
+  const value = useMemo(() => ({
+    worldLore: generatedWorld,
+    seriesPlan: generatedSeriesPlan,
+    storyboardPrompts: generatedImagePrompts,
+    seoMetadata: generatedMetadata,
+    prompt, setPrompt,
+    theme, setTheme,
+    generatedScript, setGeneratedScript,
+    generatedCharacters, setGeneratedCharacters,
+    generatedMetadata, setGeneratedMetadata,
+    generatedImagePrompts, setGeneratedImagePrompts,
+    generatedSeriesPlan, setGeneratedSeriesPlan,
+    generatedDescription, setGeneratedDescription,
+
+    castProfiles, setCastProfiles,
+    castData, setCastData,
+    castList, setCastList,
+    masterLogs, addLog,
+    recapperPersona, setRecapperPersona,
+    characterRelationships, setCharacterRelationships,
+    syncCore,
+    tone, setTone,
+    audience, setAudience,
+    episode, setEpisode,
+    session, setSession,
+    numScenes, setNumScenes,
+    contentType, setContentType,
+    selectedModel, setSelectedModel,
+    isLoading, setIsLoading,
+    isGeneratingCharacters, setIsGeneratingCharacters,
+    isGeneratingMetadata, setIsGeneratingMetadata,
+    isGeneratingImagePrompts, setIsGeneratingImagePrompts,
+    isGeneratingSeries, setIsGeneratingSeries,
+    isGeneratingDescription, setIsGeneratingDescription,
+    isGeneratingWorld, setIsGeneratingWorld,
+    isEditing, setIsEditing,
+    isSaving, setIsSaving,
+    isContinuingScript, setIsContinuingScript,
+    isGeneratingVisuals, setIsGeneratingVisuals,
+    isGeneratingAltText, setIsGeneratingAltText,
+    currentScriptId, setCurrentScriptId,
+    history,
+    productionSequence, setProductionSequence,
+    visualData, setVisualData,
+    videoData, setVideoData,
+    generatedWorld, setGeneratedWorld,
+    generatedAltText, setGeneratedAltText,
+    isLiked, setIsLiked,
+    isFullscreen, setIsFullscreen,
+    notification, showNotification,
+    temperature, setTemperature,
+    maxTokens, setMaxTokens,
+    topP, setTopP,
+    topK, setTopK,
+    architecture, setArchitecture,
+    atlas, setAtlas,
+    historyLore, setHistoryLore,
+    systems, setSystems,
+    culture, setCulture,
+    generatedGrowthStrategy, setGeneratedGrowthStrategy,
+    isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
+    generatedDistributionPlan, setGeneratedDistributionPlan,
+    isGeneratingDistribution, setIsGeneratingDistribution
+  }), [
+    generatedWorld, generatedSeriesPlan, generatedImagePrompts, generatedMetadata, prompt, theme,
+    generatedScript, generatedCharacters, generatedDescription, castProfiles, castData, castList,
+    masterLogs, addLog, recapperPersona, characterRelationships, syncCore, tone, audience, episode,
+    session, numScenes, contentType, selectedModel, isLoading, isGeneratingCharacters,
+    isGeneratingMetadata, isGeneratingImagePrompts, isGeneratingSeries, isGeneratingDescription,
+    isGeneratingWorld, isEditing, isSaving, isContinuingScript, isGeneratingVisuals,
+    isGeneratingAltText, currentScriptId, history, productionSequence, visualData, videoData,
+    generatedAltText, isLiked, isFullscreen, notification, showNotification, temperature,
+    maxTokens, topP, topK, architecture, atlas, historyLore, systems, culture,
+    generatedGrowthStrategy, isGeneratingGrowthStrategy, generatedDistributionPlan, isGeneratingDistribution
+  ]);
 
   return (
-    <GeneratorContext.Provider value={{
-      worldLore: generatedWorld,
-      seriesPlan: generatedSeriesPlan,
-      storyboardPrompts: generatedImagePrompts,
-      seoMetadata: generatedMetadata,
-      prompt, setPrompt,
-      theme, setTheme,
-      generatedScript, setGeneratedScript,
-      generatedCharacters, setGeneratedCharacters,
-      generatedMetadata, setGeneratedMetadata,
-      generatedImagePrompts, setGeneratedImagePrompts,
-      generatedSeriesPlan, setGeneratedSeriesPlan,
-      generatedDescription, setGeneratedDescription,
-
-      castProfiles, setCastProfiles,
-      castData, setCastData,
-      castList, setCastList,
-      masterLogs, addLog,
-      recapperPersona, setRecapperPersona,
-      characterRelationships, setCharacterRelationships,
-      tone, setTone,
-      audience, setAudience,
-      episode, setEpisode,
-      session, setSession,
-      numScenes, setNumScenes,
-      contentType, setContentType,
-      selectedModel, setSelectedModel,
-      isLoading, setIsLoading,
-      isGeneratingCharacters, setIsGeneratingCharacters,
-      isGeneratingMetadata, setIsGeneratingMetadata,
-      isGeneratingImagePrompts, setIsGeneratingImagePrompts,
-      isGeneratingSeries, setIsGeneratingSeries,
-      isGeneratingDescription, setIsGeneratingDescription,
-      isGeneratingWorld, setIsGeneratingWorld,
-      isEditing, setIsEditing,
-      isSaving, setIsSaving,
-      isContinuingScript, setIsContinuingScript,
-      isGeneratingVisuals, setIsGeneratingVisuals,
-      isGeneratingAltText, setIsGeneratingAltText,
-      currentScriptId, setCurrentScriptId,
-      history,
-      productionSequence, setProductionSequence,
-      visualData, setVisualData,
-      videoData, setVideoData,
-      generatedWorld, setGeneratedWorld,
-      generatedAltText, setGeneratedAltText,
-      isLiked, setIsLiked,
-      isFullscreen, setIsFullscreen,
-      notification, showNotification,
-      temperature, setTemperature,
-      maxTokens, setMaxTokens,
-      topP, setTopP,
-      topK, setTopK,
-      architecture, setArchitecture,
-      atlas, setAtlas,
-      historyLore, setHistoryLore,
-      systems, setSystems,
-      culture, setCulture,
-      generatedGrowthStrategy, setGeneratedGrowthStrategy,
-      isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
-      generatedDistributionPlan, setGeneratedDistributionPlan,
-      isGeneratingDistribution, setIsGeneratingDistribution
-    }}>
+    <GeneratorContext.Provider value={value}>
       {children}
       {notification && (
         <div className={`fixed bottom-8 right-8 z-[100] p-4 rounded-2xl border backdrop-blur-xl animate-in slide-in-from-right-10 duration-500 shadow-2xl ${notification.type === 'error' ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' :

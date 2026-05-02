@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGenerator } from '../../../../hooks/useGenerator';
 import { useAuth } from '../../../../hooks/useAuth';
@@ -14,7 +14,6 @@ export const CastContext = React.createContext<{
 export default function CastLayout() {
   const navigate = useNavigate();
   const [handlers, setHandlers] = React.useState<any>({});
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     isGeneratingCharacters, setIsGeneratingCharacters,
@@ -22,35 +21,14 @@ export default function CastLayout() {
     setCastData, setCastList, setGeneratedCharacters, setCharacterRelationships,
     session, episode, showNotification,
     generatedCharacters,
-    isSaving, setIsSaving,
-    castProfiles, castData, generatedSeriesPlan, generatedMetadata, generatedScript
+    isSaving,
+    syncCore
   } = useGenerator();
 
-  const { user } = useAuth();
+  useAuth();
 
   const handleSave = async () => {
-    if (!user?.id) {
-      showNotification?.('Authentication Required', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const { productionApi } = await import('../../../../services/api/production');
-      await productionApi.updateContent(user.id, {
-        cast_profiles: castProfiles,
-        cast_data: castData,
-        script_content: generatedScript,
-        series_plan: generatedSeriesPlan,
-        seo_metadata: generatedMetadata
-      });
-      showNotification?.('Cast Manifest Synchronized', 'success');
-    } catch (e) {
-      console.error("Manual sync failed:", e);
-      showNotification?.('Sync Error', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    await syncCore();
   };
 
   const handleGenerate = async () => {
@@ -86,10 +64,36 @@ export default function CastLayout() {
     }
   };
 
-  const activeTab = (searchParams.get('tab') as CastTab) || 'registry';
+  const location = useLocation();
+  
+  const getActiveTab = (): CastTab => {
+    const path = location.pathname;
+    if (path.includes('/cast/relationships') || path.includes('/cast/matrix')) return 'matrix';
+    if (path.includes('/cast/characters')) return 'characters';
+    if (path.includes('/cast/integrity')) return 'integrity';
+    if (path.includes('/cast/add-lead')) return 'add-lead';
+    if (path.includes('/cast/dna')) return 'dna';
+    if (path.includes('/cast/dynamics')) return 'dynamics';
+    
+    // Default based on path
+    if (path.endsWith('/cast')) return 'registry';
+    
+    return 'registry';
+  };
+
+  const activeTab = getActiveTab();
   
   const handleTabChange = (tab: CastTab) => {
-    setSearchParams({ tab });
+    const base = `/${contentType.toLowerCase()}/cast`;
+    if (tab === 'matrix') {
+      navigate(`${base}/relationships`);
+    } else if (tab === 'characters') {
+      navigate(`${base}/characters`);
+    } else if (tab === 'registry') {
+      navigate(base);
+    } else {
+      navigate(`${base}/${tab}`);
+    }
   };
 
 

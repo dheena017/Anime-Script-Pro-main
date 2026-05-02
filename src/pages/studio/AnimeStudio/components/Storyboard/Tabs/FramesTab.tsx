@@ -1,5 +1,6 @@
 import React from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { cn } from '@/lib/utils';
 import { SceneCard } from '../SceneCard';
 import { EmptyState } from '../EmptyState';
 
@@ -18,6 +19,7 @@ interface FramesTabProps {
   scenes: Scene[];
   visualData: Record<number, string[]>;
   videoData: Record<number, string>;
+  viewMode?: 'grid' | 'list';
   promptList: string[];
   editingSceneId: string | null;
   editForm: Partial<Scene>;
@@ -44,6 +46,7 @@ export const FramesTab: React.FC<FramesTabProps> = ({
   scenes,
   visualData,
   videoData,
+  viewMode = 'list',
   promptList,
   editingSceneId,
   editForm,
@@ -84,7 +87,10 @@ export const FramesTab: React.FC<FramesTabProps> = ({
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className="grid grid-cols-1 xl:grid-cols-2 gap-8 pb-10"
+            className={cn(
+              "gap-12 pb-10",
+              viewMode === 'grid' ? "grid grid-cols-1 lg:grid-cols-2" : "grid grid-cols-1"
+            )}
           >
             {scenes.map((scene, idx) => (
               <Draggable key={scene.id} draggableId={scene.id} index={idx}>

@@ -26,13 +26,15 @@ export interface TelemetryData {
 export const engineApi = {
   getConfig: async (userId: string): Promise<EngineConfig> => {
     return apiRequest<EngineConfig>(`${API_BASE}/config/${userId}`, {
-      method: 'GET'
+      method: 'GET',
+      label: 'Get Engine Config'
     });
   },
 
   updateConfig: async (userId: string, update: Partial<EngineConfig>): Promise<EngineConfig> => {
     return apiRequest<EngineConfig>(`${API_BASE}/config/${userId}`, {
       method: 'POST',
+      label: 'Update Engine Config',
       body: JSON.stringify(update)
     });
   },
@@ -40,6 +42,7 @@ export const engineApi = {
   recordTelemetry: async (data: TelemetryData, userId?: string): Promise<void> => {
     await apiRequest(`${API_BASE}/telemetry${userId ? `?user_id=${userId}` : ''}`, {
       method: 'POST',
+      label: 'Record Telemetry',
       body: JSON.stringify(data)
     });
   },

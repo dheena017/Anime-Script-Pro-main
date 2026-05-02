@@ -14,6 +14,7 @@ import { ArcsTab } from './components/Series/Tabs/ArcsTab';
 import { AssetsTab } from './components/Series/Tabs/AssetsTab';
 import { TimelineTab } from './components/Series/Tabs/TimelineTab';
 import { SeriesEmptyState } from './components/Series/SeriesEmptyState';
+import EpisodesPage from './Series/Episodes/EpisodesPage';
 
 export function SeriesPage() {
   const navigate = useNavigate();
@@ -128,8 +129,13 @@ export function SeriesPage() {
               setEpisode(epNum);
               navigate(`/${contentType.toLowerCase()}/script`);
             }}
+            onViewEpisode={(epNum) => {
+              navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
+            }}
           />
         );
+      case 'episodes':
+        return <EpisodesPage />;
       case 'blueprint':
         return (
           <BlueprintTab 
@@ -157,6 +163,9 @@ export function SeriesPage() {
             onFocusEpisode={(epNum) => {
               setEpisode(epNum);
               navigate(`/${contentType.toLowerCase()}/script`);
+            }}
+            onViewEpisode={(epNum) => {
+              navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
             }}
           />
         );

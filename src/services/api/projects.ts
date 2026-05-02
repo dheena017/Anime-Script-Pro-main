@@ -30,7 +30,7 @@ export const projectService = {
 
   async getProjects(): Promise<Project[]> {
     try {
-      return await apiRequest<Project[]>('/api/projects');
+      return await apiRequest<Project[]>('/api/projects', { label: 'Project List' });
     } catch (e) {
       console.error("Error fetching projects:", e);
       return [];
@@ -39,7 +39,7 @@ export const projectService = {
 
   async getProject(projectId: number): Promise<Project | null> {
     try {
-      return await apiRequest<Project>(`/api/projects/${projectId}`);
+      return await apiRequest<Project>(`/api/projects/${projectId}`, { label: `Project Details [ID:${projectId}]` });
     } catch (e) {
       console.error(`Error fetching project ${projectId}:`, e);
       return null;
@@ -50,6 +50,7 @@ export const projectService = {
     try {
       return await apiRequest<Project>('/api/projects', {
         method: 'POST',
+        label: 'Create Project',
         body: JSON.stringify(projectData)
       });
     } catch (e) {
@@ -62,6 +63,7 @@ export const projectService = {
     try {
       return await apiRequest<Project>(`/api/projects/${projectId}`, {
         method: 'PATCH',
+        label: 'Update Project',
         body: JSON.stringify(projectData)
       });
     } catch (e) {
@@ -73,7 +75,8 @@ export const projectService = {
   async deleteProject(projectId: number): Promise<boolean> {
     try {
       const response = await apiRequest<any>(`/api/projects/${projectId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        label: 'Delete Project'
       });
       return response.ok === true;
     } catch (e) {

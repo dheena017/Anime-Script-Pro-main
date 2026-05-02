@@ -7,7 +7,9 @@ class Project(SQLModel, table=True):
     __table_args__ = {"extend_existing": True}
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
-    title: str
+    title: Optional[str] = Field(default=None)
+    name: Optional[str] = Field(default=None)
+    vibe: Optional[str] = Field(default=None)
     content_type: str = Field(default="ANIME")
     genre: Optional[str] = None
     art_style: Optional[str] = None
@@ -41,12 +43,16 @@ class Episode(SQLModel, table=True):
     __table_args__ = {"extend_existing": True}
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(index=True)
+    user_id: Optional[str] = Field(default=None, index=True)
     session_id: Optional[int] = Field(default=None, foreign_key="sessions.id")
     episode_number: int
     title: str
     hook: Optional[str] = None
-    summary: Optional[str] = None
+    synopsis: Optional[str] = None
+    runtime: Optional[str] = Field(default="24:00")
+    asset_matrix: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = Field(default=True, index=True)
 
 class Scene(SQLModel, table=True):
@@ -123,6 +129,7 @@ class ProjectContent(SQLModel, table=True):
     # Cast & Character Data
     cast_profiles: Optional[str] = Field(default=None)
     cast_data: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
+    cast_relationships: Optional[str] = Field(default=None)
     
     # Narrative Data
     scenes: List[Dict[str, Any]] = Field(default_factory=list, sa_type=JSON)

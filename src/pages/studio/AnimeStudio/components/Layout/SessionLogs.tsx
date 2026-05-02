@@ -60,8 +60,10 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
                       "font-semibold uppercase tracking-[0.2em] px-2 py-0.5 rounded-md text-[8px] border transition-all duration-300",
                       log.status === 'COMPLETED' || log.status === 'SUCCESS' || log.status === 'READY' || log.status === 'SYNCED' 
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]' :
-                      log.status === 'STARTING' || log.status === 'INITIALIZED' || log.status === 'GENERATING' || log.status === 'SYNTHESIZING' || log.status === 'PROCESSED'
+                      log.status === 'STARTING' || log.status === 'INITIALIZED' || log.status === 'GENERATING' || log.status === 'SYNTHESIZING' || log.status === 'PROCESSED' || log.status === 'SYNCING'
                         ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.1)]' :
+                      log.status === 'RETRYING' || log.status === 'WARNING'
+                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)]' :
                       log.status === 'FAILURE' || log.status === 'ERROR'
                         ? 'bg-red-500/10 text-red-400 border-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.1)]' :
                       'bg-zinc-800/50 text-zinc-400 border-zinc-700/50'
@@ -105,12 +107,12 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
                     className="p-3 hover:bg-cyan-900/10 transition-colors cursor-pointer group flex items-start gap-3"
                     onClick={() => {
                       setPrompt(record.prompt);
-                      setTone(record.tone || 'Hype/Energetic');
+                      setTone(record.vibe || 'Hype/Energetic');
                       setAudience(record.audience || 'General Fans');
                       setEpisode(record.episode || '1');
                       setSession(record.session || '1');
-                      setContentType(record.contentType || 'youtube');
-                      setSelectedModel(record.model || 'gemini-2.5-flash');
+                      setContentType(record.contentType || 'Anime');
+                      setSelectedModel(record.modelUsed || 'gemini-1.5-flash');
                       if (record.metadata) setGeneratedMetadata(record.metadata);
                     }}
                   >
@@ -119,9 +121,9 @@ export const SessionLogs: React.FC<SessionLogsProps> = ({
                         {record.prompt}
                       </p>
                       <div className="flex flex-wrap gap-2 text-[8px] font-bold uppercase tracking-widest opacity-60">
-                        <span className="text-cyan-500">{record.model || 'Flash'}</span>
+                        <span className="text-cyan-500">{record.modelUsed || 'Flash'}</span>
                         <span className="text-zinc-500">•</span>
-                        <span className="text-purple-400">{record.tone || 'Action'}</span>
+                        <span className="text-purple-400">{record.vibe || 'Action'}</span>
                       </div>
                     </div>
                   </div>

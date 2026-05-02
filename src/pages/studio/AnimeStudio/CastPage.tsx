@@ -1,30 +1,35 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
 import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { CastEmptyState } from './components/Cast/CastEmptyState';
 import { CastTab } from './components/Cast/Tabs/CastTabs';
-import { Dna } from 'lucide-react';
+import { Dna, LayoutGrid, List } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Modularized Tab Components
-import { MatrixTab } from './components/Cast/Tabs/MatrixTab';
 import { RegistryTab } from './components/Cast/Tabs/RegistryTab';
 import { IntegrityTab } from './components/Cast/Tabs/IntegrityTab';
 import { AddLeadTab } from './components/Cast/Tabs/AddLeadTab';
 import { DNATab } from './components/Cast/Tabs/DNATab';
 import { DynamicsTab } from './components/Cast/Tabs/DynamicsTab';
+import CharactersPage from './Cast/Characters/CharactersPage';
+import RelationshipsPage from './Cast/Relationships/RelationshipsPage';
 
-export function CastPage() {
+export default function CastPage() {
+  const navigate = useNavigate();
   const { activeTab } = useOutletContext<{ activeTab: CastTab }>();
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { 
     generatedCharacters, 
     isLiked, setIsLiked,
     setGeneratedCharacters, 
     isGeneratingCharacters, 
     setIsGeneratingCharacters,
-    setCharacterRelationships,
     setCastData, setCastList,
+    setCharacterRelationships,
     prompt,
     selectedModel,
     contentType,
@@ -89,9 +94,20 @@ export function CastPage() {
 
     switch (activeTab) {
       case 'matrix':
-        return <MatrixTab />;
+        return <RelationshipsPage />;
       case 'registry':
-        return <RegistryTab isLiked={isLiked} setIsLiked={setIsLiked} />;
+        return (
+          <RegistryTab 
+            isLiked={isLiked} 
+            setIsLiked={setIsLiked} 
+            viewMode={viewMode}
+            onViewCharacter={(charName) => {
+              navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
+            }}
+          />
+        );
+      case 'characters':
+        return <CharactersPage />;
       case 'integrity':
         return <IntegrityTab />;
       case 'add-lead':
@@ -101,7 +117,15 @@ export function CastPage() {
       case 'dynamics':
         return <DynamicsTab />;
       default:
-        return <RegistryTab isLiked={isLiked} setIsLiked={setIsLiked} />;
+        return (
+          <RegistryTab 
+            isLiked={isLiked} 
+            setIsLiked={setIsLiked} 
+            onViewCharacter={(charName) => {
+              navigate(`/${contentType.toLowerCase()}/cast/characters/${charName}`);
+            }}
+          />
+        );
     }
   };
 
@@ -120,6 +144,28 @@ export function CastPage() {
         )} />
         
         <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+          {activeTab === 'registry' && (
+            <div className="flex justify-end mb-6">
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('grid')}
+                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('list')}
+                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
           {renderTabContent()}
         </div>
       </Card>

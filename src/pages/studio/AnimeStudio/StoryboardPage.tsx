@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { LayoutGrid, List } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -45,7 +47,8 @@ export function StoryboardPage() {
     generatedImagePrompts, 
     selectedModel,
     isGeneratingVisuals,
-    setIsGeneratingVisuals
+    setIsGeneratingVisuals,
+    addLog
   } = useGenerator();
   const promptList = generatedImagePrompts 
   ? generatedImagePrompts.split('\n')
@@ -56,6 +59,7 @@ export function StoryboardPage() {
 
   const [enhancingSceneIds, setEnhancingSceneIds] = useState<Set<string>>(new Set());
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Scene>>({});
   const [isEnhancing, setIsEnhancing] = useState(false);
@@ -209,6 +213,7 @@ export function StoryboardPage() {
   };
 
   const handleGenerateAll = async () => {
+    addLog("STORYBOARD", "PROCESSING", `Initiating bulk neural synthesis for ${scenes.length} production units.`);
     setIsGeneratingVisuals(true);
     const newVisualData = { ...visualData };
     for (let i = 0; i < scenes.length; i++) {
@@ -228,6 +233,7 @@ export function StoryboardPage() {
       }
     }
     setIsGeneratingVisuals(false);
+    addLog("STORYBOARD", "COMPLETED", "Neural synthesis cycle concluded. Visual DNA manifests updated.");
   };
 
   const handleFullProductionLoop = async () => {
@@ -323,6 +329,7 @@ export function StoryboardPage() {
     const updatedScenes = [...scenes, newScene];
     setScenes(updatedScenes);
     updateScriptMarkdown(updatedScenes);
+    addLog("STORYBOARD", "MODIFIED", `Inserted new production unit at index ${nextIndex}.`);
   };
 
 
@@ -336,6 +343,7 @@ export function StoryboardPage() {
     const updatedScenes = scenes.map(scene => scene.id === editingSceneId ? { ...scene, ...editForm } as Scene : scene);
     setScenes(updatedScenes);
     updateScriptMarkdown(updatedScenes);
+    addLog("STORYBOARD", "UPDATED", `Refined metadata for production unit ID: ${editingSceneId}.`);
     setEditingSceneId(null);
     setEditForm({});
   };
@@ -368,6 +376,7 @@ export function StoryboardPage() {
             scenes={scenes}
             visualData={visualData}
             videoData={videoData}
+            viewMode={viewMode}
             promptList={promptList}
             editingSceneId={editingSceneId}
             editForm={editForm}
@@ -442,6 +451,28 @@ export function StoryboardPage() {
           : "border-zinc-800/30 hover:border-zinc-700"
       )}>
         <div className="w-full p-8 lg:p-10 max-w-[1400px] mx-auto">
+          {activeTab === 'frames' && (
+            <div className="flex justify-end mb-6">
+              <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('grid')}
+                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'grid' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setViewMode('list')}
+                  className={cn("w-9 h-9 rounded-lg transition-all", viewMode === 'list' ? "bg-studio text-black hover:bg-studio" : "text-zinc-500 hover:text-white")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
           {renderTabContent()}
         </div>
       </Card>

@@ -40,7 +40,7 @@ def configure_logging() -> None:
         sys.stderr,
         level="INFO",
         colorize=True,
-        format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>",
+        format="<magenta>[BACKEND]</magenta> <green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan> - <level>{message}</level>",
         backtrace=False,
         diagnose=False,
     )
@@ -239,6 +239,7 @@ from api.engine import router as engine_router
 from api.production import router as production_router
 from api.todos import router as todos_router
 from api.growth import router as growth_router
+from api.episodes import router as episodes_router
 
 # Core system routes
 @app.get("/", tags=["system"])
@@ -303,6 +304,7 @@ app.include_router(library_router, tags=["Production"])
 app.include_router(seo_router, tags=["Production"])
 app.include_router(todos_router, tags=["Production"])
 app.include_router(growth_router, tags=["Production"])
+app.include_router(episodes_router, tags=["Production"])
 
 app.include_router(users_router, tags=["Architect Context"])
 app.include_router(notifications_router, tags=["Architect Context"])

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useLocation, NavLink } from 'react-router-dom';
 import {
   ScrollText,
@@ -42,7 +43,7 @@ interface StudioSideBarProps {
   setCollapsed: (val: boolean) => void;
 }
 
-export function StudioSideBar({ collapsed, setCollapsed }: StudioSideBarProps) {
+export const StudioSideBar = React.memo<StudioSideBarProps>(({ collapsed, setCollapsed }) => {
   const location = useLocation();
 
   const getPrefix = () => {
@@ -322,4 +323,4 @@ export function StudioSideBar({ collapsed, setCollapsed }: StudioSideBarProps) {
       )}
     </motion.aside>
   );
-}
+});

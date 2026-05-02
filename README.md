@@ -48,8 +48,8 @@ uvicorn backend.fastapi_app:app --reload --port 8002
 Ensure your environment is primed for autonomous generation:
 ```env
 # AI Models
-GEMINI_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here
+GEMINI_API_KEY=[GCP_API_KEY]
+OPENAI_API_KEY=[ENCRYPTION_KEY]
 ANTHROPIC_API_KEY=your_key_here
 
 # Database

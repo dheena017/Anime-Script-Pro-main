@@ -8,7 +8,8 @@ import {
   User, 
   Sparkles,
   Search,
-  EyeOff
+  EyeOff,
+  Eye
 } from 'lucide-react';
 
 interface CastCardProps {
@@ -16,20 +17,22 @@ interface CastCardProps {
   index: number;
   isEditing: boolean;
   onUpdate: (updates: any) => void;
+  onViewCharacter?: (charName: string) => void;
 }
 
 export const CastCard: React.FC<CastCardProps> = ({
   character,
   index,
   isEditing,
-  onUpdate
+  onUpdate,
+  onViewCharacter
 }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="group relative bg-[#050505] border border-zinc-900 rounded-[2.5rem] overflow-hidden hover:border-studio/40 transition-all duration-500 hover:shadow-[0_0_40px_rgba(var(--studio-rgb),0.05)]"
+      className="group relative bg-[#050505] border border-zinc-900 rounded-[2.5rem] overflow-hidden hover:border-studio/40 transition-all duration-500 hover:shadow-[0_0_40px_rgba(var(--studio-rgb),0.05)] h-full flex flex-col"
     >
       {/* Header / Identity */}
       <div className="p-8 border-b border-zinc-900 bg-gradient-to-br from-zinc-950 to-[#050505] relative overflow-hidden">
@@ -137,7 +140,7 @@ export const CastCard: React.FC<CastCardProps> = ({
       </div>
 
       {/* Body / Detail Grid */}
-      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 relative flex-1">
          {!isEditing && <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-zinc-900 hidden md:block" />}
 
          <div className="space-y-6">
@@ -223,8 +226,19 @@ export const CastCard: React.FC<CastCardProps> = ({
             DNA: {character.visualPrompt || "GENETIC_HASH_PENDING"}
           </span>
         </div>
-        <div className="text-[9px] font-black text-studio uppercase px-3 py-1 bg-studio/10 rounded-full border border-studio/20">
-          Ready for Manifestation
+        <div className="flex items-center gap-2">
+          {!isEditing && (
+            <button 
+              onClick={() => onViewCharacter?.(character.name)}
+              className="flex items-center gap-2 text-[9px] font-black text-zinc-400 uppercase px-3 py-1 bg-white/5 rounded-full border border-white/10 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <Eye className="w-3 h-3" />
+              View Bio
+            </button>
+          )}
+          <div className="text-[9px] font-black text-studio uppercase px-3 py-1 bg-studio/10 rounded-full border border-studio/20">
+            Ready for Manifestation
+          </div>
         </div>
       </div>
     </motion.div>

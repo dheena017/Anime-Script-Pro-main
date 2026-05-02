@@ -206,7 +206,7 @@ export class ProductionOrchestrator {
   }
 
   private async scaffoldGeneration(_series: any[]): Promise<ProductionUnit[]> {
-    console.log("[PHASE 3] Starting Initial Scaffolding for 960 Skeletons...");
+    console.info("%c[Phase 3] %cStarting Initial Scaffolding for 960 Skeletons...", 'color: #3b82f6; font-weight: bold;', 'color: #94a3b8;');
 
     // 1. Generate the 960 units blueprint (5 SESS * 12 EP * 16 SCEN)
     const sequences = generateProductionSequences(5, 12, 16);
@@ -232,7 +232,7 @@ export class ProductionOrchestrator {
       });
     }
 
-    console.log(`[ORCHESTRATOR] Successfully scaffolded 960 scene records with visual variance markers.`);
+    console.info("%c[Orchestrator] %cSuccessfully scaffolded 960 scene records with visual variance markers.", 'color: #10b981; font-weight: bold;', 'color: #94a3b8;');
 
     return sequences;
   }

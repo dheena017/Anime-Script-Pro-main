@@ -13,7 +13,10 @@ export interface Notification {
 export const notificationService = {
   async getNotifications(userId: string): Promise<Notification[]> {
     try {
-      return await apiRequest<Notification[]>(`/api/notifications/${userId}`);
+      return await apiRequest<Notification[]>(`/api/notifications/${userId}`, {
+        method: 'GET',
+        label: 'Get Notifications'
+      });
     } catch (e) {
       console.error("Error fetching notifications:", e);
       return [];

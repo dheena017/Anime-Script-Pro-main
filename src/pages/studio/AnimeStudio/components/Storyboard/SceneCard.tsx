@@ -10,9 +10,11 @@ import {
   GripVertical, 
   Wand2, 
   Edit2, 
-  Zap 
+  Zap, 
+  Maximize2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface Scene {
   id: string;
@@ -54,7 +56,7 @@ interface SceneCardProps {
   isBulkEnhancing?: boolean;
 }
 
-export const SceneCard: React.FC<SceneCardProps> = ({
+export const SceneCard = React.memo<SceneCardProps>(({
   scene,
   index,
   visualData,
@@ -82,6 +84,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
   isDragging,
   isBulkEnhancing
 }) => {
+  const navigate = useNavigate();
   return (
     <div
       ref={innerRef}
@@ -93,7 +96,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
       className="relative"
     >
       <Card className={cn(
-        "bg-gradient-to-br from-[#0c0d11] to-[#050505] border transition-all duration-700 overflow-hidden group hover:scale-[1.02] rounded-[2rem]",
+        "bg-gradient-to-br from-[#0c0d11] to-[#050505] border transition-all duration-700 overflow-hidden group hover:scale-[1.02] rounded-[2rem] h-full flex flex-col",
         isDragging 
           ? "border-studio shadow-[0_0_30px_rgba(6,182,212,0.3)] scale-[1.02] z-50 relative" 
           : "border-white/5 hover:border-studio/40 hover:shadow-[0_0_40px_rgba(6,182,212,0.1)]",
@@ -176,6 +179,13 @@ export const SceneCard: React.FC<SceneCardProps> = ({
           {visualData[scene.originalIndex] && visualData[scene.originalIndex]?.[0] !== 'loading' && !videoData?.[scene.originalIndex] && (
             <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
               <button 
+                onClick={() => navigate(`scenes/${scene.originalIndex}`)}
+                className="h-10 w-10 bg-studio/20 backdrop-blur-xl border border-studio/30 hover:bg-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-[0_0_20px_rgba(6,182,212,0.2)] flex items-center justify-center"
+                title="Focus View"
+              >
+                <Maximize2 className="w-4 h-4" />
+              </button>
+              <button 
                 onClick={() => handleGenerateVisual(scene.originalIndex, scene.linkedPrompt || scene.visuals)}
                 className="h-10 w-10 bg-[#050505]/80 backdrop-blur-xl border border-white/10 hover:bg-studio hover:border-studio text-white hover:text-black rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0 shadow-2xl flex items-center justify-center"
                 title="Regenerate Visual"
@@ -202,7 +212,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
         </div>
 
         {/* Scene Content Area */}
-        <div className="p-6 space-y-6 relative z-10">
+        <div className="p-6 space-y-6 relative z-10 flex-1">
           {editingSceneId === scene.id ? (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="space-y-2">
@@ -235,7 +245,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 <Textarea 
                   value={editForm.narration || ''} 
                   onChange={(e) => setEditForm({...editForm, narration: e.target.value})}
-                  className="min-h-[80px] text-sm bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] resize-none transition-all rounded-xl leading-relaxed text-zinc-300 font-medium"
+                  className="min-h-[160px] text-sm bg-white/[0.02] border-white/10 focus:border-studio/50 focus:bg-studio/[0.02] resize-none transition-all rounded-xl leading-relaxed text-zinc-300 font-medium p-4"
                 />
               </div>
 
@@ -275,7 +285,7 @@ export const SceneCard: React.FC<SceneCardProps> = ({
                 <Textarea 
                   value={editForm.visuals || ''} 
                   onChange={(e) => setEditForm({...editForm, visuals: e.target.value})}
-                  className="min-h-[80px] text-xs font-mono bg-white/[0.02] border-white/10 focus:border-purple-500/50 focus:bg-purple-500/[0.02] resize-none transition-all rounded-xl leading-relaxed text-zinc-400"
+                  className="min-h-[160px] text-xs font-mono bg-white/[0.02] border-white/10 focus:border-purple-500/50 focus:bg-purple-500/[0.02] resize-none transition-all rounded-xl leading-relaxed text-zinc-400 p-4"
                   placeholder="Specify camera angles, lighting, and cinematic composition..."
                 />
               </div>
@@ -430,6 +440,6 @@ export const SceneCard: React.FC<SceneCardProps> = ({
       </Card>
     </div>
   );
-};
+});
 
 

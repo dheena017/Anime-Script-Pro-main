@@ -7,7 +7,7 @@ from .system import (
     DocSection, DocArticle, ScreeningRoomEntry, CommunityPost
 )
 from .engine import EngineConfig, AITelemetry
-from .world import WorldLore, CastMember, NarrativeBeat, ReusableCharacter
+from .world import WorldLore, CastMember, NarrativeBeat, ReusableCharacter, CharacterRelationship
 from .logs import SystemLog
 
 # Export all models for easier importing
@@ -15,7 +15,7 @@ __all__ = [
     "SQLModel",
     "User", "UserProfile", "UserBalance", "UserSettings",
     "Project", "ProductionSession", "Episode", "Scene", "Series", "Script", "ScriptVersion", "Storyboard", "ProjectContent",
-    "WorldLore", "CastMember", "NarrativeBeat", "ReusableCharacter",
+    "WorldLore", "CastMember", "NarrativeBeat", "ReusableCharacter", "CharacterRelationship",
     "Template", "MediaAsset", "UserFavorite", "SavedPrompt", "PromptLibrary", "Prompt", "GrowthStrategy",
     "Category", "Tutorial", "Notification", "SEOEntry", "HelpCategory", "FAQ",
     "DocSection", "DocArticle", "ScreeningRoomEntry", "CommunityPost",

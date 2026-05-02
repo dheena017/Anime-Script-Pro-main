@@ -61,7 +61,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
 
   return (
     <div className={cn(
-      "relative flex flex-col items-center justify-center min-h-[500px] p-8 md:p-12 lg:p-24 overflow-hidden rounded-[3rem] border border-zinc-900 bg-[#050505]",
+      "relative flex flex-col items-center justify-center min-h-[400px] sm:min-h-[500px] p-4 sm:p-12 lg:p-24 overflow-hidden rounded-[2rem] sm:rounded-[3rem] border border-zinc-900 bg-[#050505]",
       "animate-in fade-in zoom-in duration-700",
       className
     )}>
@@ -90,7 +90,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
 
         {/* Content */}
         <div className="space-y-6">
-          <h3 className="text-3xl md:text-4xl font-black uppercase tracking-[0.3em] text-white text-shadow-studio leading-tight">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white text-shadow-studio leading-tight">
             {title}
           </h3>
           <p className="text-zinc-500 font-medium leading-relaxed uppercase tracking-widest text-[10px] md:text-xs max-w-2xl mx-auto">
@@ -125,7 +125,7 @@ export const StudioEmptyState: React.FC<StudioEmptyStateProps> = ({
             onClick={onAction}
             disabled={isLoading || isActionDisabled}
             className={cn(
-              "h-16 px-12 bg-studio hover:bg-studio/80 text-white font-black uppercase tracking-[0.4em] text-xs rounded-2xl shadow-studio hover:scale-105 active:scale-95 transition-all group",
+              "h-14 sm:h-16 px-8 sm:px-12 bg-studio hover:bg-studio/80 text-white font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-[10px] sm:text-xs rounded-2xl shadow-studio hover:scale-105 active:scale-95 transition-all group w-full sm:w-auto",
               (isLoading || isActionDisabled) && "opacity-80"
             )}
           >

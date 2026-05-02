@@ -11,12 +11,16 @@ import { CastCard } from './CastCard';
 interface CastViewProps {
   isLiked: boolean;
   setIsLiked: (l: boolean) => void;
+  onViewCharacter?: (charName: string) => void;
+  viewMode?: 'grid' | 'list';
 }
 
 export const CastView: React.FC<CastViewProps> = ({
   isLiked,
-  setIsLiked
-}) => {
+  setIsLiked,
+  onViewCharacter,
+  viewMode = 'grid'
+}: CastViewProps) {
   const { castData, castList, setCastList, isEditing, setIsEditing } = useGenerator();
 
   // Combine data sources
@@ -70,7 +74,10 @@ export const CastView: React.FC<CastViewProps> = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className={cn(
+        "relative z-10",
+        viewMode === 'grid' ? "grid grid-cols-1 xl:grid-cols-2 gap-8" : "flex flex-col gap-6"
+      )}>
         {displayCast.length === 0 ? (
           <div className="col-span-full py-24 text-center border-2 border-dashed border-zinc-900 rounded-[3rem]">
              <User className="w-16 h-16 mx-auto mb-6 text-zinc-900" />
@@ -86,6 +93,7 @@ export const CastView: React.FC<CastViewProps> = ({
               index={idx}
               isEditing={isEditing}
               onUpdate={(updates) => handleUpdateCharacter(idx, updates)}
+              onViewCharacter={onViewCharacter}
             />
           ))
         )}

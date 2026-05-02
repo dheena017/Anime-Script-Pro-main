@@ -10,7 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type CastTab = 'matrix' | 'registry' | 'integrity' | 'add-lead' | 'dna' | 'dynamics';
+export type CastTab = 'matrix' | 'registry' | 'integrity' | 'add-lead' | 'dna' | 'dynamics' | 'characters';
 
 interface CastTabsProps {
   activeTab: CastTab;
@@ -22,9 +22,10 @@ export const CastTabs: React.FC<CastTabsProps> = ({
   setActiveTab
 }) => {
   const tabs: { id: CastTab; label: string; icon: any; color: string }[] = [
-    { id: 'matrix', label: 'Matrix', icon: Fingerprint, color: 'text-fuchsia-400' },
-    { id: 'registry', label: 'Registry Standby', icon: Users, color: 'text-studio' },
-    { id: 'integrity', label: 'Character Database Integrity: Verified', icon: ShieldCheck, color: 'text-emerald-400' },
+    { id: 'registry', label: 'Registry', icon: Users, color: 'text-studio' },
+    { id: 'characters', label: 'Characters', icon: Fingerprint, color: 'text-cyan-400' },
+    { id: 'matrix', label: 'Matrix', icon: Workflow, color: 'text-fuchsia-400' },
+    { id: 'integrity', label: 'Integrity', icon: ShieldCheck, color: 'text-emerald-400' },
     { id: 'add-lead', label: 'Add Lead', icon: UserPlus, color: 'text-amber-400' },
     { id: 'dna', label: 'DNA Analysis', icon: Dna, color: 'text-blue-400' },
     { id: 'dynamics', label: 'Dynamics', icon: Workflow, color: 'text-rose-400' },

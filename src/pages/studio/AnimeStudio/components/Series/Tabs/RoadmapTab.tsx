@@ -7,6 +7,7 @@ interface RoadmapTabProps {
   onUpdateEpisode: (index: number, updates: any) => void;
   onUpdateAssetMatrix: (index: number, updates: any) => void;
   onFocusEpisode: (epNum: string) => void;
+  onViewEpisode?: (epNum: string) => void;
 }
 
 export const RoadmapTab: React.FC<RoadmapTabProps> = ({
@@ -14,7 +15,8 @@ export const RoadmapTab: React.FC<RoadmapTabProps> = ({
   isEditing,
   onUpdateEpisode,
   onUpdateAssetMatrix,
-  onFocusEpisode
+  onFocusEpisode,
+  onViewEpisode
 }) => {
   return (
     <div className="space-y-16">
@@ -33,6 +35,7 @@ export const RoadmapTab: React.FC<RoadmapTabProps> = ({
         onUpdateEpisode={onUpdateEpisode}
         onUpdateAssetMatrix={onUpdateAssetMatrix}
         onFocusEpisode={onFocusEpisode}
+        onViewEpisode={onViewEpisode}
       />
     </div>
   );

@@ -10,7 +10,7 @@ import {
   Shield, 
   Zap, 
   Lock,
-  MessageSquare
+  Eye
 } from 'lucide-react';
   
 interface Connection {
@@ -25,6 +25,7 @@ interface Connection {
 interface RelationshipCardProps {
   connection: Connection;
   onRemove: (id: string) => void;
+  onView?: (id: string) => void;
 }
 
 export const getTypeIcon = (type: string) => {
@@ -40,7 +41,8 @@ export const getTypeIcon = (type: string) => {
 
 export const RelationshipCard: React.FC<RelationshipCardProps> = ({
   connection: conn,
-  onRemove
+  onRemove,
+  onView
 }) => {
   const isHighTension = conn.tension >= 8;
   const isLowTension = conn.tension <= 3;
@@ -51,7 +53,7 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="relative flex items-center justify-between p-6 bg-gradient-to-r from-zinc-950 to-[#0a0a0a] border border-zinc-900 rounded-[2rem] group hover:border-fuchsia-500/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(217,70,239,0.05)] overflow-hidden"
+      className="relative flex items-center justify-between p-6 bg-gradient-to-r from-zinc-950 to-[#0a0a0a] border border-zinc-900 rounded-[2rem] group hover:border-fuchsia-500/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(217,70,239,0.05)] overflow-hidden h-full flex flex-col"
     >
       {/* Background Effect */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(217,70,239,0.03)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
@@ -61,10 +63,10 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500/50 shadow-[0_0_20px_rgba(239,68,68,0.5)]" />
       )}
 
-      <div className="flex items-center gap-8 relative z-10 w-full">
+      <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 relative z-10 w-full flex-1">
         {/* Source & Target Block */}
         <div className="flex items-center gap-4 min-w-[300px] justify-center">
-            <div className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-400 uppercase tracking-tighter text-right flex-1 truncate">
+            <div className="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-400 uppercase tracking-tighter text-center sm:text-right flex-1 truncate">
               {conn.source}
             </div>
             
@@ -77,7 +79,7 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
               <div className="h-[2px] w-8 bg-gradient-to-l from-transparent to-zinc-600 rounded-full" />
             </div>
 
-            <div className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-l from-white to-zinc-400 uppercase tracking-tighter text-left flex-1 truncate">
+            <div className="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-l from-white to-zinc-400 uppercase tracking-tighter text-center sm:text-left flex-1 truncate">
               {conn.target}
             </div>
         </div>
@@ -124,9 +126,14 @@ export const RelationshipCard: React.FC<RelationshipCardProps> = ({
         </div>
 
         {/* Actions Block */}
-        <div className="flex items-center gap-2 pl-4 relative z-10 shrink-0 border-l border-zinc-800/50">
-          <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-zinc-900 text-zinc-600 hover:text-cyan-400 transition-colors">
-              <MessageSquare className="w-4 h-4" />
+        <div className="flex sm:flex-col items-center gap-2 pl-0 sm:pl-4 mt-4 sm:mt-0 relative z-10 shrink-0 border-t sm:border-t-0 sm:border-l border-zinc-800/50 pt-4 sm:pt-0">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-10 w-10 rounded-xl hover:bg-zinc-900 text-zinc-600 hover:text-cyan-400 transition-colors"
+            onClick={() => onView?.(conn.id)}
+          >
+              <Eye className="w-4 h-4" />
           </Button>
           <Button 
             variant="ghost" 

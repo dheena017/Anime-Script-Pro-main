@@ -28,13 +28,25 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, ms: number):
 }
 
 /**
- * Utility: Simple logger with levels
+ * Unified Styled Logger for AI Core
  */
+const STYLES = {
+  prefix: 'font-weight: bold; padding: 2px 4px; border-radius: 4px;',
+  ai: 'color: #8b5cf6; font-weight: bold;',
+  info: 'color: #94a3b8;',
+  success: 'color: #10b981;',
+  warn: 'color: #f59e0b;',
+  error: 'color: #ef4444;',
+  group: 'color: #6366f1; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;'
+};
+
 export const logger = {
-  info: (...args: any[]) => console.info("[INFO]", ...args),
-  warn: (...args: any[]) => console.warn("[WARN]", ...args),
-  error: (...args: any[]) => console.error("[ERROR]", ...args),
-  debug: (...args: any[]) => console.debug("[DEBUG]", ...args),
+  info: (msg: string, ...args: any[]) => console.info(`%c[AI Core] %c${msg}`, STYLES.ai, STYLES.info, ...args),
+  success: (msg: string, ...args: any[]) => console.info(`%c[AI Core] %c${msg}`, STYLES.success, STYLES.info, ...args),
+  warn: (msg: string, ...args: any[]) => console.warn(`%c[AI Core] %c${msg}`, STYLES.warn, STYLES.info, ...args),
+  error: (msg: string, ...args: any[]) => console.error(`%c[AI Core] %c${msg}`, STYLES.error, STYLES.info, ...args),
+  group: (title: string) => console.groupCollapsed(`%c[AI Core] %c${title}`, STYLES.ai, STYLES.group),
+  end: () => console.groupEnd(),
 };
 
 function logAIUserHint(message: string) {
@@ -162,7 +174,7 @@ export async function callAI(
 ) {
   const requestKey = JSON.stringify({ model, prompt, systemInstruction, temperature, maxTokens, topP, topK });
   if (inFlightRequests.has(requestKey)) {
-    console.info('[AI Core] Duplicate generation request detected. Reusing existing in-flight request.');
+    logger.info('Duplicate generation request detected. Reusing existing in-flight request.');
     return inFlightRequests.get(requestKey)!;
   }
 
@@ -170,32 +182,32 @@ export async function callAI(
     const startTime = performance.now();
     broadcastAIStart(model);
 
-    console.info(`[AI Core] Starting generation request for model: ${model}`);
-    console.info(`[AI Core] Prompt length: ${prompt?.length || 0}, instruction length: ${systemInstruction?.length || 0}`);
+    logger.info(`Starting generation request for model: ${model}`);
+    logger.info(`Prompt length: ${prompt?.length || 0}, instruction length: ${systemInstruction?.length || 0}`);
 
     // Context Audit: Find "SOURCE OF TRUTH" markers in the system instruction
     const worldInjected = systemInstruction.includes("WORLD LORE SOURCE OF TRUTH");
     const castInjected = systemInstruction.includes("CHARACTER DNA REGISTRY");
     const planInjected = systemInstruction.includes("EPISODE MASTER BLUEPRINT");
 
-    console.groupCollapsed(`[AI Core] Neural Context Audit`);
-    console.log("World Lore Sync:", worldInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("Cast DNA Sync:", castInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("Episode Plan Sync:", planInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("Total Instruction Volume:", systemInstruction.length, "chars");
-    console.groupEnd();
+    logger.group(`Neural Context Audit`);
+    console.log("%cWorld Lore Sync:", STYLES.info, worldInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("%cCast DNA Sync:", STYLES.info, castInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("%cEpisode Plan Sync:", STYLES.info, planInjected ? "ACTIVE ✅" : "NONE ❌");
+    console.log("%cTotal Instruction Volume:", STYLES.info, systemInstruction.length, "chars");
+    logger.end();
 
-    console.groupCollapsed(`[AI Core] Request to ${model}`);
-    console.log("System Instruction:", systemInstruction);
-    console.log("User Prompt:", prompt);
-    console.groupEnd();
+    logger.group(`Request to ${model}`);
+    console.log("%cSystem Instruction:", STYLES.info, systemInstruction);
+    console.log("%cUser Prompt:", STYLES.info, prompt);
+    logger.end();
 
     // 1. Pre-flight checks
     if (!prompt?.trim()) {
       throw new ValidationError("Prompt is required for AI generation.");
     }
 
-    console.info("[AI Core] Browser-side Gemini SDK direct call is disabled. Using backend proxy /api/generate only.");
+    logger.info("Browser-side Gemini SDK direct call is disabled. Using backend proxy /api/generate only.");
 
     //
     // Normalize and prepare model fallbacks
@@ -251,7 +263,7 @@ export async function callAI(
           top_k: topK
         };
 
-        console.log("[AI Core] Trying model:", currentModel);
+        console.log(`%c[AI Core] %cTrying model: %c${currentModel}`, STYLES.ai, STYLES.info, 'font-weight: bold; color: #fff;');
         let response = null;
         try {
           response = await fetch("/api/generate", {
@@ -263,7 +275,7 @@ export async function callAI(
         } catch (fetchError: any) {
           const fetchErrorMessage = fetchError?.message?.toString?.() || "";
           if (fetchError instanceof TypeError || fetchErrorMessage.includes('Failed to fetch') || fetchErrorMessage.includes('ERR_EMPTY_RESPONSE')) {
-            console.warn("[AI Core] /api proxy fetch failed, retrying direct backend URL:", BACKEND_GENERATE_URL);
+            logger.warn(`/api proxy fetch failed, retrying direct backend URL: ${BACKEND_GENERATE_URL}`);
             response = await fetch(BACKEND_GENERATE_URL, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -289,12 +301,12 @@ export async function callAI(
             errorData = { error: text };
           }
           const msg = errorData.detail || errorData.details || errorData.error?.message || errorData.error?.details || (typeof errorData.error === 'string' ? errorData.error : response.statusText) || "Generation Failed";
-          console.error(`[AI Core] Backend Error (${response.status}):`, errorData);
+          logger.error(`Backend Error (${response.status}):`, errorData);
           if (response.status === 401 || msg.includes("Invalid AI Credentials")) {
             logAIUserHint("The backend proxy rejected the API key. Verify the backend uses a valid Gemini key in GOOGLE_API_KEY or VITE_GEMINI_API_KEY.");
           }
           if (response.status === 500 || response.status === 502) {
-            console.warn("[AI Core] Backend proxy may be unavailable or misconfigured. Ensure the FastAPI server is running.");
+            logger.warn("Backend proxy may be unavailable or misconfigured. Ensure the FastAPI server is running.");
           }
           if (response.status === 503 || msg.includes("UNAVAILABLE")) {
             logAIUserHint("The backend or Gemini service is temporarily unavailable. Wait briefly and retry.");
@@ -311,12 +323,12 @@ export async function callAI(
         const text = data.text;
         if (!text) throw new Error("AI returned an empty response.");
 
-        console.groupCollapsed(`[AI Core] Response from ${currentModel}`);
-        console.log(text);
-        console.groupEnd();
+        logger.group(`Response from ${currentModel}`);
+        console.log("%cContent:", STYLES.info, text);
+        logger.end();
 
         const totalLatency = performance.now() - startTime;
-        console.info(`[AI Core] Success! Model: ${currentModel} | Latency: ${totalLatency.toFixed(2)}ms`);
+        logger.success(`Success! Model: ${currentModel} | Latency: ${totalLatency.toFixed(2)}ms`);
 
         broadcastAIMetadata({
           text: text,
@@ -329,7 +341,7 @@ export async function callAI(
       } catch (error: any) {
         if (typeof timeoutId !== 'undefined') clearTimeout(timeoutId);
         const errMessage = error?.message || error;
-        console.warn(`[AI Core] Model ${currentModel} failed:`, errMessage);
+        logger.warn(`Model ${currentModel} failed: ${errMessage}`);
 
         if (errMessage.toString().includes('Failed to fetch') || errMessage.toString().includes('ERR_EMPTY_RESPONSE')) {
           logAIUserHint("The backend proxy fetch failed. Confirm that the frontend dev server can reach /api/generate and that the backend is running on port 8002.");
@@ -352,8 +364,8 @@ export async function callAI(
       } else if (errMessage.includes("Failed to fetch") || errMessage.includes("ERR_EMPTY_RESPONSE")) {
         logAIUserHint("All Gemini fallback attempts failed because the backend proxy is not reachable. Start the backend and verify /api/generate is available.");
       } else {
-        console.error("[AI Core] Final fallback failure:", errMessage);
-        console.info("[AI Core] You can try a different model, simplify the prompt, or refresh the application.");
+        logger.error(`Final fallback failure: ${errMessage}`);
+        logger.info("You can try a different model, simplify the prompt, or refresh the application.");
       }
     }
     throw lastError || new Error("All Gemini models failed.");

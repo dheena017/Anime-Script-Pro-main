@@ -124,14 +124,14 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
           />
 
           <motion.aside
-            initial={{ x: 450, opacity: 0 }}
+            initial={{ x: "100%", opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 450, opacity: 0 }}
+            exit={{ x: "100%", opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-screen w-[420px] lg:w-[480px] glass-panel border-l border-cyan-500/20 flex flex-col z-[400] shadow-[-20px_0_100px_rgba(0,0,0,1)] overflow-hidden"
+            className="fixed right-0 top-0 h-screen w-full sm:w-[420px] lg:w-[480px] glass-panel border-l border-cyan-500/20 flex flex-col z-[400] shadow-[-20px_0_100px_rgba(0,0,0,1)] overflow-hidden"
           >
             {/* HEADER SECTION */}
-            <div className="p-8 border-b border-cyan-500/20 flex items-center justify-between bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent shrink-0 relative overflow-hidden">
+            <div className="p-4 sm:p-8 border-b border-cyan-500/20 flex items-center justify-between bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent shrink-0 relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.1)_0%,transparent_70%)]" />
               <div className="space-y-1 relative z-10">
                 <h1 className="text-xl font-black text-cyan-400 uppercase tracking-[0.25em] drop-shadow-[0_0_15px_rgba(34,211,238,0.4)] flex items-center gap-3">
@@ -151,7 +151,7 @@ export const ProductionCore: React.FC<ProductionCoreProps> = ({
             </div>
 
             {/* SCROLLABLE CONTENT */}
-            <div className="flex-1 overflow-y-auto hide-scrollbar p-6 space-y-4 pb-40">
+            <div className="flex-1 overflow-y-auto hide-scrollbar p-4 sm:p-6 space-y-4 pb-40">
 
               {/* SELECT STUDIO TYPE */}
               <div className="space-y-2">

@@ -46,23 +46,27 @@ export const StudioLayout: React.FC = () => {
           setCollapsed={setCollapsed} 
         />
 
-        <div className="flex-1 overflow-y-auto no-scrollbar p-6 lg:p-10 relative">
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={backdropTextureStyle} />
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="relative z-10 h-full"
-            >
-              <Outlet />
-            </motion.div>
-          </AnimatePresence>
+        <div className="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
+          <div className="p-6 lg:p-10 flex-1 relative pb-32">
+            <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-[0.03]" style={backdropTextureStyle} />
+            <AnimatePresence>
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+                className="relative z-10 h-full"
+              >
+                <Outlet />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          
+          <div className="mt-40 mb-10 px-6 lg:px-10">
+            <StudioFooter />
+          </div>
         </div>
-
-        <StudioFooter />
       </main>
       <NeuralConsole />
       <NeuralErrorSentinel />

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 const Docs = lazy(() => import('./docs/Index'));
 const Health = lazy(() => import('./health/Index'));
+const SystemAudit = lazy(() => import('./system/Index').then(m => ({ default: m.SystemStatus })));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center h-96">
@@ -16,6 +17,7 @@ export default function SystemControl() {
       <Routes>
         <Route path="docs" element={<Docs />} />
         <Route path="health" element={<Health />} />
+        <Route path="status" element={<SystemAudit />} />
         <Route path="*" element={<Navigate to="docs" replace />} />
       </Routes>
     </Suspense>

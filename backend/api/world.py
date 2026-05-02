@@ -68,3 +68,131 @@ async def get_lore_history(user_id: str, limit: int = 10, session: AsyncSession 
     statement = select(WorldLore).where(WorldLore.user_id == user_id).order_by(WorldLore.updated_at.desc()).limit(limit)
     result = await session.execute(statement)
     return result.scalars().all()
+
+# --- Character Cast Endpoints ---
+
+from backend.database.models.world import CastMember
+
+@router.get("/world/characters", response_model=List[CastMember])
+async def get_characters(
+    project_id: Optional[int] = None, 
+    user_id: Optional[str] = None,
+    session: AsyncSession = Depends(get_async_session),
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    effective_user_id = user_id or auth_user_id
+    statement = select(CastMember).where(CastMember.user_id == effective_user_id)
+    if project_id:
+        statement = statement.where(CastMember.project_id == project_id)
+    
+    result = await session.execute(statement)
+    return result.scalars().all()
+
+@router.post("/world/characters", response_model=CastMember)
+async def create_character(
+    character: CastMember,
+    session: AsyncSession = Depends(get_async_session),
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    character.user_id = character.user_id or auth_user_id
+    session.add(character)
+    await session.commit()
+    await session.refresh(character)
+    return character
+
+@router.put("/world/characters/{character_id}", response_model=CastMember)
+async def update_character(
+    character_id: int,
+    updates: dict,
+    session: AsyncSession = Depends(get_async_session)
+):
+    db_char = await session.get(CastMember, character_id)
+    if not db_char:
+        raise HTTPException(status_code=404, detail="Character not found")
+    
+    for key, value in updates.items():
+        if hasattr(db_char, key):
+            setattr(db_char, key, value)
+    
+    db_char.updated_at = datetime.utcnow()
+    session.add(db_char)
+    await session.commit()
+    await session.refresh(db_char)
+    return db_char
+
+@router.delete("/world/characters/{character_id}")
+async def delete_character(
+    character_id: int,
+    session: AsyncSession = Depends(get_async_session)
+):
+    db_char = await session.get(CastMember, character_id)
+    if not db_char:
+        raise HTTPException(status_code=404, detail="Character not found")
+    
+    await session.delete(db_char)
+    await session.commit()
+    return {"status": "success", "message": "Character deleted"}
+
+# --- Relationship Lab Endpoints ---
+
+from backend.database.models.world import CharacterRelationship
+
+@router.get("/world/relationships", response_model=List[CharacterRelationship])
+async def get_relationships(
+    project_id: Optional[int] = None, 
+    user_id: Optional[str] = None,
+    session: AsyncSession = Depends(get_async_session),
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    effective_user_id = user_id or auth_user_id
+    statement = select(CharacterRelationship).where(CharacterRelationship.user_id == effective_user_id)
+    if project_id:
+        statement = statement.where(CharacterRelationship.project_id == project_id)
+    
+    result = await session.execute(statement)
+    return result.scalars().all()
+
+@router.post("/world/relationships", response_model=CharacterRelationship)
+async def create_relationship(
+    relationship: CharacterRelationship,
+    session: AsyncSession = Depends(get_async_session),
+    auth_user_id: str = Depends(get_auth_user_id)
+):
+    relationship.user_id = relationship.user_id or auth_user_id
+    session.add(relationship)
+    await session.commit()
+    await session.refresh(relationship)
+    return relationship
+
+@router.put("/world/relationships/{rel_id}", response_model=CharacterRelationship)
+async def update_relationship(
+    rel_id: int,
+    updates: dict,
+    session: AsyncSession = Depends(get_async_session)
+):
+    db_rel = await session.get(CharacterRelationship, rel_id)
+    if not db_rel:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+    
+    for key, value in updates.items():
+        if hasattr(db_rel, key):
+            setattr(db_rel, key, value)
+    
+    db_rel.updated_at = datetime.utcnow()
+    session.add(db_rel)
+    await session.commit()
+    await session.refresh(db_rel)
+    return db_rel
+
+@router.delete("/world/relationships/{rel_id}")
+async def delete_relationship(
+    rel_id: int,
+    session: AsyncSession = Depends(get_async_session)
+):
+    db_rel = await session.get(CharacterRelationship, rel_id)
+    if not db_rel:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+    
+    await session.delete(db_rel)
+    await session.commit()
+    return {"status": "success", "message": "Relationship deleted"}

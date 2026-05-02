@@ -24,11 +24,20 @@ class CastMember(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     series_id: Optional[int] = Field(default=None, index=True)
     project_id: Optional[int] = Field(default=None, index=True)
+    user_id: Optional[str] = Field(default=None, index=True)
     name: str = Field(index=True)
     role: str = Field(default="Character")
-    description: Optional[str] = None
-    visual_dna: Optional[str] = None
+    archetype: Optional[str] = Field(default=None)
+    personality: Optional[str] = Field(default=None)
+    goal: Optional[str] = Field(default=None)
+    flaw: Optional[str] = Field(default=None)
+    conflict: Optional[str] = Field(default=None)
+    appearance: Optional[str] = Field(default=None)
+    speakingStyle: Optional[str] = Field(default=None)
+    secret: Optional[str] = Field(default=None)
+    visual_dna: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class NarrativeBeat(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -50,3 +59,17 @@ class ReusableCharacter(SQLModel, table=True):
     seed: int = Field(default=12345)
     reference_image_url: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CharacterRelationship(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    project_id: Optional[int] = Field(default=None, index=True)
+    user_id: Optional[str] = Field(default=None, index=True)
+    source_character_id: Optional[int] = Field(default=None, index=True)
+    target_character_id: Optional[int] = Field(default=None, index=True)
+    source_name: str = Field(default="")
+    target_name: str = Field(default="")
+    type: str = Field(default="Ally") # Ally, Rival, Enemy, Love, Secret
+    tension: int = Field(default=5) # 1-10
+    description: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

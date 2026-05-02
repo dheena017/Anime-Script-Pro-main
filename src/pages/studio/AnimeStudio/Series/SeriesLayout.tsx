@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +10,6 @@ import { SeriesTab } from '../components/Series/Tabs/SeriesTabs';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [showScaffolder, setShowScaffolder] = React.useState(false);
 
   const {
@@ -26,35 +25,14 @@ export default function SeriesLayout() {
     generatedWorld,
     generatedCharacters,
     showNotification,
-    isSaving, setIsSaving,
-    castProfiles, castData, generatedMetadata, generatedScript
+    isSaving, 
+    syncCore
   } = useGenerator();
 
-  const { user } = useAuth();
+  useAuth();
 
   const handleSave = async () => {
-    if (!user?.id) {
-      showNotification?.('Authentication Required', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const { productionApi } = await import('@/services/api/production');
-      await productionApi.updateContent(user.id, {
-        cast_profiles: castProfiles,
-        cast_data: castData,
-        script_content: generatedScript,
-        series_plan: generatedSeriesPlan,
-        seo_metadata: generatedMetadata
-      });
-      showNotification?.('Series Roadmap Synchronized', 'success');
-    } catch (e) {
-      console.error("Manual sync failed:", e);
-      showNotification?.('Sync Error', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    await syncCore();
   };
 
   const handleGenerate = async () => {
@@ -76,10 +54,30 @@ export default function SeriesLayout() {
     }
   };
 
-  const activeTab = (searchParams.get('tab') as SeriesTab) || 'roadmap';
+  const location = useLocation();
+  
+  const getActiveTab = (): SeriesTab => {
+    const path = location.pathname;
+    if (path.includes('/series/episodes')) return 'episodes';
+    if (path.includes('/series/arcs')) return 'arcs';
+    if (path.includes('/series/blueprint')) return 'blueprint';
+    if (path.includes('/series/assets')) return 'assets';
+    if (path.includes('/series/timeline')) return 'timeline';
+    
+    if (path.endsWith('/series') || path.includes('/series/roadmap')) return 'roadmap';
+    
+    return 'roadmap';
+  };
 
+  const activeTab = getActiveTab();
+  
   const handleTabChange = (tab: SeriesTab) => {
-    setSearchParams({ tab });
+    const base = `/${contentType.toLowerCase()}/series`;
+    if (tab === 'roadmap') {
+      navigate(base);
+    } else {
+      navigate(`${base}/${tab}`);
+    }
   };
 
   return (

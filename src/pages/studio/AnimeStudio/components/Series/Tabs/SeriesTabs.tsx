@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   ListChecks, 
+  Film,
   Network, 
   GitMerge, 
   Box, 
@@ -9,7 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type SeriesTab = 'roadmap' | 'blueprint' | 'arcs' | 'assets' | 'timeline';
+export type SeriesTab = 'roadmap' | 'episodes' | 'blueprint' | 'arcs' | 'assets' | 'timeline';
 
 interface SeriesTabsProps {
   activeTab: SeriesTab;
@@ -22,9 +23,10 @@ export const SeriesTabs: React.FC<SeriesTabsProps> = ({
 }) => {
   const tabs: { id: SeriesTab; label: string; icon: any; color: string }[] = [
     { id: 'roadmap', label: 'Roadmap', icon: ListChecks, color: 'text-studio' },
+    { id: 'episodes', label: 'Episodes', icon: Film, color: 'text-cyan-400' },
     { id: 'blueprint', label: 'Blueprint', icon: Network, color: 'text-amber-400' },
-    { id: 'arcs', label: 'Story Arcs', icon: GitMerge, color: 'text-fuchsia-400' },
-    { id: 'assets', label: 'Asset Matrix', icon: Box, color: 'text-emerald-400' },
+    { id: 'arcs', label: 'Arcs', icon: GitMerge, color: 'text-fuchsia-400' },
+    { id: 'assets', label: 'Assets', icon: Box, color: 'text-emerald-400' },
     { id: 'timeline', label: 'Timeline', icon: Clock, color: 'text-blue-400' },
   ];
 

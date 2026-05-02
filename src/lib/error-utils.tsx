@@ -51,7 +51,7 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  console.error('%c[System] %cFirestore Error: ', 'color: #ef4444; font-weight: bold', 'color: #94a3b8', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
 
@@ -66,7 +66,7 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("ErrorBoundary caught an error", error, errorInfo);
+    console.error("%c[System] %cErrorBoundary caught an error", 'color: #ef4444; font-weight: bold', 'color: #94a3b8', error, errorInfo);
   }
 
   render() {

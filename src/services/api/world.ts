@@ -19,6 +19,7 @@ export const worldApi = {
   getLore: async (userId: string, projectId?: number): Promise<WorldLore | null> => {
     return apiRequest<WorldLore>(`${API_BASE}/lore/${userId}`, {
       method: 'GET',
+      label: 'Get World Lore',
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
   },
@@ -26,6 +27,7 @@ export const worldApi = {
   updateLore: async (userId: string, update: Partial<WorldLore>, projectId?: number): Promise<WorldLore> => {
     return apiRequest<WorldLore>(`${API_BASE}/lore/${userId}`, {
       method: 'POST',
+      label: 'Update World Lore',
       body: JSON.stringify(update),
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
@@ -33,7 +35,8 @@ export const worldApi = {
 
   getHistory: async (userId: string, limit: number = 10): Promise<WorldLore[]> => {
     return apiRequest<WorldLore[]>(`${API_BASE}/history/${userId}?limit=${limit}`, {
-      method: 'GET'
+      method: 'GET',
+      label: 'Get World Lore History'
     });
   }
 };

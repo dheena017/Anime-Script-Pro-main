@@ -10,6 +10,7 @@ export interface ProjectContent {
   project_id?: number;
   cast_profiles: string | null;
   cast_data: any;
+  cast_relationships: string | null;
   scenes: any[];
   script_content: string | null;
   series_plan: any[] | null;
@@ -25,6 +26,7 @@ export const productionApi = {
   getContent: async (userId: string, projectId?: number): Promise<ProjectContent | null> => {
     return apiRequest<ProjectContent>(`${API_BASE}/${userId}`, {
       method: 'GET',
+      label: 'Get Production Content',
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
   },
@@ -32,10 +34,9 @@ export const productionApi = {
   updateContent: async (userId: string, update: Partial<ProjectContent>, projectId?: number): Promise<ProjectContent> => {
     return apiRequest<ProjectContent>(`${API_BASE}/${userId}`, {
       method: 'POST',
+      label: 'Update Production Content',
       body: JSON.stringify(update),
       headers: projectId ? { 'X-Project-Id': projectId.toString() } : {}
     });
   }
 };
-
-

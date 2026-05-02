@@ -16,6 +16,7 @@ const RegisterPage = lazy(() => import('./pages/auth/RegisterPage').then(m => ({
 const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage').then(m => ({ default: m.ForgotPasswordPage })));
 const NotificationsPage = lazy(() => import('./pages/dashboard/Notifications'));
 const CreateProject = lazy(() => import('./pages/projects/CreateProject'));
+const ProjectsPage = lazy(() => import('./pages/projects/Projects'));
 const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'));
 const ProfilePage = lazy(() => import('./pages/dashboard/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const LandingPage = lazy(() => import('./pages/Landing/LandingPage'));
@@ -41,7 +42,7 @@ const ManhwaLayout = lazy(() => import('./pages/studio/ManhwaStudio/Layout'));
 const ComicLayout = lazy(() => import('./pages/studio/ComicStudio/Layout'));
 const AnimePortal = lazy(() => import('./pages/studio/AnimeStudio/Portal'));
 const AnimeScript = lazy(() => import('./pages/studio/AnimeStudio/ScriptPage').then(m => ({ default: m.ScriptPage })));
-const AnimeCast = lazy(() => import('./pages/studio/AnimeStudio/CastPage').then(m => ({ default: m.CastPage })));
+const AnimeCast = lazy(() => import('./pages/studio/AnimeStudio/CastPage'));
 const AnimeSeries = lazy(() => import('./pages/studio/AnimeStudio/SeriesPage').then(m => ({ default: m.SeriesPage })));
 const AnimeStoryboard = lazy(() => import('./pages/studio/AnimeStudio/StoryboardPage').then(m => ({ default: m.StoryboardPage })));
 const SEOPage = lazy(() => import('./pages/studio/AnimeStudio/SEOPage').then(m => ({ default: m.SEOPage })));
@@ -57,6 +58,7 @@ const CastLayout = lazy(() => import('./pages/studio/AnimeStudio/Cast/CastLayout
 const SeriesLayout = lazy(() => import('./pages/studio/AnimeStudio/Series/SeriesLayout'));
 const ScriptLayout = lazy(() => import('./pages/studio/AnimeStudio/Script/ScriptLayout'));
 const StoryboardLayout = lazy(() => import('./pages/studio/AnimeStudio/Storyboard/StoryboardLayout'));
+const SceneViewPage = lazy(() => import('./pages/studio/AnimeStudio/Storyboard/SceneViewPage').then(m => ({ default: m.SceneViewPage })));
 const SEOLayout = lazy(() => import('./pages/studio/AnimeStudio/SEO/SEOLayout'));
 const PromptsLayout = lazy(() => import('./pages/studio/AnimeStudio/Prompts/PromptsLayout'));
 const ScreeningLayout = lazy(() => import('./pages/studio/AnimeStudio/Screening/ScreeningLayout'));
@@ -72,11 +74,26 @@ const Showrunner = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages
 const SEOMaster = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/SEOMaster'));
 const ProductionAide = lazy(() => import('./pages/studio/AnimeStudio/Protocols/pages/ProductionAide'));
 
-const LoadingSpinner = () => (
-  <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-    <div className="w-8 h-8 border-2 border-studio/30 border-t-studio rounded-full animate-spin" />
-  </div>
-);
+// Episodes Sub-module
+const EpisodesPage = lazy(() => import('./pages/studio/AnimeStudio/Series/Episodes/EpisodesPage'));
+const EpisodeViewPage = lazy(() => import('./pages/studio/AnimeStudio/Series/Episodes/EpisodeViewPage'));
+const EpisodeEditPage = lazy(() => import('./pages/studio/AnimeStudio/Series/Episodes/EpisodeEditPage'));
+
+// Character Sub-module
+const CharactersPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Characters/CharactersPage'));
+const CharacterViewPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Characters/CharacterViewPage'));
+const CharacterEditPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Characters/CharacterEditPage'));
+const CharacterCreationPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/CharacterCreationPage').then(m => ({ default: m.CharacterCreationPage })));
+const DNAPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DNAPage').then(m => ({ default: m.DNAPage })));
+const DynamicsPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/DynamicsPage').then(m => ({ default: m.DynamicsPage })));
+
+// Relationship Sub-module
+const RelationshipsPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Relationships/RelationshipsPage'));
+const AddRelationshipPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Relationships/AddRelationshipPage'));
+const RelationshipViewPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Relationships/RelationshipViewPage'));
+const RelationshipEditPage = lazy(() => import('./pages/studio/AnimeStudio/Cast/Relationships/RelationshipEditPage'));
+
+
 
 export default function App() {
   return (
@@ -84,10 +101,10 @@ export default function App() {
       <AuthProvider>
         <AppProvider>
           <TooltipProvider>
+            <GeneratorProvider>
               <Router>
-                <Suspense fallback={<LoadingSpinner />}>
+                <Suspense fallback={null}>
                   <Routes>
-
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
@@ -97,47 +114,62 @@ export default function App() {
                     {/* STUDIO ARCHITECT INFRASTRUCTURE */}
                     <Route element={
                       <ProtectedRoute>
-                        <GeneratorProvider>
-                          <AITelemetryOverlay />
-                          <StudioLayout />
-                        </GeneratorProvider>
+                        <AITelemetryOverlay />
+                        <StudioLayout />
                       </ProtectedRoute>
                     }>
-                      <Route path="/dashboard" element={<Dashboard />} />
-                      <Route path="/profile" element={<ProfilePage />} />
-                    
-                    {/* Modular Sections */}
-                      <Route path="/library" element={<LibraryModule />} />
-                      <Route path="/discover" element={<DiscoverModule />} />
-                      <Route path="/community" element={<CommunityModule />} />
-                      <Route path="/tutorials" element={<AcademyModule />} />
-                      <Route path="/system/*" element={<SystemModule />} />
-                      <Route path="/settings" element={<SettingsModule />} />
-                      <Route path="/notifications" element={<NotificationsPage />} />
-                      <Route path="/create-project" element={<CreateProject />} />
-                    </Route>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/library" element={<LibraryModule />} />
+                    <Route path="/discover" element={<DiscoverModule />} />
+                    <Route path="/community" element={<CommunityModule />} />
+                    <Route path="/tutorials" element={<AcademyModule />} />
+                    <Route path="/system/*" element={<SystemModule />} />
+                    <Route path="/settings" element={<SettingsModule />} />
+                    <Route path="/notifications" element={<NotificationsPage />} />
+                    <Route path="/create-project" element={<CreateProject />} />
+                    <Route path="/projects" element={<ProjectsPage />} />
+                  </Route>
 
-                    {/* LEGACY ANIME STUDIO (TO BE REFACTORED) */}
-                    <Route element={
-                      <ProtectedRoute>
-                        <GeneratorProvider>
-                          <Layout />
-                        </GeneratorProvider>
-                      </ProtectedRoute>
-                    }>
-                      <Route path="/anime" element={<AnimeLayout />}>
-                        <Route index element={<AnimePortal />} />
-
+                  {/* ANIME STUDIO ROUTES */}
+                  <Route element={
+                    <ProtectedRoute>
+                      <Layout />
+                    </ProtectedRoute>
+                  }>
+                    <Route path="/anime" element={<AnimeLayout />}>
+                      <Route index element={<AnimePortal />} />
+                      
                       <Route path="world" element={<WorldLayout />}>
                         <Route index element={<AnimeWorld />} />
                       </Route>
 
                       <Route path="cast" element={<CastLayout />}>
                         <Route index element={<AnimeCast />} />
+                        <Route path="characters" element={<CharactersPage />} />
+                        <Route path="characters/:characterName" element={<CharacterViewPage />} />
+                        <Route path="characters/:characterName/edit" element={<CharacterEditPage />} />
+                        <Route path="relationships" element={<RelationshipsPage />} />
+                        <Route path="relationships/new" element={<AddRelationshipPage />} />
+                        <Route path="relationships/:relationshipId" element={<RelationshipViewPage />} />
+                        <Route path="relationships/:relationshipId/edit" element={<RelationshipEditPage />} />
+                        <Route path="matrix" element={<RelationshipsPage />} />
+                        <Route path="integrity" element={<AnimeCast />} />
+                        <Route path="add-lead" element={<CharacterCreationPage />} />
+                        <Route path="dna" element={<DNAPage />} />
+                        <Route path="dynamics" element={<DynamicsPage />} />
                       </Route>
 
                       <Route path="series" element={<SeriesLayout />}>
                         <Route index element={<AnimeSeries />} />
+                        <Route path="episodes" element={<EpisodesPage />} />
+                        <Route path="episodes/:episodeId" element={<EpisodeViewPage />} />
+                        <Route path="episodes/:episodeId/edit" element={<EpisodeEditPage />} />
+                        <Route path="roadmap" element={<AnimeSeries />} />
+                        <Route path="arcs" element={<AnimeSeries />} />
+                        <Route path="blueprint" element={<AnimeSeries />} />
+                        <Route path="assets" element={<AnimeSeries />} />
+                        <Route path="timeline" element={<AnimeSeries />} />
                       </Route>
 
                       <Route path="script" element={<ScriptLayout />}>
@@ -146,6 +178,7 @@ export default function App() {
 
                       <Route path="storyboard" element={<StoryboardLayout />}>
                         <Route index element={<AnimeStoryboard />} />
+                        <Route path="scenes/:sceneId" element={<SceneViewPage />} />
                       </Route>
 
                       <Route path="seo" element={<SEOLayout />}>
@@ -164,47 +197,46 @@ export default function App() {
                         <Route index element={<AnimeEngine />} />
                       </Route>
 
-                        <Route path="protocols" element={<ProtocolsLayout />}>
-                          <Route index element={<Navigate to="script" replace />} />
-                          <Route path="script" element={<ScriptArchitect />} />
-                          <Route path="world" element={<LoreOracle />} />
-                          <Route path="cast" element={<SoulForge />} />
-                          <Route path="visual" element={<VisualSynthesizer />} />
-                          <Route path="motion" element={<MotionChoreographer />} />
-                          <Route path="series" element={<Showrunner />} />
-                          <Route path="seo" element={<SEOMaster />} />
-                          <Route path="utils" element={<ProductionAide />} />
-                        </Route>
-                        <Route path="template" element={<AnimeTemplate />} />
+                      <Route path="protocols" element={<ProtocolsLayout />}>
+                        <Route index element={<Navigate to="script" replace />} />
+                        <Route path="script" element={<ScriptArchitect />} />
+                        <Route path="world" element={<LoreOracle />} />
+                        <Route path="cast" element={<SoulForge />} />
+                        <Route path="visual" element={<VisualSynthesizer />} />
+                        <Route path="motion" element={<MotionChoreographer />} />
+                        <Route path="series" element={<Showrunner />} />
+                        <Route path="seo" element={<SEOMaster />} />
+                        <Route path="utils" element={<ProductionAide />} />
                       </Route>
-
-                      {/* 2. MANHWA STUDIO (SCAFFOLD) */}
-                      <Route path="/manhwa" element={<ManhwaLayout />}>
-                        <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Manhwa Portal</h1></div>} />
-                      </Route>
-
-                      {/* 3. COMIC STUDIO (SCAFFOLD) */}
-                      <Route path="/comic" element={<ComicLayout />}>
-                        <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Comic Portal</h1></div>} />
-                      </Route>
-
-                      <Route path="/pricing" element={<PricingPage />} />
-                      <Route path="/help" element={<HelpPage />} />
-                      <Route path="/documentation" element={<Navigate to="/system/docs" replace />} />
-                      <Route path="/status" element={<Navigate to="/system/health" replace />} />
-                      <Route path="/changelog" element={<Navigate to="/system/changelog" replace />} />
-                      <Route path="/feedback" element={<Navigate to="/system/feedback" replace />} />
-                      <Route path="/projects/new" element={<CreateProject />} />
-                      <Route path="/api-reference" element={<ApiReferencePage />} />
-                      <Route path="/lore-database" element={<LoreDatabasePage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="/terms" element={<TermsPage />} />
+                      <Route path="template" element={<AnimeTemplate />} />
                     </Route>
-                  </Routes>
-                </Suspense>
-              </Router>
-            </TooltipProvider>
-          </AppProvider>
+
+                    <Route path="/manhwa" element={<ManhwaLayout />}>
+                      <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Manhwa Portal</h1></div>} />
+                    </Route>
+
+                    <Route path="/comic" element={<ComicLayout />}>
+                      <Route index element={<div className="p-20 text-center"><h1 className="text-4xl font-black text-white uppercase">Comic Portal</h1></div>} />
+                    </Route>
+
+                    <Route path="/pricing" element={<PricingPage />} />
+                    <Route path="/help" element={<HelpPage />} />
+                    <Route path="/documentation" element={<Navigate to="/system/docs" replace />} />
+                    <Route path="/status" element={<Navigate to="/system/health" replace />} />
+                    <Route path="/changelog" element={<Navigate to="/system/changelog" replace />} />
+                    <Route path="/feedback" element={<Navigate to="/system/feedback" replace />} />
+                    <Route path="/projects/new" element={<CreateProject />} />
+                    <Route path="/api-reference" element={<ApiReferencePage />} />
+                    <Route path="/lore-database" element={<LoreDatabasePage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </Router>
+          </GeneratorProvider>
+        </TooltipProvider>
+        </AppProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

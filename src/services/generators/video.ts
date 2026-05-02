@@ -15,7 +15,7 @@ export async function generateVideoPrompts(script: string, model: string = "gemi
 }
 
 export async function simulateVideoRender(prompt: string) {
-  console.log(`[Video Lab] Simulating render for: ${prompt.slice(0, 50)}...`);
+  console.info(`%c[Video Lab] %cSimulating render for: %c${prompt.slice(0, 50)}...`, 'color: #8b5cf6; font-weight: bold;', 'color: #94a3b8;', 'color: #fff; font-weight: bold;');
   // Simulate a long-running video synthesis process
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -30,7 +30,7 @@ export async function simulateVideoRender(prompt: string) {
 
 export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001"): Promise<string | null> {
   // Try to use Veo or simulate it if the API is unsupported
-  console.log(`[Video Engine] Initiating Image-to-Video using ${model} for prompt: ${prompt}`);
+  console.info(`%c[Video Engine] %cInitiating Image-to-Video using %c${model} %cfor prompt: ${prompt}`, 'color: #8b5cf6; font-weight: bold;', 'color: #94a3b8;', 'color: #fff; font-weight: bold;', 'color: #94a3b8;');
   
   try {
     // We would use getAIClient().models.generateContent or predictLongRunning here,

@@ -10,7 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export type CastTab = 'matrix' | 'registry' | 'integrity' | 'add-lead' | 'dna' | 'dynamics';
+export type CastTab = 'matrix' | 'registry' | 'characters' | 'integrity' | 'add-lead' | 'dna' | 'dynamics';
 
 interface CastTabsProps {
   activeTab: CastTab;
@@ -24,6 +24,7 @@ export const CastTabs: React.FC<CastTabsProps> = ({
   const tabs: { id: CastTab; label: string; icon: any; color: string }[] = [
     { id: 'matrix', label: 'Matrix', icon: Fingerprint, color: 'text-fuchsia-400' },
     { id: 'registry', label: 'Registry Standby', icon: Users, color: 'text-studio' },
+    { id: 'characters', label: 'Characters', icon: Users, color: 'text-cyan-400' },
     { id: 'integrity', label: 'Character Database Integrity: Verified', icon: ShieldCheck, color: 'text-emerald-400' },
     { id: 'add-lead', label: 'Add Lead', icon: UserPlus, color: 'text-amber-400' },
     { id: 'dna', label: 'DNA Analysis', icon: Dna, color: 'text-blue-400' },

@@ -9,6 +9,7 @@ import { ProductionCore } from './components/Layout/ProductionCore';
 import { SessionLogs } from './components/Layout/SessionLogs';
 import { AnimeStudioNavigation } from './components/AnimeStudioNavigation';
 import { AnimeStudioTopBar } from './components/AnimeStudioTopBar';
+import { StudioFooter } from '@/components/studio/layout/StudioFooter';
 
 import '@/styles/creative-engine.css';
 import { generateScript } from '@/services/generators/script';
@@ -290,29 +291,20 @@ export default function AnimeLayout() {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
           </div>
 
-          <div className="w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
+          <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-8 relative z-10">
             <div id="studio-content-area" className="w-full min-h-[600px] bg-[#0a0b0e]/80 backdrop-blur-3xl border border-zinc-800/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] relative overflow-hidden">
               <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
               
               <div className="relative z-10 w-full h-full">
-                <React.Suspense fallback={
-                  <div className="flex items-center justify-center w-full h-[600px]">
-                    <div className="w-10 h-10 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin shadow-[0_0_15px_rgba(239,68,68,0.2)]" />
-                  </div>
-                }>
-                  <AnimatePresence mode="wait">
+                <React.Suspense fallback={null}>
+                  <AnimatePresence>
                     <motion.div
                       key={location.pathname}
-                      initial={{ opacity: 0, scale: 0.98, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 1.02, y: -10 }}
-                      transition={{ 
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30,
-                        mass: 0.8
-                      }}
-                      className="w-full h-full p-6"
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                      className="w-full h-full p-3 sm:p-6"
                     >
                       <Outlet />
                     </motion.div>
@@ -335,42 +327,47 @@ export default function AnimeLayout() {
                 setGeneratedMetadata={setGeneratedMetadata}
               />
             </div>
-          </div>
+
+            {/* Studio Footer with Gap */}
+            <div className="mt-40">
+              <StudioFooter />
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Creative Engine Sidepanel */}
-        <ProductionCore
+      {/* Creative Engine Sidepanel */}
+      <ProductionCore
         isOpen={sidebarOpen}
-        onToggle={toggleEngine}
-        prompt={prompt} setPrompt={setPrompt}
-        tone={tone} setTone={setTone}
-        audience={audience} setAudience={setAudience}
-        session={session} setSession={setSession}
-        episode={episode} setEpisode={setEpisode}
-        numScenes={numScenes} setNumScenes={setNumScenes}
-        selectedModel={selectedModel} setSelectedModel={setSelectedModel}
-        recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-        characterRelationships={characterRelationships || ''}
-        setCharacterRelationships={setCharacterRelationships}
-        worldBuilding={generatedWorld || ''}
-        setWorldBuilding={setGeneratedWorld}
-        castProfiles={generatedCharacters || ''}
-        setCastProfiles={setGeneratedCharacters}
-        handleGenerate={handleGenerate}
-        handleMasterGenerate={handleMasterGenerate}
-        handleSaveCurrent={handleSaveCurrent}
-        isLoading={isLoading}
-        isSaving={isSaving}
-        generatedScript={generatedScript}
-        currentScriptId={currentScriptId}
-        user={user}
-        basePath={basePath}
-        navigate={navigate}
-        contentType="Anime"
-        theme={theme}
-        setTheme={setTheme}
-      />
+          onToggle={toggleEngine}
+          prompt={prompt} setPrompt={setPrompt}
+          tone={tone} setTone={setTone}
+          audience={audience} setAudience={setAudience}
+          session={session} setSession={setSession}
+          episode={episode} setEpisode={setEpisode}
+          numScenes={numScenes} setNumScenes={setNumScenes}
+          selectedModel={selectedModel} setSelectedModel={setSelectedModel}
+          recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
+          characterRelationships={characterRelationships || ''}
+          setCharacterRelationships={setCharacterRelationships}
+          worldBuilding={generatedWorld || ''}
+          setWorldBuilding={setGeneratedWorld}
+          castProfiles={generatedCharacters || ''}
+          setCastProfiles={setGeneratedCharacters}
+          handleGenerate={handleGenerate}
+          handleMasterGenerate={handleMasterGenerate}
+          handleSaveCurrent={handleSaveCurrent}
+          isLoading={isLoading}
+          isSaving={isSaving}
+          generatedScript={generatedScript}
+          currentScriptId={currentScriptId}
+          user={user}
+          basePath={basePath}
+          navigate={navigate}
+          contentType="Anime"
+          theme={theme}
+          setTheme={setTheme}
+        />
       </div>
     </div>
   );

@@ -27,36 +27,14 @@ export default function WorldLayout() {
     setGeneratedWorld,
     session, episode, showNotification,
     generatedWorld,
-    isSaving, setIsSaving,
-    architecture, atlas, historyLore, systems, culture
+    isSaving, 
+    syncCore
   } = useGenerator();
 
-  const { user } = useAuth();
+  useAuth();
 
   const handleSave = async () => {
-    if (!user?.id) {
-      showNotification?.('Authentication Required', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const { worldApi } = await import('@/services/api/world');
-      await worldApi.updateLore(user.id, {
-        architecture,
-        atlas,
-        history: historyLore,
-        systems,
-        culture,
-        full_lore_blob: generatedWorld
-      });
-      showNotification?.('World Lore Manifest Synchronized', 'success');
-    } catch (e) {
-      console.error("Manual sync failed:", e);
-      showNotification?.('Sync Error', 'error');
-    } finally {
-      setIsSaving(false);
-    }
+    await syncCore();
   };
 
   const handleGenerate = async () => {

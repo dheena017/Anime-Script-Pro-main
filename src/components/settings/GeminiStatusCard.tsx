@@ -17,9 +17,10 @@ interface GeminiStatusCardProps {
   isTesting: boolean;
   status: 'idle' | 'success' | 'error';
   lastError?: string;
+  onClear?: () => void;
 }
 
-export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError }: GeminiStatusCardProps) {
+export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError, onClear }: GeminiStatusCardProps) {
   return (
     <div className="relative group overflow-hidden rounded-3xl border border-zinc-800 bg-black/40 backdrop-blur-xl transition-all duration-500 hover:border-studio/30">
       {/* Dynamic Glow Background */}
@@ -130,6 +131,15 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError 
             </>
           )}
         </button>
+        
+        {apiKey && onClear && (
+          <button
+            onClick={onClear}
+            className="w-full mt-2 text-[8px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-500 transition-colors"
+          >
+            Revoke Neural Link & Clear Credentials
+          </button>
+        )}
       </div>
     </div>
   );
