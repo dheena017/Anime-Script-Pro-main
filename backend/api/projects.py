@@ -52,33 +52,34 @@ async def delete_project(project_id: int, user_id: str = Depends(get_auth_user_i
 
 # --- Series ---
 @router.get("/series", response_model=List[Series])
-async def get_series():
+async def get_series(user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
-        statement = select(Series)
+        statement = select(Series).where(Series.user_id == user_id)
         results = await session.exec(statement)
         return results.all()
 
 @router.post("/series", response_model=Series)
-async def create_series(series: Series):
+async def create_series(series: Series, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
+        series.user_id = user_id
         session.add(series)
         await session.commit()
         await session.refresh(series)
         return series
 
 @router.get("/series/{series_id}", response_model=Series)
-async def get_series_item(series_id: int):
+async def get_series_item(series_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         series = await session.get(Series, series_id)
-        if not series:
+        if not series or series.user_id != user_id:
             raise HTTPException(status_code=404, detail="Series not found")
         return series
 
 @router.put("/series/{series_id}", response_model=Series)
-async def update_series(series_id: int, series: Series):
+async def update_series(series_id: int, series: Series, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
         db_series = await session.get(Series, series_id)
-        if not db_series:
+        if not db_series or db_series.user_id != user_id:
             raise HTTPException(status_code=404, detail="Series not found")
         db_series.title = series.title
         db_series.summary = series.summary
@@ -88,27 +89,43 @@ async def update_series(series_id: int, series: Series):
         return db_series
 
 @router.get("/series/{series_id}/scripts", response_model=List[Script])
-async def get_scripts_for_series(series_id: int):
+async def get_scripts_for_series(series_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
+        # First verify series ownership
+        series = await session.get(Series, series_id)
+        if not series or series.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Series not found")
+            
         statement = select(Script).where(Script.series_id == series_id)
         results = await session.exec(statement)
         return results.all()
 
 @router.get("/series/{series_id}/cast", response_model=List[CastMember])
-async def get_cast_for_series(series_id: int):
+async def get_cast_for_series(series_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
+        # First verify series ownership
+        series = await session.get(Series, series_id)
+        if not series or series.user_id != user_id:
+            raise HTTPException(status_code=404, detail="Series not found")
+
         statement = select(CastMember).where(CastMember.series_id == series_id)
         results = await session.exec(statement)
         return results.all()
 
 # --- Sessions ---
 @router.post("/sessions")
-async def batch_create_sessions(payload: dict):
+async def batch_create_sessions(payload: dict, user_id: str = Depends(get_auth_user_id)):
     project_id = payload.get("project_id")
     if not project_id:
         raise HTTPException(status_code=400, detail="project_id is required")
-    sessions_data = payload.get("sessions", [])
+    
     async with AsyncSession(async_engine) as session:
+        # Verify project ownership
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=401, detail="Project access denied")
+
+        sessions_data = payload.get("sessions", [])
         created = []
         for s in sessions_data:
             db_session = ProductionSession(
@@ -125,15 +142,20 @@ async def batch_create_sessions(payload: dict):
         return created
 
 @router.get("/sessions")
-async def get_sessions(project_id: int):
+async def get_sessions(project_id: int, user_id: str = Depends(get_auth_user_id)):
     async with AsyncSession(async_engine) as session:
+        # Verify project ownership
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=401, detail="Project access denied")
+
         statement = select(ProductionSession).where(ProductionSession.project_id == project_id)
         results = await session.exec(statement)
         return results.all()
 
 # --- Episodes ---
 @router.post("/episodes")
-async def batch_create_episodes(payload: dict):
+async def batch_create_episodes(payload: dict, user_id: str = Depends(get_auth_user_id)):
     project_id = payload.get("project_id")
     episodes_data = payload.get("episodes", [])
     session_id = payload.get("session_id")
@@ -141,11 +163,17 @@ async def batch_create_episodes(payload: dict):
         raise HTTPException(status_code=400, detail="project_id is required")
     
     async with AsyncSession(async_engine) as session:
+        # Verify project ownership
+        project = await session.get(Project, project_id)
+        if not project or project.user_id != user_id:
+            raise HTTPException(status_code=401, detail="Project access denied")
+
         created = []
         for e in episodes_data:
             db_episode = Episode(
                 project_id=int(project_id),
                 session_id=session_id,
+                user_id=user_id,
                 episode_number=e.get("episode_number") or 0,
                 title=e.get("title") or "Untitled Episode",
                 hook=e.get("hook"),
