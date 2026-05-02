@@ -10,7 +10,6 @@
 .neo-border {
   position: relative;
   border: 1px solid rgba(34, 211, 238, 0.15);
-  transition: all 0.3s ease;
 }
 
 .neo-border:hover {
@@ -26,14 +25,7 @@
   text-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
 
-.animate-pulse-glow {
-  animation: pulse-glow 3s infinite ease-in-out;
-}
 
 /* Custom Scrollbar for the engine */
 .engine-scrollbar::-webkit-scrollbar {
@@ -57,3 +49,4 @@
   background: linear-gradient(to top, #050505 80%, transparent);
   backdrop-filter: blur(8px);
 }
+

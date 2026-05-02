@@ -15,15 +15,8 @@ export function StudioLoading({
   fullPage = true 
 }: StudioLoadingProps) {
   return (
-    <div className={`${fullPage ? 'fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl' : 'w-full py-40 bg-zinc-950/20 border-2 border-dashed border-zinc-900 rounded-[3rem]'} flex flex-col items-center justify-center space-y-8 overflow-hidden`}>
-      {/* Background Ambience */}
-      {fullPage && (
-        <>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-fuchsia-500/10 rounded-full blur-[120px] animate-pulse delay-700" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20" />
-        </>
-      )}
+    <div className={`${fullPage ? 'fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm' : 'w-full py-40 bg-zinc-950/20 border-2 border-dashed border-zinc-900 rounded-[3rem]'} flex flex-col items-center justify-center space-y-8 overflow-hidden`}>
+
 
       {/* Core Loader */}
       <div className="relative">
@@ -99,14 +92,10 @@ export function StudioLoading({
         ))}
       </div>
 
-      {/* Scanning Bar Animation */}
-      <motion.div 
-        animate={{ translateY: ['-100%', '1000%'] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent h-20 w-full pointer-events-none"
-      />
+
     </div>
   );
 }
+
 
 

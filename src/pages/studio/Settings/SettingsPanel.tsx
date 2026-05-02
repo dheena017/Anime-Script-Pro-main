@@ -16,7 +16,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ activeTab }) => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        className="bg-[#050505]/40 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-10 min-h-[500px]"
+        className="bg-[#050505]/40 backdrop-blur-md border border-white/5 rounded-[3rem] p-10 min-h-[500px]"
       >
         {activeTab === 'general' && (
           <div className="space-y-8">
@@ -54,5 +54,6 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ activeTab }) => {
     </AnimatePresence>
   );
 };
+
 
 

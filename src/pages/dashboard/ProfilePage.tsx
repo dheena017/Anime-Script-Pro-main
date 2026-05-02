@@ -307,7 +307,7 @@ export function ProfilePage() {
          </div>
 
          <div className="flex justify-center px-4 overflow-x-auto no-scrollbar">
-            <div className="flex bg-zinc-900/40 p-1.5 rounded-3xl md:rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-3xl shrink-0">
+            <div className="flex bg-zinc-900/40 p-1.5 rounded-3xl md:rounded-[2.5rem] border border-zinc-800/50 backdrop-blur-md shrink-0">
                {tabs.map((tab) => (
                   <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-4 rounded-2xl md:rounded-[2rem] transition-all relative ${activeTab === tab.id ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}>
                      {activeTab === tab.id && <motion.div layoutId="tab-pill" className="absolute inset-0 bg-white/5 rounded-2xl md:rounded-[2.2rem] border border-white/10" />}
@@ -411,6 +411,7 @@ export function ProfilePage() {
       </div>
    );
 }
+
 
 
 

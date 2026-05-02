@@ -73,12 +73,15 @@ export default function CastPage() {
   const renderTabContent = () => {
     if (isGeneratingCharacters) {
       return (
-        <div className="flex flex-col items-center justify-center h-[500px] text-studio">
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
           <div className="relative">
-            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin mb-8 shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
             <Dna className="absolute inset-0 m-auto w-6 h-6 text-studio animate-pulse" />
           </div>
-          <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Sequencing Neural Archetypes...</p>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Sequencing Neural Archetypes...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Architecting character souls</p>
+          </div>
         </div>
       );
     }
@@ -131,7 +134,7 @@ export default function CastPage() {
 
 
   return (
-    <div data-testid="marker-character-cast" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div data-testid="marker-character-cast">
       <Card className={cn(
         "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'registry' 
@@ -172,6 +175,7 @@ export default function CastPage() {
     </div>
   );
 }
+
 
 
 

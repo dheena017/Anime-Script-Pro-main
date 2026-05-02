@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
+import { useApp } from '@/contexts/AppContext';
 
 // Local Studio Components
 import { ProductionCore } from './components/Layout/ProductionCore';
@@ -13,6 +13,7 @@ import { StudioFooter } from '@/components/studio/layout/StudioFooter';
 
 import '@/styles/creative-engine.css';
 import { generateScript } from '@/services/generators/script';
+import { StudioLoading } from '@/components/studio/StudioLoading';
 
 /**
  * AnimeLayout - Production Node v2.1
@@ -22,7 +23,8 @@ export default function AnimeLayout() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const { showNotification } = useApp();
+
   // Sync Creative Engine state with URL query parameter
   const searchParams = new URLSearchParams(location.search);
   const isEngineOpen = searchParams.get('engine') === 'open';
@@ -42,38 +44,20 @@ export default function AnimeLayout() {
   };
 
   const {
-    // Basic Parameters
-    prompt, setPrompt,
-    tone, setTone,
-    audience, setAudience,
-    episode, setEpisode,
-    session, setSession,
-    numScenes, setNumScenes,
-    selectedModel, setSelectedModel,
-    isLoading, setIsLoading,
-    isSaving, setIsSaving,
-    
-    // Generated Content
-    generatedScript, setGeneratedScript,
-    generatedCharacters, setGeneratedCharacters,
-    generatedSeriesPlan, setGeneratedSeriesPlan,
-    generatedWorld, setGeneratedWorld,
-    currentScriptId, setCurrentScriptId,
-    
-    // UI & State Helpers
-    setContentType,
-    setCastData, setCastList,
-    setCharacterRelationships,
-    setVisualData,
-    setGeneratedMetadata,
-    setGeneratedImagePrompts,
-    addLog,
-    theme, setTheme,
-    showNotification,
-    history,
-    characterRelationships,
-    recapperPersona, setRecapperPersona,
-  } = useGenerator();
+    prompt, tone, audience, episode, session, numScenes, selectedModel,
+    isLoading, isSaving, generatedScript, generatedCharacters,
+    generatedSeriesPlan, generatedWorld, currentScriptId, theme,
+    history, characterRelationships, recapperPersona
+  } = useGeneratorState();
+
+  const {
+    setPrompt, setTone, setAudience, setEpisode, setSession, setNumScenes,
+    setSelectedModel, setIsLoading, setIsSaving, setGeneratedScript,
+    setGeneratedCharacters, setGeneratedSeriesPlan, setGeneratedWorld,
+    setCurrentScriptId, setContentType, setCastData, setCastList,
+    setCharacterRelationships, setVisualData, setGeneratedMetadata,
+    setGeneratedImagePrompts, addLog, setTheme, setRecapperPersona
+  } = useGeneratorDispatch();
 
   // Initialize content type for this layout
   useEffect(() => {
@@ -285,30 +269,15 @@ export default function AnimeLayout() {
 
         {/* Main Production Workspace */}
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">
-          {/* Background Atmospheric Layer */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-500/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full -translate-x-1/2 translate-y-1/2" />
-          </div>
+
 
           <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-8 relative z-10">
-            <div id="studio-content-area" className="w-full min-h-[600px] bg-[#0a0b0e]/80 backdrop-blur-3xl border border-zinc-800/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] relative overflow-hidden">
-              <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+            <div id="studio-content-area" className="w-full min-h-[600px] bg-[#0a0b0e]/80 backdrop-blur-md border border-zinc-800/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] relative overflow-hidden">
+
               
               <div className="relative z-10 w-full h-full">
-                <React.Suspense fallback={null}>
-                  <AnimatePresence>
-                    <motion.div
-                      key={location.pathname}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="w-full h-full p-3 sm:p-6"
-                    >
-                      <Outlet />
-                    </motion.div>
-                  </AnimatePresence>
+                <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Studio Module" submessage="Accessing Neural Database..." />}>
+                  <Outlet />
                 </React.Suspense>
               </div>
             </div>
@@ -372,3 +341,4 @@ export default function AnimeLayout() {
     </div>
   );
 }
+

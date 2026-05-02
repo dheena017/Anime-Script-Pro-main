@@ -76,7 +76,7 @@ export default function AuthPage() {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-[480px]"
       >
-        <Card className="bg-black/40 border-zinc-800/50 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-hidden rounded-[2.5rem]">
+        <Card className="bg-black/40 border-zinc-800/50 backdrop-blur-md shadow-[0_0_80px_rgba(0,0,0,0.5)] overflow-hidden rounded-[2.5rem]">
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#bd4a4a] to-transparent shadow-[0_0_15px_rgba(189,74,74,0.8)]" />
 
           <CardHeader className="space-y-6 pb-8 pt-10 text-center relative">
@@ -227,6 +227,7 @@ export default function AuthPage() {
     </div>
   );
 }
+
 
 
 

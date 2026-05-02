@@ -21,18 +21,25 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useApp } from '@/contexts/AppContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Brain, Loader2 } from 'lucide-react';
 import { ProductionOrchestrator } from '@/services/productionOrchestrator';
 import { useAuth } from '@/hooks/useAuth';
+import { useLogs } from '@/contexts/LogContext';
+import { ProductionPipeline } from './components/Portal/ProductionPipeline';
+import { NeuralMonitor } from './components/Portal/NeuralMonitor';
+import { useEffect } from 'react';
 
 export default function AnimePortal() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showNotification } = useApp();
+  const { masterLogs } = useLogs();
   const {
     history, prompt: globalPrompt, setPrompt,
-    setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan,
-    isLoading, setIsLoading, selectedModel, tone, showNotification, addLog, masterLogs
+    setGeneratedWorld, setGeneratedCharacters, setGeneratedSeriesPlan, setGeneratedScript,
+    isLoading, setIsLoading, selectedModel, tone, addLog
   } = useGenerator();
   const [localPrompt, setLocalPrompt] = useState(globalPrompt);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -40,6 +47,15 @@ export default function AnimePortal() {
   const animeHistory = history.filter(h => h.contentType === 'Anime');
 
   const [currentStep, setCurrentStep] = useState<number>(-1);
+  const [isDeferredReady, setIsDeferredReady] = useState(false);
+
+  // Defer mounting of heavy sub-components to the next task to allow the shell to mount instantly
+  useEffect(() => {
+    const timer = requestAnimationFrame(() => {
+      setIsDeferredReady(true);
+    });
+    return () => cancelAnimationFrame(timer);
+  }, []);
 
   const handleMasterGenerate = async () => {
     if (!localPrompt.trim() || !user) return;
@@ -94,6 +110,22 @@ export default function AnimePortal() {
     }
   };
 
+  const handleLoadProject = (proj: any) => {
+    addLog("ORCHESTRATOR", "SYNCING", `Establishing Neural Link to Production: ${proj.title}`);
+    
+    // Simulate fetching project details (world, cast, series, script)
+    // In a real app, this would be an API call
+    setTimeout(() => {
+      setGeneratedWorld(proj.prod_metadata?.world || "# World Lore Found");
+      setGeneratedCharacters(proj.prod_metadata?.cast || []);
+      setGeneratedSeriesPlan(proj.prod_metadata?.series || []);
+      setGeneratedScript(proj.prod_metadata?.script || "");
+      
+      addLog("ORCHESTRATOR", "SUCCESS", `Project Data Restored. Entering Storyboard Matrix...`);
+      navigate('/anime/storyboard');
+    }, 1000);
+  };
+
 
 
   const phases = [
@@ -110,7 +142,7 @@ export default function AnimePortal() {
   ];
 
   return (
-    <div className="space-y-12 p-4 no-scrollbar pb-24">
+    <div className="space-y-12 p-4 pb-24">
       {/* 1. HERO SECTION */}
       <div className="relative rounded-[3rem] bg-gradient-to-br from-[#12141a] to-[#08090d] border border-studio/20 overflow-hidden p-12 group">
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-studio opacity-10 blur-[100px] rounded-full pointer-events-none group-hover:opacity-20 transition-opacity duration-1000" />
@@ -153,12 +185,21 @@ export default function AnimePortal() {
               />
               <div className="absolute right-6 bottom-6 flex items-center gap-4">
                 {isComplete && (
-                  <Button
-                    onClick={() => navigate('screening')}
-                    className="h-16 px-10 rounded-3xl bg-studio text-white font-black uppercase tracking-[0.2em] shadow-studio hover:scale-105 transition-transform"
-                  >
-                    Watch Premiere <Play className="w-4 h-4 ml-3 fill-current" />
-                  </Button>
+                  <div className="flex gap-4">
+                    <Button
+                      onClick={() => navigate('screening')}
+                      className="bg-studio text-black hover:bg-studio/80 font-black uppercase tracking-widest px-8 rounded-2xl h-14 shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95"
+                    >
+                      <Play className="w-5 h-5 mr-2" /> Watch Premiere
+                    </Button>
+                    <Button
+                      onClick={() => navigate('storyboard')}
+                      variant="outline"
+                      className="border-studio/30 text-studio hover:bg-studio/10 font-black uppercase tracking-widest px-8 rounded-2xl h-14 transition-all"
+                    >
+                      <Layers className="w-5 h-5 mr-2" /> View Storyboard
+                    </Button>
+                  </div>
                 )}
                 <Button
                   disabled={isLoading || !localPrompt.trim()}
@@ -173,40 +214,13 @@ export default function AnimePortal() {
             </div>
 
             {/* PRODUCTION PIPELINE TRACKER */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {phases.map((phase, idx) => {
-                const isActive = currentStep === idx;
-                const isDone = currentStep > idx;
-                return (
-                  <motion.div
-                    key={phase.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className={cn(
-                      "p-4 rounded-3xl border transition-all duration-500 flex flex-col items-center text-center gap-2 relative overflow-hidden",
-                      isActive ? "bg-studio/10 border-studio shadow-studio/20 scale-105 z-10" :
-                        isDone ? "bg-zinc-900/50 border-studio/20 opacity-60" : "bg-black/20 border-zinc-900 opacity-30"
-                    )}
-                  >
-                    {isActive && <div className="absolute inset-0 bg-studio/5 animate-pulse" />}
-                    <div className={cn(
-                      "p-2.5 rounded-xl border transition-all",
-                      isActive ? "bg-studio text-black border-studio shadow-studio" :
-                        isDone ? "bg-studio/20 text-studio border-studio/20" : "bg-zinc-950 text-zinc-800 border-zinc-900"
-                    )}>
-                      <phase.icon className="w-4 h-4" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className={cn("text-[8px] font-black uppercase tracking-widest", isActive ? "text-studio" : "text-zinc-600")}>
-                        {isDone ? 'COMPLETE' : isActive ? 'PROCESSING' : `STEP 0${idx + 1}`}
-                      </p>
-                      <h4 className="text-[10px] font-black text-white uppercase tracking-tighter line-clamp-1">{phase.label}</h4>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+            {isDeferredReady ? (
+              <ProductionPipeline phases={phases} currentStep={currentStep} />
+            ) : (
+              <div className="h-[100px] w-full flex items-center justify-center opacity-10">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -219,7 +233,6 @@ export default function AnimePortal() {
             <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.3em] flex items-center gap-3">
               <Layers className="w-4 h-4 text-studio" /> Production Workflow
             </h3>
-            <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">Autonomous Orchestration v2.0</span>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -251,146 +264,94 @@ export default function AnimePortal() {
             ))}
           </div>
         </div>
+        
+        {/* NEURAL MONITOR / LOGS - SIDEBAR */}
+        {isDeferredReady ? (
+          <NeuralMonitor masterLogs={masterLogs} />
+        ) : (
+          <div className="h-[600px] w-full bg-black/20 rounded-[2.5rem] animate-pulse" />
+        )}
 
-        {/* NEURAL MONITOR / LOGS */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+        {/* 4. RECENT SESSIONS - NOW IN THE MAIN GRID */}
+        <div className="lg:col-span-2 space-y-6 pt-4">
+          <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
             <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-3">
-              <Brain className="w-4 h-4 text-studio" /> Neural Monitor
+              <History className="w-4 h-4 text-studio" /> Recent Anime Productions
             </h3>
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">Live Link</span>
-            </div>
+            <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">Production Archive</span>
           </div>
-          
-          <Card className="bg-black/80 border-zinc-900 rounded-[2.5rem] overflow-hidden flex flex-col h-[600px] shadow-2xl relative">
-            <div className="absolute top-0 left-0 right-0 h-12 bg-zinc-950/50 border-b border-zinc-900 flex items-center px-6 justify-between z-10 backdrop-blur-md">
-              <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
-              </div>
-              <span className="text-[9px] font-black text-zinc-600 uppercase tracking-[0.3em]">Neural_Terminal_v4.0</span>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-8 pt-16 space-y-4 font-mono no-scrollbar">
-              {masterLogs.length > 0 ? masterLogs.map((log, idx) => (
-                <motion.div 
-                  key={log.id} 
-                  initial={{ opacity: 0, x: -10 }} 
-                  animate={{ opacity: 1, x: 0 }}
-                  className="space-y-1"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="text-[10px] text-zinc-700 whitespace-nowrap mt-0.5">
-                      {new Date(log.created_at).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={cn(
-                          "text-[9px] font-black px-1.5 py-0.5 rounded-md border",
-                          log.module === 'NEURAL_ENGINE' ? "bg-purple-500/10 border-purple-500/30 text-purple-400" :
-                          log.module === 'ORCHESTRATOR' ? "bg-blue-500/10 border-blue-500/30 text-blue-400" :
-                          "bg-zinc-800 border-zinc-700 text-zinc-500"
-                        )}>
-                          [{log.module}]
-                        </span>
-                        <span className={cn(
-                          "text-[9px] font-black uppercase tracking-widest",
-                          log.status === 'ERROR' || log.status === 'FAILED' ? "text-red-500" :
-                          log.status === 'COMPLETED' || log.status === 'SUCCESS' ? "text-emerald-500" :
-                          "text-amber-500"
-                        )}>
-                          {log.status}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                        <span className="text-zinc-600 mr-2">»</span>
-                        {log.message}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )) : (
-                <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-30">
-                  <Brain className="w-12 h-12 text-zinc-800" />
-                  <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Awaiting Neural Commands...</p>
-                </div>
-              )}
-            </div>
-
-            {/* Terminal Glow Effect */}
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-studio/5 to-transparent pointer-events-none" />
-          </Card>
-        </div>
-      </div>
-
-      {/* 4. RECENT SESSIONS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
-        <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-3">
-            <History className="w-4 h-4" /> Recent Anime Productions
-          </h3>
-          <div className="space-y-4">
-            {animeHistory.length > 0 ? animeHistory.slice(0, 3).map((item, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {animeHistory.length > 0 ? animeHistory.slice(0, 4).map((item, idx) => (
               <div key={idx} className="flex items-center justify-between p-6 bg-zinc-950/50 border border-zinc-900 rounded-2xl hover:bg-zinc-900 hover:border-studio transition-all cursor-pointer group">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-studio/5 border border-studio/20 flex items-center justify-center">
                     <ScrollText className="w-5 h-5 text-studio" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white uppercase tracking-wider">{item.title}</h4>
-                    <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">Episode {item.episode} • S{item.session}</p>
+                    <h4 className="text-xs font-black text-white uppercase tracking-wider">{item.title}</h4>
+                    <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">S{item.session} • E{item.episode}</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="h-8 text-[9px] font-black uppercase text-studio opacity-0 group-hover:opacity-100">
-                  Resume Build <ChevronRight className="w-3 h-3 ml-1" />
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleLoadProject(item)}
+                  className="h-8 text-[8px] font-black uppercase text-studio opacity-0 group-hover:opacity-100"
+                >
+                  View Scenes <ChevronRight className="w-3 h-3 ml-1" />
                 </Button>
               </div>
             )) : (
-              <div className="p-12 border-2 border-dashed border-zinc-900 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
+              <div className="col-span-2 p-12 border-2 border-dashed border-zinc-900 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
                 <History className="w-12 h-12 text-zinc-800 mb-4" />
                 <p className="text-sm text-zinc-500 font-bold uppercase tracking-widest">No previous anime manifests detected.</p>
               </div>
             )}
           </div>
         </div>
+      </div>
 
-        {/* 5. PRODUCTION PROTOCOL */}
-        <div className="space-y-6">
-          <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-3">
-            <TrendingUp className="w-4 h-4 text-studio" /> Production Standards
-          </h3>
-          <Card className="bg-[#0a0a0a] border-zinc-900 p-8 rounded-[2.5rem] space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-studio/5 blur-[50px]" />
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">1</div>
-                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                  <span className="text-white font-bold">Dynamic Pacing:</span> Vary sentence length in scripts to mimic high-quality anime soundtracks.
-                </p>
+      {/* 5. PRODUCTION STANDARDS */}
+      <div className="pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Empty space or additional metrics */}
+          </div>
+          <div className="space-y-6">
+            <h3 className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-3">
+              <TrendingUp className="w-4 h-4 text-studio" /> Production Standards
+            </h3>
+            <Card className="bg-[#0a0a0a] border-zinc-900 p-8 rounded-[2.5rem] space-y-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-studio/5 blur-[50px]" />
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">1</div>
+                  <p className="text-xs text-zinc-400 font-medium leading-relaxed">
+                    <span className="text-white font-bold">Dynamic Pacing:</span> Vary sentence length in scripts to mimic high-quality anime soundtracks.
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">2</div>
+                  <p className="text-xs text-zinc-400 font-medium leading-relaxed">
+                    <span className="text-white font-bold">Lore Integrity:</span> Cross-check terms in the Lore Vault before finalizing episode scripts.
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">3</div>
+                  <p className="text-xs text-zinc-400 font-medium leading-relaxed">
+                    <span className="text-white font-bold">Visual Language:</span> Use cinematic cues in prompts for dynamic image generation.
+                  </p>
+                </div>
               </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">2</div>
-                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                  <span className="text-white font-bold">Lore Integrity:</span> Cross-check terms in the Lore Vault before finalizing episode scripts.
-                </p>
-              </div>
-              <div className="flex gap-4">
-                <div className="w-6 h-6 rounded-full bg-studio text-white text-[10px] font-black flex items-center justify-center shrink-0">3</div>
-                <p className="text-xs text-zinc-400 font-medium leading-relaxed">
-                  <span className="text-white font-bold">Visual Language:</span> Use cinematic cues in prompts for dynamic image generation.
-                </p>
-              </div>
-            </div>
 
-            <Button className="w-full bg-white text-black hover:bg-zinc-200 font-black uppercase text-[10px] tracking-widest h-12 rounded-xl mt-4">
-              Open Production Logs
-            </Button>
-          </Card>
+              <Button className="w-full bg-white text-black hover:bg-zinc-200 font-black uppercase text-[10px] tracking-widest h-12 rounded-xl mt-4">
+                Open Production Logs
+              </Button>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

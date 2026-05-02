@@ -73,9 +73,7 @@ export default function HelpPage() {
 
   return (
     <div className="relative min-h-[calc(100vh-64px)] bg-[#030303] overflow-hidden flex flex-col p-6 lg:p-12">
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none -translate-y-1/2 -translate-x-1/4" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-fuchsia-500/5 blur-[120px] rounded-full pointer-events-none translate-y-1/3 translate-x-1/4" />
+
 
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         {/* Header Section */}
@@ -96,8 +94,8 @@ export default function HelpPage() {
           </div>
 
           <div className="w-full max-w-2xl relative group">
-            <div className="absolute inset-0 bg-cyan-500/20 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-            <div className="relative flex items-center bg-zinc-900/50 backdrop-blur-3xl border border-white/5 rounded-3xl p-2 pl-6 focus-within:border-cyan-500/50 transition-all duration-500">
+
+            <div className="relative flex items-center bg-zinc-900/50 backdrop-blur-md border border-white/5 rounded-3xl p-2 pl-6 focus-within:border-cyan-500/50 transition-all duration-500">
               <Search className="w-5 h-5 text-zinc-500" />
               <Input 
                 value={searchQuery}
@@ -125,7 +123,7 @@ export default function HelpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
                 >
-                  <Card className="bg-zinc-900/20 backdrop-blur-3xl border border-white/5 p-8 rounded-[2.5rem] hover:border-white/10 transition-all group cursor-pointer relative overflow-hidden h-full">
+                  <Card className="bg-zinc-900/20 backdrop-blur-md border border-white/5 p-8 rounded-[2.5rem] hover:border-white/10 transition-all group cursor-pointer relative overflow-hidden h-full">
                     <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
                       <Icon className={cn("w-24 h-24", cat.color)} />
                     </div>
@@ -240,6 +238,7 @@ export default function HelpPage() {
     </div>
   );
 }
+
 
 
 

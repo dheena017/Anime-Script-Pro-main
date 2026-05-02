@@ -51,33 +51,7 @@ export function LoginPage() {
         <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Return to Base</span>
       </motion.button>
 
-      {/* Cinematic Background Elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-studio/5 rounded-full blur-[150px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-950/10 rounded-full blur-[120px]" />
-        
-        {/* Background Visual Grid */}
-        <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-4 p-8 opacity-20">
-          {[
-            'cyberpunk_thumbnail_1776537282821.png',
-            'dark_isekai_thumbnail_1776537262155.png',
-            'shonen_battle_thumbnail_1776537245370.png',
-            'mecha_rebellion_thumbnail_1776537334398.png'
-          ].map((src, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.2 }}
-              className="relative overflow-hidden rounded-2xl border border-white/5"
-            >
-              <img src={`/${src}`} alt={`Anime inspiration background ${i + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
-            </motion.div>
-          ))}
-        </div>
 
-        <div className="absolute inset-0 opacity-[0.03] brightness-100 mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-      </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -110,7 +84,7 @@ export function LoginPage() {
                 </p>
               </div>
            </div>
-           <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-3xl p-1">
+           <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-md p-1">
               <div className="relative aspect-video rounded-[1.8rem] overflow-hidden bg-zinc-900">
                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
                     <div className="w-16 h-16 rounded-full bg-studio/20 backdrop-blur-md flex items-center justify-center border border-studio/30 group-hover:scale-110 transition-transform">
@@ -207,3 +181,4 @@ export function LoginPage() {
     </main>
   );
 }
+

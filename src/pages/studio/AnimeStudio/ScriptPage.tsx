@@ -395,7 +395,7 @@ export function ScriptPage() {
   };
 
   return (
-    <div data-testid="marker-production-script" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div data-testid="marker-production-script">
       <Card className={cn(
         "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'teleprompter'
@@ -419,6 +419,7 @@ export function ScriptPage() {
     </div>
   );
 }
+
 
 
 

@@ -9,7 +9,9 @@ from typing import List, Optional
 router = APIRouter(prefix="/api", tags=["world"])
 
 @router.get("/world/lore/{user_id}", response_model=Optional[WorldLore])
-async def get_world_lore(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session)):
+async def get_world_lore(user_id: str, project_id: Optional[int] = None, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this lore")
     statement = select(WorldLore).where(WorldLore.user_id == user_id)
     if project_id:
         statement = statement.where(WorldLore.project_id == project_id)
@@ -31,6 +33,9 @@ async def update_world_lore(
     # Determine the target user_id
     effective_user_id = user_id or auth_user_id
     
+    if effective_user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this lore")
+
     # Extract project_id from body if not in query (for compatibility)
     effective_project_id = project_id or lore_update.get("project_id")
     
@@ -64,7 +69,9 @@ async def update_world_lore(
     return db_lore
 
 @router.get("/world/history/{user_id}", response_model=List[WorldLore])
-async def get_lore_history(user_id: str, limit: int = 10, session: AsyncSession = Depends(get_async_session)):
+async def get_lore_history(user_id: str, limit: int = 10, session: AsyncSession = Depends(get_async_session), auth_user_id: str = Depends(get_auth_user_id)):
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this history")
     statement = select(WorldLore).where(WorldLore.user_id == user_id).order_by(WorldLore.updated_at.desc()).limit(limit)
     result = await session.execute(statement)
     return result.scalars().all()
@@ -81,6 +88,9 @@ async def get_characters(
     auth_user_id: str = Depends(get_auth_user_id)
 ):
     effective_user_id = user_id or auth_user_id
+    if effective_user_id != auth_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access these characters")
+        
     statement = select(CastMember).where(CastMember.user_id == effective_user_id)
     if project_id:
         statement = statement.where(CastMember.project_id == project_id)
@@ -94,7 +104,8 @@ async def create_character(
     session: AsyncSession = Depends(get_async_session),
     auth_user_id: str = Depends(get_auth_user_id)
 ):
-    character.user_id = character.user_id or auth_user_id
+    # Ensure character is created for the authenticated user
+    character.user_id = auth_user_id 
     session.add(character)
     await session.commit()
     await session.refresh(character)

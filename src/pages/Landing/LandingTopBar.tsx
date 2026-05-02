@@ -18,3 +18,4 @@ export const LandingTopBar: React.FC = () => {
 };
 
 export default LandingTopBar;
+

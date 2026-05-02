@@ -8,7 +8,7 @@ interface CommunityLayoutProps {
 
 export const CommunityLayout: React.FC<CommunityLayoutProps> = ({ header, toolbar, content }) => {
   return (
-    <div className="max-w-[1200px] mx-auto space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-[1200px] mx-auto space-y-2">
       {header}
       {toolbar}
       <div className="relative">
@@ -18,5 +18,6 @@ export const CommunityLayout: React.FC<CommunityLayoutProps> = ({ header, toolba
     </div>
   );
 };
+
 
 

@@ -22,12 +22,8 @@ interface GeminiStatusCardProps {
 
 export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError, onClear }: GeminiStatusCardProps) {
   return (
-    <div className="relative group overflow-hidden rounded-3xl border border-zinc-800 bg-black/40 backdrop-blur-xl transition-all duration-500 hover:border-studio/30">
-      {/* Dynamic Glow Background */}
-      <div className={cn(
-        "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-1000",
-        status === 'success' ? "bg-emerald-500" : status === 'error' ? "bg-red-500" : "bg-studio"
-      )} />
+    <div className="relative group overflow-hidden rounded-3xl border border-zinc-800 bg-black/40 backdrop-blur-md transition-all duration-500 hover:border-studio/30">
+
 
       <div className="relative p-6 space-y-6">
         <div className="flex items-center justify-between">
@@ -144,5 +140,6 @@ export function GeminiStatusCard({ apiKey, onTest, isTesting, status, lastError,
     </div>
   );
 }
+
 
 

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export const Footer = () => {
   const navigate = useNavigate();
   return (
-    <footer className="relative z-10 border-t border-white/5 bg-black/50 backdrop-blur-xl">
+    <footer className="relative z-10 border-t border-white/5 bg-black/50 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24">
           <div className="space-y-6">
@@ -84,3 +84,4 @@ export const Footer = () => {
     </footer>
   );
 };
+

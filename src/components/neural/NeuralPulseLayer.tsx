@@ -14,7 +14,7 @@ export function NeuralPulseLayer() {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vh] bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,transparent_70%)] blur-[80px]"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vh] bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.08)_0%,transparent_70%)] blur-[40px]"
       />
 
       {/* Secondary Pulse (Fuchsia) */}
@@ -29,7 +29,7 @@ export function NeuralPulseLayer() {
           ease: "easeInOut",
           delay: 3
         }}
-        className="absolute top-1/4 left-1/4 w-[80vw] h-[80vh] bg-[radial-gradient(circle_at_center,rgba(192,38,211,0.03)_0%,transparent_70%)] blur-[60px]"
+        className="absolute top-1/4 left-1/4 w-[80vw] h-[80vh] bg-[radial-gradient(circle_at_center,rgba(192,38,211,0.03)_0%,transparent_70%)] blur-[30px]"
       />
 
       {/* Scanning Line Effect - Slowed down significantly */}
@@ -47,5 +47,6 @@ export function NeuralPulseLayer() {
     </div>
   );
 }
+
 
 

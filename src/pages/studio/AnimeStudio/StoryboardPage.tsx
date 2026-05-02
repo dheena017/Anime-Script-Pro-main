@@ -20,6 +20,7 @@ import { StoryboardTab } from './components/Storyboard/Tabs/StoryboardTabs';
 // Sub-components
 import { PlanningGuide } from './components/Storyboard/PlanningGuide';
 import { StoryboardContext } from './Storyboard/StoryboardLayout';
+import { DeferredRender } from '@/components/studio/DeferredRender';
 
 // Modular tab components
 import { FramesTab } from './components/Storyboard/Tabs/FramesTab';
@@ -50,11 +51,11 @@ export function StoryboardPage() {
     setIsGeneratingVisuals,
     addLog
   } = useGenerator();
-  const promptList = generatedImagePrompts 
+  const promptList = React.useMemo(() => generatedImagePrompts 
   ? generatedImagePrompts.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0 && !line.includes('---')) 
-  : [];
+  : [], [generatedImagePrompts]);
   const [scenes, setScenes] = useState<Scene[]>([]);
 
   const [enhancingSceneIds, setEnhancingSceneIds] = useState<Set<string>>(new Set());
@@ -102,16 +103,7 @@ export function StoryboardPage() {
     }
   }, [generatedScript]);
 
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-    const items = Array.from(scenes);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-    setScenes(items);
-    updateScriptMarkdown(items);
-  };
-
-  const updateScriptMarkdown = (items: Scene[]) => {
+  const updateScriptMarkdown = React.useCallback((items: Scene[]) => {
     let currentScript = generatedScript;
     if (!currentScript || !currentScript.includes('|')) {
       currentScript = "# Anime Script\n\n| Section | Voiceover Narration | Visual/Scene Description | Sound Effect/BGM Cues | Duration | Linked Prompt |\n| :--- | :--- | :--- | :--- | :--- | :--- |";
@@ -128,9 +120,18 @@ export function StoryboardPage() {
       lastScriptRef.current = newScript;
       setGeneratedScript(newScript);
     }
-  };
+  }, [generatedScript, setGeneratedScript]);
 
-  const handleEnhanceNarration = async () => {
+  const handleDragEnd = React.useCallback((result: DropResult) => {
+    if (!result.destination) return;
+    const items = Array.from(scenes);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    setScenes(items);
+    updateScriptMarkdown(items);
+  }, [scenes, updateScriptMarkdown]);
+
+  const handleEnhanceNarration = React.useCallback(async () => {
     if (!editForm.narration) return;
     setIsEnhancingNarration(true);
     try {
@@ -141,9 +142,9 @@ export function StoryboardPage() {
     } finally {
       setIsEnhancingNarration(false);
     }
-  };
+  }, [editForm.narration]);
 
-  const handleEnhanceVisuals = async () => {
+  const handleEnhanceVisuals = React.useCallback(async () => {
     if (!editForm.visuals) return;
     setIsEnhancing(true);
     try {
@@ -154,9 +155,9 @@ export function StoryboardPage() {
     } finally {
       setIsEnhancing(false);
     }
-  };
+  }, [editForm.visuals, editForm.narration]);
 
-  const handleRewriteTension = async () => {
+  const handleRewriteTension = React.useCallback(async () => {
     if (!editForm.visuals) return;
     setIsRewritingTension(true);
     try {
@@ -167,9 +168,9 @@ export function StoryboardPage() {
     } finally {
       setIsRewritingTension(false);
     }
-  };
+  }, [editForm.visuals]);
 
-  const handleSuggestDuration = async () => {
+  const handleSuggestDuration = React.useCallback(async () => {
     if (!editForm.narration) return;
     setIsSuggestingDuration(true);
     try {
@@ -180,9 +181,9 @@ export function StoryboardPage() {
     } finally {
       setIsSuggestingDuration(false);
     }
-  };
+  }, [editForm.narration]);
 
-  const handleGenerateVisual = async (originalIndex: number, visualsDescription: string) => {
+  const handleGenerateVisual = React.useCallback(async (originalIndex: number, visualsDescription: string) => {
     setVisualData(prev => ({ ...prev, [originalIndex]: ['loading'] }));
     try {
       const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${visualsDescription} Variation ${i+1}`, selectedModel));
@@ -195,9 +196,9 @@ export function StoryboardPage() {
       const fallbacks = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${seed}-${originalIndex}-${i}/800/450`);
       setVisualData(prev => ({ ...prev, [originalIndex]: fallbacks }));
     }
-  };
+  }, [selectedModel, setVisualData]);
 
-  const handleGenerateVideo = async (originalIndex: number, _imageUrl: string, prompt: string) => {
+  const handleGenerateVideo = React.useCallback(async (originalIndex: number, _imageUrl: string, prompt: string) => {
     setVideoData(prev => ({ ...prev, [originalIndex]: 'loading' }));
     try {
       const videoUrl = await generateSceneVideo(prompt, selectedModel);
@@ -210,9 +211,9 @@ export function StoryboardPage() {
       console.error("Failed to generate video:", error);
       setVideoData(prev => ({ ...prev, [originalIndex]: "https://vjs.zencdn.net/v/oceans.mp4" }));
     }
-  };
+  }, [selectedModel, setVideoData]);
 
-  const handleGenerateAll = async () => {
+  const handleGenerateAll = React.useCallback(async () => {
     addLog("STORYBOARD", "PROCESSING", `Initiating bulk neural synthesis for ${scenes.length} production units.`);
     setIsGeneratingVisuals(true);
     const newVisualData = { ...visualData };
@@ -234,9 +235,9 @@ export function StoryboardPage() {
     }
     setIsGeneratingVisuals(false);
     addLog("STORYBOARD", "COMPLETED", "Neural synthesis cycle concluded. Visual DNA manifests updated.");
-  };
+  }, [scenes, visualData, selectedModel, addLog, setIsGeneratingVisuals, setVisualData]);
 
-  const handleFullProductionLoop = async () => {
+  const handleFullProductionLoop = React.useCallback(async () => {
     setIsProductionLoopActive(true);
     setProductionProgress(0);
     
@@ -262,9 +263,9 @@ export function StoryboardPage() {
       setIsProductionLoopActive(false);
       setProductionProgress(100);
     }
-  };
+  }, [scenes, visualData, handleGenerateVisual, handleGenerateVideo]);
 
-  const handleEnhanceAllNarration = async () => {
+  const handleEnhanceAllNarration = React.useCallback(async () => {
     setIsEnhancingAllNarration(true);
     try {
       const updatedScenes = await Promise.all(scenes.map(async (scene) => {
@@ -279,9 +280,9 @@ export function StoryboardPage() {
     } finally {
       setIsEnhancingAllNarration(false);
     }
-  };
+  }, [scenes, updateScriptMarkdown]);
 
-  const handleEnhanceAllVisuals = async () => {
+  const handleEnhanceAllVisuals = React.useCallback(async () => {
     setIsEnhancingAllVisuals(true);
     try {
       let currentScenes = [...scenes];
@@ -313,9 +314,9 @@ export function StoryboardPage() {
       setIsEnhancingAllVisuals(false);
       setEnhancingSceneIds(new Set());
     }
-  };
+  }, [scenes, updateScriptMarkdown]);
 
-  const handleAddScene = () => {
+  const handleAddScene = React.useCallback(() => {
     const nextIndex = scenes.length > 0 ? Math.max(...scenes.map(s => s.originalIndex)) + 1 : 0;
     const newScene: Scene = {
       id: `scene-${Math.random().toString(36).substring(2, 9)}-${nextIndex}`,
@@ -330,15 +331,15 @@ export function StoryboardPage() {
     setScenes(updatedScenes);
     updateScriptMarkdown(updatedScenes);
     addLog("STORYBOARD", "MODIFIED", `Inserted new production unit at index ${nextIndex}.`);
-  };
+  }, [scenes, updateScriptMarkdown, addLog]);
 
 
-  const startEditing = (scene: Scene) => {
+  const startEditing = React.useCallback((scene: Scene) => {
     setEditingSceneId(scene.id);
     setEditForm(scene);
-  };
+  }, []);
 
-  const saveSceneEdits = () => {
+  const saveSceneEdits = React.useCallback(() => {
     if (!editingSceneId) return;
     const updatedScenes = scenes.map(scene => scene.id === editingSceneId ? { ...scene, ...editForm } as Scene : scene);
     setScenes(updatedScenes);
@@ -346,7 +347,7 @@ export function StoryboardPage() {
     addLog("STORYBOARD", "UPDATED", `Refined metadata for production unit ID: ${editingSceneId}.`);
     setEditingSceneId(null);
     setEditForm({});
-  };
+  }, [editingSceneId, scenes, editForm, updateScriptMarkdown, addLog]);
 
   const { setHandlers } = React.useContext<any>(StoryboardContext);
   const { activeTab } = useOutletContext<{ activeTab: StoryboardTab }>();
@@ -369,6 +370,21 @@ export function StoryboardPage() {
   }, [isGlobalEnhancing, scenes, isProductionLoopActive, productionProgress, isGuideOpen, isGeneratingVisuals]);
 
   const renderTabContent = () => {
+    if (scenes.length === 0 && activeTab !== 'animatic') {
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Initializing Visual Buffer...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Waiting for script manifest to stabilize</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'frames':
         return (
@@ -439,7 +455,7 @@ export function StoryboardPage() {
   };
 
   return (
-    <div data-testid="marker-visual-storyboard" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div data-testid="marker-visual-storyboard">
       <AnimatePresence>
         {isGuideOpen && <PlanningGuide />}
       </AnimatePresence>
@@ -473,12 +489,15 @@ export function StoryboardPage() {
               </div>
             </div>
           )}
-          {renderTabContent()}
+          <DeferredRender delay={16} fallback={<div className="h-96 flex items-center justify-center opacity-10"><LayoutGrid className="w-12 h-12 animate-pulse" /></div>}>
+            {renderTabContent()}
+          </DeferredRender>
         </div>
       </Card>
     </div>
   );
 }
+
 
 
 

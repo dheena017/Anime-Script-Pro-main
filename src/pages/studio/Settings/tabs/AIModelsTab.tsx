@@ -125,7 +125,7 @@ export function AIModelsTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-          <Card className="bg-[#0a0a0a]/80 backdrop-blur-3xl border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
+          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
             <div className="absolute top-0 right-0 p-40 bg-studio/10 blur-[150px] rounded-full pointer-events-none" />
             
             <CardHeader className="relative z-10 border-b border-zinc-900 pb-8">
@@ -233,7 +233,7 @@ export function AIModelsTab() {
         </div>
 
         <div className="space-y-8">
-          <Card className="bg-[#0a0a0a]/80 backdrop-blur-3xl border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
+          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-[2.5rem]">
             <CardHeader className="border-b border-zinc-900">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-studio/10 rounded-xl border border-studio/20">
@@ -280,3 +280,4 @@ export function AIModelsTab() {
     </div>
   );
 }
+

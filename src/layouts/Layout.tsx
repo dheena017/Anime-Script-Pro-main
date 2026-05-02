@@ -14,15 +14,12 @@ import { useApp } from '@/contexts/AppContext';
 import { NeuralConsole } from '@/components/studio/NeuralConsole';
 import { NeuralErrorSentinel } from '@/components/studio/NeuralErrorSentinel';
 import { NotificationCenter } from '@/components/widgets/NotificationCenter';
-import { NeuralPulseLayer } from '@/components/neural/NeuralPulseLayer';
-import { useGenerator } from '@/hooks/useGenerator';
 
 import { StudioFooter } from '@/components/studio/layout/StudioFooter';
 
 export function Layout() {
-  const { isFullscreen } = useGenerator();
+  const { isFullscreen, currentProject } = useApp();
   const location = useLocation();
-  const { currentProject } = useApp();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
 
@@ -35,14 +32,7 @@ export function Layout() {
       "h-screen bg-[#050505] text-zinc-100 flex font-sans selection:bg-red-500/30 overflow-hidden",
       isFullscreen && "studio-fullscreen-mode"
     )}>
-      {/* Background Accents - Atmospheric */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.08)_0%,transparent_70%)] blur-[100px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.05)_0%,transparent_70%)] blur-[100px] rounded-full mix-blend-screen" />
-        <div className="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.03)_0%,transparent_70%)] blur-[80px] rounded-full mix-blend-screen" />
-      </div>
 
-      <NeuralPulseLayer />
 
       {/* Unified Sidebar */}
       <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
@@ -52,7 +42,7 @@ export function Layout() {
         {isSidebarOpen && (
           <motion.div
             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(15px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 bg-black/60 z-[450] cursor-pointer"
@@ -64,7 +54,7 @@ export function Layout() {
         className="flex-1 flex flex-col min-w-0 bg-[#050505] transition-all duration-300 overflow-hidden"
       >
         <header 
-          className="sticky top-0 z-[400] border-b border-zinc-800/50 bg-black/40 backdrop-blur-xl shrink-0 transition-all duration-300"
+          className="sticky top-0 z-[400] border-b border-zinc-800/50 bg-black/40 backdrop-blur-md shrink-0 transition-all duration-300"
         >
           <div className="max-w-full mx-auto px-4 sm:px-6 py-3 flex items-center justify-between w-full h-[60px]">
             <div className="flex items-center gap-4">
@@ -116,16 +106,17 @@ export function Layout() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar">
+        <div className="flex-1 overflow-y-auto">
           <main className="relative z-10 p-6 md:p-10 min-h-[calc(100vh-200px)]">
             <div className="max-w-7xl mx-auto">
               <AnimatePresence>
                 <motion.div
                   key={location.pathname}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15, ease: 'linear' }}
+                  style={{ willChange: 'opacity' }}
                 >
                   <Outlet />
                 </motion.div>
@@ -143,5 +134,6 @@ export function Layout() {
     </div>
   );
 }
+
 
 

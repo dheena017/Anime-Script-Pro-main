@@ -23,6 +23,7 @@ export interface OrchestrationResult {
   cast: any;
   series: any[];
   sequences: ProductionUnit[];
+  script?: string;
 }
 
 /**
@@ -57,7 +58,7 @@ export class ProductionOrchestrator {
 
       // STATE 05: SCRIPT Engine
       if (onProgress) onProgress("MANIFEST_SCRIPT: Materializing Script Pilot via Shogun Engine...");
-      await this.materializePilot(world, cast, series[0]);
+      const script = await this.materializePilot(world, cast, series[0]);
 
       // STATE 06: VISUAL Manifest
       if (onProgress) onProgress("SCAFFOLD_VISUAL: Deploying 960-Unit Storyboard Grid...");
@@ -84,7 +85,8 @@ export class ProductionOrchestrator {
         world,
         cast,
         series,
-        sequences
+        sequences,
+        script
       };
     } catch (error: any) {
       const errorMsg = error?.message || "Unknown Orchestration Error";
@@ -341,5 +343,6 @@ export class ProductionOrchestrator {
     return scriptMarkdown;
   }
 }
+
 
 

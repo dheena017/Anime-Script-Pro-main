@@ -178,12 +178,12 @@ function AssetCard({ title, icon: Icon, content, isGenerating, onGenerate }: any
 
   return (
     <Card className={cn(
-      "bg-[#050505]/50 border transition-all duration-700 backdrop-blur-3xl overflow-hidden relative rounded-[2.5rem] group/card min-h-[600px]",
+      "bg-[#050505]/50 border transition-all duration-700 backdrop-blur-md overflow-hidden relative rounded-[2.5rem] group/card min-h-[600px]",
       content ? `border-studio/30 shadow-[0_0_40px_rgba(0,0,0,0.3)]` : "border-white/5 hover:border-zinc-800"
     )}>
       <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
       
-      <div className="p-8 border-b border-white/5 bg-[#0a0a0a]/40 backdrop-blur-xl flex items-center justify-between relative z-10 px-10">
+      <div className="p-8 border-b border-white/5 bg-[#0a0a0a]/40 backdrop-blur-md flex items-center justify-between relative z-10 px-10">
         <div className="flex items-center gap-4">
           <div className={cn(
             "p-3 rounded-2xl border transition-all duration-700 shadow-lg",
@@ -256,3 +256,4 @@ function AssetCard({ title, icon: Icon, content, isGenerating, onGenerate }: any
     </Card>
   );
 }
+

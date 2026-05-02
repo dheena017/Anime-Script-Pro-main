@@ -45,7 +45,7 @@ export function BillingSettings() {
       <div className="relative overflow-hidden rounded-3xl p-[1px] bg-gradient-to-b from-yellow-500/50 via-red-500/20 to-zinc-900 group shadow-[0_0_50px_rgba(234,179,8,0.15)]">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay" />
         
-        <Card className="bg-black/95 backdrop-blur-xl border-none h-full relative z-10 m-0 rounded-[calc(1.5rem-1px)]">
+        <Card className="bg-black/95 backdrop-blur-md border-none h-full relative z-10 m-0 rounded-[calc(1.5rem-1px)]">
           <CardHeader className="pb-4">
              <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                 <div className="flex items-center gap-4">
@@ -104,7 +104,7 @@ export function BillingSettings() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
          <div className="space-y-6">
-            <Card className="bg-[#0a0a0a]/80 backdrop-blur-3xl border-zinc-800/50 rounded-3xl h-full">
+            <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 rounded-3xl h-full">
                <CardHeader className="pb-4">
                   <CardTitle className="text-sm font-black text-white tracking-widest uppercase flex items-center gap-2"><Grip className="w-4 h-4 text-zinc-500"/> Central Payment Routing</CardTitle>
                </CardHeader>
@@ -139,5 +139,6 @@ export function BillingSettings() {
     </div>
   );
 }
+
 
 

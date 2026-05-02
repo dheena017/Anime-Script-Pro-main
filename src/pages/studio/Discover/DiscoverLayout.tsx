@@ -8,7 +8,7 @@ interface DiscoverLayoutProps {
 
 export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({ header, toolbar, content }) => {
   return (
-    <div className="max-w-[1600px] mx-auto space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-[1600px] mx-auto space-y-2">
       {header}
       {toolbar}
       <div className="relative">
@@ -18,5 +18,6 @@ export const DiscoverLayout: React.FC<DiscoverLayoutProps> = ({ header, toolbar,
     </div>
   );
 };
+
 
 

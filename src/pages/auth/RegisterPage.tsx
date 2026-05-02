@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Zap, ArrowLeft, Play, Cpu, Sparkles, Layout } from 'lucide-react';
+import { ShieldCheck, Zap, Sparkles } from 'lucide-react';
 import { AuthCard } from '@/components/auth/AuthCard.jsx';
 import { RegisterForm } from '@/components/auth/RegisterForm.jsx';
 import { SocialLoginButton } from '@/components/auth/SocialLoginButton.jsx';
@@ -27,11 +27,7 @@ export function RegisterPage() {
 
   return (
     <main className="min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-studio/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
+
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -64,7 +60,7 @@ export function RegisterPage() {
                 </p>
               </div>
            </div>
-           <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-3xl p-1">
+           <div className="relative group rounded-[2rem] overflow-hidden border border-zinc-800/50 bg-black/40 backdrop-blur-md p-1">
               <div className="relative aspect-video rounded-[1.8rem] overflow-hidden bg-zinc-900">
                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all">
                     <div className="w-16 h-16 rounded-full bg-studio/20 backdrop-blur-md flex items-center justify-center border border-studio/30 group-hover:scale-110 transition-transform">
@@ -161,3 +157,4 @@ export function RegisterPage() {
     </main>
   );
 }
+

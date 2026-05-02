@@ -148,6 +148,23 @@ export function SEOPage() {
   }, [generatedScript, selectedModel]);
 
   const renderTabContent = () => {
+    const isAnyGenerating = isGeneratingMetadata || isGeneratingDescription || isGeneratingAltText || isGeneratingGrowthStrategy || isGeneratingDistribution;
+
+    if (isAnyGenerating) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Computing SEO Analytics...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Optimizing distribution meta-data</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'keywords':
         return (
@@ -225,6 +242,7 @@ export function SEOPage() {
     </div>
   );
 }
+
 
 
 

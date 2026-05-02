@@ -78,3 +78,4 @@ export const Gallery: React.FC<GalleryProps> = ({
     </section>
   );
 };
+

@@ -34,3 +34,4 @@ export const PLACEHOLDER_PROMPTS = [
   'A dragon rider soaring above snow-covered mountains...',
   'A magical girl transformation scene with sparkles...',
 ];
+

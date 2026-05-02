@@ -43,7 +43,7 @@ export function DataStorageSettings() {
          </div>
       )}
 
-      <Card className="bg-[#0a0a0a]/80 backdrop-blur-3xl border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-3xl">
+      <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-3xl">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-sky-600/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-sky-600/10 transition-colors duration-1000" />
         
         <CardHeader className="relative z-10 border-b border-zinc-900 pb-8">
@@ -87,5 +87,6 @@ export function DataStorageSettings() {
     </div>
   );
 }
+
 
 

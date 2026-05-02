@@ -30,7 +30,7 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
     >
       <div className="relative group">
         <div className="absolute -inset-[1px] bg-gradient-to-r from-studio/50 via-purple-500/50 to-studio/50 rounded-[1.75rem] blur-sm opacity-40 group-hover:opacity-70 transition-opacity" />
-        <div className="relative bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="relative bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
           <div className="flex items-start gap-3">
               <textarea
                 value={promptText}
@@ -80,3 +80,4 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
     </motion.div>
   );
 };
+

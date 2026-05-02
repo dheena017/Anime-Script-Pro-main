@@ -90,6 +90,21 @@ export function EnginePage() {
   }, [generatedScript, user, prompt, tone, selectedModel]);
 
   const renderTabContent = () => {
+    if (isGeneratingScript) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[500px] space-y-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-2 border-studio/20 border-t-studio rounded-full animate-spin shadow-[0_0_30px_rgba(6,182,212,0.3)]" />
+            <Cpu className="absolute inset-0 m-auto w-6 h-6 text-studio animate-pulse" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Running Neural Synthesis...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Generating cinematic narrative weights</p>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'status':
         return (
@@ -315,6 +330,7 @@ export function EnginePage() {
     </div>
   );
 }
+
 
 
 

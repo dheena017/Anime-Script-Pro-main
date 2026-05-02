@@ -35,7 +35,7 @@ export const NavItem = ({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="absolute left-0 mt-2 w-64 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl z-50"
+              className="absolute left-0 mt-2 w-64 bg-zinc-900/90 backdrop-blur-md border border-white/10 rounded-2xl p-2 shadow-2xl z-50"
             >
               {children}
             </motion.div>
@@ -72,3 +72,4 @@ export const DropdownLink = ({
     </div>
   </a>
 );
+

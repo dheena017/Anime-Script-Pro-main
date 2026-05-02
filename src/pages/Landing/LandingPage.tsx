@@ -20,7 +20,6 @@ import {
 import { Button } from '@/components/ui/button';
 
 // Modular UI Components (Lazy Loaded for Performance)
-import { DigitalScanline, HUDDecoration } from './ui/Effects';
 import { NavItem, DropdownLink } from './ui/NavComponents';
 import { HeroPromptBar } from './ui/HeroPromptBar';
 
@@ -64,15 +63,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-zinc-100 selection:bg-studio/30 selection:text-studio overflow-x-hidden">
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute top-[10%] left-[20%] w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[20%] right-[10%] w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '2s' }} />
-        {/* <SpeedLines /> */}
-        <DigitalScanline />
-        <HUDDecoration />
-      </div>
+
 
       {/* Navigation */}
       <header className="fixed top-0 left-0 right-0 z-[100] border-b border-white/5 bg-black/50 backdrop-blur-md">
@@ -175,7 +166,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden border-t border-white/5 bg-black/90 backdrop-blur-xl px-6 py-6 space-y-4"
+              className="lg:hidden border-t border-white/5 bg-black/90 backdrop-blur-md px-6 py-6 space-y-4"
             >
               <a href="/community" className="block text-sm font-medium text-zinc-400 hover:text-white no-underline">Community</a>
               <a href="/pricing" className="block text-sm font-medium text-zinc-400 hover:text-white no-underline">Pricing</a>
@@ -381,3 +372,4 @@ export default function LandingPage() {
     </div>
   );
 }
+

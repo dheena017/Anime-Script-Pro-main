@@ -37,10 +37,9 @@ export function NeuralErrorSentinel() {
             initial={{ opacity: 0, x: 50, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 50, scale: 0.9 }}
-            className="w-80 bg-red-950/40 backdrop-blur-2xl border border-red-500/30 rounded-2xl p-5 shadow-[0_0_40px_rgba(239,68,68,0.2)] pointer-events-auto overflow-hidden group"
+            className="w-80 bg-red-950/40 backdrop-blur-md border border-red-500/30 rounded-2xl p-5 shadow-[0_0_40px_rgba(239,68,68,0.2)] pointer-events-auto overflow-hidden group"
           >
-            {/* Glitch Effect Background */}
-            <div className="absolute inset-0 bg-red-500/5 group-hover:animate-pulse transition-all" />
+
             
             <div className="relative z-10 flex items-start gap-4">
               <div className="p-2 bg-red-500/20 rounded-xl">
@@ -76,17 +75,13 @@ export function NeuralErrorSentinel() {
               </div>
             </div>
 
-            {/* Scanning line for the error Sentinel */}
-            <motion.div 
-              animate={{ top: ['0%', '100%'] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              className="absolute left-0 right-0 h-[1px] bg-red-500/20 blur-[2px]"
-            />
+
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
 }
+
 
 

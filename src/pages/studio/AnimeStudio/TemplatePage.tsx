@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { ScrollText, Search, Sword, Globe, Zap, Ghost, Brain, Flame, Heart, Trophy, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -63,7 +63,7 @@ export function TemplatePage() {
   const selectedTemplateData = templates.find(t => t.id === showTemplateDetails || t.id.toString() === showTemplateDetails);
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8" data-testid="marker-forge-library">
+    <div className="space-y-8" data-testid="marker-forge-library">
       {/* HEADER SECTION WITH SEARCH */}
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 glass-panel p-6 rounded-[2rem] border-cyan-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
         <div className="space-y-2 shrink-0">
@@ -126,8 +126,9 @@ export function TemplatePage() {
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
+
 
 

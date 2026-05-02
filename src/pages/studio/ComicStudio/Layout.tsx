@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useCallback } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +8,7 @@ import { Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StudioFooter } from '@/components/studio/layout/StudioFooter';
 import { SessionLogs } from '../AnimeStudio/components/Layout/SessionLogs';
+import { StudioLoading } from '@/components/studio/StudioLoading';
 
 /**
  * ComicLayout - Production Node v1.0 (Scaffold)
@@ -58,15 +60,11 @@ export default function ComicLayout() {
 
           {/* Main Workspace */}
           <div className="flex-1 overflow-y-auto relative no-scrollbar">
-            {/* Atmospheric Layer */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/5 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
-            </div>
+
 
             <div className="w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
-              <div className="w-full min-h-[600px] bg-[#1a150b]/80 backdrop-blur-3xl border border-amber-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-12 relative overflow-hidden">
-                {/* Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
+              <div className="w-full min-h-[600px] bg-[#1a150b]/80 backdrop-blur-md border border-amber-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-12 relative overflow-hidden">
+
                 
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -78,7 +76,7 @@ export default function ComicLayout() {
                     >
                       <div className="flex flex-col items-center justify-center h-[500px] space-y-10">
                         <div className="relative group">
-                          <div className="absolute inset-0 bg-amber-500 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
+
                           <div className="relative w-32 h-32 rounded-[3rem] bg-black/40 border border-amber-500/30 flex items-center justify-center shadow-2xl">
                             <h1 className="text-6xl font-black text-white italic">C</h1>
                           </div>
@@ -102,7 +100,9 @@ export default function ComicLayout() {
                           {isLoading ? 'Synthesizing Comic...' : 'Initiate Comic Genesis'}
                         </Button>
                       </div>
-                      <Outlet />
+                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Rendering Comic Canvas" submessage="Accessing Graphic Novel Archive..." />}>
+                        <Outlet />
+                      </React.Suspense>
                     </motion.div>
                 </AnimatePresence>
               </div>
@@ -133,3 +133,4 @@ export default function ComicLayout() {
     </div>
   );
 }
+

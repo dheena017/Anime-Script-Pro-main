@@ -51,7 +51,7 @@ export function NeuralConsole() {
             initial={{ height: 0, opacity: 0, scale: 0.95 }}
             animate={{ height: 240, opacity: 1, scale: 1 }}
             exit={{ height: 0, opacity: 0, scale: 0.95 }}
-            className="w-80 bg-black/90 backdrop-blur-2xl border border-studio/30 rounded-2xl mb-4 overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.15)] flex flex-col"
+            className="w-80 bg-black/90 backdrop-blur-md border border-studio/30 rounded-2xl mb-4 overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.15)] flex flex-col"
           >
             <div className="p-3 border-b border-studio/20 flex items-center justify-between bg-studio/5">
               <div className="flex items-center gap-2">
@@ -106,5 +106,6 @@ export function NeuralConsole() {
     </div>
   );
 }
+
 
 

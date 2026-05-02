@@ -78,7 +78,7 @@ export function WorldPage() {
   };
 
   return (
-    <div data-testid="marker-world-architecture" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div data-testid="marker-world-architecture">
       <Card className={cn(
         "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'architecture' 
@@ -97,6 +97,7 @@ export function WorldPage() {
     </div>
   );
 }
+
 
 
 

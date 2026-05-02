@@ -8,7 +8,7 @@ interface SettingsLayoutProps {
 
 export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ header, toolbar, content }) => {
   return (
-    <div className="max-w-[1000px] mx-auto space-y-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-[1000px] mx-auto space-y-2">
       {header}
       {toolbar}
       <div className="relative">
@@ -18,5 +18,6 @@ export const SettingsLayout: React.FC<SettingsLayoutProps> = ({ header, toolbar,
     </div>
   );
 };
+
 
 

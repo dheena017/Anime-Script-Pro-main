@@ -101,8 +101,8 @@ export function SeriesPage() {
             <div className="absolute inset-0 m-auto w-2 h-2 bg-studio rounded-full animate-ping" />
           </div>
           <div className="text-center space-y-2">
-            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Mapping Production Arcs...</p>
-            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Sequencing narrative manifest</p>
+            <p className="font-black tracking-[0.3em] text-[10px] uppercase text-studio animate-pulse">Mapping Production Roadmap...</p>
+            <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Sequencing episodic beats</p>
           </div>
         </div>
       );
@@ -173,7 +173,7 @@ export function SeriesPage() {
   };
 
   return (
-    <div data-testid="marker-series-planning" className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div data-testid="marker-series-planning">
       <Card className={cn(
         "bg-[#030303]/40 backdrop-blur-md overflow-hidden rounded-3xl relative group/card transition-all duration-700",
         activeTab === 'roadmap' 
@@ -192,6 +192,7 @@ export function SeriesPage() {
     </div>
   );
 }
+
 
 
 
