@@ -30,7 +30,7 @@ export const RelationshipMatrix = React.memo(() => {
     if (!castProfiles) return [];
     const names = new Set<string>();
     const lines = castProfiles.split('\n');
-    lines.forEach(line => {
+    lines.forEach((line: string) => {
       const match = line.match(/^\d*\.?\s*\*\*?([^*]+)\*\*?/);
       if (match) names.add(match[1].trim());
       else if (line.includes(':')) {

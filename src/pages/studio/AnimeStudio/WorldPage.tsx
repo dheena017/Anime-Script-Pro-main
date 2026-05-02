@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useWorldState, useWorldDispatch } from '@/contexts/generator';
 import { cn } from '@/lib/utils';
 import { useOutletContext } from 'react-router-dom';
 import { WorldTab } from './components/World/Tabs/WorldTabs';
@@ -15,12 +16,12 @@ import { WorldEmptyState } from './components/World/WorldEmptyState';
 export function WorldPage() {
   const { activeTab } = useOutletContext<{ activeTab: WorldTab }>();
   const {
-    generatedWorld,
-    setGeneratedWorld,
-    isGeneratingWorld,
     isEditing,
     prompt,
   } = useGenerator();
+
+  const { generatedWorld, isGeneratingWorld } = useWorldState();
+  const { setGeneratedWorld } = useWorldDispatch();
 
   const renderTabContent = () => {
     if (isGeneratingWorld) {

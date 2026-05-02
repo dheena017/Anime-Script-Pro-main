@@ -20,7 +20,6 @@ interface CastCardProps {
 
 export const CastCard = React.memo<CastCardProps>(({
   character,
-  index,
   isEditing,
   onUpdate
 }) => {
@@ -243,7 +242,7 @@ export const CastCard = React.memo<CastCardProps>(({
       </div>
     </motion.div>
   );
-};
+});
 
 
 

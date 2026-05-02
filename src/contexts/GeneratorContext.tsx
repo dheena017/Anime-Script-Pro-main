@@ -11,10 +11,7 @@ import { AI_EVENTS } from '../services/generators/core';
 import { useLogs } from './LogContext';
 
 interface GeneratorState {
-  worldLore: any;
-  seriesPlan: any;
   storyboardPrompts: any;
-  seoMetadata: any;
   prompt: string;
   theme: string;
   generatedScript: string | null;
@@ -25,20 +22,11 @@ interface GeneratorState {
   generatedDescription: string | null;
   generatedWorld: string | null;
   generatedAltText: string | null;
-  visualData: Record<number, string[]>;
-  videoData: Record<number, string>;
-  castProfiles: string | null;
-  castData: any | null;
-  castList: any[];
   recapperPersona: string;
-  characterRelationships: string | null;
-  tone: string;
-  audience: string;
   episode: string;
   session: string;
   numScenes: string;
   contentType: string;
-  selectedModel: string;
   isLoading: boolean;
   isGeneratingCharacters: boolean;
   isGeneratingMetadata: boolean;
@@ -55,19 +43,33 @@ interface GeneratorState {
   history: any[];
   productionSequence: ProductionUnit[];
   isLiked: boolean;
-  temperature: number;
-  maxTokens: number;
-  topP: number;
-  topK: number;
-  architecture: string | null;
-  atlas: string | null;
-  historyLore: string | null;
-  systems: string | null;
-  culture: string | null;
   generatedGrowthStrategy: string | null;
   isGeneratingGrowthStrategy: boolean;
   generatedDistributionPlan: string | null;
   isGeneratingDistribution: boolean;
+  // Engine / Model settings (migrated but kept for compatibility)
+  temperature: number;
+  maxTokens: number;
+  topP: number;
+  topK: number;
+  selectedModel: string;
+  tone: string;
+  audience: string;
+
+  // Cast / World compatibility
+  castData?: any | null;
+  castList?: any[];
+  castProfiles?: any | null;
+  characterRelationships?: string | null;
+
+  // Visual / storyboard compatibility
+  visualData?: any[];
+  videoData?: any[];
+
+  // SEO / series compatibility
+  seoMetadata?: any | null;
+  seriesPlan?: any[] | null;
+  worldLore?: any | null;
 }
 
 interface GeneratorDispatch {
@@ -81,22 +83,13 @@ interface GeneratorDispatch {
   setGeneratedDescription: (d: string | null) => void;
   setGeneratedWorld: (w: string | null) => void;
   setGeneratedAltText: (a: string | null) => void;
-  setVisualData: React.Dispatch<React.SetStateAction<Record<number, string[]>>>;
-  setVideoData: React.Dispatch<React.SetStateAction<Record<number, string>>>;
-  setCastProfiles: (c: string | null) => void;
-  setCastData: (d: any | null) => void;
-  setCastList: (l: any[]) => void;
   setRecapperPersona: (p: string) => void;
-  setCharacterRelationships: (r: string | null) => void;
   syncCore: () => Promise<void>;
   addLog: (module: string, status: string, message?: string) => void;
-  setTone: (t: string) => void;
-  setAudience: (a: string) => void;
   setEpisode: (e: string) => void;
   setSession: (s: string) => void;
   setNumScenes: (n: string) => void;
   setContentType: (t: string) => void;
-  setSelectedModel: (m: string) => void;
   setIsLoading: (l: boolean) => void;
   setIsGeneratingCharacters: (l: boolean) => void;
   setIsGeneratingMetadata: (l: boolean) => void;
@@ -112,20 +105,31 @@ interface GeneratorDispatch {
   setCurrentScriptId: (id: string | null) => void;
   setProductionSequence: (s: ProductionUnit[]) => void;
   setIsLiked: (l: boolean) => void;
-  setTemperature: (t: number) => void;
-  setMaxTokens: (t: number) => void;
-  setTopP: (p: number) => void;
-  setTopK: (k: number) => void;
-  setArchitecture: (s: string | null) => void;
-  setAtlas: (s: string | null) => void;
-  setHistoryLore: (s: string | null) => void;
-  setSystems: (s: string | null) => void;
-  setCulture: (s: string | null) => void;
   setGeneratedGrowthStrategy: (s: string | null) => void;
   setIsGeneratingGrowthStrategy: (l: boolean) => void;
   setGeneratedDistributionPlan: (s: string | null) => void;
   setIsGeneratingDistribution: (l: boolean) => void;
   showNotification: (message: string, type?: 'error' | 'success' | 'info') => void;
+  // Backwards-compatible setters (no-ops or proxies)
+  setTemperature: (t: number) => void;
+  setMaxTokens: (n: number) => void;
+  setTopP: (p: number) => void;
+  setTopK: (k: number) => void;
+  setSelectedModel: (m: string) => void;
+  setTone: (t: string) => void;
+  setAudience: (a: string) => void;
+
+  setCastData: (d: any | null) => void;
+  setCastList: (l: any[]) => void;
+  setCastProfiles: (p: any | null) => void;
+  setCharacterRelationships: (r: string | null) => void;
+
+  setVisualData: (v: any) => void;
+  setVideoData: (v: any) => void;
+
+  // Aliases for older APIs
+  setGlobalPrompt: (p: string) => void;
+  setGlobalContentType: (t: string) => void;
 }
 
 export type GeneratorContextType = GeneratorState & GeneratorDispatch;
@@ -151,44 +155,23 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy] = useState(false);
   const [generatedDistributionPlan, setGeneratedDistributionPlan] = useState<string | null>(null);
   const [isGeneratingDistribution, setIsGeneratingDistribution] = useState(false);
-  const [visualData, setVisualData] = useState<Record<number, string[]>>({});
-  const [videoData, setVideoData] = useState<Record<number, string>>({});
 
   const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
     rawShowNotification(message, type);
   }, [rawShowNotification]);
 
-  const [castProfiles, setCastProfiles] = useState<string | null>(null);
-  const [castData, setCastData] = useState<any | null>(null);
-  const [castList, setCastList] = useState<any[]>([]);
-  const [recapperPersona, setRecapperPersona] = useState('');
-  const [characterRelationships, setCharacterRelationships] = useState<string | null>(null);
-  const { addLog } = useLogs();
+  // World Modular Lore State REMOVED (Migrated to WorldContext)
 
-  // World Modular Lore State
-  const [architecture, setArchitecture] = useState<string | null>(null);
-  const [atlas, setAtlas] = useState<string | null>(null);
-  const [historyLore, setHistoryLore] = useState<string | null>(null);
-  const [systems, setSystems] = useState<string | null>(null);
-  const [culture, setCulture] = useState<string | null>(null);
-
-  // Engine Configuration State
-  const [temperature, setTemperature] = useState(0.85);
-  const [maxTokens, setMaxTokens] = useState(2048);
-  const [topP, setTopP] = useState(0.95);
-  const [topK, setTopK] = useState(40);
-  const [tone, setTone] = useState('Hype/Energetic');
-  const [audience, setAudience] = useState('General Fans');
-  const [selectedModel, setSelectedModel] = useState('Gemini-2.5-Flash');
+  // Engine Configuration State REMOVED (Migrated to EngineContext)
 
   // TanStack Queries for Caching
-  const { data: config } = useQuery({
+  useQuery({
     queryKey: ['engineConfig', user?.id],
     queryFn: () => engineApi.getConfig(user!.id),
     enabled: !!user?.id,
   });
 
-  const { data: lore } = useQuery({
+  useQuery({
     queryKey: ['worldLore', user?.id],
     queryFn: () => worldApi.getLore(user!.id),
     enabled: !!user?.id,
@@ -218,33 +201,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     enabled: !!user?.id,
   });
 
-  // Sync state with cached data when it changes
-  useEffect(() => {
-    if (config) {
-      setTemperature(config.temperature);
-      setMaxTokens(config.max_tokens);
-      setSelectedModel(config.selected_model);
-      setTone(config.vibe);
-      setAudience(config.audience);
-    }
-  }, [config]);
-
-  useEffect(() => {
-    if (lore) {
-      setArchitecture(lore.architecture);
-      setAtlas(lore.atlas);
-      setHistoryLore(lore.history);
-      setSystems(lore.systems);
-      setCulture(lore.culture);
-      if (lore.full_lore_blob) setGeneratedWorld(lore.full_lore_blob);
-    }
-  }, [lore]);
-
   useEffect(() => {
     if (production) {
-      setCastProfiles(production.cast_profiles);
-      setCastData(production.cast_data);
-      setCharacterRelationships(production.cast_relationships);
       setGeneratedScript(production.script_content);
       setGeneratedSeriesPlan(production.series_plan);
       setGeneratedMetadata(production.seo_metadata);
@@ -253,11 +211,10 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }
   }, [production]);
 
-  // Moved to LogContext
-
   const [episode, setEpisode] = useState('1');
   const [session, setSession] = useState('1');
   const [numScenes, setNumScenes] = useState('6');
+  const [recapperPersona, setRecapperPersona] = useState('');
   const [contentType, setContentType] = useState('Anime');
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
@@ -275,59 +232,32 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [isLiked, setIsLiked] = useState(false);
   const [productionSequence, setProductionSequence] = useState<ProductionUnit[]>([]);
 
-  // Auto-save Engine Config
-  useEffect(() => {
-    if (!user?.id || !config) return;
+  // Compatibility engine settings (kept local to avoid cross-context coupling)
+  const [temperature, setTemperature] = useState(0.85);
+  const [maxTokens, setMaxTokens] = useState(2048);
+  const [topP, setTopP] = useState(0.95);
+  const [topK, setTopK] = useState(40);
+  const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
+  const [tone, setTone] = useState('');
+  const [audience, setAudience] = useState('');
 
-    const timeout = setTimeout(async () => {
-      try {
-        await engineApi.updateConfig(user.id, {
-          temperature,
-          max_tokens: maxTokens,
-          selected_model: selectedModel,
-          vibe: tone,
-          audience: audience
-        });
-      } catch (error) {
-        console.warn("%c[System] %cEngine sync failed:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', error);
-      }
-    }, 5000);
+  // Compatibility cast/world/visual placeholders
+  const [castData, setCastData] = useState<any | null>(null);
+  const [castList, setCastList] = useState<any[]>([]);
+  const [castProfiles, setCastProfiles] = useState<any | null>(null);
+  const [characterRelationships, setCharacterRelationships] = useState<string | null>('');
+  const [visualData, setVisualData] = useState<any>([]);
+  const [videoData, setVideoData] = useState<any>([]);
 
-    return () => clearTimeout(timeout);
-  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, config]);
+  // Removed specialized modular auto-saves (Handled by smaller contexts)
 
-  // Auto-save World Lore
-  useEffect(() => {
-    if (!user?.id || !lore) return;
-
-    const timeout = setTimeout(async () => {
-      try {
-        await worldApi.updateLore(user.id, {
-          architecture,
-          atlas,
-          history: historyLore,
-          systems,
-          culture,
-          full_lore_blob: generatedWorld
-        });
-      } catch (error) {
-        console.warn("%c[System] %cLore sync failed:", 'color: #f59e0b; font-weight: bold', 'color: #94a3b8', error);
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [user?.id, architecture, atlas, historyLore, systems, culture, generatedWorld, lore]);
-
-  // Auto-save Production Content
+  // Auto-save Production Content (Remaining global fields)
   useEffect(() => {
     if (!user?.id || !production) return;
 
     const timeout = setTimeout(async () => {
       try {
         await productionApi.updateContent(user.id, {
-          cast_profiles: castProfiles,
-          cast_data: castData,
-          cast_relationships: characterRelationships,
           script_content: generatedScript,
           series_plan: generatedSeriesPlan,
           seo_metadata: generatedMetadata,
@@ -340,7 +270,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, [user?.id, castProfiles, castData, characterRelationships, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, visualData, videoData, production]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, production]);
+
+  const { addLog } = useLogs();
 
   const syncCore = useCallback(async () => {
     if (!user?.id) {
@@ -353,46 +285,16 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     showNotification("Synchronizing Core Manifest...", "info");
 
     try {
-      // PHASE 1: Neural Config Sync
-      addLog("ENGINE", "SYNCING", "Synchronizing neural parameters and config...");
-      await engineApi.updateConfig(user.id, {
-        temperature,
-        max_tokens: maxTokens,
-        selected_model: selectedModel,
-        vibe: tone,
-        audience: audience
-      });
-      addLog("ENGINE", "COMPLETED", "Neural configuration synchronized.");
-
-      // PHASE 2: World Lore Sync
-      addLog("WORLD", "SYNCING", "Writing World Lore assets to neural archive...");
-      await worldApi.updateLore(user.id, {
-        architecture,
-        atlas,
-        history: historyLore,
-        systems,
-        culture,
-        full_lore_blob: generatedWorld
-      });
-      addLog("WORLD", "COMPLETED", "World Lore synchronized.");
-
-      // PHASE 3: Production Asset Sync (Tabs data)
-      addLog("PRODUCTION", "SYNCING", "Persisting Cast, Series, and Script manifests...");
+      // PHASE 3: Production Asset Sync (Remaining global fields)
+      addLog("PRODUCTION", "SYNCING", "Persisting Script and Series manifests...");
       await productionApi.updateContent(user.id, {
-        cast_profiles: castProfiles,
-        cast_data: castData,
-        cast_relationships: characterRelationships,
         script_content: generatedScript,
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata,
         growth_strategy: generatedGrowthStrategy,
-        distribution_plan: generatedDistributionPlan,
-        storyboard: {
-          visuals: visualData,
-          videos: videoData
-        }
+        distribution_plan: generatedDistributionPlan
       });
-      addLog("PRODUCTION", "COMPLETED", "All production tabs synchronized.");
+      addLog("PRODUCTION", "COMPLETED", "Global production fields synchronized.");
 
       showNotification("CORE SYNCHRONIZED", "success");
       addLog("CORE", "SUCCESS", "Full system state synchronized with central database.");
@@ -403,7 +305,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsSaving(false);
     }
-  }, [user?.id, temperature, maxTokens, selectedModel, tone, audience, architecture, atlas, historyLore, systems, culture, generatedWorld, castProfiles, castData, characterRelationships, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, visualData, videoData, addLog, showNotification]);
+  }, [user?.id, generatedScript, generatedSeriesPlan, generatedMetadata, generatedGrowthStrategy, generatedDistributionPlan, addLog, showNotification]);
 
   // Neural Telemetry & Thinking Stream Log Sync
   useEffect(() => {
@@ -449,10 +351,7 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id, addLog]);
 
   const state = useMemo<GeneratorState>(() => ({
-    worldLore: generatedWorld,
-    seriesPlan: generatedSeriesPlan,
     storyboardPrompts: generatedImagePrompts,
-    seoMetadata: generatedMetadata,
     prompt,
     theme,
     generatedScript,
@@ -461,18 +360,13 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     generatedImagePrompts,
     generatedSeriesPlan,
     generatedDescription,
-    castProfiles,
-    castData,
-    castList,
+    generatedWorld,
+    generatedAltText,
     recapperPersona,
-    characterRelationships,
-    tone,
-    audience,
     episode,
     session,
     numScenes,
     contentType,
-    selectedModel,
     isLoading,
     isGeneratingCharacters,
     isGeneratingMetadata,
@@ -488,35 +382,46 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     currentScriptId,
     history: projectHistory,
     productionSequence,
-    visualData,
-    videoData,
-    generatedWorld,
-    generatedAltText,
     isLiked,
-    temperature,
-    maxTokens,
-    topP,
-    topK,
-    architecture,
-    atlas,
-    historyLore,
-    systems,
-    culture,
     generatedGrowthStrategy,
     isGeneratingGrowthStrategy,
     generatedDistributionPlan,
     isGeneratingDistribution
+    ,
+    // Engine compatibility
+    temperature,
+    maxTokens,
+    topP,
+    topK,
+    selectedModel,
+    tone,
+    audience,
+
+    // Cast / world compatibility
+    castData,
+    castList,
+    castProfiles,
+    characterRelationships,
+
+    // Visual / storyboard compatibility
+    visualData,
+    videoData,
+
+    // SEO / series
+    seoMetadata: generatedMetadata,
+    seriesPlan: generatedSeriesPlan,
+    worldLore: null
   }), [
-    generatedWorld, generatedSeriesPlan, generatedImagePrompts, generatedMetadata, prompt, theme,
-    generatedScript, generatedCharacters, generatedDescription, castProfiles, castData, castList,
-    recapperPersona, characterRelationships, tone, audience, episode,
-    session, numScenes, contentType, selectedModel, isLoading, isGeneratingCharacters,
-    isGeneratingMetadata, isGeneratingImagePrompts, isGeneratingSeries, isGeneratingDescription,
-    isGeneratingWorld, isEditing, isSaving, isContinuingScript, isGeneratingVisuals,
-    isGeneratingAltText, currentScriptId, projectHistory, productionSequence, visualData, videoData,
-    generatedAltText, isLiked, temperature,
-    maxTokens, topP, topK, architecture, atlas, historyLore, systems, culture,
+    prompt, theme, generatedScript, generatedCharacters, generatedMetadata, 
+    generatedImagePrompts, generatedSeriesPlan, generatedDescription, generatedWorld, generatedAltText,
+    recapperPersona, episode, session, numScenes, contentType, 
+    isLoading, isGeneratingCharacters, isGeneratingMetadata, isGeneratingImagePrompts,
+    isGeneratingSeries, isGeneratingDescription, isGeneratingWorld, isEditing, isSaving,
+    isContinuingScript, isGeneratingVisuals, isGeneratingAltText, currentScriptId, 
+    projectHistory, productionSequence, isLiked, 
     generatedGrowthStrategy, isGeneratingGrowthStrategy, generatedDistributionPlan, isGeneratingDistribution
+    , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
+    castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({
@@ -530,22 +435,13 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setGeneratedDescription,
     setGeneratedWorld,
     setGeneratedAltText,
-    setVisualData,
-    setVideoData,
-    setCastProfiles,
-    setCastData,
-    setCastList,
     setRecapperPersona,
-    setCharacterRelationships,
     syncCore,
     addLog,
-    setTone,
-    setAudience,
     setEpisode,
     setSession,
     setNumScenes,
     setContentType,
-    setSelectedModel,
     setIsLoading,
     setIsGeneratingCharacters,
     setIsGeneratingMetadata,
@@ -561,20 +457,34 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     setCurrentScriptId,
     setProductionSequence,
     setIsLiked,
-    setTemperature,
-    setMaxTokens,
-    setTopP,
-    setTopK,
-    setArchitecture,
-    setAtlas,
-    setHistoryLore,
-    setSystems,
-    setCulture,
     setGeneratedGrowthStrategy,
     setIsGeneratingGrowthStrategy,
     setGeneratedDistributionPlan,
     setIsGeneratingDistribution,
     showNotification
+    ,
+    // Engine setters
+    setTemperature,
+    setMaxTokens,
+    setTopP,
+    setTopK,
+    setSelectedModel,
+    setTone,
+    setAudience,
+
+    // Cast / world setters
+    setCastData,
+    setCastList,
+    setCastProfiles,
+    setCharacterRelationships,
+
+    // Visual setters
+    setVisualData,
+    setVideoData,
+
+    // Aliases
+    setGlobalPrompt: setPrompt,
+    setGlobalContentType: setContentType
   }), [syncCore, addLog, showNotification]);
 
   const fullValue = useMemo(() => ({

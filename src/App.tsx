@@ -5,6 +5,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AppProvider } from '@/contexts/AppContext';
 import { GeneratorProvider } from '@/contexts/GeneratorContext';
+import { GeneratorProvider as ModularGeneratorProvider } from '@/contexts/generator';
 import { LogProvider } from '@/contexts/LogContext';
 import { StudioLoading } from '@/components/studio/StudioLoading';
 
@@ -103,9 +104,10 @@ export default function App() {
           <TooltipProvider>
             <LogProvider>
               <GeneratorProvider>
-                <Router>
-                  <NavigationMonitor />
-                  <Suspense fallback={<StudioLoading message="Initializing Neural Core" submessage="Syncing Universal Manifest..." />}>
+                <ModularGeneratorProvider>
+                  <Router>
+                    <NavigationMonitor />
+                    <Suspense fallback={<StudioLoading message="Initializing Neural Core" submessage="Syncing Universal Manifest..." />}>
                     <Routes>
                       <Route path="/" element={<LandingPage />} />
                       <Route path="/login" element={<LoginPage />} />
@@ -225,6 +227,7 @@ export default function App() {
                     </Routes>
                   </Suspense>
                 </Router>
+                </ModularGeneratorProvider>
               </GeneratorProvider>
             </LogProvider>
           </TooltipProvider>

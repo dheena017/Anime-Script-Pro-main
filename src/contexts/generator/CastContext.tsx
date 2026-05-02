@@ -6,6 +6,7 @@ interface CastState {
   castList: any[];
   characterRelationships: string | null;
   isGeneratingCharacters: boolean;
+  generatedCharacters?: string | null;
 }
 
 interface CastDispatch {
@@ -14,6 +15,7 @@ interface CastDispatch {
   setCastList: (l: any[]) => void;
   setCharacterRelationships: (r: string | null) => void;
   setIsGeneratingCharacters: (b: boolean) => void;
+  setGeneratedCharacters?: (c: string | null) => void;
 }
 
 const CastStateContext = createContext<CastState | undefined>(undefined);
@@ -25,9 +27,10 @@ export function CastProvider({ children }: { children: React.ReactNode }) {
   const [castList, setCastList] = useState<any[]>([]);
   const [characterRelationships, setCharacterRelationships] = useState<string | null>(null);
   const [isGeneratingCharacters, setIsGeneratingCharacters] = useState(false);
+  const [generatedCharacters, setGeneratedCharacters] = useState<string | null>(null);
 
-  const state = { castProfiles, castData, castList, characterRelationships, isGeneratingCharacters };
-  const dispatch = { setCastProfiles, setCastData, setCastList, setCharacterRelationships, setIsGeneratingCharacters };
+  const state = { castProfiles, castData, castList, characterRelationships, isGeneratingCharacters, generatedCharacters };
+  const dispatch = { setCastProfiles, setCastData, setCastList, setCharacterRelationships, setIsGeneratingCharacters, setGeneratedCharacters };
 
   return (
     <CastStateContext.Provider value={state}>

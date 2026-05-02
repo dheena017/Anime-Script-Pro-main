@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useSEOState, useSEODispatch } from '@/contexts/generator';
 import { 
   generateMetadata, 
   generateYouTubeDescription, 
@@ -28,18 +29,24 @@ export function SEOPage() {
   const { setHandlers } = useContext(SEOContext);
 
   const {
-    generatedMetadata, setGeneratedMetadata,
-    isGeneratingMetadata, setIsGeneratingMetadata,
-    generatedDescription, setGeneratedDescription,
-    isGeneratingDescription, setIsGeneratingDescription,
-    generatedAltText, setGeneratedAltText,
-    isGeneratingAltText, setIsGeneratingAltText,
-    generatedGrowthStrategy, setGeneratedGrowthStrategy,
-    isGeneratingGrowthStrategy, setIsGeneratingGrowthStrategy,
-    generatedDistributionPlan, setGeneratedDistributionPlan,
-    isGeneratingDistribution, setIsGeneratingDistribution,
-    generatedScript, selectedModel, showNotification
+    generatedScript, showNotification
   } = useGenerator();
+
+  const {
+    generatedMetadata, generatedDescription, generatedAltText, 
+    generatedGrowthStrategy, generatedDistributionPlan,
+    isGeneratingMetadata, isGeneratingDescription, isGeneratingAltText,
+    isGeneratingGrowthStrategy, isGeneratingDistribution
+  } = useSEOState();
+
+  const {
+    setGeneratedMetadata, setGeneratedDescription, setGeneratedAltText, 
+    setGeneratedGrowthStrategy, setGeneratedDistributionPlan,
+    setIsGeneratingMetadata, setIsGeneratingDescription, setIsGeneratingAltText,
+    setIsGeneratingGrowthStrategy, setIsGeneratingDistribution
+  } = useSEODispatch();
+
+  const { selectedModel } = useEngineState();
 
   const handleGenerateMetadata = async () => {
     if (!generatedScript) {

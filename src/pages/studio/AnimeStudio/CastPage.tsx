@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useCastState, useCastDispatch, useEngineState } from '@/contexts/generator';
 import { generateCharacters } from '@/services/api/gemini';
 import { cn } from '@/lib/utils';
 import { useNavigate, useOutletContext } from 'react-router-dom';
@@ -23,19 +24,21 @@ export default function CastPage() {
   const { activeTab } = useOutletContext<{ activeTab: CastTab }>();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const { 
-    generatedCharacters, 
     isLiked, setIsLiked,
-    setGeneratedCharacters, 
-    isGeneratingCharacters, 
-    setIsGeneratingCharacters,
-    setCastData, setCastList,
-    setCharacterRelationships,
     prompt,
-    selectedModel,
-    contentType,
     generatedWorld,
     showNotification
   } = useGenerator();
+
+  const { generatedCharacters, isGeneratingCharacters } = useCastState();
+  const { 
+    setGeneratedCharacters, 
+    setIsGeneratingCharacters,
+    setCastData, setCastList,
+    setCharacterRelationships 
+  } = useCastDispatch();
+
+  const { selectedModel, contentType } = useEngineState();
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {

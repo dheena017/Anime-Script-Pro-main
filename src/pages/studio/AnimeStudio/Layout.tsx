@@ -315,7 +315,7 @@ export default function AnimeLayout() {
           session={session} setSession={setSession}
           episode={episode} setEpisode={setEpisode}
           numScenes={numScenes} setNumScenes={setNumScenes}
-          selectedModel={selectedModel} setSelectedModel={setSelectedModel}
+          setSelectedModel={selectedModel} setSelectedModel={setSelectedModel}
           recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
           characterRelationships={characterRelationships || ''}
           setCharacterRelationships={setCharacterRelationships}

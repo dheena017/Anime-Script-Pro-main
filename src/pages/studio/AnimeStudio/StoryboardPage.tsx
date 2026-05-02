@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useStoryboard, useEngineState } from '@/contexts/generator';
 import { useOutletContext } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { DropResult } from '@hello-pangea/dnd';
@@ -43,22 +44,20 @@ interface Scene {
 export function StoryboardPage() {
   const { 
     generatedScript, setGeneratedScript, 
-    visualData, setVisualData, 
-    videoData, setVideoData,
     generatedImagePrompts, 
-    selectedModel,
-    isGeneratingVisuals,
-    setIsGeneratingVisuals,
     addLog
   } = useGenerator();
+
+  const { state: storyboardState, dispatch: storyboardDispatch } = useStoryboard();
+  const { scenes, visualData, videoData, isGeneratingVisuals, enhancingSceneIds } = storyboardState;
+  const { selectedModel } = useEngineState();
+
   const promptList = React.useMemo(() => generatedImagePrompts 
   ? generatedImagePrompts.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0 && !line.includes('---')) 
   : [], [generatedImagePrompts]);
-  const [scenes, setScenes] = useState<Scene[]>([]);
 
-  const [enhancingSceneIds, setEnhancingSceneIds] = useState<Set<string>>(new Set());
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
@@ -98,10 +97,10 @@ export function StoryboardPage() {
 
   useEffect(() => {
     if (generatedScript !== lastScriptRef.current) {
-      setScenes(parseStoryboard(generatedScript));
+      storyboardDispatch({ type: 'SET_SCENES', payload: parseStoryboard(generatedScript) });
       lastScriptRef.current = generatedScript;
     }
-  }, [generatedScript]);
+  }, [generatedScript, storyboardDispatch]);
 
   const updateScriptMarkdown = React.useCallback((items: Scene[]) => {
     let currentScript = generatedScript;
@@ -127,9 +126,9 @@ export function StoryboardPage() {
     const items = Array.from(scenes);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
-    setScenes(items);
+    storyboardDispatch({ type: 'SET_SCENES', payload: items });
     updateScriptMarkdown(items);
-  }, [scenes, updateScriptMarkdown]);
+  }, [scenes, updateScriptMarkdown, storyboardDispatch]);
 
   const handleEnhanceNarration = React.useCallback(async () => {
     if (!editForm.narration) return;
@@ -184,58 +183,59 @@ export function StoryboardPage() {
   }, [editForm.narration]);
 
   const handleGenerateVisual = React.useCallback(async (originalIndex: number, visualsDescription: string) => {
-    setVisualData(prev => ({ ...prev, [originalIndex]: ['loading'] }));
+    storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: ['loading'] } });
     try {
       const promises = Array(4).fill(0).map((_, i) => generateSceneImage(`${visualsDescription} Variation ${i+1}`, selectedModel));
       const results = await Promise.all(promises);
       const images = results.map((url, i) => url || `https://picsum.photos/seed/${encodeURIComponent(visualsDescription.slice(0, 50))}-${originalIndex}-${i}/800/450`);
-      setVisualData(prev => ({ ...prev, [originalIndex]: images }));
+      storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: images } });
     } catch (error) {
       console.error("Failed to generate image:", error);
       const seed = encodeURIComponent(visualsDescription.slice(0, 50));
       const fallbacks = Array(4).fill(0).map((_, i) => `https://picsum.photos/seed/${seed}-${originalIndex}-${i}/800/450`);
-      setVisualData(prev => ({ ...prev, [originalIndex]: fallbacks }));
+      storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: originalIndex, data: fallbacks } });
     }
-  }, [selectedModel, setVisualData]);
+  }, [selectedModel, storyboardDispatch]);
 
   const handleGenerateVideo = React.useCallback(async (originalIndex: number, _imageUrl: string, prompt: string) => {
-    setVideoData(prev => ({ ...prev, [originalIndex]: 'loading' }));
+    storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: 'loading' } });
     try {
       const videoUrl = await generateSceneVideo(prompt, selectedModel);
       if (videoUrl) {
-        setVideoData(prev => ({ ...prev, [originalIndex]: videoUrl }));
+        storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: videoUrl } });
       } else {
-        setVideoData(prev => ({ ...prev, [originalIndex]: "https://vjs.zencdn.net/v/oceans.mp4" }));
+        storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "https://vjs.zencdn.net/v/oceans.mp4" } });
       }
     } catch (error) {
       console.error("Failed to generate video:", error);
-      setVideoData(prev => ({ ...prev, [originalIndex]: "https://vjs.zencdn.net/v/oceans.mp4" }));
+      storyboardDispatch({ type: 'UPDATE_VIDEO_ITEM', payload: { id: originalIndex, data: "https://vjs.zencdn.net/v/oceans.mp4" } });
     }
-  }, [selectedModel, setVideoData]);
+  }, [selectedModel, storyboardDispatch]);
 
   const handleGenerateAll = React.useCallback(async () => {
     addLog("STORYBOARD", "PROCESSING", `Initiating bulk neural synthesis for ${scenes.length} production units.`);
-    setIsGeneratingVisuals(true);
-    const newVisualData = { ...visualData };
+    storyboardDispatch({ type: 'SET_GENERATING', payload: true });
+    
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
-      if (!newVisualData[scene.originalIndex] || newVisualData[scene.originalIndex].length === 0 || newVisualData[scene.originalIndex][0] === 'loading') {
-        setVisualData(prev => ({ ...prev, [scene.originalIndex]: ['loading'] }));
+      if (!visualData[scene.originalIndex] || visualData[scene.originalIndex].length === 0 || visualData[scene.originalIndex][0] === 'loading') {
+        storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: ['loading'] } });
         try {
           const promptToUse = scene.linkedPrompt || scene.visuals;
           const promises = Array(4).fill(0).map((_, idx) => generateSceneImage(`${promptToUse} Variation ${idx+1}`, selectedModel));
           const results = await Promise.all(promises);
-          newVisualData[scene.originalIndex] = results.map((url, idx) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
+          const images = results.map((url, idx) => url || `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
+          storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: images } });
         } catch (error) {
           const promptToUse = scene.linkedPrompt || scene.visuals;
-          newVisualData[scene.originalIndex] = Array(4).fill(0).map((_, idx) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
+          const fallbacks = Array(4).fill(0).map((_, idx) => `https://picsum.photos/seed/${encodeURIComponent(promptToUse.slice(0, 50))}-${scene.originalIndex}-${idx}/800/450`);
+          storyboardDispatch({ type: 'UPDATE_VISUAL_ITEM', payload: { id: scene.originalIndex, data: fallbacks } });
         }
-        setVisualData(prev => ({ ...prev, [scene.originalIndex]: newVisualData[scene.originalIndex] }));
       }
     }
-    setIsGeneratingVisuals(false);
+    storyboardDispatch({ type: 'SET_GENERATING', payload: false });
     addLog("STORYBOARD", "COMPLETED", "Neural synthesis cycle concluded. Visual DNA manifests updated.");
-  }, [scenes, visualData, selectedModel, addLog, setIsGeneratingVisuals, setVisualData]);
+  }, [scenes, visualData, selectedModel, addLog, storyboardDispatch]);
 
   const handleFullProductionLoop = React.useCallback(async () => {
     setIsProductionLoopActive(true);
@@ -273,14 +273,14 @@ export function StoryboardPage() {
         const enhanced = await enhanceNarration(scene.narration);
         return { ...scene, narration: enhanced };
       }));
-      setScenes(updatedScenes);
+      storyboardDispatch({ type: 'SET_SCENES', payload: updatedScenes });
       updateScriptMarkdown(updatedScenes);
     } catch (error) {
       console.error(error);
     } finally {
       setIsEnhancingAllNarration(false);
     }
-  }, [scenes, updateScriptMarkdown]);
+  }, [scenes, updateScriptMarkdown, storyboardDispatch]);
 
   const handleEnhanceAllVisuals = React.useCallback(async () => {
     setIsEnhancingAllVisuals(true);
@@ -290,31 +290,27 @@ export function StoryboardPage() {
         const scene = currentScenes[i];
         if (!scene.visuals) continue;
         
-        setEnhancingSceneIds(prev => {
-          const next = new Set(prev);
-          next.add(scene.id);
-          return next;
+        storyboardDispatch({ 
+          type: 'SET_ENHANCING_SCENE', 
+          payload: { id: scene.id, isEnhancing: true } 
         });
 
         const enhanced = await enhanceSceneVisuals(scene.visuals, scene.narration || '');
         currentScenes[i] = { ...scene, visuals: enhanced };
-        
-        setEnhancingSceneIds(prev => {
-          const next = new Set(prev);
-          next.delete(scene.id);
-          return next;
-        });
 
-        setScenes([...currentScenes]);
+        storyboardDispatch({ type: 'SET_SCENES', payload: [...currentScenes] });
+        storyboardDispatch({ 
+          type: 'SET_ENHANCING_SCENE', 
+          payload: { id: scene.id, isEnhancing: false } 
+        });
       }
       updateScriptMarkdown(currentScenes);
     } catch (error) {
       console.error(error);
     } finally {
       setIsEnhancingAllVisuals(false);
-      setEnhancingSceneIds(new Set());
     }
-  }, [scenes, updateScriptMarkdown]);
+  }, [scenes, updateScriptMarkdown, storyboardDispatch]);
 
   const handleAddScene = React.useCallback(() => {
     const nextIndex = scenes.length > 0 ? Math.max(...scenes.map(s => s.originalIndex)) + 1 : 0;
@@ -328,10 +324,10 @@ export function StoryboardPage() {
       duration: '5s'
     };
     const updatedScenes = [...scenes, newScene];
-    setScenes(updatedScenes);
+    storyboardDispatch({ type: 'SET_SCENES', payload: updatedScenes });
     updateScriptMarkdown(updatedScenes);
     addLog("STORYBOARD", "MODIFIED", `Inserted new production unit at index ${nextIndex}.`);
-  }, [scenes, updateScriptMarkdown, addLog]);
+  }, [scenes, updateScriptMarkdown, addLog, storyboardDispatch]);
 
 
   const startEditing = React.useCallback((scene: Scene) => {
@@ -342,12 +338,12 @@ export function StoryboardPage() {
   const saveSceneEdits = React.useCallback(() => {
     if (!editingSceneId) return;
     const updatedScenes = scenes.map(scene => scene.id === editingSceneId ? { ...scene, ...editForm } as Scene : scene);
-    setScenes(updatedScenes);
+    storyboardDispatch({ type: 'SET_SCENES', payload: updatedScenes });
     updateScriptMarkdown(updatedScenes);
     addLog("STORYBOARD", "UPDATED", `Refined metadata for production unit ID: ${editingSceneId}.`);
     setEditingSceneId(null);
     setEditForm({});
-  }, [editingSceneId, scenes, editForm, updateScriptMarkdown, addLog]);
+  }, [editingSceneId, scenes, editForm, updateScriptMarkdown, addLog, storyboardDispatch]);
 
   const { setHandlers } = React.useContext<any>(StoryboardContext);
   const { activeTab } = useOutletContext<{ activeTab: StoryboardTab }>();
@@ -501,3 +497,6 @@ export function StoryboardPage() {
 
 
 
+function setScenes(updatedScenes: any[]) {
+  throw new Error('Function not implemented.');
+}

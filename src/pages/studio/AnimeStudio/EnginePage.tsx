@@ -2,10 +2,11 @@ import { useContext, useEffect, useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import {
   Sparkles, Brain, Target, Settings, Clapperboard,
-  Sword, Globe, Activity
+  Sword, Globe, Activity, Cpu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGenerator } from '@/hooks/useGenerator';
+import { useEngineState, useEngineDispatch } from '@/contexts/generator';
 import { useAuth } from '@/hooks/useAuth';
 import TextareaAutosize from 'react-textarea-autosize';
 import {
@@ -45,18 +46,27 @@ export function EnginePage() {
   const { user } = useAuth();
 
   const {
-    tone, setTone,
     setIsSaving,
     generatedScript,
     setCurrentScriptId,
-    selectedModel, setSelectedModel,
     prompt: globalPrompt,
-    setPrompt: setGlobalPrompt,
-    setContentType: setGlobalContentType
+    setGlobalPrompt,
+    setGlobalContentType,
+    isGeneratingCharacters,
+    isGeneratingMetadata,
+    isGeneratingImagePrompts,
+    isGeneratingSeries,
+    isGeneratingDescription,
+    isGeneratingWorld,
+    isGeneratingVisuals
   } = useGenerator();
 
+  const { tone, selectedModel, contentType: localContentType } = useEngineState();
+  const { setTone, setSelectedModel, setContentType: setLocalContentType } = useEngineDispatch();
+
   const [prompt, setPrompt] = useState(globalPrompt || '');
-  const [localContentType, setLocalContentType] = useState('Anime');
+
+  const isGeneratingScript = isGeneratingCharacters || isGeneratingMetadata || isGeneratingImagePrompts || isGeneratingSeries || isGeneratingDescription || isGeneratingWorld || isGeneratingVisuals;
 
   const handleSaveCurrent = async () => {
     if (!generatedScript || !user) return;
