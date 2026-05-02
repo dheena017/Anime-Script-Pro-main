@@ -39,6 +39,7 @@
   ],
   "exclude": [
     "node_modules",
+    "backend/static",
     "**/*_old.tsx",
     "**/*_old.ts"
   ]

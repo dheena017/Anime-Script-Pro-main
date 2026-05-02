@@ -21,7 +21,7 @@ const options = {
   onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo', 'pwa'],
 };
 
-const configPath = path.join(projectRoot, 'lighthouse.config.js');
+const configPath = path.join(projectRoot, 'lighthouse.config.cjs');
 
 async function runAudit() {
   try {

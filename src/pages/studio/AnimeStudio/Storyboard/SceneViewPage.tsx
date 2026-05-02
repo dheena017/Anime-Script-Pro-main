@@ -206,15 +206,15 @@ export function SceneViewPage() {
         <div className="space-y-8">
           <Card className="bg-black/60 backdrop-blur-md border-white/5 overflow-hidden rounded-[2.5rem] shadow-2xl relative group">
              <div className="aspect-video bg-[#030303] flex items-center justify-center relative overflow-hidden">
-                {videoData[scene.originalIndex] ? (
+                {videoData?.[scene.originalIndex] ? (
                   <video 
-                    src={videoData[scene.originalIndex]} 
+                    src={videoData?.[scene.originalIndex]} 
                     autoPlay loop muted playsInline 
                     className="w-full h-full object-cover"
                   />
-                ) : visualData[scene.originalIndex]?.[0] ? (
+                ) : visualData?.[scene.originalIndex]?.[0] ? (
                   <img 
-                    src={visualData[scene.originalIndex][0]} 
+                    src={visualData?.[scene.originalIndex]?.[0]} 
                     alt="Scene Preview" 
                     className="w-full h-full object-cover opacity-80"
                     referrerPolicy="no-referrer"

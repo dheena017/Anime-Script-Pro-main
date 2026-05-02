@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { useGenerator } from '@/hooks/useGenerator';
-import { useSEOState, useSEODispatch } from '@/contexts/generator';
+import { useSEOState, useSEODispatch, useEngineState } from '@/contexts/generator';
 import { 
   generateMetadata, 
   generateYouTubeDescription, 

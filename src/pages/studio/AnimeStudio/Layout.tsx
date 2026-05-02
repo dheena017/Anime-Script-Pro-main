@@ -308,14 +308,15 @@ export default function AnimeLayout() {
       {/* Creative Engine Sidepanel */}
       <ProductionCore
         isOpen={sidebarOpen}
-          onToggle={toggleEngine}
-          prompt={prompt} setPrompt={setPrompt}
-          tone={tone} setTone={setTone}
-          audience={audience} setAudience={setAudience}
-          session={session} setSession={setSession}
-          episode={episode} setEpisode={setEpisode}
-          numScenes={numScenes} setNumScenes={setNumScenes}
-          setSelectedModel={selectedModel} setSelectedModel={setSelectedModel}
+        onToggle={toggleEngine}
+        prompt={prompt} setPrompt={setPrompt}
+        tone={tone} setTone={setTone}
+        audience={audience} setAudience={setAudience}
+        session={session} setSession={setSession}
+        episode={episode} setEpisode={setEpisode}
+        numScenes={numScenes} setNumScenes={setNumScenes}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
           recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
           characterRelationships={characterRelationships || ''}
           setCharacterRelationships={setCharacterRelationships}

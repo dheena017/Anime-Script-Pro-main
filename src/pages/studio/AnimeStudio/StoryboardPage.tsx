@@ -495,8 +495,3 @@ export function StoryboardPage() {
 }
 
 
-
-
-function setScenes(updatedScenes: any[]) {
-  throw new Error('Function not implemented.');
-}

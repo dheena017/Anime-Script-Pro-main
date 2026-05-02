@@ -62,12 +62,18 @@ function storyboardReducer(state: StoryboardState, action: StoryboardAction): St
         if (action.payload && typeof action.payload.id !== 'undefined') {
           return { ...state, visualData: { ...state.visualData, [action.payload.id]: action.payload.data } };
         }
-        return { ...state, visualData: { ...state.visualData, [action.sceneIndex]: action.images || [] } };
+        if (action.sceneIndex !== undefined) {
+          return { ...state, visualData: { ...state.visualData, [action.sceneIndex]: action.images || [] } };
+        }
+        return state;
     case 'UPDATE_VIDEO_ITEM':
         if (action.payload && typeof action.payload.id !== 'undefined') {
           return { ...state, videoData: { ...state.videoData, [action.payload.id]: action.payload.data } };
         }
-        return { ...state, videoData: { ...state.videoData, [action.sceneIndex]: action.url || '' } };
+        if (action.sceneIndex !== undefined) {
+          return { ...state, videoData: { ...state.videoData, [action.sceneIndex]: action.url || '' } };
+        }
+        return state;
     default:
       return state;
   }

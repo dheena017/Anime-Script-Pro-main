@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
+    "serve": "vite --host 0.0.0.0 --port 5173",
     "studio": "concurrently \"npm run dev\" \"npm run backend\"",
     "backend": ".\\backend\\venv\\Scripts\\python.exe -m uvicorn backend.fastapi_app:app --port 8002 --reload",
     "setup:backend": "cd backend && python -m venv venv && .\\venv\\Scripts\\activate && pip install -r requirements.txt",
@@ -17,8 +18,8 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "lint": "tsc --project tsconfig.json --noEmit",
-    "lighthouse": "lighthouse http://localhost:5173 --config-path=./lighthouse.config.js --output-path=./lighthouse-report.html",
-    "lighthouse:ci": "lighthouse http://localhost:5173 --config-path=./lighthouse.config.js --output=json --output-path=./lighthouse-report.json"
+    "lighthouse": "lighthouse http://localhost:5173 --config-path=./lighthouse.config.cjs --output-path=./lighthouse-report.html --chrome-flags=\"--no-sandbox --disable-setuid-sandbox\"",
+    "lighthouse:ci": "lighthouse http://localhost:5173 --config-path=./lighthouse.config.cjs --output=json --output-path=./lighthouse-report.json"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.89.0",

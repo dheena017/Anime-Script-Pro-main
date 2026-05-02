@@ -53,16 +53,16 @@ export default function CastPage() {
         if ('characters' in result) {
           setCastData(result);
           setCastList(result.characters);
-          setGeneratedCharacters(JSON.stringify(result, null, 2));
+          setGeneratedCharacters?.(JSON.stringify(result, null, 2));
         }
         if ('markdown' in result) {
-          setGeneratedCharacters(result.markdown as string);
+          setGeneratedCharacters?.(result.markdown as string);
         }
         if (result.relationships) {
           setCharacterRelationships(JSON.stringify(result.relationships));
         }
       } else {
-        setGeneratedCharacters(result as string);
+        setGeneratedCharacters?.(result as string);
       }
       showNotification?.('Neural Synthesis Complete: Cast Genesis Manifested', 'success');
     } catch (e: any) {
