@@ -6,7 +6,6 @@ import {
   Mail,
   BookOpen,
   Video,
-  Globe,
   X,
   Menu, 
   Sparkles, 
@@ -19,7 +18,6 @@ import {
   ShieldCheck,
   Zap,
   Activity,
-  Cpu,
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
