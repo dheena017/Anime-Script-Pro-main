@@ -1,10 +1,9 @@
 import React from 'react';
-import { SpeedLines, DigitalScanline, HUDDecoration } from './components/Effects';
-import NavItem from './components/NavItem';
-import DropdownLink from './components/DropdownLink';
-import HeroPromptBar from './components/HeroPromptBar';
-import Gallery from './components/Gallery';
-import Features from './components/Features';
+import { SpeedLines, DigitalScanline, HUDDecoration } from './ui/Effects';
+import { NavItem, DropdownLink } from './ui/NavComponents';
+import { HeroPromptBar } from './ui/HeroPromptBar';
+import { Gallery } from './ui/Gallery';
+import { Features } from './ui/Features';
 import FooterLanding from './FooterLanding';
 import { GALLERY_DATA } from './data/gallery';
 import { PLACEHOLDER_PROMPTS } from './constants';
