@@ -7,7 +7,7 @@
     "dev": "tsx server.ts",
     "serve": "vite --host 0.0.0.0 --port 5173",
     "studio": "concurrently \"npm run dev\" \"npm run backend\"",
-    "backend": ".\\backend\\venv\\Scripts\\python.exe -m uvicorn backend.fastapi_app:app --port 8002 --reload",
+    "backend": ".\\backend\\venv\\Scripts\\python.exe -m uvicorn backend.fastapi_app:app --port 8080 --reload",
     "setup:backend": "cd backend && python -m venv venv && .\\venv\\Scripts\\activate && pip install -r requirements.txt",
     "db:seed": "python backend/seed_all.py",
     "db:reset": "rm backend/anime_script_pro.db && npm run db:seed",
