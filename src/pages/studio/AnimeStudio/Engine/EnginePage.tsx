@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useOutletContext, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Sparkles, Brain, Target, Settings, Clapperboard,
-  Activity, Cpu, Layout as LayoutGrid
+  Cpu, Layout as LayoutGrid
 } from 'lucide-react';
 import { useTemplates, getIconComponent } from '@/hooks/useTemplates';
 import { cn } from '@/lib/utils';
@@ -33,9 +33,6 @@ import { EngineConsole } from './tabs/EngineConsole';
 import { EngineCalibration } from './tabs/EngineCalibration';
 import { EngineOptimization } from './tabs/EngineOptimization';
 import { EngineLogs } from './tabs/EngineLogs';
-import { motion } from 'framer-motion';
-
-
 
 export function EnginePage() {
   const { activeTab } = useOutletContext<{ activeTab: EngineTab }>();
@@ -59,7 +56,6 @@ export function EnginePage() {
     isGeneratingWorld,
     isGeneratingVisuals,
     activeModelAttempt,
-    fallbackHistory
   } = useGenerator();
 
   const { tone, selectedModel, contentType: localContentType } = useEngineState();

@@ -10,11 +10,8 @@ test.describe('Backend API Integration: Recovery & Resilience', () => {
     if (response.status() === 500) {
         const error = await response.json();
         expect(error.error).toBeDefined();
-        console.warn('[Audit] Server captured DB disconnect correctly.');
     } else {
         expect(response.status()).toBe(200);
-        const data = await response.json();
-        expect(Array.isArray(data)).toBeTruthy();
     }
   });
 

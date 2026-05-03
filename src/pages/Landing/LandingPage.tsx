@@ -4,12 +4,12 @@ import { NavItem, DropdownLink } from './ui/NavComponents';
 import { HeroPromptBar } from './ui/HeroPromptBar';
 import { Gallery } from './ui/Gallery';
 import { Features } from './ui/Features';
+import { FAQ } from './ui/FAQ';
 import FooterLanding from './FooterLanding';
-import { GALLERY_DATA } from './data/gallery';
-import { PLACEHOLDER_PROMPTS } from './constants';
+import { GALLERY_DATA, PLACEHOLDER_PROMPTS } from './constants';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { LifeBuoy, Mail, BookOpen, Video, Globe, X, Menu, Play, Code, Palette, Download, ChevronDown, Sparkles, CreditCard } from 'lucide-react';
+import { LifeBuoy, Mail, BookOpen, Video, Globe, X, Menu, Play, Code, Palette, Download, Sparkles, CreditCard } from 'lucide-react';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -150,7 +150,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <Gallery images={galleryImages} onSelect={(p) => setActivePrompt(p)} activePrompt={activePrompt} onTryPrompt={() => navigate('/login')} />
+          <Gallery images={galleryImages} setActivePrompt={setActivePrompt} activePrompt={activePrompt} onTryPrompt={() => navigate('/login')} />
 
           <Features />
 
@@ -160,26 +160,7 @@ export default function LandingPage() {
             <Button onClick={() => navigate('/pricing')} className="h-14 px-12 rounded-2xl bg-studio text-black font-black uppercase tracking-widest hover:bg-studio/90 transition-all hover:scale-105">View Plans <CreditCard className="ml-2 w-5 h-5" /></Button>
           </section>
 
-          <section className="max-w-7xl mx-auto py-20">
-            <h2 className="text-4xl font-black text-center text-white uppercase tracking-wider mb-12">FAQ</h2>
-            <div className="space-y-4 max-w-3xl mx-auto">
-              {[
-                { q: 'Do I own the images I generate?', a: 'Yes – you receive full commercial rights for all creations on paid plans. Free-tier images are for personal use.' },
-                { q: 'What happens when I run out of credits?', a: 'You can wait for your daily refresh (resets at midnight UTC) or upgrade to a Pro plan for unlimited usage.' },
-                { q: 'Are there content restrictions?', a: 'Yes. Our safety filters block NSFW and illegal content to keep the community safe and compliant.' },
-                { q: 'Can I use this for manhwa / manga panels?', a: 'Absolutely. Our engine supports consistent character generation across multiple panels, perfect for sequential art.' },
-                { q: 'What resolution are the generated images?', a: 'Standard output is 1024×1024. Pro and Master plans include 4K upscaling up to 4096×4096.' },
-              ].map((faq, i) => (
-                <details key={i} className="bg-zinc-900/40 rounded-2xl p-6 border border-white/5 hover:border-white/10 transition-all group">
-                  <summary className="text-white font-bold cursor-pointer flex items-center justify-between">
-                    {faq.q}
-                    <ChevronDown className="w-5 h-5 text-zinc-500 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="text-zinc-400 mt-4 leading-relaxed">{faq.a}</p>
-                </details>
-              ))}
-            </div>
-          </section>
+          <FAQ />
         </div>
       </main>
 

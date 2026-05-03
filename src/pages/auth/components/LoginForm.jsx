@@ -8,7 +8,7 @@ import { Checkbox } from './Checkbox';
 import { SubmitButton } from './SubmitButton';
 import { FormLabel } from './FormLabel';
 import { ErrorMessage } from './ErrorMessage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
 export function LoginForm() {
   const [email, setEmail] = useState('email@gmail.com');

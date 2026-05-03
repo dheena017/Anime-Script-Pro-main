@@ -31,12 +31,15 @@ export async function createServer() {
   // --- Traffic Inspector Component ---
   const trafficLog: any[] = [];
   const logTraffic = (req: Request, status: number, duration: number) => {
+    const size = req.headers['content-length'] || '0';
     trafficLog.unshift({
       time: new Date().toISOString(),
       method: req.method,
       url: req.originalUrl,
       status,
-      duration: `${duration}ms`
+      duration: `${duration}ms`,
+      size: `${(Number(size) / 1024).toFixed(2)}KB`,
+      type: req.originalUrl.includes('/api/generate') ? 'NEURAL' : 'IO'
     });
     if (trafficLog.length > 20) trafficLog.pop();
   };
@@ -75,7 +78,7 @@ export async function createServer() {
   // Mounted at /api to handle all /api routes including /api/generate and auth routes.
 
   app.use('/api', createProxyMiddleware({
-    target: process.env.BACKEND_URL || "http://localhost:8002",
+    target: process.env.BACKEND_URL || "http://localhost:8080",
     changeOrigin: true,
     proxyTimeout: 90000,
     timeout: 90000,
@@ -135,12 +138,18 @@ export async function createServer() {
 
   // --- Orchestrator Health Dashboard ---
   app.get('/_orchestrator/health', async (_req, res) => {
-    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8002";
+    const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
+    const start = Date.now();
     let backendOnline = false;
+    let latency = 0;
+    
     try {
       const response = await fetch(`${BACKEND_URL}/health`);
       backendOnline = response.ok;
-    } catch { backendOnline = false; }
+      latency = Date.now() - start;
+    } catch { 
+      backendOnline = false; 
+    }
 
     res.json({
       status: "online",
@@ -149,11 +158,14 @@ export async function createServer() {
         uptime: process.uptime(),
         memory: process.memoryUsage(),
         platform: process.platform,
-        arch: process.arch
+        arch: process.arch,
+        pid: process.pid
       },
       backend: {
         url: BACKEND_URL,
-        status: backendOnline ? "ONLINE" : "OFFLINE"
+        status: backendOnline ? "ONLINE" : "OFFLINE",
+        latency: backendOnline ? `${latency}ms` : 'N/A',
+        stability: backendOnline ? (latency < 100 ? 'EXCELLENT' : 'DEGRADED') : 'CRITICAL'
       }
     });
   });
@@ -163,7 +175,7 @@ export async function createServer() {
   });
 
   app.get('/_orchestrator/ai', (_req, res) => {
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8002";
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:8080";
     res.json({
       ai: {
         openai: openai ? "CONNECTED" : (process.env.OPENAI_API_KEY ? "AUTH OK" : "MISSING API KEY"),
@@ -204,8 +216,8 @@ export async function createServer() {
 
 async function startServer() {
   const { app, openai, anthropic, groq } = await createServer();
-  const PORT = 3000;
-  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8002";
+  const PORT = Number(process.env.PORT) || 3000;
+  const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
 
   app.listen(PORT, "0.0.0.0", async () => {
     // Using global styling utilities

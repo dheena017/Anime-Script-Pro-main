@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useGeneratorState, useGeneratorDispatch } from '../../../../hooks/useGenerator';
-import { useAuth } from '../../../../hooks/useAuth';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
+import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
 import { CastHeader } from './components/CastHeader';
 import { CastToolbar, CastTab } from './components/CastToolbar';
