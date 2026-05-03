@@ -85,7 +85,7 @@ export default function Dashboard() {
       {/* Fullscreen loader only during auth phase */}
       {showFullscreenLoader && (
         <div className="fixed inset-0 z-[100]">
-          <StudioLoading message="Initializing Orchestrator..." submessage="Syncing neural status and production nodes..." />
+          <StudioLoading message="Setting up your dashboard..." submessage="Getting your latest updates ready..." />
         </div>
       )}
 
@@ -104,7 +104,7 @@ export default function Dashboard() {
                 "text-[9px] font-black uppercase tracking-[0.3em]",
                 error ? "text-amber-500" : "text-studio"
               )}>
-                {error ? "Neural Latency Detected" : "Neural Link Established"}
+                {error ? "Connection Issue" : "System Connected"}
               </span>
             </div>
             <h1 className="text-5xl md:text-8xl font-black text-white uppercase tracking-[-0.04em] leading-[0.85]">
@@ -117,7 +117,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-8 text-right">
             <div className="space-y-1">
-              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Neural Stability</p>
+              <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">System Stability</p>
               <p className={cn(
                 "text-xs font-bold uppercase tracking-tighter",
                 error ? "text-amber-400" : "text-emerald-400"
@@ -161,7 +161,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
               { label: 'Production Archives', val: stats.total, sub: 'Online', icon: Activity, color: 'from-studio/20 to-transparent', border: 'hover:border-studio/40' },
-              { label: 'Neural Activity', val: stats.week, sub: 'Active', icon: Zap, color: 'from-fuchsia-500/20 to-transparent', border: 'hover:border-fuchsia-500/40' },
+              { label: 'Studio Activity', val: stats.week, sub: 'Active', icon: Zap, color: 'from-fuchsia-500/20 to-transparent', border: 'hover:border-fuchsia-500/40' },
               { label: 'Latency', val: error ? 'INF' : '24ms', sub: error ? 'DISRUPTED' : 'STABLE', icon: SignalHigh, color: 'from-emerald-500/20 to-transparent', border: 'hover:border-emerald-500/40' },
               { label: 'Active Blueprint', val: stats.recent?.title?.substring(0, 8) || 'N/A', sub: 'SYNCED', icon: Cpu, color: 'from-violet-500/20 to-transparent', border: 'hover:border-violet-500/40' },
             ].map((stat, i) => (
@@ -286,14 +286,14 @@ export default function Dashboard() {
               </div>
 
               <div className="space-y-1 relative z-10">
-                <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">Neural Telemetry</h2>
+                <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">System Performance</h2>
                 <p className="text-[9px] font-bold text-studio/60 uppercase">Real-time Node Status</p>
               </div>
 
               <div className="space-y-6 relative z-10">
                 {[
                   { label: 'Orchestrator Load', val: 12, unit: '%', color: 'bg-studio' },
-                  { label: 'Neural Throughput', val: 88, unit: '%', color: 'bg-fuchsia-500' },
+                  { label: 'Server Load', val: 88, unit: '%', color: 'bg-fuchsia-500' },
                   { label: 'Memory Allocation', val: 45, unit: '%', color: 'bg-emerald-500' },
                 ].map((metric) => (
                   <div key={metric.label} className="space-y-2">
@@ -328,7 +328,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <TerminalIcon className="w-4 h-4 text-studio" />
-                  <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">Neural Feed</h2>
+                  <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-400">System Feed</h2>
                 </div>
                 <div className="flex gap-1">
                   <div className="w-1 h-1 rounded-full bg-studio" />

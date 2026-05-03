@@ -106,7 +106,7 @@ export default function App() {
       <RootProviders>
         <Router>
           <NavigationMonitor />
-          <Suspense fallback={<StudioLoading fullPage message="Initializing Neural Engine" />}>
+          <Suspense fallback={<StudioLoading fullPage message="Starting Anime Script Pro" />}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />

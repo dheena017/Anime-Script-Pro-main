@@ -73,7 +73,7 @@ export const StudioLayout: React.FC = () => {
                 className="relative z-10 h-full"
                 style={{ willChange: 'opacity' }}
               >
-                <DeferredRender delay={32} fallback={<StudioLoading fullPage={false} message="Rendering Module" submessage="Optimizing Visual Buffers..." />}>
+                <DeferredRender delay={32} fallback={<StudioLoading fullPage={false} message="Loading content..." submessage="Preparing the workspace..." />}>
                   <Outlet />
                 </DeferredRender>
               </motion.div>

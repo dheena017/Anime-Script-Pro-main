@@ -101,7 +101,7 @@ export function ProfilePage() {
                fetch(`/api/settings/${user.id}`, { headers })
             ]);
 
-            if (!profileRes.ok) throw new Error("Neural identity node unreachable.");
+            if (!profileRes.ok) throw new Error("Profile information unavailable.");
 
             const profile = await profileRes.json();
             const balance = await balanceRes.json();
@@ -109,7 +109,7 @@ export function ProfilePage() {
 
             setDisplayName(profile.display_name || 'Architect');
             setHandle(profile.handle || `user_${user.id.slice(0, 5)}`);
-            setBio(profile.bio || 'Architecting neural narratives.');
+            setBio(profile.bio || 'Creating amazing stories.');
             setAvatarUrl(profile.avatar_url || '');
             setBannerUrl(profile.banner_url || '');
             setJoinDate(new Date(profile.join_date || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
@@ -234,7 +234,7 @@ export function ProfilePage() {
    };
 
    if (authLoading || (user && loading)) {
-      return <StudioLoading message="Syncing Architect Node..." submessage="Establishing secure neural link and retrieving vault data..." />;
+      return <StudioLoading message="Loading your profile..." submessage="Getting your personal details ready..." />;
    }
 
 
@@ -292,7 +292,7 @@ export function ProfilePage() {
                            <div className="flex gap-3">
                               <div className="px-4 py-1.5 bg-studio/20 border border-studio/30 text-studio text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">{tier} PROTOCOL</div>
                               <div className="px-4 py-1.5 bg-fuchsia-500/20 border border-fuchsia-500/30 text-fuchsia-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">
-                                 {credits.toLocaleString()} NEURAL COINS
+                                 {credits.toLocaleString()} CREDITS
                               </div>
                            </div>
                         </div>
@@ -322,7 +322,7 @@ export function ProfilePage() {
                            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
                               <div className="flex items-center gap-2">
                                  <Cpu className="w-3 h-3 text-studio" />
-                                 <span>Neural Mastery Lvl {level}</span>
+                                 <span>Experience Level {level}</span>
                               </div>
                               <span>{experience.toLocaleString()} / {(level * 2000).toLocaleString()} XP</span>
                            </div>
@@ -379,7 +379,7 @@ export function ProfilePage() {
                   <div className="flex items-center justify-between px-2">
                      <div className="flex items-center gap-3">
                         <Activity className="w-5 h-5 text-studio" />
-                        <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">Neural Activity Telemetry</h2>
+                        <h2 className="text-[11px] font-black uppercase tracking-[0.4em] text-zinc-500">System Activity</h2>
                      </div>
                      <span className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">Last 12 Solar Cycles</span>
                   </div>

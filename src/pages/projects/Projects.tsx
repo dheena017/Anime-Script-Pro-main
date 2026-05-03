@@ -119,7 +119,7 @@ export default function ProjectsPage() {
               Blueprint <span className="text-studio">Archive.</span>
             </h1>
             <p className="text-zinc-500 max-w-xl text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed">
-              Manage and switch between active studio blueprints. Synchronized with the global neural network.
+              Manage and switch between your production projects. Synchronized across all your devices.
             </p>
           </div>
 
@@ -187,7 +187,7 @@ export default function ProjectsPage() {
           <AnimatePresence mode="popLayout">
             {loading ? (
               <div className="col-span-full py-20">
-                <StudioLoading fullPage={false} message="Scanning Archive Matrix..." submessage="Synchronizing production metadata and neural fragments..." />
+                <StudioLoading fullPage={false} message="Loading your projects..." submessage="Fetching your latest work..." />
               </div>
             ) : filteredProjects.length === 0 ? (
               <motion.div

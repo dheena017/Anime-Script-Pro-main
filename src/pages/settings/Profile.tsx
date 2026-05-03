@@ -64,7 +64,7 @@ export function ProfileSettings() {
   }, [displayName, role, timezone, vision, publicVisible]);
 
   if (loading) {
-    return <StudioLoading fullPage={false} message="Hydrating Identity Matrix..." submessage="Syncing architectural metadata with the production cloud..." />;
+    return <StudioLoading fullPage={false} message="Updating your settings..." submessage="Saving your profile changes..." />;
   }
 
   return (

@@ -20,7 +20,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   }, [user, loading, navigate, location]);
 
   if (loading) {
-    return <StudioLoading message="Verifying Neural Identity..." submessage="Syncing with authorization protocols..." />;
+    return <StudioLoading message="Verifying your account..." submessage="Checking your access permissions..." />;
   }
 
   if (!user) {

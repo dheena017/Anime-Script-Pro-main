@@ -8,7 +8,7 @@ interface StudioLoadingProps {
 }
 
 export function StudioLoading({ 
-  message = "Loading Studio", 
+  message = "Loading...", 
   submessage,
   fullPage = true,
   progress

@@ -348,7 +348,7 @@ export default function AnimeLayout() {
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
               <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
                 <div className="relative z-10 w-full flex-1 flex flex-col">
-                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Anime Studio" submessage="Accessing Neural Database..." />}>
+                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Opening Anime Studio" submessage="Connecting to the studio..." />}>
                     <div className="flex-1 flex flex-col justify-center">
                       <Outlet />
                     </div>
