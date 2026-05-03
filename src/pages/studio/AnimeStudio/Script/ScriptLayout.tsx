@@ -3,10 +3,10 @@ import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
-import { ScriptHeader } from '../components/Script/ScriptHeader';
-import { ScriptToolbar } from '../components/Script/ScriptToolbar';
+import { ScriptHeader } from './components/ScriptHeader';
+import { ScriptToolbar } from './components/ScriptToolbar';
 import { generateScript } from '@/services/api/gemini';
-import { ScriptTab } from '../components/Script/Tabs/ScriptTabs';
+import { ScriptTab } from './Tabs/ScriptTabs';
 
 export const ScriptContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -19,9 +19,9 @@ export default function ScriptLayout() {
 
   const { showNotification } = useApp();
   const {
-    generatedScript, isLoading, prompt, tone, audience, 
+    generatedScript, isLoading, prompt, tone, audience,
     session, episode, numScenes, selectedModel, contentType,
-    recapperPersona, characterRelationships, generatedWorld, 
+    recapperPersona, characterRelationships, generatedWorld,
     generatedCharacters, generatedSeriesPlan, isSaving
   } = useGeneratorState();
 
@@ -37,7 +37,7 @@ export default function ScriptLayout() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to initialize synthesis.', 'error');
+      showNotification?.('Please enter a story prompt first to write a script.', 'error');
       return;
     }
     setIsLoading(true);
@@ -49,10 +49,10 @@ export default function ScriptLayout() {
         currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null
       );
       setGeneratedScript(script);
-      showNotification?.('Neural Synthesis Complete: Script Manifested', 'success');
+      showNotification?.('Script written successfully!', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to write script: ' + (e.message || 'Unknown error'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +102,7 @@ export default function ScriptLayout() {
 
         <Outlet context={{ activeTab }} />
       </div>
-      
+
     </ScriptContext.Provider>
   );
 }

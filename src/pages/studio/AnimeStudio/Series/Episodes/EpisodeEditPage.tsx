@@ -43,7 +43,7 @@ export default function EpisodeEditPage() {
     const newPlan = [...generatedSeriesPlan];
     newPlan[episodeIndex] = formData;
     setGeneratedSeriesPlan(newPlan);
-    showNotification?.('Sequence Realigned: Production Roadmap Updated', 'success');
+    showNotification?.('Episode updated successfully!', 'success');
     navigate(`/${contentType.toLowerCase()}/series/episodes/${formData.episode}`);
   };
 
@@ -51,7 +51,7 @@ export default function EpisodeEditPage() {
     if (!generatedSeriesPlan || episodeIndex === undefined) return;
     const newPlan = generatedSeriesPlan.filter((_, i) => i !== episodeIndex);
     setGeneratedSeriesPlan(newPlan);
-    showNotification?.('Sequence Dissolved: Episode Removed from Roadmap', 'info');
+    showNotification?.('Episode removed from the series.', 'info');
     navigate(`/${contentType.toLowerCase()}/series/episodes`);
   };
 

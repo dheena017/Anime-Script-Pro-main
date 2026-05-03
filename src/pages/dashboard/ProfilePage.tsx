@@ -19,17 +19,18 @@ import {
    CheckCircle2,
    AlertCircle,
    Cpu,
-   ShieldCheck} from 'lucide-react';
+   ShieldCheck
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/hooks/useAuth';
-import { StudioLoading } from '@/components/studio/StudioLoading';
-import { ProfileVault } from '@/components/profile/ProfileVault';
-import { ProfileLibrary } from '@/components/profile/ProfileLibrary';
-import { ProfileSettings } from '@/components/profile/ProfileSettings';
-import { ProfileSecurity } from '@/components/profile/ProfileSecurity';
+import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
+import { ProfileVault } from '@/pages/profile/ProfileVault';
+import { ProfileLibrary } from '@/pages/profile/ProfileLibrary';
+import { ProfileSettings } from '@/pages/profile/ProfileSettings';
+import { ProfileSecurity } from '@/pages/profile/ProfileSecurity';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 
@@ -82,10 +83,10 @@ export function ProfilePage() {
             if (!authLoading) setLoading(false);
             return;
          }
-         
+
          setLoading(true);
          setErrorMsg(null);
-         
+
          const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
          const headers: HeadersInit = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -148,9 +149,9 @@ export function ProfilePage() {
       setSaving(true);
       setSyncStatus('idle');
       setErrorMsg(null);
-      
+
       const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-      const headers: HeadersInit = { 
+      const headers: HeadersInit = {
          'Content-Type': 'application/json',
          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
       };
@@ -190,7 +191,7 @@ export function ProfilePage() {
       const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
       const res = await fetch(`/api/library/prompts`, {
          method: 'POST',
-         headers: { 
+         headers: {
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
          },
@@ -209,7 +210,7 @@ export function ProfilePage() {
       const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
       const res = await fetch(`/api/library/characters`, {
          method: 'POST',
-         headers: { 
+         headers: {
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
          },
@@ -258,7 +259,7 @@ export function ProfilePage() {
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-zinc-900 via-studio/10 to-fuchsia-500/10" />
                )}
                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/40 to-transparent" />
-               
+
                <div className="relative z-10 mt-auto p-8 md:p-16 flex flex-col md:flex-row items-start md:items-end gap-10 w-full">
                   <div className="relative group/avatar shrink-0">
                      <div className="w-32 h-32 md:w-56 md:h-56 rounded-[2.5rem] bg-zinc-950 border-[6px] border-zinc-950 shadow-2xl overflow-hidden">
@@ -278,15 +279,15 @@ export function ProfilePage() {
                         <ShieldCheck className="w-6 h-6 text-white" />
                      </div>
                   </div>
-                  
+
                   <div className="flex-1 space-y-6 w-full">
                      <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-4">
-                           <input 
-                              value={displayName} 
-                              onChange={(e) => setDisplayName(e.target.value)} 
-                              className="bg-transparent border-none p-0 h-auto text-4xl md:text-7xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-2xl" 
-                              placeholder="ARCHITECT NAME" 
+                           <input
+                              value={displayName}
+                              onChange={(e) => setDisplayName(e.target.value)}
+                              className="bg-transparent border-none p-0 h-auto text-4xl md:text-7xl font-black tracking-tighter text-white uppercase italic focus:outline-none w-full max-w-2xl"
+                              placeholder="ARCHITECT NAME"
                            />
                            <div className="flex gap-3">
                               <div className="px-4 py-1.5 bg-studio/20 border border-studio/30 text-studio text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">{tier} PROTOCOL</div>
@@ -297,18 +298,18 @@ export function ProfilePage() {
                         </div>
                         <div className="flex items-center gap-2 group-hover/hero:translate-x-1 transition-transform">
                            <AtSign className="w-4 h-4 text-studio" />
-                           <input 
-                              value={handle} 
-                              onChange={(e) => setHandle(e.target.value)} 
-                              className="bg-transparent border-none p-0 text-sm font-bold text-zinc-500 focus:outline-none lowercase tracking-[0.3em]" 
-                              placeholder="handle" 
+                           <input
+                              value={handle}
+                              onChange={(e) => setHandle(e.target.value)}
+                              className="bg-transparent border-none p-0 text-sm font-bold text-zinc-500 focus:outline-none lowercase tracking-[0.3em]"
+                              placeholder="handle"
                            />
                         </div>
                      </div>
 
                      <div className="max-w-2xl">
-                        <textarea 
-                           value={bio} 
+                        <textarea
+                           value={bio}
                            onChange={(e) => setBio(e.target.value)}
                            className="bg-transparent border-none p-0 w-full text-zinc-400 text-sm font-medium focus:outline-none resize-none italic leading-relaxed"
                            placeholder="Define your architectural mission statement..."
@@ -326,7 +327,7 @@ export function ProfilePage() {
                               <span>{experience.toLocaleString()} / {(level * 2000).toLocaleString()} XP</span>
                            </div>
                            <div className="h-2 w-full bg-zinc-900 rounded-full overflow-hidden border border-white/5">
-                              <motion.div 
+                              <motion.div
                                  initial={{ width: 0 }}
                                  animate={{ width: `${Math.min((experience / (level * 2000)) * 100, 100)}%` }}
                                  className="h-full bg-gradient-to-r from-studio to-fuchsia-500 shadow-[0_0_15px_rgba(6,182,212,0.4)]"
@@ -341,23 +342,23 @@ export function ProfilePage() {
                   </div>
 
                   <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
-                     <Button 
-                        onClick={handleSave} 
-                        disabled={saving} 
+                     <Button
+                        onClick={handleSave}
+                        disabled={saving}
                         className={cn(
                            "h-20 px-12 rounded-3xl font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-4 text-xs",
                            syncStatus === 'success' ? "bg-emerald-500 hover:bg-emerald-600" :
-                           syncStatus === 'error' ? "bg-red-500 hover:bg-red-600" : "bg-studio hover:bg-studio/80"
+                              syncStatus === 'error' ? "bg-red-500 hover:bg-red-600" : "bg-studio hover:bg-studio/80"
                         )}
                      >
-                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 
-                         syncStatus === 'success' ? <CheckCircle2 className="w-5 h-5" /> :
-                         syncStatus === 'error' ? <AlertCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
+                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> :
+                           syncStatus === 'success' ? <CheckCircle2 className="w-5 h-5" /> :
+                              syncStatus === 'error' ? <AlertCircle className="w-5 h-5" /> : <Save className="w-5 h-5" />}
                         {syncStatus === 'success' ? 'Synchronized' : syncStatus === 'error' ? 'Sync Refused' : 'Sync Dossier'}
                      </Button>
-                     <Button 
-                        onClick={signOut} 
-                        variant="ghost" 
+                     <Button
+                        onClick={signOut}
+                        variant="ghost"
                         className="h-14 rounded-2xl font-black uppercase tracking-widest text-zinc-600 hover:text-white hover:bg-white/5 transition-colors text-[10px]"
                      >
                         <LogOut className="w-3.5 h-3.5 mr-2" /> Deactivate Link
@@ -369,10 +370,10 @@ export function ProfilePage() {
 
          {/* 2. TELEMETRY & ACHIEVEMENTS */}
          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
+
             {/* LEFT: ACTIVITY & ACHIEVEMENTS */}
             <div className="lg:col-span-8 space-y-12">
-               
+
                {/* ACTIVITY TELEMETRY */}
                <div className="space-y-6">
                   <div className="flex items-center justify-between px-2">
@@ -384,12 +385,12 @@ export function ProfilePage() {
                   </div>
                   <Card className="glass p-10 rounded-[3rem] border-white/5 flex gap-2 justify-between">
                      {Array.from({ length: 48 }).map((_, i) => (
-                        <div 
-                           key={i} 
+                        <div
+                           key={i}
                            className={cn(
                               "w-3 h-12 rounded-full transition-all hover:scale-y-125 cursor-pointer",
                               i % 7 === 0 ? "bg-studio shadow-[0_0_10px_rgba(6,182,212,0.5)]" :
-                              i % 3 === 0 ? "bg-studio/40" : "bg-zinc-900"
+                                 i % 3 === 0 ? "bg-studio/40" : "bg-zinc-900"
                            )}
                            title={`${i + 1} transmissions detected`}
                         />
@@ -401,9 +402,9 @@ export function ProfilePage() {
                <div className="flex justify-center">
                   <div className="flex bg-zinc-900/50 p-2 rounded-[2.5rem] border border-white/5 backdrop-blur-xl">
                      {tabs.map((tab) => (
-                        <button 
-                           key={tab.id} 
-                           onClick={() => setActiveTab(tab.id as any)} 
+                        <button
+                           key={tab.id}
+                           onClick={() => setActiveTab(tab.id as any)}
                            className={cn(
                               "flex items-center gap-3 px-8 py-4 rounded-[2rem] transition-all relative",
                               activeTab === tab.id ? "text-white" : "text-zinc-600 hover:text-zinc-400"
@@ -431,21 +432,21 @@ export function ProfilePage() {
                      >
                         {activeTab === 'vault' && <ProfileVault generations={generations} favorites={favorites} />}
                         {activeTab === 'library' && (
-                           <ProfileLibrary 
-                              savedPrompts={savedPrompts} 
-                              characters={characters} 
-                              onAddPrompt={() => setShowPromptModal(true)} 
-                              onAddDNA={() => setShowDNAModal(true)} 
+                           <ProfileLibrary
+                              savedPrompts={savedPrompts}
+                              characters={characters}
+                              onAddPrompt={() => setShowPromptModal(true)}
+                              onAddDNA={() => setShowDNAModal(true)}
                            />
                         )}
                         {activeTab === 'config' && (
-                           <ProfileSettings 
-                              aspectRatio={aspectRatio} 
-                              setAspectRatio={setAspectRatio} 
-                              theme={theme} 
-                              toggleTheme={toggleTheme} 
-                              emailAlerts={emailAlerts} 
-                              setEmailAlerts={setEmailAlerts} 
+                           <ProfileSettings
+                              aspectRatio={aspectRatio}
+                              setAspectRatio={setAspectRatio}
+                              theme={theme}
+                              toggleTheme={toggleTheme}
+                              emailAlerts={emailAlerts}
+                              setEmailAlerts={setEmailAlerts}
                            />
                         )}
                         {activeTab === 'security' && <ProfileSecurity onDeactivate={signOut} />}
@@ -456,7 +457,7 @@ export function ProfilePage() {
 
             {/* RIGHT: ACHIEVEMENT SHELF & STATUS */}
             <div className="lg:col-span-4 space-y-12">
-               
+
                {/* ACHIEVEMENT SHELF */}
                <div className="space-y-6">
                   <div className="flex items-center gap-3 px-2">

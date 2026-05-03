@@ -35,7 +35,7 @@ export function NeuralPulseLayer() {
       {/* Scanning Line Effect - Slowed down significantly */}
       <motion.div
         animate={{
-          top: ['-10%', '110%'],
+          y: ['-10vh', '110vh'],
         }}
         transition={{
           duration: 25,

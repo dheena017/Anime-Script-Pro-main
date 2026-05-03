@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from datetime import datetime, timezone, timedelta
 from backend.database.models import User
 from backend.database import AsyncSession, async_engine
-from backend.auth_utils import verify_password, create_access_token, create_refresh_token
-from backend.user_manager import auth_backend, fastapi_users
+from backend.utils.auth_utils import verify_password, create_access_token, create_refresh_token
+from backend.services.user_manager import auth_backend, fastapi_users
 from loguru import logger
 import os
 from backend.database.models import User as UserTable # For pydantic schemas if needed

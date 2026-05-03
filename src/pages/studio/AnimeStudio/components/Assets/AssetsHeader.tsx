@@ -28,7 +28,7 @@ export const AssetsHeader: React.FC<AssetsHeaderProps> = ({
           </div>
           <div>
             <h1 className="text-2xl font-black uppercase tracking-widest text-white italic leading-none">Asset Laboratory</h1>
-            <p className="text-[9px] font-black text-studio/60 uppercase tracking-[0.3em] mt-1">Multi-Format Synthesis Protocol</p>
+            <p className="text-[9px] font-black text-studio/60 uppercase tracking-[0.3em] mt-1">Multi-Format Asset Generator</p>
           </div>
         </div>
 

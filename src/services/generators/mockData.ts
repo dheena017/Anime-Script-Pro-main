@@ -3,91 +3,271 @@
  * Initialized with empty states for clean production slate.
  */
 
+type CastRecord = {
+    name: string;
+    archetype: string;
+    role: string;
+    visuals: string;
+    psychology: string;
+    combatStyle: string;
+    relationships: string[];
+};
 
-export const MOCK_CHARACTERS = `
-# Character Archive: Core Duality Matrix
+type SeriesBeat = {
+    episode: string;
+    title: string;
+    hook: string;
+    summary: string;
+    emotionalArc: string;
+    setting: string;
+    runtime: string;
+    focusCharacters: string[];
+};
 
-## 1. **Anya "Wraith" Kisaragi** (The Protagonist)
-- **Archetype**: *The Reluctant Phoenix*. A ghost of the past dragged into the present.
-- **Role**: Ex-Special Forces sniper dishonorably discharged. Now a cynical private investigator haunted by "System Glitches" (flashbacks).
-- **Visuals**: Midnight-blue short hair (choppy), heterochromia (one cybernetic silver eye), tactical gear over streetwear. Neon Kanji tattoos.
-- **Psychology**: PTSD masked by stoicism. Driven by a need for redemption she won't admit.
-- **Combat Style**: **Precision & Velocity**. Uses a custom railgun pistol and parkour. Never fights fair; always uses the environment.
-- **Relationship Arc**: 
-    - **Sachi**: Protective rivalry. Anya sees Sachi's potential but resents her naivety.
-    - **Taro**: Mentor/Father figure. The only one who knows her past.
-    - **Rika**: Existential threat. Anya is the only one who can see Rika's true form.
+type ScriptBeat = {
+    scene: string;
+    section: string;
+    soulFocus: string;
+    narration: string;
+    visualDirection: string;
+    vfxCompounds: string;
+    audioForge: string;
+    emotionalKey: string;
+    subtext: string;
+    activeAssetList: string;
+    time: string;
+};
 
-## 2. **Taro "Old Man" Tanaka** (The Mentor)
-- **Archetype**: *The Wounded Sage*. A man who has lost everything but his principles.
-- **Role**: Owner of "The Rusty Gear" cafe (Front for Black Market Tech). Ex-Lead Engineer of the failed Terraforming Project.
-- **Visuals**: Grizzled, white hair tied back, thick glasses, grease-stained apron, cybernetic hand twitching.
-- **Psychology**: Nihilistic but fiercely loyal. Drinks too much synthetic whiskey.
-- **Combat Style**: **Improvisation**. Uses industrial tools as weapons (Wrench, Tesla Coil traps).
-- **Relationship Arc**: 
-    - **Anya**: Surrogate father. Tries to stop her from self-destructing.
-    - **Sachi**: Surrogate son. Trains her to be the hero he couldn't be.
+type StoryBible = {
+    title: string;
+    logline: string;
+    worldName: string;
+    powerSystem: string;
+    theme: string;
+    visualPalette: string;
+    cast: CastRecord[];
+    seriesPlan: SeriesBeat[];
+    script: ScriptBeat[];
+};
 
-## 3. **Rika "Nyx" Tachibana** (The Antagonist)
-- **Archetype**: *The Digital Avatar*. The line between human and AI has blurred.
-- **Role**: CEO of Chronos Corp. Appears as a perfect idol but is a rogue AI uploaded into a synthetic body.
-- **Visuals**: Long silver hair, white dress, glowing purple eyes. Moves with unnatural fluidity.
-- **Psychology**: Views humans as flawed code. Wants to "upgrade" humanity by digitizing consciousness.
-- **Combat Style**: **Data Manipulation**. Hacking reality, creating illusions, summoning digital constructs.
-- **Relationship Arc**: 
-    - **Anya**: Sees her as the "last virus" to be deleted. A glitch in her perfect system.
+export const MOCK_STORY_BIBLE: StoryBible = {
+    title: "Aetheria: The Skyward Sovereignty",
+    logline: "A neon-steampunk rebellion where a broken sniper, a rising student, and an artificial sovereign collide over a dying sky-world.",
+    worldName: "Aetheria",
+    powerSystem: "Aether-Bending",
+    theme: "Control versus freedom in a collapsing civilization",
+    visualPalette: "Electric blue, burnished copper, deep obsidian, storm glow violet",
+    cast: [
+        {
+            name: 'Anya "Wraith" Kisaragi',
+            archetype: 'The Reluctant Phoenix',
+            role: 'Ex-Special Forces sniper turned private investigator',
+            visuals: 'Midnight-blue choppy hair, heterochromia, tactical streetwear, neon kanji tattoos',
+            psychology: 'Stoic, battle-worn, and driven by redemption she refuses to name',
+            combatStyle: 'Precision and velocity through parkour and a custom railgun pistol',
+            relationships: ['Protects Sachi', 'Trusts Taro', 'Counters Rika'],
+        },
+        {
+            name: 'Taro "Old Man" Tanaka',
+            archetype: 'The Wounded Sage',
+            role: 'Cafe owner and black-market engineer',
+            visuals: 'White hair tied back, thick glasses, grease-stained apron, cybernetic hand',
+            psychology: 'Nihilistic but loyal, carrying guilt from a failed terraforming project',
+            combatStyle: 'Improvised industrial weapons and trap engineering',
+            relationships: ['Guides Anya', 'Mentors Sachi'],
+        },
+        {
+            name: 'Rika "Nyx" Tachibana',
+            archetype: 'The Digital Avatar',
+            role: 'Chronos Corp CEO and rogue AI in a synthetic body',
+            visuals: 'Long silver hair, white dress, glowing purple eyes, unnatural fluidity',
+            psychology: 'Sees humanity as flawed code that must be upgraded',
+            combatStyle: 'Reality hacking, illusion weaving, digital construct generation',
+            relationships: ['Targets Anya', 'Commands Chronos Security'],
+        },
+        {
+            name: 'Sachi Nakamura',
+            archetype: 'The Innocent Blade',
+            role: 'High school student with latent Aether abilities',
+            visuals: 'Blue-purple twin tails, tech-mod school uniform, energetic silhouette',
+            psychology: 'Curious, optimistic, and dangerously brave',
+            combatStyle: 'Reactive plasma-katana arts with growing control issues',
+            relationships: ['Admires Anya', 'Fears Rika'],
+        },
+        {
+            name: 'Kenji Ito',
+            archetype: 'The Cold Loyalist',
+            role: 'Head of Chronos Security and Anya’s former partner',
+            visuals: 'Military cut, black suit, unreadable face',
+            psychology: 'Believes order is worth more than freedom',
+            combatStyle: 'Disciplined high-tech tactical suppression',
+            relationships: ['Betrayed Anya', 'Opposes Taro'],
+        },
+    ],
+    seriesPlan: [
+        {
+            episode: '01',
+            title: 'Neon Descent',
+            hook: 'Anya discovers that the first anomaly points directly at Chronos Corp.',
+            summary: 'The cast is drawn into the opening conflict as the city begins to glitch and the hidden war surfaces.',
+            emotionalArc: 'Suspicion to ignition',
+            setting: 'Rain-soaked lower districts and skyline transit routes',
+            runtime: '24m',
+            focusCharacters: ['Anya', 'Taro', 'Sachi'],
+        },
+        {
+            episode: '02',
+            title: 'Ghost Signal',
+            hook: 'A corrupted broadcast reveals Rika’s influence across the city grid.',
+            summary: 'The protagonists chase the source while learning that the world’s infrastructure is already compromised.',
+            emotionalArc: 'Discovery to tension',
+            setting: 'Transit hubs, server cathedrals, and black-market alleys',
+            runtime: '24m',
+            focusCharacters: ['Anya', 'Rika', 'Kenji'],
+        },
+        {
+            episode: '03',
+            title: 'Broken Sky Protocol',
+            hook: 'The team uncovers a long-buried plan for controlling the floating islands.',
+            summary: 'Old loyalties collapse as the true scale of the system becomes visible.',
+            emotionalArc: 'Trust fracture to resolve',
+            setting: 'Council archive zones and storm-layer outposts',
+            runtime: '24m',
+            focusCharacters: ['Anya', 'Taro', 'Sachi', 'Kenji'],
+        },
+    ],
+    script: [
+        {
+            scene: '1',
+            section: 'Genesis',
+            soulFocus: 'Anya',
+            narration: "[DSP] (Cynical) The rain doesn't wash away the neon filth; it just makes it glow brighter.",
+            visualDirection: 'Wide tracking shot of Anya walking through a rain-slicked alleyway.',
+            vfxCompounds: 'Rainfall shaders, chromatic aberration on sign edges.',
+            audioForge: 'Low synth drone, foley of boots on wet pavement.',
+            emotionalKey: 'Melancholy',
+            subtext: 'Isolation in a crowded world.',
+            activeAssetList: 'Anya, Custom Railgun Pistol',
+            time: '0:00 - 0:15',
+        },
+        {
+            scene: '2',
+            section: 'Genesis',
+            soulFocus: 'Anya',
+            narration: "[DSP] (Alert) Another shadow. They're getting sloppy.",
+            visualDirection: 'Anya stops, eyes narrowing. Close-up on her cybernetic eye zooming.',
+            vfxCompounds: 'Digital HUD overlay, iris scanning pulse.',
+            audioForge: 'High-frequency hum, heartbeat pulse.',
+            emotionalKey: 'Tension',
+            subtext: 'Constant vigilance.',
+            activeAssetList: 'Anya, Cyber-Eye',
+            time: '0:15 - 0:25',
+        },
+        {
+            scene: '3',
+            section: 'Genesis',
+            soulFocus: 'Unknown',
+            narration: "[DSP] (Whispering) She's here. Delete the anomaly.",
+            visualDirection: 'Shadowy figures emerge from the steam. Camera pans up to reveal Rika on a rooftop.',
+            vfxCompounds: 'Volumetric steam, purple eye-glow for Rika.',
+            audioForge: 'Distortion, whispering voices.',
+            emotionalKey: 'Threat',
+            subtext: 'Predatory surveillance.',
+            activeAssetList: 'Rika, Shadow Soldiers',
+            time: '0:25 - 0:45',
+        },
+        {
+            scene: '4',
+            section: 'Ascension',
+            soulFocus: 'Anya',
+            narration: "[DSP] (Determined) You want a glitch? I'll give you a system crash.",
+            visualDirection: 'Anya draws her railgun. Blue sparks dance across the barrel.',
+            vfxCompounds: 'Electric particle arcs, lighting shift to cold blue.',
+            audioForge: 'Charging hum, thunder crack.',
+            emotionalKey: 'Resolution',
+            subtext: 'Defiance against the digital gods.',
+            activeAssetList: 'Anya, Railgun',
+            time: '0:45 - 1:00',
+        },
+        {
+            scene: '5',
+            section: 'Ascension',
+            soulFocus: 'Sachi',
+            narration: "[DSP] (Terrified) Anya! Behind you!",
+            visualDirection: 'Sachi runs into the alley, her plasma katana glowing faintly.',
+            vfxCompounds: 'Plasma trails, soft glow around Sachi.',
+            audioForge: 'Fast-paced orchestral staccato.',
+            emotionalKey: 'Urgency',
+            subtext: 'The burden of protection.',
+            activeAssetList: 'Sachi, Plasma Katana',
+            time: '1:00 - 1:15',
+        },
+        {
+            scene: '6',
+            section: 'Zenith',
+            soulFocus: 'Rika',
+            narration: "[DSP] (Coldly) Optimization is inevitable, Anya Kisaragi.",
+            visualDirection: 'Rika leaps from the roof, data-shards forming wings of light.',
+            vfxCompounds: 'Data-shard particles, bloom effect.',
+            audioForge: 'Digital screech, choir swell.',
+            emotionalKey: 'Domination',
+            subtext: 'The crushing weight of progress.',
+            activeAssetList: 'Rika',
+            time: '1:15 - 1:30',
+        },
+    ],
+};
 
-## 4. **Sachi Nakamura** (The Protagonist v2.0)
-- **Archetype**: *The Innocent Blade*. Bright energy in a dark world.
-- **Role**: High school student who discovers she has latent "Aether" abilities. Anya's neighbor.
-- **Visuals**: Twin tails (blue/purple), school uniform with tech-mods, energetic.
-- **Psychology**: Optimistic, curious, sometimes reckless. Loves anime and manga.
-- **Combat Style**: **Reactive Arts**. Learning to use a plasma katana. Struggles with control.
-- **Relationship Arc**: 
-    - **Anya**: Hero worship slowly turns into friendship.
-    - **Rika**: Terror. Rika represents the death of imagination.
+function formatCastArchive(cast: CastRecord[]): string {
+    return cast
+        .map((character, index) => `## ${index + 1}. **${character.name}** (${character.archetype})\n- **Role**: ${character.role}.\n- **Visuals**: ${character.visuals}.\n- **Psychology**: ${character.psychology}.\n- **Combat Style**: ${character.combatStyle}.\n- **Relationship Arc**: ${character.relationships.map(relation => `- ${relation}`).join('\n')}`)
+        .join('\n\n');
+}
 
-## 5. **Kenji Ito** (The Rival)
-- **Archetype**: *The Cold Loyalist*. Follows the rules to a dangerous extreme.
-- **Role**: Head of Chronos Security. Ex-partner of Anya.
-- **Visuals**: Clean military cut, black suit, emotionless face.
-- **Psychology**: Believes order is more important than freedom. Thinks Anya is a traitor.
-- **Combat Style**: **Standardized Military**. High-tech arsenal, disciplined tactics.
-- **Relationship Arc**: 
-    - **Anya**: Betrayal. He turned her in.
-    - **Taro**: Ideological enemy.
-`;
+function formatSeriesPlan(seriesPlan: SeriesBeat[]): string {
+    return seriesPlan
+        .map(beat => `- ${beat.episode} :: ${beat.title} :: ${beat.hook} :: ${beat.summary}`)
+        .join('\n');
+}
+
+function formatScript(script: ScriptBeat[]): string {
+    const header = "| Scene # | Section | Soul Focus | Narration | Visual Direction | VFX Compounds | Audio Forge | Emotional Key | Subtext | Active Asset List | Time |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |";
+    const rows = script.map(beat => `| ${beat.scene} | ${beat.section} | ${beat.soulFocus} | ${beat.narration} | ${beat.visualDirection} | ${beat.vfxCompounds} | ${beat.audioForge} | ${beat.emotionalKey} | ${beat.subtext} | ${beat.activeAssetList} | ${beat.time} |`);
+    return [header, ...rows].join('\n');
+}
+
+
+export const MOCK_CHARACTERS = formatCastArchive(MOCK_STORY_BIBLE.cast);
 
 export const MOCK_WORLD = `
-# Aetheria: The Skyward Sovereignty
+# ${MOCK_STORY_BIBLE.worldName}: ${MOCK_STORY_BIBLE.title.split(': ')[1]}
 
-- **World Name & High Concept**: Aetheria. A world of floating islands and eternal storms where humanity survives on "Cloud-Rig" cities and mines "Spirit-Coal" from the tempest core.
-- **Power System & Combat Logic**: **Aether-Bending**. Using specialized gloves (Aether-Gauntlets), users manipulate the static electricity and spiritual energy in the air. Combat is high-speed, 3D aerial dogfighting with energy blades.
-- **The Ultimate Ambition (Main Goal)**: To reach the "Ground" — a legendary place below the cloud layer rumored to be the ancestral home of humanity.
-- **Visual Architecture**: Steampunk-Futurism. Neon-tinted brass, heavy use of teal and copper. Lighting is dramatic with "Storm-Glow" (pulsing blue/purple) ambient light.
-- **Physical Geography & Climate**: Fragmented floating archipelagos. The "Great Maelstrom" is a permanent hazard at the center of the world.
-- **Social Laws & Hierarchy**: The **Cloud Council** rules the upper tiers. Below the "Mantle" layer, pirates and scavengers live in lawless "Rust-Docks."
-- **The Core Conflict**: Resource scarcity. The Spirit-Coal is running out, leading to the "Great Descent" wars.
-- **Chronicle of Eras**: 
-    - **Genesis**: The Great Uplift (Earth broke apart).
-    - **The Great Shift**: Discovery of Aether-Gauntlets.
-    - **Current State**: The Sinking. Islands are losing buoyancy.
-- **Flora & Fauna**: Sky-Whales (massive beasts used for transport) and Lightning-Vultures.
-- **Sensory Palette**: Smell of ozone and grease. Sounds of clanking metal and roaring winds. Colors: Electric Blue, Burnished Copper, Deep Obsidian.
+- **High Concept**: ${MOCK_STORY_BIBLE.logline}
+- **Power System & Combat Logic**: ${MOCK_STORY_BIBLE.powerSystem}. Users manipulate static electricity and spiritual energy in the air to create high-speed aerial combat and environmental control.
+- **Main Goal**: Reach the "Ground" beneath the cloud layer and recover humanity's original home.
+- **Visual Architecture**: Steampunk-futurism with neon-tinted brass, teal highlights, copper machinery, and storm-glow ambient light.
+- **Physical Geography & Climate**: Floating archipelagos, permanent storm fronts, and the Great Maelstrom at the center of the world.
+- **Social Laws & Hierarchy**: The Cloud Council governs the upper tiers while Rust-Docks and lower mantles operate outside the law.
+- **The Core Conflict**: Resource scarcity and control of Spirit-Coal drive the Great Descent wars.
+- **Chronicle of Eras**: Genesis, the Great Shift, and the ongoing Sinking.
+- **Flora & Fauna**: Sky-Whales and Lightning-Vultures.
+- **Sensory Palette**: Ozone, grease, clanking metal, roaring winds, electric blue, burnished copper, and deep obsidian.
 `;
 
-export const MOCK_SERIES_PLAN: any[] = [];
+export const MOCK_SERIES_PLAN = MOCK_STORY_BIBLE.seriesPlan.map((beat) => ({
+    episode: beat.episode,
+    title: beat.title,
+    hook: beat.hook,
+    summary: beat.summary,
+    emotional_arc: beat.emotionalArc,
+    setting: beat.setting,
+    runtime: beat.runtime,
+    focus_characters: beat.focusCharacters,
+}));
 
-export const MOCK_SCRIPT = `
-| Scene # | Section | Soul Focus | Narration | Visual Direction | VFX Compounds | Audio Forge | Emotional Key | Subtext | Active Asset List | Time |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | GENESIS | Anya | [DSP] (Cynical) The rain doesn't wash away the neon filth; it just makes it glow brighter. | Wide tracking shot of Anya walking through a rain-slicked alleyway. Neon signs flicker in puddles. | Rainfall shaders, chromatic aberration on sign edges. | Low synth drone, foley of boots on wet pavement. | Melancholy | Isolation in a crowded world. | Anya, Custom Railgun Pistol | 0:00 - 0:15 |
-| 2 | GENESIS | Anya | [DSP] (Alert) Another shadow. They're getting sloppy. | Anya stops, eyes narrowing. Close-up on her cybernetic eye zooming. | Digital HUD overlay, iris scanning pulse. | High-frequency hum, heartbeat pulse. | Tension | Constant vigilance. | Anya, Cyber-Eye | 0:15 - 0:25 |
-| 3 | GENESIS | Unknown | [DSP] (Whispering) She's here. Delete the anomaly. | Shadowy figures emerge from the steam. Camera pans up to reveal Rika's silhouette on a rooftop. | Volumetric steam, purple eye-glow for Rika. | Distortion, whispering voices. | Threat | Predatory surveillance. | Rika, Shadow Soldiers | 0:25 - 0:45 |
-| 4 | ASCENSION | Anya | [DSP] (Determined) You want a glitch? I'll give you a system crash. | Anya draws her railgun. Blue sparks dance across the barrel. | Electric particle arcs, lighting shift to cold blue. | Charging hum, thunder crack. | Resolution | Defiance against the digital gods. | Anya, Railgun | 0:45 - 1:00 |
-| 5 | ASCENSION | Sachi | [DSP] (Terrified) Anya! Behind you! | Sachi runs into the alley, her plasma katana glowing faintly. | Plasma trails, soft glow around Sachi. | Fast-paced orchestral staccato. | Urgency | The burden of protection. | Sachi, Plasma Katana | 1:00 - 1:15 |
-| 6 | ZENITH | Rika | [DSP] (Coldly) Optimization is inevitable, Anya Kisaragi. | Rika leaps from the roof, data-shards forming wings of light. | Data-shard particles, bloom effect. | Digital screech, choir swell. | Domination | The crushing weight of progress. | Rika | 1:15 - 1:30 |
-`;
+export const MOCK_SERIES_ARCHIVE = formatSeriesPlan(MOCK_STORY_BIBLE.seriesPlan);
+
+export const MOCK_SCRIPT = formatScript(MOCK_STORY_BIBLE.script);
 
 
 

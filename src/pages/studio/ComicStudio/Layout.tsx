@@ -1,31 +1,67 @@
-import React from 'react';
-import { useEffect, useCallback } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import React, { useEffect, useCallback } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { StudioFooter } from '@/components/studio/layout/StudioFooter';
-import { SessionLogs } from '../AnimeStudio/components/Layout/SessionLogs';
-import { StudioLoading } from '@/components/studio/StudioLoading';
+import { useApp } from '@/contexts/AppContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * ComicLayout - Production Node v1.0 (Scaffold)
- * Dedicated environment for Traditional Page / Graphic Novel production.
- */
+// Local Studio Components
+import { ComicStudioSideBar } from './components/ComicStudioSideBar';
+import { ComicStudioTopBar } from './components/ComicStudioTopBar';
+import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
+import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
+import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
+import { SessionLogs } from '@/pages/studio/components/studio/core/SessionLogs';
+import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
+
 export default function ComicLayout() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
-  const { 
-    setContentType, showNotification, isLoading, setIsLoading, addLog, prompt,
-    history, setPrompt, setTone, setAudience, setEpisode, setSession, 
-    setSelectedModel, setGeneratedMetadata 
-  } = useGenerator();
+  const { showNotification } = useApp();
+
+  const {
+    prompt, tone, audience, episode, session, numScenes, selectedModel,
+    isLoading, history } = useGeneratorState();
+
+  const {
+    setIsLoading, addLog, setPrompt, setTone, setAudience,
+    setEpisode, setSession, setNumScenes, setSelectedModel, setGeneratedMetadata, setContentType
+  } = useGeneratorDispatch();
+
+  const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(false);
+  const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
+
+  const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
+  const toggleGlobalSidebar = () => setGlobalSidebarCollapsed(!globalSidebarCollapsed);
+
+  // Disable scroll when sidebar is open
+  useEffect(() => {
+    if (!globalSidebarCollapsed || sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [globalSidebarCollapsed, sidebarOpen]);
+
+  const toggleEngine = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    const newParams = new URLSearchParams(location.search);
+    if (newState) newParams.set('engine', 'open');
+    else newParams.delete('engine');
+    navigate({ search: newParams.toString() }, { replace: true });
+  };
 
   useEffect(() => {
     setContentType('Comic');
   }, [setContentType]);
+
+  const basePath = '/comic';
 
   const handleMasterGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
@@ -34,77 +70,94 @@ export default function ComicLayout() {
     }
     setIsLoading(true);
     addLog("COMIC_CORE", "INITIALIZED", "Orchestrating Comic Production Cycle...");
-    // Future: Add Comic-specific synthesis logic here
     setTimeout(() => {
       setIsLoading(false);
       showNotification?.('Comic Synthesis Scaffold Complete', 'success');
+      navigate(`${basePath}/world`);
     }, 2000);
-  }, [prompt, user, setIsLoading, addLog, showNotification]);
+  }, [prompt, user, setIsLoading, addLog, showNotification, navigate, basePath]);
 
   return (
-    <div className="fixed inset-0 bg-[#0d0a05] flex flex-col overflow-hidden z-[1000] comic-studio-root">
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar Placeholder */}
-        <div className="w-20 bg-black/40 border-r border-amber-500/20 flex flex-col items-center py-8 gap-8">
-          <div className="w-10 h-10 rounded-xl bg-amber-600 flex items-center justify-center text-white font-black shadow-[0_0_20px_rgba(245,158,11,0.3)]">C</div>
-        </div>
+    <div className="fixed inset-0 bg-[#0d0a05] flex h-screen w-full overflow-hidden z-[1000] comic-studio-root">
+      {/* GLOBAL HUB SIDEBAR (Far Left) */}
+      <div className="relative z-[501] border-r border-amber-500/20">
+        <StudioSideBar
+          collapsed={globalSidebarCollapsed}
+          setCollapsed={setGlobalSidebarCollapsed}
+        />
+      </div>
 
-        <div className="flex-1 flex flex-col min-w-0 relative h-full">
-          {/* Top Bar Placeholder */}
-          <div className="h-[60px] bg-black/20 backdrop-blur-md border-b border-amber-500/10 flex items-center px-8 justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Comic Architect</span>
-              <span className="text-zinc-500 text-[10px]">/ Production Unit 03</span>
-            </div>
-          </div>
+      {/* COMIC STUDIO SIDEBAR (Next to Hub) */}
+      <ComicStudioSideBar
+        basePath={basePath}
+        handleGenerate={handleMasterGenerate}
+        isLoading={isLoading}
+        rightSidebarOpen={sidebarOpen}
+        onToggleRightSidebar={toggleEngine}
+        collapsed={leftSidebarCollapsed}
+        onToggleCollapse={toggleLeftSidebar}
+      />
 
-          {/* Main Workspace */}
-          <div className="flex-1 overflow-y-auto relative no-scrollbar">
+      <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
+        {/* Backdrop Blur Overlays */}
+        <AnimatePresence>
+          {/* Global Hub Backdrop */}
+          {!globalSidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => setGlobalSidebarCollapsed(true)}
+              className="fixed inset-0 bg-black/60 z-[490] cursor-pointer"
+            />
+          )}
 
+          {/* Engine Backdrop */}
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              onClick={toggleEngine}
+              className="absolute inset-0 bg-black/60 z-[40] cursor-pointer"
+            />
+          )}
 
-            <div className="w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
-              <div className="w-full min-h-[600px] bg-[#1a150b]/80 backdrop-blur-md border border-amber-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-12 relative overflow-hidden">
+          {/* Sidebar Backdrop */}
+          {!leftSidebarCollapsed && (
+            <motion.div
+              animate={{ opacity: 1, backdropFilter: "blur(16px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              onClick={toggleLeftSidebar}
+              className="absolute inset-0 bg-black/40 z-[40] cursor-pointer"
+            />
+          )}
+        </AnimatePresence>
 
-                
-                <AnimatePresence mode="wait">
-                    <motion.div
-                      key={location.pathname}
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 1.02 }}
-                      className="w-full h-full relative z-10"
-                    >
-                      <div className="flex flex-col items-center justify-center h-[500px] space-y-10">
-                        <div className="relative group">
+        <ComicStudioTopBar
+          onToggleEngine={toggleEngine}
+          isEngineOpen={sidebarOpen}
+          onToggleSidebar={toggleLeftSidebar}
+          isSidebarCollapsed={leftSidebarCollapsed}
+          onToggleGlobalSidebar={toggleGlobalSidebar}
+          isGlobalSidebarOpen={!globalSidebarCollapsed}
+        />
 
-                          <div className="relative w-32 h-32 rounded-[3rem] bg-black/40 border border-amber-500/30 flex items-center justify-center shadow-2xl">
-                            <h1 className="text-6xl font-black text-white italic">C</h1>
-                          </div>
-                        </div>
-                        
-                        <div className="text-center space-y-4">
-                          <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Comic Studio</h2>
-                          <p className="text-amber-400 font-black uppercase tracking-[0.4em] text-xs animate-pulse">Graphic Novel Production Engine / Online</p>
-                        </div>
-
-                        <Button
-                          onClick={handleMasterGenerate}
-                          disabled={isLoading}
-                          className="h-16 px-12 rounded-3xl bg-amber-600 hover:bg-amber-500 text-white font-black uppercase tracking-widest text-xs gap-4 shadow-xl shadow-amber-600/20 transition-all hover:scale-105 active:scale-95"
-                        >
-                          {isLoading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <Sparkles className="w-5 h-5" />
-                          )}
-                          {isLoading ? 'Synthesizing Comic...' : 'Initiate Comic Genesis'}
-                        </Button>
-                      </div>
-                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Rendering Comic Canvas" submessage="Accessing Graphic Novel Archive..." />}>
-                        <Outlet />
-                      </React.Suspense>
-                    </motion.div>
-                </AnimatePresence>
+        {/* Main Production Workspace */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+          <div className="min-h-full flex flex-col">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
+              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-[#1a150b]/60 backdrop-blur-xl border border-amber-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
+                <div className="relative z-10 w-full flex-1 flex flex-col">
+                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Comic Studio" submessage="Accessing Neural Database..." />}>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <Outlet />
+                    </div>
+                  </React.Suspense>
+                </div>
               </div>
 
               {/* Intelligence Console */}
@@ -119,18 +172,44 @@ export default function ComicLayout() {
                   setContentType={setContentType}
                   setSelectedModel={setSelectedModel}
                   setGeneratedMetadata={setGeneratedMetadata}
+                  theme="amber"
                 />
               </div>
+            </div>
 
-              {/* Studio Footer with Gap */}
-              <div className="mt-40 mb-10">
-                <StudioFooter />
-              </div>
+            {/* Studio Footer with Gap */}
+            <div className="mt-40">
+              <StudioFooter />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Creative Engine Sidepanel */}
+      <ProductionCore
+        isOpen={sidebarOpen}
+        onToggle={toggleEngine}
+        prompt={prompt} setPrompt={setPrompt}
+        tone={tone} setTone={setTone}
+        audience={audience} setAudience={setAudience}
+        session={session} setSession={setSession}
+        episode={episode} setEpisode={setEpisode}
+        numScenes={numScenes} setNumScenes={setNumScenes}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
+        handleGenerate={handleMasterGenerate}
+        handleMasterGenerate={handleMasterGenerate}
+        handleSaveCurrent={() => { }} // Placeholder for Comic save
+        isLoading={isLoading}
+        isSaving={false}
+        generatedScript={null}
+        currentScriptId={null}
+        user={user}
+        basePath={basePath}
+        navigate={navigate}
+        contentType="Comic"
+        theme="amber"
+      />
     </div>
   );
 }
-

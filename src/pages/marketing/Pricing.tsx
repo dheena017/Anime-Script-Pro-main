@@ -1,50 +1,124 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Zap, Sparkles, Crown, ArrowRight } from 'lucide-react';
+import { 
+  Check, 
+  Zap, 
+  Sparkles, 
+  Crown, 
+  ArrowRight, 
+  Cpu, 
+  Activity, 
+  ShieldCheck, 
+  Database,
+  Globe
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const PricingCard = ({ title, price, features, highlighted = false, icon: Icon, onSelect }: { title: string; price: string; features: string[]; highlighted?: boolean; icon: React.ComponentType<{ className?: string }>; onSelect: () => void }) => (
+const PricingCard = ({ 
+  title, 
+  price, 
+  features, 
+  highlighted = false, 
+  icon: Icon, 
+  onSelect,
+  nodeId,
+  availability,
+  efficiency
+}: { 
+  title: string; 
+  price: string; 
+  features: string[]; 
+  highlighted?: boolean; 
+  icon: React.ComponentType<{ className?: string }>; 
+  onSelect: () => void;
+  nodeId: string;
+  availability: string;
+  efficiency: string;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    className={`p-8 rounded-[2.5rem] border ${highlighted ? 'border-studio bg-studio/5 shadow-[0_0_50px_rgba(6,182,212,0.1)]' : 'border-white/5 bg-zinc-900/40'} relative overflow-hidden flex flex-col`}
+    className={cn(
+      "p-10 rounded-[3rem] border transition-all duration-500 relative overflow-hidden flex flex-col group",
+      highlighted 
+        ? "border-studio bg-studio/[0.03] shadow-[0_30px_70px_rgba(6,182,212,0.15)]" 
+        : "border-white/5 bg-[#0a0a0b] hover:border-white/10"
+    )}
   >
+    {/* Background Glow */}
+    <div className={cn(
+      "absolute top-0 right-0 w-64 h-64 blur-[100px] rounded-full opacity-0 group-hover:opacity-20 transition-opacity",
+      highlighted ? "bg-studio" : "bg-white"
+    )} />
+
     {highlighted && (
-      <div className="absolute top-6 right-8">
-        <div className="px-4 py-1.5 rounded-full bg-studio text-black text-[10px] font-black uppercase tracking-widest shadow-xl">
-          Most Popular
+      <div className="absolute top-8 right-10">
+        <div className="px-5 py-2 rounded-full bg-studio text-black text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl flex items-center gap-2">
+           <Zap className="w-3 h-3 fill-black" /> Recommended
         </div>
       </div>
     )}
     
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-8 ${highlighted ? 'bg-studio text-black' : 'bg-white/5 text-zinc-400'}`}>
-      <Icon className="w-6 h-6" />
-    </div>
-
-    <h3 className="text-2xl font-black text-white uppercase tracking-tight mb-2">{title}</h3>
-    <div className="flex items-baseline gap-1 mb-8">
-      <span className="text-4xl md:text-5xl font-black text-white">{price}</span>
-      <span className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">{price !== 'Free' ? '/month' : ''}</span>
-    </div>
-
-    <div className="space-y-4 mb-10 flex-grow">
-      {features.map((feature, i) => (
-        <div key={i} className="flex items-center gap-3">
-          <div className={`w-5 h-5 rounded-full flex items-center justify-center ${highlighted ? 'bg-studio/20 text-studio' : 'bg-white/5 text-zinc-500'}`}>
-            <Check className="w-3 h-3" />
+    <div className="flex items-center justify-between mb-12">
+       <div className={cn(
+         "w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500",
+         highlighted ? "bg-studio text-black shadow-[0_0_30px_rgba(6,182,212,0.4)]" : "bg-white/[0.03] border border-white/5 text-zinc-500 group-hover:bg-white group-hover:text-black"
+       )}>
+         <Icon className="w-8 h-8" />
+       </div>
+       <div className="text-right">
+          <div className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-1">{nodeId}</div>
+          <div className="flex items-center gap-2 justify-end">
+             <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", availability === 'Optimal' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-amber-500")} />
+             <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">{availability}</span>
           </div>
-          <span className="text-sm text-zinc-400 font-medium">{feature}</span>
+       </div>
+    </div>
+
+    <div className="space-y-1 mb-10">
+       <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter group-hover:text-studio transition-colors">{title}</h3>
+       <div className="flex items-baseline gap-2">
+         <span className="text-5xl md:text-6xl font-black text-white italic tracking-tighter">{price}</span>
+         <span className="text-zinc-600 font-black uppercase tracking-[0.3em] text-[10px]">{price !== 'Free' ? '/MO' : 'TRIAL'}</span>
+       </div>
+    </div>
+
+    <div className="space-y-4 mb-12 flex-grow">
+      {features.map((feature, i) => (
+        <div key={i} className="flex items-center gap-4 group/item">
+          <div className={cn(
+            "w-5 h-5 rounded-lg flex items-center justify-center transition-all duration-300",
+            highlighted ? "bg-studio/20 text-studio" : "bg-white/5 text-zinc-600 group-hover/item:bg-white/10"
+          )}>
+            <Check className="w-3.5 h-3.5" />
+          </div>
+          <span className="text-[11px] text-zinc-500 font-black uppercase tracking-widest group-hover/item:text-white transition-colors">{feature}</span>
         </div>
       ))}
     </div>
 
+    {/* Telemetry Node */}
+    <div className="mb-10 pt-8 border-t border-white/5 flex items-center justify-between">
+       <div className="space-y-1">
+          <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Synthesis Efficiency</span>
+          <div className="text-[10px] font-black text-studio uppercase italic">{efficiency}</div>
+       </div>
+       <Database className="w-4 h-4 text-zinc-800" />
+    </div>
+
     <Button 
       onClick={onSelect}
-      className={`h-14 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${highlighted ? 'bg-studio text-black hover:bg-studio/90 hover:scale-105 shadow-lg' : 'bg-white/5 text-white hover:bg-white/10'}`}
+      className={cn(
+        "h-16 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-[11px] transition-all relative overflow-hidden group/btn",
+        highlighted 
+          ? "bg-studio text-black hover:bg-white hover:scale-[1.02] shadow-3xl" 
+          : "bg-white/5 text-white hover:bg-white hover:text-black"
+      )}
     >
-      Initialize {title} <ArrowRight className="ml-2 w-4 h-4" />
+      Initialize Protocol <ArrowRight className="ml-3 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
     </Button>
   </motion.div>
 );
@@ -53,83 +127,133 @@ export default function PricingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#030303] text-zinc-100 py-32 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center space-y-4 mb-20">
+    <div className="min-h-screen bg-[#050505] text-zinc-100 py-32 px-6 relative overflow-hidden">
+      {/* Visual Decor */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-studio/5 blur-[180px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-fuchsia-500/5 blur-[180px] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto space-y-24 relative z-10">
+        
+        {/* 1. HEADER PROTOCOL */}
+        <div className="flex flex-col items-center text-center space-y-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-studio/10 border border-studio/20 backdrop-blur-md"
+            className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-studio/5 border border-studio/20 backdrop-blur-md"
           >
-            <Sparkles className="w-4 h-4 text-studio" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-studio">Pricing Architecture</span>
+            <Cpu className="w-4 h-4 text-studio" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-studio">Production Tier Matrix V4.0</span>
           </motion.div>
           
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-white uppercase">
-            Choose your <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-studio via-fuchsia-500 to-studio">Production Power.</span>
-          </h1>
-          <p className="max-w-2xl mx-auto text-zinc-500 font-bold uppercase tracking-widest text-xs">
-            Scalable resources for solo architects and full-scale studios.
-          </p>
+          <div className="space-y-4">
+             <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white uppercase italic leading-none">
+               Production <span className="text-studio">Power.</span>
+             </h1>
+             <p className="max-w-2xl mx-auto text-zinc-500 font-bold uppercase tracking-[0.2em] text-[11px] leading-relaxed">
+               Scalable neural resources for solo architects and full-scale production studios. Distributed node architecture.
+             </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* 2. TIER GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <PricingCard 
             title="Aspirant"
             price="Free"
+            nodeId="NODE-T1-BASE"
+            availability="Optimal"
+            efficiency="Standard Sync"
             icon={Zap}
             onSelect={() => navigate('/login')}
             features={[
-              "1 Active Project",
-              "Basic AI Generation",
-              "Standard Community Access",
-              "720p Script Exports"
+              "1 Active Project Shard",
+              "Basic Neural Synthesis",
+              "Global Community Link",
+              "720p Protocol Exports",
+              "Standard Rendering Latency"
             ]}
           />
           <PricingCard 
             title="Architect"
             price="$29"
+            nodeId="NODE-T2-PRO"
+            availability="Optimal"
+            efficiency="High-Bandwidth"
             highlighted={true}
             icon={Sparkles}
             onSelect={() => navigate('/login')}
             features={[
-              "Unlimited Projects",
+              "Unlimited Production Shards",
               "Priority Agent Swarm Access",
-              "Advanced Character DNA",
+              "Advanced Character DNA V3",
               "4K Production Exports",
-              "Custom Templates"
+              "Custom Architect Templates",
+              "Extended Archive Storage"
             ]}
           />
           <PricingCard 
             title="Master"
             price="$99"
+            nodeId="NODE-T3-MAX"
+            availability="Optimal"
+            efficiency="Real-Time Sync"
             icon={Crown}
             onSelect={() => navigate('/login')}
             features={[
               "Everything in Architect",
-              "White-label Exports",
-              "API Access",
+              "White-label Protocol Exports",
+              "Direct API Node Interface",
               "Dedicated Sub-agent Cluster",
-              "24/7 Priority Neural Support"
+              "24/7 Priority Neural Support",
+              "Zero-Latency Synthesis"
             ]}
           />
         </div>
         
-        <div className="mt-20 p-12 rounded-[3rem] bg-zinc-900/20 border border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="text-left space-y-2">
-            <h3 className="text-2xl font-black text-white uppercase tracking-tight">Need a custom cluster?</h3>
-            <p className="text-zinc-500 text-sm font-medium">Enterprise solutions for large-scale anime production studios.</p>
+        {/* 3. ENTERPRISE CLUSTER INTERFACE */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="p-12 md:p-20 rounded-[4rem] bg-[#0a0a0b] border border-white/5 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden group shadow-3xl"
+        >
+          <div className="absolute inset-0 bg-studio/[0.02] opacity-50 group-hover:opacity-100 transition-opacity" />
+          <div className="relative z-10 text-center lg:text-left space-y-6 max-w-2xl">
+            <div className="flex items-center gap-3 justify-center lg:justify-start">
+               <Globe className="w-5 h-5 text-studio" />
+               <span className="text-[10px] font-black text-studio uppercase tracking-[0.4em]">Enterprise Protocol</span>
+            </div>
+            <div className="space-y-4">
+               <h3 className="text-4xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Need a Custom <br /> Production Cluster?</h3>
+               <p className="text-zinc-500 text-[11px] font-bold uppercase tracking-[0.2em] leading-relaxed">
+                 Dedicated neural infrastructure for large-scale anime production houses. Specialized sub-agent swarms and high-bandwidth API nodes.
+               </p>
+            </div>
           </div>
-          <Button onClick={() => navigate('/community')} variant="outline" className="h-14 px-10 rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-xs transition-all">
-            Contact Sales
+          <Button 
+            onClick={() => navigate('/contact')} 
+            className="relative z-10 h-20 px-16 rounded-[2rem] bg-white text-black font-black uppercase tracking-[0.3em] text-[11px] hover:bg-studio hover:scale-105 transition-all shadow-2xl"
+          >
+            INITIALIZE SALES LINK <ArrowRight className="ml-4 w-5 h-5" />
           </Button>
-        </div>
+        </motion.div>
+
+        {/* 4. TELEMETRY FOOTER */}
+        <footer className="mt-20 pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-16 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+           <div className="flex items-center gap-4">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span>Certified Secure Billing Node</span>
+           </div>
+           <div className="flex items-center gap-4">
+              <Activity className="w-4 h-4 text-studio" />
+              <span>Global Availability: 99.9%</span>
+           </div>
+           <div className="flex items-center gap-4">
+              <Zap className="w-4 h-4 text-amber-500" />
+              <span>Zero-Tax Protocol Processing</span>
+           </div>
+        </footer>
       </div>
     </div>
   );
 }
-
-
-
-

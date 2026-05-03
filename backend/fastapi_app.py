@@ -69,16 +69,27 @@ def configure_logging() -> None:
         logging.getLogger(name).handlers = [InterceptHandler()]
         logging.getLogger(name).propagate = False
 
+    # Also add a file sink for persistence
+    log_file = os.path.join(BACKEND_ROOT, "logs", "backend.log")
+    logger.add(
+        log_file,
+        rotation="10 MB",
+        retention="1 week",
+        level="DEBUG",
+        format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
+    )
+    logger.info(f"LOGGING: System synchronized. File sink active at {log_file}")
 
-# Add project root to path to allow absolute imports when run directly
+
+configure_logging()
 # (This is also safe when imported as a module.)
 
 from backend.database import engine, async_engine, get_async_session, AsyncSession, Tutorial
-from backend.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
-from backend.deps import get_auth_user_id
+from backend.services.user_manager import fastapi_users, auth_backend, UserRead, UserCreate, UserUpdate
+from backend.utils.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
 
-configure_logging()
+logger.success("🚀 NEURAL ENGINE: Logging protocols initialized successfully.")
 
 # --- FastAPI app initialization ---
 logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
@@ -150,7 +161,7 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     )
 
 # --- Exception Handlers ---
-from backend.neural_utils import wrap_neural_response, log_neural_event
+from backend.utils.neural_utils import wrap_neural_response, log_neural_event
 
 def error_response(status_code: int, detail: str, request: Request, error: str = None, body=None):
     signal_id = log_neural_event(f"ERROR: {detail}", category="FAILURE", level="ERROR")
@@ -176,7 +187,7 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
     return error_response(500, "Database synchronization failure", request, error=err_str)
 
 # --- Middleware ---
-from backend.neural_utils import NeuralTracer
+from backend.utils.neural_utils import NeuralTracer
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
@@ -390,7 +401,7 @@ async def on_startup():
             logger.warning("DATABASE: Studio data missing. Initializing core templates...")
             # We run the seed script in a separate thread to avoid blocking the event loop
             import anyio
-            from seed_all import seed_all
+            from backend.scripts.seeds.seed_all import seed_all
             try:
                 await anyio.to_thread.run_sync(seed_all)
                 logger.success("DATABASE: Auto-seeding complete. Studio assets deployed.")

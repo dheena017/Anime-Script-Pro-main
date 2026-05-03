@@ -3,9 +3,9 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateSeriesPlan } from '@/services/api/gemini';
-import { SeriesHeader } from '../components/Series/SeriesHeader';
-import { SeriesToolbar } from '../components/Series/SeriesToolbar';
-import { SeriesTab } from '../components/Series/Tabs/SeriesTabs';
+import { SeriesHeader } from './components/SeriesHeader';
+import { SeriesToolbar } from './components/SeriesToolbar';
+import { SeriesTab } from './Tabs/SeriesTabs';
 
 export default function SeriesLayout() {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ export default function SeriesLayout() {
     generatedWorld,
     generatedCharacters,
     showNotification,
-    isSaving, 
+    isSaving,
     syncCore
   } = useGenerator();
 
@@ -36,7 +36,7 @@ export default function SeriesLayout() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to map the series.', 'error');
+      showNotification?.('Please enter a story prompt first before creating the series plan.', 'error');
       return;
     }
     setIsGeneratingSeries(true);
@@ -44,17 +44,17 @@ export default function SeriesLayout() {
       const totalEpisodes = 12; // Default
       const plan = await generateSeriesPlan(prompt, selectedModel, contentType, totalEpisodes, generatedWorld || undefined, generatedCharacters || undefined);
       setGeneratedSeriesPlan(plan);
-      showNotification?.('Neural Synthesis Complete: Master Sequence Archived', 'success');
+      showNotification?.('Series plan created successfully!', 'success');
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Synthesis Failure: ' + (error.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to create series plan: ' + (error.message || 'Unknown error'), 'error');
     } finally {
       setIsGeneratingSeries(false);
     }
   };
 
   const location = useLocation();
-  
+
   const getActiveTab = (): SeriesTab => {
     const path = location.pathname;
     if (path.includes('/series/episodes')) return 'episodes';
@@ -62,14 +62,14 @@ export default function SeriesLayout() {
     if (path.includes('/series/blueprint')) return 'blueprint';
     if (path.includes('/series/assets')) return 'assets';
     if (path.includes('/series/timeline')) return 'timeline';
-    
+
     if (path.endsWith('/series') || path.includes('/series/roadmap')) return 'roadmap';
-    
+
     return 'roadmap';
   };
 
   const activeTab = getActiveTab();
-  
+
   const handleTabChange = (tab: SeriesTab) => {
     const base = `/${contentType.toLowerCase()}/series`;
     if (tab === 'roadmap') {

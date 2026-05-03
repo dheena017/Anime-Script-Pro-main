@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { ShieldCheck, Zap, Lock, KeyRound, ArrowLeft } from 'lucide-react';
-import { AuthCard } from '@/components/auth/AuthCard';
-import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { ShieldCheck, Zap, ArrowLeft } from 'lucide-react';
+import { AuthCard } from './components/AuthCard.jsx';
+import { ForgotPasswordForm } from './components/ForgotPasswordForm';
 import { useNavigate } from 'react-router-dom';
 
 export function ForgotPasswordPage() {
@@ -62,21 +62,21 @@ export function ForgotPasswordPage() {
         </motion.div>
 
         {/* Footer Metrics */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
           className="mt-8 flex items-center justify-between px-6 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-700 group"
         >
           <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-zinc-500">
-            <motion.div 
+            <motion.div
               className="flex items-center gap-1.5 group-hover:text-studio transition-colors"
               whileHover={{ scale: 1.1 }}
             >
               <ShieldCheck className="w-3 h-3 text-studio" />
               <span>Encrypted</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               className="flex items-center gap-1.5 group-hover:text-yellow-500 transition-colors"
               whileHover={{ scale: 1.1 }}
             >
@@ -84,7 +84,7 @@ export function ForgotPasswordPage() {
               <span>Fast Lane</span>
             </motion.div>
           </div>
-          <motion.p 
+          <motion.p
             className="text-[9px] uppercase tracking-[0.3em] font-black text-zinc-600"
             animate={{ opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 3, repeat: Infinity }}

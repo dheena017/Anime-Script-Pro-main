@@ -1,8 +1,9 @@
+import { tutorialService } from '@/services/api/tutorials';
+import { Play, CheckCircle2, Clock, BarChart } from 'lucide-react';
+import { motion } from 'motion/react';
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Play, Clock, BarChart, CheckCircle2 } from 'lucide-react';
 
-const lessons = [
+const fallbackLessons = [
   {
     id: 1,
     title: "Intro to Neural Scripting",
@@ -42,6 +43,42 @@ const lessons = [
 ];
 
 export const TutorialsPanel: React.FC = () => {
+  const [lessons, setLessons] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const loadTutorials = async () => {
+      try {
+        const data = await tutorialService.getTutorials();
+        if (data && data.length > 0) {
+          // Map backend data to UI format
+          setLessons(data.map(t => ({
+            ...t,
+            progress: 0, // In a real app, this would come from a progress service
+            thumbnail: t.icon_name || "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&q=80&w=800"
+          })));
+        } else {
+          setLessons(fallbackLessons);
+        }
+      } catch (error) {
+        console.error("Failed to load tutorials:", error);
+        setLessons(fallbackLessons);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadTutorials();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 space-y-6">
+        <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+        <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] animate-pulse">Syncing Academy Protocols...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       {lessons.map((lesson, idx) => (
@@ -55,7 +92,7 @@ export const TutorialsPanel: React.FC = () => {
           {/* THUMBNAIL */}
           <div className="relative aspect-video overflow-hidden">
             <img 
-              src={lesson.thumbnail} 
+              src={lesson.thumbnail.startsWith('http') ? lesson.thumbnail : `https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&q=80&w=800`} 
               alt={lesson.title}
               className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
             />

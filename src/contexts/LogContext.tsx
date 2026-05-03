@@ -31,12 +31,6 @@ export const LogProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     
     setMasterLogs(prev => [newLog, ...prev].slice(0, 50));
-    
-    // Also log to console for debugging
-    console.info(`%c[Neural Log] %c${module} | ${status} %c${message || ''}`, 
-      'color: #8b5cf6; font-weight: bold', 
-      'color: #94a3b8; font-weight: bold', 
-      'color: #64748b');
   }, []);
 
   const clearLogs = useCallback(() => {
@@ -63,4 +57,3 @@ export const useLogs = () => {
   }
   return context;
 };
-

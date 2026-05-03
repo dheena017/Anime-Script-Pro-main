@@ -3,8 +3,8 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '../../../../hooks/useGenerator';
 import { useAuth } from '../../../../hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
-import { CastHeader } from '../components/Cast/CastHeader';
-import { CastToolbar, CastTab } from '../components/Cast/CastToolbar';
+import { CastHeader } from './components/CastHeader';
+import { CastToolbar, CastTab } from './components/CastToolbar';
 import { generateCharacters } from '../../../../services/api/gemini';
 
 export const CastContext = React.createContext<{
@@ -22,7 +22,7 @@ export default function CastLayout() {
   } = useGeneratorState();
 
   const {
-    setIsGeneratingCharacters, setCastData, setCastList, 
+    setIsGeneratingCharacters, setCastData, setCastList,
     setGeneratedCharacters, setCharacterRelationships, syncCore
   } = useGeneratorDispatch();
 
@@ -34,7 +34,7 @@ export default function CastLayout() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest character souls.', 'error');
+      showNotification?.('Please enter a story prompt first before creating characters.', 'error');
       return;
     }
     setIsGeneratingCharacters(true);
@@ -56,17 +56,17 @@ export default function CastLayout() {
       } else {
         setGeneratedCharacters(result as string);
       }
-      showNotification?.('Neural Synthesis Complete: Cast Genesis Manifested', 'success');
+      showNotification?.('Characters created successfully!', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to create characters: ' + (e.message || 'Unknown error'), 'error');
     } finally {
       setIsGeneratingCharacters(false);
     }
   };
 
   const location = useLocation();
-  
+
   const getActiveTab = (): CastTab => {
     const path = location.pathname;
     if (path.includes('/cast/relationships') || path.includes('/cast/matrix')) return 'matrix';
@@ -75,15 +75,15 @@ export default function CastLayout() {
     if (path.includes('/cast/add-lead')) return 'add-lead';
     if (path.includes('/cast/dna')) return 'dna';
     if (path.includes('/cast/dynamics')) return 'dynamics';
-    
+
     // Default based on path
     if (path.endsWith('/cast')) return 'registry';
-    
+
     return 'registry';
   };
 
   const activeTab = getActiveTab();
-  
+
   const handleTabChange = (tab: CastTab) => {
     const base = `/${contentType.toLowerCase()}/cast`;
     if (tab === 'matrix') {

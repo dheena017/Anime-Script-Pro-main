@@ -24,14 +24,15 @@ export const useRealtimeLogs = () => {
 
     fetchLogs();
 
-    // Poll for new logs every 5 seconds since we are removing Supabase Realtime
-    const interval = setInterval(fetchLogs, 5000);
+    // Poll for new logs every 30 seconds since we are removing Supabase Realtime
+    const interval = setInterval(fetchLogs, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
   return logs;
 };
+
 
 
 

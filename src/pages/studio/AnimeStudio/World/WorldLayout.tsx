@@ -1,10 +1,10 @@
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { WorldHeader } from '../components/World/WorldHeader';
-import { WorldToolbar } from '../components/World/WorldToolbar';
+import { WorldHeader } from './components/WorldHeader';
+import { WorldToolbar } from './components/WorldToolbar';
 import { generateWorld } from '@/services/api/gemini';
-import { WorldTab } from '../components/World/Tabs/WorldTabs';
+import { WorldTab } from './tabs/WorldTabs';
 
 import { createContext } from 'react';
 
@@ -13,7 +13,7 @@ export const WorldContext = createContext<{
   setActiveTab: (tab: WorldTab) => void;
 }>({
   activeTab: 'architecture',
-  setActiveTab: () => {},
+  setActiveTab: () => { },
 });
 
 export default function WorldLayout() {
@@ -26,7 +26,7 @@ export default function WorldLayout() {
     setGeneratedWorld,
     session, episode, showNotification,
     generatedWorld,
-    isSaving, 
+    isSaving,
     syncCore
   } = useGenerator();
 
@@ -38,17 +38,17 @@ export default function WorldLayout() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest world lore.', 'error');
+      showNotification?.('Please enter a story prompt first before building your world.', 'error');
       return;
     }
     setIsGeneratingWorld(true);
     try {
       const result = await generateWorld(prompt, selectedModel, contentType);
       setGeneratedWorld(result);
-      showNotification?.('Neural Synthesis Complete: World Manifested', 'success');
+      showNotification?.('World created successfully!', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Lore Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to create world: ' + (e.message || 'Unknown error'), 'error');
     } finally {
       setIsGeneratingWorld(false);
     }
@@ -69,7 +69,7 @@ export default function WorldLayout() {
           prompt={prompt}
           session={session}
           episode={episode}
-          onPrev={() => navigate('/anime/mission')}
+          onPrev={() => navigate('/anime/engine')}
           onNext={() => navigate('/anime/cast')}
           onSave={handleSave}
           isSaving={isSaving}

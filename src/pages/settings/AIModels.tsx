@@ -1,20 +1,39 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Cpu, BrainCircuit, Activity, DatabaseZap, Sparkles, Wand2, Mic, Image as ImageIcon, BoxSelect, Loader2, Save, Key, Eye, EyeOff } from 'lucide-react';
+import {
+  Cpu,
+  BrainCircuit,
+  Activity,
+  DatabaseZap,
+  Sparkles,
+  Wand2,
+  Mic,
+  Image as ImageIcon,
+  BoxSelect,
+  Loader2,
+  Key,
+  Eye,
+  EyeOff,
+  Zap,
+  Globe,
+  ChevronRight,
+  ShieldCheck,
+  ArrowRight
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
 import { cn } from '../../lib/utils';
 import { settingsService } from '../../services/api/settings';
-import { ExternalModelNetwork } from '../../components/settings/ExternalModelNetwork';
-import { GeminiStatusCard } from '../../components/settings/GeminiStatusCard';
+import { ExternalModelNetwork } from './ExternalModelNetwork';
+import { GeminiStatusCard } from './GeminiStatusCard';
 import { getAIClient } from '../../services/generators/core';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function AIModelSettings() {
-
   const [model, setModel] = useState('gemini-2.5-flash');
   const [temperature, setTemperature] = useState(0.85);
   const [swarmMode, setSwarmMode] = useState(false);
   const [enforcer, setEnforcer] = useState(true);
   const [systemPrompt, setSystemPrompt] = useState("You are the Ultimate Production Architect. Never output generic anime tropes. Always utilize 'Show, Don't Tell' rules. Treat every action line as a highly detailed camera directive.");
-  
+
   const [geminiKey, setGeminiKey] = useState('');
   const [showKey, setShowKey] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -52,7 +71,6 @@ export function AIModelSettings() {
     }
     await settingsService.updateSettings({
       ai_models: {
-
         primary_engine: model,
         temperature,
         swarm_mode: swarmMode,
@@ -62,7 +80,7 @@ export function AIModelSettings() {
         ...payloadOverrides
       }
     });
-    setIsSaving(false);
+    setTimeout(() => setIsSaving(false), 800);
   }, [model, temperature, swarmMode, enforcer, systemPrompt, geminiKey]);
 
   const clearBrowserKey = async () => {
@@ -78,12 +96,10 @@ export function AIModelSettings() {
     setIsTesting(true);
     setTestStatus('idle');
     setTestError('');
-    
+
     try {
       const client = getAIClient(geminiKey);
       if (!client) throw new Error("Failed to initialize client");
-      
-      // Attempt to list models as a connection test
       const models = await client.models.list();
       if (models) {
         setTestStatus('success');
@@ -104,241 +120,280 @@ export function AIModelSettings() {
   const toggleEnforcer = () => { const n = !enforcer; setEnforcer(n); syncToCloud({ cinematic_enforcer: n }); };
 
   if (loading) {
-     return <div className="w-full h-64 flex items-center justify-center"><Loader2 className="w-10 h-10 text-fuchsia-500 animate-spin" /></div>;
+    return (
+      <div className="w-full h-96 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-6">
+          <Loader2 className="w-12 h-12 text-studio animate-spin" />
+          <span className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.4em]">Initializing Core Terminal...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
-      {isSaving && (
-         <div className="absolute top-4 right-8 z-50 flex items-center gap-2 px-3 py-1.5 bg-fuchsia-500/20 border border-fuchsia-500/50 rounded-full animate-pulse transition-all">
-            <Save className="w-3 h-3 text-fuchsia-400" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-white">Syncing to Cluster...</span>
-         </div>
-      )}
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-3xl">
-            <div className="absolute top-0 right-0 p-40 bg-fuchsia-600/10 blur-[150px] rounded-full pointer-events-none" />
-            
-            <CardHeader className="relative z-10 border-b border-zinc-900 pb-8">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-fuchsia-500/10 rounded-xl border border-fuchsia-500/20 shadow-[0_0_15px_rgba(192,38,211,0.15)]">
-                  <BrainCircuit className="w-5 h-5 text-fuchsia-400" />
+      {/* 1. ATOMIC SYNC OVERLAY */}
+      <AnimatePresence>
+        {isSaving && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -20, x: 20 }}
+            className="fixed top-8 right-8 z-[100] flex items-center gap-3 px-5 py-2.5 bg-studio/10 border border-studio/20 backdrop-blur-xl rounded-full shadow-[0_20px_50px_rgba(6,182,212,0.2)]"
+          >
+            <div className="w-2 h-2 rounded-full bg-studio animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-studio">Atomic Cloud Sync Active</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+        {/* 2. NEURAL CORE ARCHITECTURE */}
+        <div className="lg:col-span-8 space-y-10">
+          <Card className="bg-[#0a0a0b] border border-white/5 rounded-[3rem] shadow-3xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-studio/5 blur-[150px] rounded-full pointer-events-none" />
+
+            <CardHeader className="border-b border-white/5 p-12">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div className="w-14 h-14 rounded-2xl bg-studio/10 flex items-center justify-center border border-studio/20 shadow-2xl">
+                    <BrainCircuit className="w-7 h-7 text-studio" />
+                  </div>
+                  <div className="space-y-1">
+                    <CardTitle className="text-3xl font-black text-white tracking-tighter uppercase italic">Neural Core Terminal</CardTitle>
+                    <CardDescription className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">Global Inference Engine & Token Protocol Hub</CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-2xl font-black text-white tracking-widest uppercase">Neural Core Architecture</CardTitle>
-                  <CardDescription className="text-zinc-500 font-medium">Configure LLMs, token budgets, secondary agent pipelines, and prompt parameters.</CardDescription>
+                <div className="flex items-center gap-3 px-4 py-1.5 bg-white/[0.03] rounded-full border border-white/5">
+                  <Activity className="w-3.5 h-3.5 text-studio animate-pulse" />
+                  <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest">Engine Status: Optimal</span>
                 </div>
               </div>
             </CardHeader>
-            
-            <CardContent className="relative z-10 space-y-8 pt-8">
-              
-              <div className="space-y-4">
-                <h4 className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase flex items-center gap-2">
-                  <Activity className="w-3 h-3 text-fuchsia-500" /> Primary Inference Engine
-                </h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div 
-                     onClick={() => toggleModel('gemini-3.1-pro')}
-                     className={cn(
-                       "relative p-6 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-4 overflow-hidden",
-                       model === 'gemini-3.1-pro' ? "bg-fuchsia-500/10 border-fuchsia-500/50 shadow-[0_0_30_px_rgba(192,38,211,0.15)] transform scale-[1.02] ring-1 ring-fuchsia-500" : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
-                     )}
-                   >
-                      {model === 'gemini-3.1-pro' && <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent opacity-50" />}
-                      <div className="flex justify-between items-start">
-                         <BrainCircuit className={cn("w-6 h-6", model === 'gemini-3.1-pro' ? "text-fuchsia-400" : "text-zinc-500")} />
-                         <span className="px-2 py-0.5 bg-fuchsia-900/30 text-[9px] font-black uppercase tracking-widest text-fuchsia-500 border border-fuchsia-500/20 rounded">v3.1 Preview</span>
-                      </div>
-                      <div>
-                        <h5 className="text-sm font-black text-white uppercase tracking-widest">Gemini 3.1 Pro</h5>
-                        <p className="text-[10px] text-zinc-500 font-bold mt-1">Universal Production Intelligence. The absolute peak of creative reasoning and script architecting.</p>
-                      </div>
-                   </div>
 
-                   <div 
-                     onClick={() => toggleModel('gemini-3.1-flash')}
-                     className={cn(
-                       "relative p-6 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-4 overflow-hidden",
-                       model === 'gemini-3.1-flash' ? "bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_30_px_rgba(6,182,212,0.15)] transform scale-[1.02] ring-1 ring-cyan-500" : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
-                     )}
-                   >
-                      {model === 'gemini-3.1-flash' && <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />}
-                      <div className="flex justify-between items-start">
-                         <Activity className={cn("w-6 h-6", model === 'gemini-3.1-flash' ? "text-cyan-400" : "text-zinc-500")} />
-                         <span className="px-2 py-0.5 bg-cyan-900/30 text-[9px] font-black uppercase tracking-widest text-cyan-500 border border-cyan-500/20 rounded">v3.1 Flash</span>
-                      </div>
-                      <div>
-                        <h5 className="text-sm font-black text-white uppercase tracking-widest">Gemini 3.1 Flash</h5>
-                        <p className="text-[10px] text-zinc-500 font-bold mt-1">Instantaneous Synthesis. Hyper-optimized for rapid script beats and real-time world building.</p>
-                      </div>
-                   </div>
+            <CardContent className="p-12 space-y-12">
+
+              <div className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <h4 className="text-[10px] font-black tracking-[0.4em] text-zinc-700 uppercase italic">Primary Inference Engine</h4>
+                  <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest">Protocol ID: NODE-E1-GLOBAL</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div 
-                     onClick={() => toggleModel('gemini-2.5-flash')}
-                     className={cn(
-                       "relative p-6 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-4 overflow-hidden",
-                       model === 'gemini-2.5-flash' ? "bg-fuchsia-500/10 border-fuchsia-500/50 shadow-[0_0_30_px_rgba(192,38,211,0.15)] transform scale-[1.02] ring-1 ring-fuchsia-500" : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
-                     )}
-                   >
-                      {model === 'gemini-2.5-flash' && <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent opacity-50" />}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    { id: 'gemini-3.1-pro', title: 'Gemini 3.1 Pro', icon: BrainCircuit, color: 'studio', tag: 'V3.1 PREVIEW', desc: 'Peak creation reasoning. 2M token context window.' },
+                    { id: 'gemini-3.1-flash', title: 'Gemini 3.1 Flash', icon: Zap, color: 'cyan-500', tag: 'HYPER-SPEED', desc: 'Instantaneous synthesis. Zero-latency creative bursts.' },
+                    { id: 'gemini-2.5-flash', title: 'Gemini 2.5 Flash', icon: Cpu, color: 'studio', tag: 'STABLE API', desc: 'Stable velocity core. Best for rapid dialogue iteration.' },
+                    { id: 'gemini-1.5-pro', title: 'Gemini 1.5 Pro', icon: DatabaseZap, color: 'fuchsia-500', tag: 'HEAVY COMPUTE', desc: 'Multiversal lore synthesis. Specialized massive context.' }
+                  ].map((eng) => (
+                    <div
+                      key={eng.id}
+                      onClick={() => toggleModel(eng.id)}
+                      className={cn(
+                        "relative p-8 rounded-[2rem] border cursor-pointer transition-all duration-500 flex flex-col gap-6 group/eng overflow-hidden",
+                        model === eng.id
+                          ? `bg-${eng.color}/5 border-${eng.color}/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-[1.02]`
+                          : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04]"
+                      )}
+                    >
                       <div className="flex justify-between items-start">
-                         <Cpu className={cn("w-6 h-6", model === 'gemini-2.5-flash' ? "text-fuchsia-400" : "text-zinc-500")} />
-                         <span className="px-2 py-0.5 bg-zinc-800 text-[9px] font-black uppercase tracking-widest text-white rounded">Stable API</span>
+                        <eng.icon className={cn("w-8 h-8 transition-colors duration-500", model === eng.id ? `text-${eng.color}` : "text-zinc-800")} />
+                        <span className={cn(
+                          "px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border",
+                          model === eng.id ? `bg-${eng.color}/20 text-${eng.color} border-${eng.color}/20` : "bg-zinc-900 text-zinc-700 border-white/5"
+                        )}>{eng.tag}</span>
                       </div>
-                      <div>
-                        <h5 className="text-sm font-black text-white uppercase tracking-widest">Gemini 2.5 Flash</h5>
-                        <p className="text-[10px] text-zinc-500 font-bold mt-1">Extreme output velocity. Best for rapid iteration, dialogue, and UI population.</p>
+                      <div className="space-y-2">
+                        <h5 className="text-lg font-black text-white uppercase italic tracking-tighter group-hover/eng:text-studio transition-colors">{eng.title}</h5>
+                        <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest leading-relaxed">{eng.desc}</p>
                       </div>
-                   </div>
-
-                   <div 
-                     onClick={() => toggleModel('gemini-1.5-pro')}
-                     className={cn(
-                       "relative p-6 rounded-2xl border cursor-pointer transition-all duration-300 flex flex-col gap-4 overflow-hidden",
-                       model === 'gemini-1.5-pro' ? "bg-red-500/10 border-red-500/50 shadow-[0_0_30_px_rgba(239,68,68,0.15)] transform scale-[1.02] ring-1 ring-red-500" : "bg-black/40 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900/50"
-                     )}
-                   >
-                      {model === 'gemini-1.5-pro' && <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50" />}
-                      <div className="flex justify-between items-start">
-                         <DatabaseZap className={cn("w-6 h-6", model === 'gemini-1.5-pro' ? "text-red-500" : "text-zinc-500")} />
-                         <span className="px-2 py-0.5 bg-red-900/30 text-[9px] font-black uppercase tracking-widest text-red-500 border border-red-500/20 rounded shadow-inner">Max Compute Mode</span>
-                      </div>
-                      <div>
-                        <h5 className="text-sm font-black text-white uppercase tracking-widest">Gemini 1.5 Pro</h5>
-                        <p className="text-[10px] text-zinc-500 font-bold mt-1">High-compute heavy lifter. Massive Context limits for deep multiversal lore synthesis.</p>
-                      </div>
-                   </div>
+                      {model === eng.id && (
+                        <div className="absolute bottom-4 right-6 text-studio">
+                          <CheckCircle2 className="w-5 h-5 fill-studio text-black" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="p-5 border border-zinc-900 bg-black/40 rounded-xl space-y-3">
-                    <h4 className="text-[10px] font-black tracking-widest text-zinc-400 flex items-center gap-2"><ImageIcon className="w-3 h-3 text-sky-400" /> Visual Base Engine</h4>
-                    <select className="bg-zinc-900 border border-zinc-800 text-xs text-white p-3 rounded-xl w-full">
-                       <option>Stable Diffusion XL (God Mode Built-in)</option>
-                       <option>Midjourney V6 API (External Auth)</option>
+
+              {/* Secondary Generators */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-10 border-t border-white/5">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 px-2">
+                    <ImageIcon className="w-4 h-4 text-studio" />
+                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">Visual Base Engine</span>
+                  </div>
+                  <div className="relative">
+                    <select className="w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-4 text-[11px] font-black text-white outline-none focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase tracking-widest">
+                      <option>Stable Diffusion XL (God Mode)</option>
+                      <option>Midjourney V6 Protocol</option>
                     </select>
-                 </div>
-                 <div className="p-5 border border-zinc-900 bg-black/40 rounded-xl space-y-3">
-                    <h4 className="text-[10px] font-black tracking-widest text-zinc-400 flex items-center gap-2"><Mic className="w-3 h-3 text-indigo-400" /> Neural Voice Synthesis</h4>
-                    <select className="bg-zinc-900 border border-zinc-800 text-xs text-white p-3 rounded-xl w-full">
-                       <option>ElevenLabs V2 (Multilingual Anime)</option>
-                       <option>OpenAI TTS-1-HD (Standard)</option>
+                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 px-2">
+                    <Mic className="w-4 h-4 text-fuchsia-500" />
+                    <span className="text-[10px] font-black text-zinc-700 uppercase tracking-widest">Neural Voice Link</span>
+                  </div>
+                  <div className="relative">
+                    <select className="w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-4 text-[11px] font-black text-white outline-none focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase tracking-widest">
+                      <option>ElevenLabs V2 (Anime Specialized)</option>
+                      <option>Neural Voice v4 Standard</option>
                     </select>
-                 </div>
+                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-zinc-900">
-                 <div className="space-y-8">
-                    <div className="space-y-2 group">
-                       <div className="flex justify-between">
-                          <label className="text-[10px] font-black text-white uppercase tracking-widest group-hover:text-fuchsia-400 transition-colors">Model Temperature (Chaos vs Logic)</label>
-                          <span className="text-[11px] text-fuchsia-500 font-black">{temperature.toFixed(2)}</span>
-                       </div>
-                       <input 
-                          type="range" min="0" max="1" step="0.05" value={temperature} 
-                          onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                          onMouseUp={() => syncToCloud()} 
-                          className="w-full accent-fuchsia-500 cursor-pointer h-1.5 bg-zinc-900 rounded-full appearance-none"
-                       />
-                       <div className="flex justify-between text-[9px] font-bold uppercase text-zinc-600">
-                          <span>Analytical (0.0)</span><span>Divergent/Creative (1.0)</span>
-                       </div>
+              {/* Advanced Parameters */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-10 border-t border-white/5">
+                <div className="space-y-8">
+                  <div className="space-y-4 group">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] group-hover:text-studio transition-colors">Neural Temperature</label>
+                      <div className="px-3 py-1 bg-studio/10 rounded-lg text-xs font-black text-studio tabular-nums italic">
+                        {temperature.toFixed(2)}
+                      </div>
                     </div>
-                 </div>
+                    <div className="relative py-4">
+                      <input
+                        type="range" min="0" max="1" step="0.05" value={temperature}
+                        onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                        onMouseUp={() => syncToCloud()}
+                        className="w-full accent-studio cursor-pointer h-2 bg-zinc-900 rounded-full appearance-none relative z-10"
+                      />
+                      <div className="absolute inset-0 bg-studio/5 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="flex justify-between text-[9px] font-black uppercase text-zinc-800 tracking-widest">
+                      <span>Analytical (0.0)</span><span>Creative (1.0)</span>
+                    </div>
+                  </div>
+                </div>
 
-                 <div className="space-y-4">
-                    <div onClick={toggleEnforcer} className="flex items-center justify-between p-4 bg-zinc-900/40 border border-fuchsia-500/20 rounded-xl transition-colors cursor-pointer group hover:bg-zinc-900">
-                      <div className="flex gap-4 items-center">
-                         <div className="bg-fuchsia-500/10 p-2 rounded shrink-0"><Sparkles className="w-4 h-4 text-fuchsia-400 group-hover:animate-spin" /></div>
-                         <div>
-                           <p className="text-[11px] font-black text-white uppercase tracking-widest">Cinematic Enforcer Matrix</p>
-                           <p className="text-[9px] font-bold text-zinc-500 tracking-wider mt-1 pr-4">Force Hollywood-grade terminology into all scene rendering (e.g., 'Volumetric Fog', 'Sakuga Intensity') autonomously.</p>
-                         </div>
+                <div className="space-y-6">
+                  {[
+                    {
+                      id: 'enforcer',
+                      active: enforcer,
+                      toggle: toggleEnforcer,
+                      icon: Sparkles,
+                      color: 'studio',
+                      label: 'Cinematic Enforcer Matrix',
+                      desc: 'Override generic output with high-fidelity camera directives.'
+                    },
+                    {
+                      id: 'swarm',
+                      active: swarmMode,
+                      toggle: toggleSwarm,
+                      icon: Wand2,
+                      color: 'emerald-500',
+                      label: 'Multi-Agent Swarm (Beta)',
+                      desc: 'Deploy sub-agent clusters for script validation.'
+                    }
+                  ].map((feat) => (
+                    <div
+                      key={feat.id}
+                      onClick={feat.toggle}
+                      className={cn(
+                        "flex items-center justify-between p-6 rounded-[1.5rem] border transition-all cursor-pointer group/feat",
+                        feat.active ? `bg-${feat.color}/5 border-${feat.color}/20` : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                      )}
+                    >
+                      <div className="flex gap-5 items-center">
+                        <div className={cn("p-3 rounded-xl shrink-0 transition-all duration-500", feat.active ? `bg-${feat.color}/20` : "bg-zinc-900")}>
+                          <feat.icon className={cn("w-5 h-5", feat.active ? `text-${feat.color} animate-pulse` : "text-zinc-800")} />
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-black text-white uppercase tracking-widest italic">{feat.label}</p>
+                          <p className="text-[9px] font-bold text-zinc-700 tracking-wider mt-1">{feat.desc}</p>
+                        </div>
                       </div>
-                      <div className={cn("w-10 h-5 rounded-full relative shadow-inner shrink-0 transition-colors", enforcer ? "bg-fuchsia-600" : "bg-zinc-800")}>
-                        <div className={cn("absolute top-1 w-3 h-3 rounded-full transition-transform", enforcer ? "left-[calc(100%-16px)] bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "left-1 bg-zinc-500")} />
+                      <div className={cn("w-12 h-6 rounded-full relative transition-colors", feat.active ? `bg-${feat.color}` : "bg-zinc-900")}>
+                        <div className={cn("absolute top-1 w-4 h-4 rounded-full transition-all duration-500 shadow-2xl", feat.active ? "left-7 bg-white" : "left-1 bg-zinc-700")} />
                       </div>
                     </div>
-
-                    <div onClick={toggleSwarm} className="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800/50 rounded-xl hover:border-zinc-700 transition-colors cursor-pointer group hover:bg-zinc-900">
-                      <div className="flex gap-4 items-center">
-                         <div className="bg-emerald-500/10 p-2 rounded shrink-0"><Wand2 className="w-4 h-4 text-emerald-500 group-hover:animate-pulse" /></div>
-                         <div>
-                           <p className="text-[11px] font-black text-white uppercase tracking-widest">Multi-Agent Swarm (Beta)</p>
-                           <p className="text-[9px] font-bold text-zinc-500 tracking-wider mt-1 pr-4">Deploy tiny sub-agents to debate and pre-read scripts before returning the final output to you.</p>
-                         </div>
-                      </div>
-                      <div className={cn("w-10 h-5 rounded-full relative shadow-inner shrink-0 transition-colors", swarmMode ? "bg-emerald-500" : "bg-zinc-800")}>
-                        <div className={cn("absolute top-1 w-3 h-3 rounded-full transition-transform", swarmMode ? "left-[calc(100%-16px)] bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "left-1 bg-zinc-500")} />
-                      </div>
-                    </div>
-                 </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="pt-6 border-t border-zinc-900 group">
-                 <label className="text-[11px] font-black text-white shadow-sm uppercase tracking-widest mb-3 flex items-center gap-2 bg-fuchsia-500/10 border border-fuchsia-500/20 p-2 rounded-lg w-max"><BoxSelect className="w-3 h-3"/> Global System Prompt Injector</label>
-                 <textarea 
-                   className="w-full bg-black border border-zinc-800 rounded-xl p-5 text-sm text-fuchsia-500 font-mono focus:border-fuchsia-500 focus:outline-none focus:ring-2 focus:ring-fuchsia-500/20 transition-all resize-y shadow-inner" 
-                   rows={4}
-                   value={systemPrompt}
-                   onChange={(e) => setSystemPrompt(e.target.value)}
-                   onBlur={() => syncToCloud()}
-                 />
-                 <p className="text-[10px] font-bold text-zinc-600 uppercase mt-2">This string is permanently and invisibly prefixed to EVERY API request you execute within God Mode.</p>
+              {/* Global Prompt */}
+              <div className="pt-10 border-t border-white/5 space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <h4 className="text-[11px] font-black text-white uppercase tracking-[0.4em] italic flex items-center gap-3">
+                    <BoxSelect className="w-4 h-4 text-studio" /> Global System Directive
+                  </h4>
+                  <span className="text-[9px] font-black text-zinc-800 uppercase tracking-widest">Sovereign Override Active</span>
+                </div>
+                <div className="relative group/prompt">
+                  <div className="absolute -inset-1 bg-studio/5 rounded-[2.5rem] blur-xl opacity-0 group-focus-within/prompt:opacity-100 transition duration-700" />
+                  <textarea
+                    className="w-full bg-black/60 border border-zinc-900 rounded-[2.5rem] p-10 text-xs text-studio font-mono focus:border-studio/50 focus:outline-none transition-all resize-none shadow-3xl leading-relaxed"
+                    rows={5}
+                    value={systemPrompt}
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    onBlur={() => syncToCloud()}
+                  />
+                </div>
+                <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest text-center">This directive is permanently prefixed to all outgoing API transmissions.</p>
               </div>
 
             </CardContent>
           </Card>
         </div>
 
-        <div className="space-y-8">
-          <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-3xl">
-            <CardHeader className="border-b border-zinc-900">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-studio/10 rounded-xl border border-studio/20">
-                  <Key className="w-4 h-4 text-studio" />
+        {/* 3. VAULT SIDEBAR */}
+        <div className="lg:col-span-4 space-y-10">
+          <Card className="bg-[#0a0a0b] border border-white/5 rounded-[3rem] shadow-3xl relative overflow-hidden group">
+            <CardHeader className="border-b border-white/5 p-10">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center border border-studio/20 shadow-2xl">
+                  <Key className="w-5 h-5 text-studio" />
                 </div>
-                <CardTitle className="text-sm font-black text-white uppercase tracking-widest">API Configuration</CardTitle>
+                <div>
+                  <CardTitle className="text-sm font-black text-white uppercase tracking-widest italic">Secure Vault Hub</CardTitle>
+                  <CardDescription className="text-[9px] font-black text-zinc-700 uppercase tracking-widest">Encrypted Key Management</CardDescription>
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6 space-y-6">
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Gemini API Key</label>
-                <div className="relative">
-                  <input 
+            <CardContent className="p-10 space-y-10">
+              <div className="space-y-4">
+                <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] ml-2">Gemini Protocol Key</label>
+                <div className="relative group/key">
+                  <input
                     type={showKey ? "text" : "password"}
                     value={geminiKey}
                     onChange={(e) => setGeminiKey(e.target.value)}
                     onBlur={() => syncToCloud()}
-                    placeholder="AIza..."
-                    className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:border-studio/50 focus:outline-none transition-all pr-28 font-mono"
+                    placeholder="AIZA..."
+                    className="w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-5 text-[11px] text-white focus:border-studio/50 focus:outline-none transition-all pr-28 font-mono tracking-widest uppercase"
                   />
-                  <button 
-                    onClick={() => setShowKey(!showKey)}
-                    className="absolute right-10 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-studio transition-colors"
-                  >
-                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                  <button
-                    onClick={clearBrowserKey}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.3em] font-black text-zinc-400 hover:text-rose-400 transition-colors"
-                  >
-                    clear
-                  </button>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <button
+                      onClick={() => setShowKey(!showKey)}
+                      className="p-2 text-zinc-700 hover:text-studio transition-colors"
+                    >
+                      {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                    <button
+                      onClick={clearBrowserKey}
+                      className="text-[9px] font-black text-zinc-800 hover:text-red-500 uppercase tracking-widest px-2"
+                    >
+                      Purge
+                    </button>
+                  </div>
                 </div>
-                <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-tighter">Your key is encrypted and stored in your private cloud vault.</p>
+                <p className="text-[8px] font-bold text-zinc-800 uppercase tracking-widest px-2 leading-relaxed">
+                  Your transmission key is encrypted and stored in the private cloud vault.
+                </p>
               </div>
 
-              <GeminiStatusCard 
-                apiKey={geminiKey} 
-                onTest={testConnection} 
+              <GeminiStatusCard
+                apiKey={geminiKey}
+                onTest={testConnection}
                 isTesting={isTesting}
                 status={testStatus}
                 lastError={testError}
@@ -346,24 +401,55 @@ export function AIModelSettings() {
             </CardContent>
           </Card>
 
-          <div className="p-6 bg-studio/5 border border-studio/20 rounded-3xl space-y-4">
-             <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-studio" />
-                <h5 className="text-[10px] font-black text-white uppercase tracking-widest">Pro Tip: Dual-Linkage</h5>
-             </div>
-             <p className="text-[9px] text-zinc-400 font-bold leading-relaxed uppercase tracking-tighter">
-                Providing your own API key enables "Ultra Priority" mode, bypassing global queue limits and granting access to experimental models like Gemini 2.0 Pro.
-             </p>
+          <div className="p-10 bg-studio/[0.03] border border-studio/20 rounded-[3rem] space-y-6 relative overflow-hidden group shadow-2xl">
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Sparkles className="w-16 h-16 text-studio" />
+            </div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-8 h-8 rounded-lg bg-studio flex items-center justify-center">
+                <Zap className="w-4 h-4 text-black fill-black" />
+              </div>
+              <h5 className="text-xs font-black text-white uppercase italic tracking-tighter">Priority Uplink</h5>
+            </div>
+            <p className="text-[10px] text-zinc-500 font-bold leading-relaxed uppercase tracking-widest relative z-10">
+              Providing your own API key enables <span className="text-studio">Ultra Priority</span> mode, bypassing global queue limits and granting access to experimental models like Gemini 2.0 Pro.
+            </p>
+            <div className="pt-4 flex items-center gap-2 text-[9px] font-black text-studio uppercase tracking-widest relative z-10 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+              UPGRADE STATUS <ArrowRight className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <div className="p-10 bg-white/[0.02] border border-white/5 rounded-[3rem] flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">Vault Security active</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Globe className="w-4 h-4 text-zinc-700" />
+              <span className="text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">Global cluster sync</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-12">
+      <div className="pt-16">
         <ExternalModelNetwork />
       </div>
     </div>
   );
 }
 
-
-
+const CheckCircle2 = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M20 6 9 17l-5-5" />
+  </svg>
+);

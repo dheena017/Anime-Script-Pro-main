@@ -2,15 +2,18 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Folder, FileText, Film, Users, MoreVertical } from 'lucide-react';
 
-const libraryItems = [
-  { id: 1, title: "Neon Genesis Script", type: "Script", date: "2h ago", items: 12, color: "text-blue-500" },
-  { id: 2, title: "Character DNA: Protagonist", type: "Assets", date: "5h ago", items: 45, color: "text-purple-500" },
-  { id: 3, title: "World Lore: Neo Tokyo", type: "Lore", date: "1d ago", items: 8, color: "text-amber-500" },
-  { id: 4, title: "Season 1 Storyboard", type: "Visuals", date: "3d ago", items: 156, color: "text-emerald-500" },
-  { id: 5, title: "Production Templates", type: "System", date: "1w ago", items: 5, color: "text-zinc-500" },
-];
+import { useTemplates } from '@/hooks/useTemplates';
 
 export const LibraryPanel: React.FC = () => {
+  const { templates } = useTemplates();
+  
+  const libraryItems = [
+    { id: 1, title: "Neon Genesis Script", type: "Script", date: "2h ago", items: 12, color: "text-blue-500" },
+    { id: 2, title: "Character DNA: Protagonist", type: "Assets", date: "5h ago", items: 45, color: "text-purple-500" },
+    { id: 3, title: "World Lore: Neo Tokyo", type: "Lore", date: "1d ago", items: 8, color: "text-amber-500" },
+    { id: 4, title: "Season 1 Storyboard", type: "Visuals", date: "3d ago", items: 156, color: "text-emerald-500" },
+    { id: 5, title: "Production Templates", type: "System", date: "1w ago", items: templates.length || 0, color: "text-zinc-500" },
+  ];
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {libraryItems.map((item, idx) => (

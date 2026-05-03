@@ -1,5 +1,6 @@
 # Logs
-logs
+logs/
+backend/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,79 +8,136 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 lint_output.txt
+pip-log.txt
+tsc_errors.log
 
 # Dependencies & Build
 node_modules/
+jspm_packages/
+.pnp.*
+.yarn/
 dist/
 dist-ssr/
-*.local
-.npm
+build/
+out/
+.npm/
 .eslintcache
-.vite
+.vite/
+.cache/
+.parcel-cache/
+.turbo/
+.next/
+.nuxt/
+.svelte-kit/
 
 # Python (Backend & Virtual Environments)
 __pycache__/
-backend/__pycache__/
-backend/venv/
 *.py[cod]
 *$py.class
+*.pyo
+*.pyd
 .pytest_cache/
 .coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
 htmlcov/
 venv/
 .venv/
 env/
+backend/venv/
+anime_venv/
+backend_env/
+python.exe
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+develop-eggs/
+sdist/
+wheels/
+pip-delete-this-directory.txt
+
+# Database & CMS
+*.db
+*.sqlite3
+backend/database/*.db
+backend/database/*.sqlite3
+backend/*.db.backup*
+mathesar.db
+anime_script_pro.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Secrets & Environment
 .env
 .env.production
 .env.local
+.env.development
+.env.test
+.env.test.local
 .env.*.local
-python.exe
+firebase-applet-config.json
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
 
-# Database & CMS
-mathesar.db
-anime_script_pro.db
-
-# Diagnostic & Test Results (Playwright)
+# Diagnostic & Test Results (Playwright & Lighthouse)
 test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
 test-results-repro/
 trace.zip
+lighthouse-temp/
+lighthouse-report.html
+lighthouse-report.json
+.lighthouse-profile/
+coverage/
 
 # Editor & System
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-Thumbs.db
+*.bak
+*.tmp
+*.temp
+.history/
 .gemini/
-
-# Environment & Secrets
-.env
-firebase-applet-config.json
+.antigravity/
 
 # AI & Media Temp
 *.mp4
 *.webm
+*.mov
+*.avi
+*.mkv
 screenshots/
 temp_assets/
 scratch/
-
-# Local Python virtual environments (project-specific)
-anime_venv/
-backend_env/
-
-# SQLite backups and miscellaneous DB files
-backend/*.db.backup*
-*.sqlite3
-
-# Local caches
-.cache/
-.parcel-cache/
-.turbo/
+backend/scratch/
+backend/models_full.txt
+tmp/
+temp/

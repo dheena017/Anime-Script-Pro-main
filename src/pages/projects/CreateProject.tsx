@@ -9,14 +9,15 @@ import {
   ScrollText,
   ChevronRight,
   Terminal,
-  Cpu,
-  Globe,
   Lock,
   Layers,
   Activity,
-  Box,
   Command,
-  Database
+  Database,
+  AlertCircle,
+  CheckCircle2,
+  CpuIcon,
+  Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
@@ -38,14 +39,16 @@ export default function CreateProject() {
   const [description, setDescription] = useState('');
   const [episodeLength, setEpisodeLength] = useState<'SHORT' | 'FULL'>('FULL');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { setCurrentProject, refreshAppData } = useApp();
 
   const handleInitialize = async () => {
     if (!title.trim()) return;
-
+    setError(null);
     setLoading(true);
+    
     try {
       const project = await apiRequest<any>('/api/projects', {
         method: 'POST',
@@ -67,169 +70,190 @@ export default function CreateProject() {
       setCurrentProject(project);
       await refreshAppData();
       navigate('/library', { state: { newlyCreated: true } });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Project Initialization Failed:', err);
+      setError(err.message || 'TRANSMISSION ERROR: NODE INITIALIZATION FAILED');
     } finally {
       setLoading(false);
     }
   };
 
+  // Complexity Calculation
+  const complexity = (title.length * 2) + (description.length / 5) + (artStyle ? 20 : 0);
+  const expectedNodes = Math.floor(complexity / 10) + 5;
+
   return (
-    <div className="min-h-screen bg-[#020203] text-white relative overflow-hidden font-sans selection:bg-[#bd4a4a]/30">
+    <div className="min-h-screen bg-[#050505] text-white relative overflow-hidden font-sans selection:bg-studio/30">
+      {/* Visual Decor */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-studio/5 blur-[180px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-fuchsia-500/5 blur-[180px] rounded-full pointer-events-none" />
 
-
-      <div className="max-w-7xl mx-auto px-6 py-12 relative z-10 flex flex-col h-full">
-        {/* Header Bar */}
-        <div className="flex items-center justify-between mb-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 relative z-10 flex flex-col h-full space-y-16">
+        
+        {/* 1. TERMINAL HEADER */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center backdrop-blur-md">
-              <Command className="w-5 h-5 text-zinc-400" />
+            <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center backdrop-blur-3xl shadow-2xl">
+              <Command className="w-6 h-6 text-studio" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest leading-none mb-1">Project Console</span>
-              <span className="text-xs font-bold text-white uppercase tracking-tighter">Production v1.0.0</span>
+              <span className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.4em] leading-none mb-1">Initialization Matrix</span>
+              <span className="text-xs font-black text-white uppercase italic tracking-widest">Protocol v4.2.0</span>
             </div>
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
-              <Activity className="w-3 h-3 text-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest">Status: Online</span>
+            <div className="hidden md:flex items-center gap-3 px-5 py-2 rounded-full bg-studio/5 border border-studio/20">
+              <Activity className="w-3.5 h-3.5 text-studio animate-pulse" />
+              <span className="text-[10px] font-black uppercase text-studio tracking-[0.3em]">Status: Optimal Link</span>
             </div>
           </div>
         </div>
 
-        {/* Hero Title */}
-        <header className="mb-16 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
+        {/* 2. HERO TITLE SECTION */}
+        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-12">
+          <div className="space-y-6">
             <motion.h1
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter uppercase leading-[0.9] italic"
+              className="text-5xl md:text-8xl lg:text-9xl font-black tracking-tighter uppercase leading-[0.85] italic"
             >
-              CREATE NEW <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#bd4a4a] via-[#ff6b6b] to-[#bd4a4a]">PROJECT.</span>
+              INITIALIZE <br />
+              <span className="text-studio">PRODUCTION.</span>
             </motion.h1>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="mt-4 flex items-center gap-4"
+              className="flex items-center gap-6"
             >
-              <div className="h-[2px] w-12 bg-[#bd4a4a]" />
-              <p className="text-zinc-500 text-sm font-bold uppercase tracking-widest">START NEW PRODUCTION FLOW</p>
+              <div className="h-[2px] w-20 bg-studio shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
+              <p className="text-zinc-600 text-xs font-black uppercase tracking-[0.4em]">Establish New Production Node</p>
             </motion.div>
           </div>
           <button
             onClick={() => navigate('/library')}
-            className="flex items-center gap-2 px-6 py-3 bg-white/5 text-zinc-400 border border-white/10 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/10 hover:text-white transition-all group"
+            className="flex items-center gap-4 px-8 py-4 bg-white/[0.03] text-zinc-500 border border-white/5 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[10px] hover:bg-studio hover:text-black transition-all group shadow-2xl"
           >
-            My Library
-            <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            Terminal Library
+            <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </header>
 
-        {/* Configuration Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-
-          <div className="lg:col-span-8 space-y-6">
-
-            {/* Project Name Section */}
+        {/* 3. CONFIGURATION MATRIX */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          
+          <div className="lg:col-span-8 space-y-10">
+            
+            {/* NODE-P1: PROJECT IDENTITY */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="group bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-10 backdrop-blur-md hover:bg-white/[0.04] hover:border-white/10 transition-all shadow-2xl"
+              className="bg-[#0a0a0b] border border-white/5 rounded-[3rem] p-10 md:p-16 relative overflow-hidden group"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#bd4a4a]/10 flex items-center justify-center border border-[#bd4a4a]/20">
-                    <Terminal className="w-4 h-4 text-[#bd4a4a]" />
+              <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                 <Terminal className="w-32 h-32 text-studio" />
+              </div>
+              <div className="flex items-center justify-between mb-12">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center border border-studio/20">
+                    <Database className="w-5 h-5 text-studio" />
                   </div>
-                  <h2 className="text-sm font-black uppercase tracking-widest text-white">Project Name</h2>
+                  <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white italic">Project Identity</h2>
                 </div>
-                <span className="text-[10px] font-bold text-zinc-700 bg-black/40 px-3 py-1 rounded-full border border-white/5">ID: {Math.random().toString(36).substring(7).toUpperCase()}</span>
+                <span className="text-[9px] font-black text-zinc-700 bg-white/[0.02] px-4 py-1.5 rounded-full border border-white/5 uppercase tracking-widest">NODE-P1-REGISTRY</span>
               </div>
 
-              <div className="space-y-6">
-                <div className="relative group/input">
+              <div className="space-y-10">
+                <div className="relative">
                   <input
+                    required
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="ENTER PROJECT NAME..."
-                    className="w-full bg-black/40 border border-zinc-800 rounded-2xl px-8 py-6 text-2xl font-black text-white placeholder:text-zinc-800 focus:border-[#bd4a4a]/50 outline-none transition-all shadow-inner uppercase tracking-tighter"
+                    placeholder="ENTER PRODUCTION TITLE..."
+                    className="w-full bg-black/40 border border-zinc-900 rounded-[2rem] px-10 py-8 text-3xl font-black text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all shadow-inner uppercase italic tracking-tighter"
                   />
+                  <AnimatePresence>
+                     {title.length > 0 && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute right-6 top-1/2 -translate-y-1/2 text-studio">
+                           <CheckCircle2 className="w-6 h-6" />
+                        </motion.div>
+                     )}
+                  </AnimatePresence>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-black uppercase text-zinc-600 tracking-widest ml-1">Genre</label>
-                    <select
-                      value={genre}
-                      onChange={(e) => setGenre(e.target.value)}
-                      className="w-full bg-black/40 border border-zinc-800 rounded-xl px-4 py-3 text-xs font-bold text-zinc-300 outline-none focus:border-[#bd4a4a]/50 transition-all appearance-none cursor-pointer"
-                    >
-                      {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
-                    </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <label className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.4em] ml-2">Production Genre</label>
+                    <div className="relative">
+                       <select
+                        value={genre}
+                        onChange={(e) => setGenre(e.target.value)}
+                        className="w-full bg-black/60 border border-zinc-900 rounded-2xl px-6 py-4 text-[11px] font-black text-white outline-none focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase tracking-widest"
+                       >
+                         {GENRES.map(g => <option key={g} value={g}>{g.toUpperCase()}</option>)}
+                       </select>
+                       <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
+                    </div>
                   </div>
-                  <div className="space-y-3">
-                    <label className="text-[9px] font-black uppercase text-zinc-600 tracking-widest ml-1 flex items-center gap-2">
-                      <Clock className="w-3 h-3" />
-                      Length
+                  <div className="space-y-4">
+                    <label className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.4em] ml-2 flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5" />
+                      Protocol Length
                     </label>
-                    <div className="flex bg-black/40 border border-zinc-800 rounded-xl p-1">
-                      <button
-                        onClick={() => setEpisodeLength('SHORT')}
-                        className={cn("flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all", episodeLength === 'SHORT' ? "bg-white/10 text-white" : "text-zinc-600 hover:text-zinc-400")}
-                      >
-                        Short
-                      </button>
-                      <button
-                        onClick={() => setEpisodeLength('FULL')}
-                        className={cn("flex-1 py-2 text-[9px] font-black uppercase rounded-lg transition-all", episodeLength === 'FULL' ? "bg-white/10 text-white" : "text-zinc-600 hover:text-zinc-400")}
-                      >
-                        Full
-                      </button>
+                    <div className="flex bg-black/60 border border-zinc-900 rounded-2xl p-1.5">
+                      {['SHORT', 'FULL'].map((type) => (
+                        <button
+                          key={type}
+                          onClick={() => setEpisodeLength(type as any)}
+                          className={cn(
+                            "flex-1 py-3 text-[10px] font-black uppercase rounded-xl transition-all",
+                            episodeLength === type ? "bg-studio text-black shadow-lg" : "text-zinc-600 hover:text-zinc-400"
+                          )}
+                        >
+                          {type}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
             </motion.div>
 
-            {/* Visual Section */}
+            {/* NODE-P2: VISUAL DIRECTIVE */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-10 backdrop-blur-md hover:bg-white/[0.04] hover:border-white/10 transition-all shadow-2xl relative overflow-hidden"
+              transition={{ delay: 0.1 }}
+              className="bg-[#0a0a0b] border border-white/5 rounded-[3rem] p-10 md:p-16 relative overflow-hidden group"
             >
-              <div className="absolute top-0 right-0 p-8 opacity-10">
-                <Film className="w-24 h-24 text-blue-500" />
+              <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
+                 <Palette className="w-32 h-32 text-studio" />
               </div>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                  <Palette className="w-4 h-4 text-blue-500" />
+              <div className="flex items-center gap-4 mb-12">
+                <div className="w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center border border-studio/20">
+                  <Film className="w-5 h-5 text-studio" />
                 </div>
-                <h2 className="text-sm font-black uppercase tracking-widest text-white">Visual</h2>
+                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white italic">Visual Directive</h2>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-10">
                 <input
                   type="text"
                   value={artStyle}
                   onChange={(e) => setArtStyle(e.target.value)}
-                  placeholder="STYLE REFERENCE..."
-                  className="w-full bg-black/40 border border-zinc-800 rounded-2xl px-6 py-4 text-sm font-bold text-white placeholder:text-zinc-800 focus:border-blue-500/50 outline-none transition-all uppercase tracking-tight"
+                  placeholder="STYLE REFERENCE (E.G. STUDIO GHIBLI)..."
+                  className="w-full bg-black/40 border border-zinc-900 rounded-2xl px-8 py-5 text-[11px] font-black text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all uppercase tracking-widest"
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {STYLE_PRESETS.map(s => (
                     <button
                       key={s}
                       onClick={() => setArtStyle(s)}
                       className={cn(
-                        "text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-full border transition-all",
-                        artStyle === s ? "bg-blue-500 text-white border-blue-500 shadow-xl" : "bg-white/5 border-white/5 text-zinc-600 hover:text-white hover:border-white/20"
+                        "text-[9px] font-black uppercase tracking-widest px-6 py-3 rounded-xl border transition-all duration-500",
+                        artStyle === s ? "bg-studio text-black border-studio shadow-[0_10px_30px_rgba(6,182,212,0.3)]" : "bg-white/[0.02] border-white/5 text-zinc-600 hover:text-white hover:border-white/20"
                       )}
                     >
                       {s}
@@ -239,112 +263,94 @@ export default function CreateProject() {
               </div>
             </motion.div>
 
-            {/* Narrative Section */}
+            {/* NODE-P3: NARRATIVE CORE */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-10 backdrop-blur-md hover:bg-white/[0.04] hover:border-white/10 transition-all shadow-2xl"
+              transition={{ delay: 0.2 }}
+              className="bg-[#0a0a0b] border border-white/5 rounded-[3rem] p-10 md:p-16 relative overflow-hidden group"
             >
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                  <ScrollText className="w-4 h-4 text-emerald-500" />
+              <div className="flex items-center gap-4 mb-12">
+                <div className="w-10 h-10 rounded-xl bg-studio/10 flex items-center justify-center border border-studio/20">
+                  <ScrollText className="w-5 h-5 text-studio" />
                 </div>
-                <h2 className="text-sm font-black uppercase tracking-widest text-white">Narrative Core description</h2>
+                <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white italic">Narrative Core</h2>
               </div>
 
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="PROJECT DESCRIPTION..."
-                rows={5}
-                className="w-full bg-black/40 border border-zinc-800 rounded-3xl px-8 py-8 text-base font-medium text-white placeholder:text-zinc-800 focus:border-emerald-500/50 outline-none transition-all resize-none leading-relaxed shadow-inner"
+                placeholder="DEFINE PRODUCTION DIRECTIVE..."
+                rows={6}
+                className="w-full bg-black/40 border border-zinc-900 rounded-[2.5rem] px-10 py-10 text-xs font-black uppercase tracking-widest text-white placeholder:text-zinc-800 focus:border-studio/50 outline-none transition-all resize-none leading-relaxed shadow-inner"
               />
             </motion.div>
           </div>
 
-          {/* Sidebar Info */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* 4. SIDEBAR: COMPLEXITY MONITOR */}
+          <div className="lg:col-span-4 space-y-10">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="bg-gradient-to-br from-zinc-900/80 to-black/80 border border-white/10 rounded-[3rem] p-8 backdrop-blur-md shadow-2xl relative overflow-hidden"
+              className="bg-gradient-to-br from-[#0a0a0b] to-black border border-white/10 rounded-[3rem] p-10 backdrop-blur-3xl shadow-3xl sticky top-12"
             >
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-6 h-6 rounded-md bg-[#bd4a4a] flex items-center justify-center">
-                  <Zap className="w-3 h-3 text-white fill-white" />
+              <div className="flex items-center gap-4 mb-12">
+                <div className="w-10 h-10 rounded-xl bg-studio flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-black fill-black" />
                 </div>
-                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white">Project Details</h3>
+                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white italic">Analysis Engine</h3>
               </div>
 
-              <div className="space-y-3 mb-8">
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-3">
-                    <Cpu className="w-4 h-4 text-zinc-600" />
-                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">AI Engine</span>
+              <div className="space-y-4 mb-12">
+                {[
+                  { icon: CpuIcon, label: 'Expected Nodes', value: expectedNodes },
+                  { icon: Sparkles, label: 'Complexity Index', value: `${Math.min(complexity, 100)}%` },
+                  { icon: Layers, label: 'Render Protocol', value: 'ULTRA-L' },
+                  { icon: Lock, label: 'Encryption', value: 'AES-256' }
+                ].map((stat, i) => (
+                  <div key={i} className="flex items-center justify-between p-5 bg-white/[0.02] rounded-2xl border border-white/5 hover:bg-white/[0.04] transition-all">
+                    <div className="flex items-center gap-4">
+                      <stat.icon className="w-4 h-4 text-zinc-700" />
+                      <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">{stat.label}</span>
+                    </div>
+                    <span className="text-[10px] font-black text-white italic tracking-widest">{stat.value}</span>
                   </div>
-                  <span className="text-[10px] font-bold text-white">GEMINI 1.5 PRO</span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-3">
-                    <Database className="w-4 h-4 text-zinc-600" />
-                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Storage</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-white">LOCAL SYNC</span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-3">
-                    <Lock className="w-4 h-4 text-zinc-600" />
-                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Security</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-white">PROTECTED</span>
-                </div>
+                ))}
               </div>
 
-              <div className="p-6 rounded-3xl bg-black/40 border border-white/5 mb-8">
-                <h4 className="text-[9px] font-black uppercase text-zinc-700 tracking-[0.2em] mb-4">Technical Stack</h4>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5">
-                    <Globe className="w-4 h-4 text-zinc-500" />
-                    <span className="text-[8px] font-bold text-zinc-600 uppercase">Global</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5">
-                    <Layers className="w-4 h-4 text-zinc-500" />
-                    <span className="text-[8px] font-bold text-zinc-600 uppercase">Layers</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/5 border border-white/5">
-                    <Box className="w-4 h-4 text-zinc-500" />
-                    <span className="text-[8px] font-bold text-zinc-600 uppercase">Box</span>
-                  </div>
-                </div>
-              </div>
+              {/* Error Display Protocol */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 mb-8 flex items-start gap-4"
+                  >
+                     <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                     <p className="text-[9px] font-black text-red-500 uppercase tracking-widest leading-relaxed">{error}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <button
                 disabled={!title || loading}
                 onClick={handleInitialize}
-                className="w-full h-20 bg-[#bd4a4a] text-white rounded-[2rem] font-black uppercase tracking-[0.3em] text-xs flex items-center justify-center gap-3 hover:bg-[#a33f3f] transition-all disabled:opacity-20 group relative overflow-hidden shadow-2xl active:scale-95"
+                className={cn(
+                  "w-full h-24 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs transition-all relative overflow-hidden group flex items-center justify-center gap-4",
+                  loading ? "bg-zinc-900 text-zinc-600" : "bg-studio text-black hover:bg-white hover:scale-[1.02] shadow-[0_20px_50px_rgba(6,182,212,0.3)] active:scale-95"
+                )}
               >
                 <AnimatePresence mode="wait">
                   {loading ? (
-                    <motion.span
-                      key="loading"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                    >
-                      CREATING...
-                    </motion.span>
+                    <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-4">
+                      <div className="w-5 h-5 border-2 border-zinc-600 border-t-white rounded-full animate-spin" />
+                      INITIALIZING...
+                    </motion.div>
                   ) : (
-                    <motion.div
-                      key="create"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      className="flex items-center gap-3"
-                    >
-                      CREATE
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <motion.div key="create" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-4">
+                      INITIALIZE NODE
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -353,18 +359,6 @@ export default function CreateProject() {
           </div>
         </div>
       </div>
-
-      <style>{`
-        input::placeholder, textarea::placeholder {
-          color: #27272a;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-        }
-      `}</style>
     </div>
   );
 }
-
-
-
-

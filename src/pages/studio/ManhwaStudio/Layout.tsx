@@ -1,33 +1,67 @@
-import React from 'react';
-import { useEffect, useCallback } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useGenerator } from '@/hooks/useGenerator';
+import React, { useEffect, useCallback } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { StudioFooter } from '@/components/studio/layout/StudioFooter';
-import { SessionLogs } from '../AnimeStudio/components/Layout/SessionLogs';
 import { useApp } from '@/contexts/AppContext';
-import { StudioLoading } from '@/components/studio/StudioLoading';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * ManhwaLayout - Production Node v1.0 (Scaffold)
- * Dedicated environment for Vertical Scroll / Webtoon production.
- */
+// Local Studio Components
+import { ManhwaStudioSideBar } from './components/ManhwaStudioSideBar';
+import { ManhwaStudioTopBar } from './components/ManhwaStudioTopBar';
+import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
+import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
+import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
+import { SessionLogs } from '@/pages/studio/components/studio/core/SessionLogs';
+import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
+
 export default function ManhwaLayout() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const { showNotification } = useApp();
-  const { 
-    setContentType, isLoading, setIsLoading, addLog, prompt,
-    history, setPrompt, setTone, setAudience, setEpisode, setSession, 
-    setSelectedModel, setGeneratedMetadata 
-  } = useGenerator();
+
+  const {
+    prompt, tone, audience, episode, session, numScenes, selectedModel,
+    isLoading, history } = useGeneratorState();
+
+  const {
+    setIsLoading, addLog, setPrompt, setTone, setAudience,
+    setEpisode, setSession, setNumScenes, setSelectedModel, setGeneratedMetadata, setContentType
+  } = useGeneratorDispatch();
+
+  const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(false);
+  const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
+
+  const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
+  const toggleGlobalSidebar = () => setGlobalSidebarCollapsed(!globalSidebarCollapsed);
+
+  // Disable scroll when sidebar is open
+  useEffect(() => {
+    if (!globalSidebarCollapsed || sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [globalSidebarCollapsed, sidebarOpen]);
+
+  const toggleEngine = () => {
+    const newState = !sidebarOpen;
+    setSidebarOpen(newState);
+    const newParams = new URLSearchParams(location.search);
+    if (newState) newParams.set('engine', 'open');
+    else newParams.delete('engine');
+    navigate({ search: newParams.toString() }, { replace: true });
+  };
 
   useEffect(() => {
     setContentType('Manhwa');
   }, [setContentType]);
+
+  const basePath = '/manhwa';
 
   const handleMasterGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
@@ -36,77 +70,94 @@ export default function ManhwaLayout() {
     }
     setIsLoading(true);
     addLog("MANHWA_CORE", "INITIALIZED", "Orchestrating Manhwa Production Cycle...");
-    // Future: Add Manhwa-specific synthesis logic here
     setTimeout(() => {
       setIsLoading(false);
       showNotification?.('Manhwa Synthesis Scaffold Complete', 'success');
+      navigate(`${basePath}/world`);
     }, 2000);
-  }, [prompt, user, setIsLoading, addLog, showNotification]);
+  }, [prompt, user, setIsLoading, addLog, showNotification, navigate, basePath]);
 
   return (
-    <div className="fixed inset-0 bg-[#0a0510] flex flex-col overflow-hidden z-[1000] manhwa-studio-root">
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar Placeholder */}
-        <div className="w-20 bg-black/40 border-r border-violet-500/20 flex flex-col items-center py-8 gap-8">
-          <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center text-white font-black shadow-[0_0_20px_rgba(139,92,246,0.3)]">M</div>
-        </div>
+    <div className="fixed inset-0 bg-[#0d0a05] flex h-screen w-full overflow-hidden z-[1000] manhwa-studio-root">
+      {/* GLOBAL HUB SIDEBAR (Far Left) */}
+      <div className="relative z-[501] border-r border-violet-500/20">
+        <StudioSideBar
+          collapsed={globalSidebarCollapsed}
+          setCollapsed={setGlobalSidebarCollapsed}
+        />
+      </div>
 
-        <div className="flex-1 flex flex-col min-w-0 relative h-full">
-          {/* Top Bar Placeholder */}
-          <div className="h-[60px] bg-black/20 backdrop-blur-md border-b border-violet-500/10 flex items-center px-8 justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest">Manhwa Architect</span>
-              <span className="text-zinc-500 text-[10px]">/ Production Unit 02</span>
-            </div>
-          </div>
+      {/* MANHWA STUDIO SIDEBAR (Next to Hub) */}
+      <ManhwaStudioSideBar
+        basePath={basePath}
+        handleGenerate={handleMasterGenerate}
+        isLoading={isLoading}
+        rightSidebarOpen={sidebarOpen}
+        onToggleRightSidebar={toggleEngine}
+        collapsed={leftSidebarCollapsed}
+        onToggleCollapse={toggleLeftSidebar}
+      />
 
-          {/* Main Workspace */}
-          <div className="flex-1 overflow-y-auto relative no-scrollbar">
+      <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
+        {/* Backdrop Blur Overlays */}
+        <AnimatePresence>
+          {/* Global Hub Backdrop */}
+          {!globalSidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => setGlobalSidebarCollapsed(true)}
+              className="fixed inset-0 bg-black/60 z-[490] cursor-pointer"
+            />
+          )}
 
+          {/* Engine Backdrop */}
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              onClick={toggleEngine}
+              className="absolute inset-0 bg-black/60 z-[40] cursor-pointer"
+            />
+          )}
 
-            <div className="w-full max-w-7xl mx-auto px-6 py-8 relative z-10">
-              <div className="w-full min-h-[600px] bg-[#100b1a]/80 backdrop-blur-md border border-violet-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] p-12 relative overflow-hidden">
+          {/* Sidebar Backdrop */}
+          {!leftSidebarCollapsed && (
+            <motion.div
+              animate={{ opacity: 1, backdropFilter: "blur(16px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              onClick={toggleLeftSidebar}
+              className="absolute inset-0 bg-black/40 z-[40] cursor-pointer"
+            />
+          )}
+        </AnimatePresence>
 
-                
-                <AnimatePresence>
-                    <motion.div
-                      key={location.pathname}
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 1.02 }}
-                      className="w-full h-full relative z-10"
-                    >
-                      <div className="flex flex-col items-center justify-center h-[500px] space-y-10">
-                        <div className="relative group">
+        <ManhwaStudioTopBar
+          onToggleEngine={toggleEngine}
+          isEngineOpen={sidebarOpen}
+          onToggleSidebar={toggleLeftSidebar}
+          isSidebarCollapsed={leftSidebarCollapsed}
+          onToggleGlobalSidebar={toggleGlobalSidebar}
+          isGlobalSidebarOpen={!globalSidebarCollapsed}
+        />
 
-                            <div className="relative w-32 h-32 rounded-[3rem] bg-black/40 border border-violet-500/30 flex items-center justify-center shadow-2xl">
-                            <h1 className="text-6xl font-black text-white italic">M</h1>
-                          </div>
-                        </div>
-                        
-                        <div className="text-center space-y-4">
-                          <h2 className="text-5xl font-black text-white uppercase tracking-tighter">Manhwa Studio</h2>
-                          <p className="text-violet-400 font-black uppercase tracking-[0.4em] text-xs animate-pulse">Vertical Scroll Engine / Online</p>
-                        </div>
-
-                        <Button
-                          onClick={handleMasterGenerate}
-                          disabled={isLoading}
-                          className="h-16 px-12 rounded-3xl bg-violet-600 hover:bg-violet-500 text-white font-black uppercase tracking-widest text-xs gap-4 shadow-xl shadow-violet-600/20 transition-all hover:scale-105 active:scale-95"
-                        >
-                          {isLoading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <Sparkles className="w-5 h-5" />
-                          )}
-                          {isLoading ? 'Sequencing Manhwa...' : 'Initiate Manhwa Genesis'}
-                        </Button>
-                      </div>
-                      <React.Suspense fallback={<StudioLoading fullPage={false} message="Rendering Manhwa Space" submessage="Syncing with Vertical Scroll Engine..." />}>
-                        <Outlet />
-                      </React.Suspense>
-                    </motion.div>
-                </AnimatePresence>
+        {/* Main Production Workspace */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+          <div className="min-h-full flex flex-col">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
+              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-[#100c14]/60 backdrop-blur-xl border border-violet-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
+                <div className="relative z-10 w-full flex-1 flex flex-col">
+                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Manhwa Studio" submessage="Accessing Neural Database..." />}>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <Outlet />
+                    </div>
+                  </React.Suspense>
+                </div>
               </div>
 
               {/* Intelligence Console */}
@@ -121,18 +172,44 @@ export default function ManhwaLayout() {
                   setContentType={setContentType}
                   setSelectedModel={setSelectedModel}
                   setGeneratedMetadata={setGeneratedMetadata}
+                  theme="violet"
                 />
               </div>
+            </div>
 
-              {/* Studio Footer with Gap */}
-              <div className="mt-40 mb-10">
-                <StudioFooter />
-              </div>
+            {/* Studio Footer with Gap */}
+            <div className="mt-40">
+              <StudioFooter />
             </div>
           </div>
         </div>
       </div>
+
+      {/* Creative Engine Sidepanel */}
+      <ProductionCore
+        isOpen={sidebarOpen}
+        onToggle={toggleEngine}
+        prompt={prompt} setPrompt={setPrompt}
+        tone={tone} setTone={setTone}
+        audience={audience} setAudience={setAudience}
+        session={session} setSession={setSession}
+        episode={episode} setEpisode={setEpisode}
+        numScenes={numScenes} setNumScenes={setNumScenes}
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
+        handleGenerate={handleMasterGenerate}
+        handleMasterGenerate={handleMasterGenerate}
+        handleSaveCurrent={() => { }} // Placeholder for Manhwa save
+        isLoading={isLoading}
+        isSaving={false}
+        generatedScript={null}
+        currentScriptId={null}
+        user={user}
+        basePath={basePath}
+        navigate={navigate}
+        contentType="Manhwa"
+        theme="violet"
+      />
     </div>
   );
 }
-

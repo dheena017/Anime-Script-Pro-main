@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import EpisodePackager from './components/EpisodePackager';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { generateImagePrompts } from '@/services/api/gemini';
-import { PromptsHeader } from '../components/Prompts/PromptsHeader';
-import { PromptsToolbar } from '../components/Prompts/PromptsToolbar';
-import { PromptsTab } from '../components/Prompts/Tabs/PromptsTabs';
+import { generateImagePrompts, generateVideoPrompts } from '@/services/api/gemini';
+import { PromptsHeader } from './components/PromptsHeader';
+import { PromptsToolbar } from './components/PromptsToolbar';
+import { PromptsTab } from './Tabs/PromptsTabs';
 
 export const PromptsContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -19,6 +20,7 @@ export default function PromptsLayout() {
 
   const {
     generatedImagePrompts, setGeneratedImagePrompts,
+    videoData, setVideoData,
     isLoading, setIsLoading,
     generatedScript, selectedModel, session, episode,
     showNotification,
@@ -44,7 +46,7 @@ export default function PromptsLayout() {
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata
       });
-      showNotification?.('Neural Prompts Synchronized', 'success');
+      showNotification?.('Prompts saved successfully!', 'success');
     } catch (e) {
       console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');
@@ -55,17 +57,26 @@ export default function PromptsLayout() {
 
   const handleGenerate = async () => {
     if (!generatedScript) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to initialize synthesis.', 'error');
+      showNotification?.('Please write a script first before generating prompts.', 'error');
       return;
     }
+
+    const tab = (searchParams.get('tab') as PromptsTab) || 'image';
+
     setIsLoading(true);
     try {
-      const prompts = await generateImagePrompts(generatedScript, selectedModel);
-      setGeneratedImagePrompts(prompts);
-      showNotification?.('Neural Synthesis Complete: Visual Prompts Archived', 'success');
+      if (tab === 'video') {
+        const vprompts = await generateVideoPrompts(generatedScript, selectedModel);
+        setVideoData(vprompts as any);
+        showNotification?.('Video prompts generated successfully!', 'success');
+      } else {
+        const prompts = await generateImagePrompts(generatedScript, selectedModel);
+        setGeneratedImagePrompts(prompts as any);
+        showNotification?.('Image prompts generated successfully!', 'success');
+      }
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to generate prompts: ' + (e.message || 'Unknown error'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +99,7 @@ export default function PromptsLayout() {
             onPrev={() => navigate('/anime/seo')}
             onSave={handleSave}
             isSaving={isSaving}
-            hasContent={!!generatedImagePrompts}
+            hasContent={activeTab === 'video' ? !!videoData : !!generatedImagePrompts}
             session={session}
             episode={episode}
           />
@@ -110,7 +121,7 @@ export default function PromptsLayout() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Outlet context={{ activeTab }} />
+          {activeTab === 'video' ? <EpisodePackager /> : <Outlet context={{ activeTab }} />}
         </motion.div>
       </div>
     </PromptsContext.Provider>

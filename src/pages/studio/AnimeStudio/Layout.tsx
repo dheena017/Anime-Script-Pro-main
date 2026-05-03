@@ -3,17 +3,19 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useGeneratorState, useGeneratorDispatch } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useApp } from '@/contexts/AppContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Local Studio Components
-import { ProductionCore } from './components/Layout/ProductionCore';
-import { SessionLogs } from './components/Layout/SessionLogs';
-import { AnimeStudioNavigation } from './components/AnimeStudioNavigation';
-import { AnimeStudioTopBar } from './components/AnimeStudioTopBar';
-import { StudioFooter } from '@/components/studio/layout/StudioFooter';
+import { ProductionCore } from '@/pages/studio/components/studio/core/ProductionCore';
+import { SessionLogs } from '@/pages/studio/components/studio/core/SessionLogs';
+import { StudioSideBar } from '@/pages/studio/components/studio/layout/StudioSideBar';
+import { AnimeStudioSideBar } from './components/layout/AnimeStudioSideBar';
+import { AnimeStudioTopBar } from './components/layout/AnimeStudioTopBar';
+import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
 
 import '@/styles/creative-engine.css';
 import { generateScript } from '@/services/generators/script';
-import { StudioLoading } from '@/components/studio/StudioLoading';
+import { StudioLoading } from '@/pages/studio/components/studio/StudioLoading';
 
 /**
  * AnimeLayout - Production Node v2.1
@@ -26,9 +28,26 @@ export default function AnimeLayout() {
   const { showNotification } = useApp();
 
   // Sync Creative Engine state with URL query parameter
-  const searchParams = new URLSearchParams(location.search);
-  const isEngineOpen = searchParams.get('engine') === 'open';
-  const [sidebarOpen, setSidebarOpen] = React.useState(isEngineOpen);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false); // Default closed
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = React.useState(false);
+  const [globalSidebarCollapsed, setGlobalSidebarCollapsed] = React.useState(true); // Default closed
+
+  const toggleLeftSidebar = () => setLeftSidebarCollapsed(!leftSidebarCollapsed);
+  const toggleGlobalSidebar = () => setGlobalSidebarCollapsed(!globalSidebarCollapsed);
+
+  // Disable scroll when sidebar is open
+  useEffect(() => {
+    if (!globalSidebarCollapsed || sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [globalSidebarCollapsed, sidebarOpen]);
+
+
 
   // Update URL when sidebar state changes
   const toggleEngine = () => {
@@ -46,7 +65,7 @@ export default function AnimeLayout() {
   const {
     prompt, tone, audience, episode, session, numScenes, selectedModel,
     isLoading, isSaving, generatedScript, generatedCharacters,
-    generatedSeriesPlan, generatedWorld, currentScriptId, theme,
+    generatedSeriesPlan, generatedWorld, currentScriptId,
     history, characterRelationships, recapperPersona
   } = useGeneratorState();
 
@@ -98,12 +117,12 @@ export default function AnimeLayout() {
    */
   const handleMasterGenerate = useCallback(async () => {
     if (!prompt.trim() || !user) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to initialize God Mode.', 'error');
+      showNotification?.('Please enter a story prompt first to start Master Generate.', 'error');
       return;
     }
     setIsLoading(true);
     addLog("GOD_MODE", "INITIALIZED", "Orchestrating Autonomous Production Cycle...");
-    showNotification?.('GOD MODE ACTIVE: Initiating Sequential Synthesis...', 'success');
+    showNotification?.('Master Generate Active — Generating all modules in sequence...', 'success');
 
     try {
       // Dynamic imports to optimize initial bundle
@@ -143,7 +162,7 @@ export default function AnimeLayout() {
       addLog("SCRIPT", "STARTING", "Synthesizing Episode 1 Script...");
       const ep1Plan = seriesPlan?.find((ep: any) => parseInt(ep.episode) === 1);
       const script = await generateScript(
-        prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime', 
+        prompt, tone, audience, "1", "1", numScenes, selectedModel, 'Anime',
         recapperPersona, characterRelationships, world, typeof castResult === 'string' ? castResult : castResult.markdown, ep1Plan ? JSON.stringify(ep1Plan) : null
       );
       setGeneratedScript(script);
@@ -153,7 +172,7 @@ export default function AnimeLayout() {
       addLog("STORYBOARD", "STARTING", "Manifesting Visual DNA for Scenes...");
       const visualPrompts = await generateImagePrompts(script, selectedModel);
       setGeneratedImagePrompts(visualPrompts);
-      setVisualData({ 0: ["pending"] }); 
+      setVisualData({ 0: ["pending"] });
       addLog("STORYBOARD", "COMPLETED", "Visual prompts architected.");
 
       // PHASE 6: SEO Matrix
@@ -172,7 +191,7 @@ export default function AnimeLayout() {
       setIsLoading(false);
     }
   }, [prompt, user, selectedModel, tone, audience, numScenes, recapperPersona, characterRelationships, setGeneratedWorld, setGeneratedCharacters, setCastData, setCastList, setCharacterRelationships, setGeneratedSeriesPlan, setGeneratedScript, setGeneratedImagePrompts, setVisualData, setGeneratedMetadata, showNotification, addLog, navigate, basePath, setIsLoading]);
-  
+
   useEffect(() => {
     const handleGenerateSignal = () => handleMasterGenerate();
     window.addEventListener('studio-generate-all', handleGenerateSignal);
@@ -182,18 +201,18 @@ export default function AnimeLayout() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt.', 'error');
+      showNotification?.('Please enter a story prompt first.', 'error');
       return;
     }
     setIsLoading(true);
     navigate(`${basePath}/script`);
-    
+
     try {
       const currentEpisodePlan = generatedSeriesPlan?.find((ep: any) => parseInt(ep.episode) === parseInt(episode));
       const script = await generateScript(prompt, tone, audience, session, episode, numScenes, selectedModel, 'Anime', recapperPersona, characterRelationships, generatedWorld, generatedCharacters, currentEpisodePlan ? JSON.stringify(currentEpisodePlan) : null);
       setGeneratedScript(script);
       setCurrentScriptId(null);
-      showNotification?.('Neural Synthesis Complete: Script Manifested', 'success');
+      showNotification?.('Script written successfully!', 'success');
 
       if (user) {
         // 1. Create/Initialize Project
@@ -247,58 +266,115 @@ export default function AnimeLayout() {
       }
     } catch (error) {
       console.error("Single generation persistence failed:", error);
-      showNotification?.('Synthesis Failure', 'error');
+      showNotification?.('Generation failed. Please try again.', 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-[#020203] flex flex-col overflow-hidden z-[1000] studio-engine-root">
-      {/* Dedicated Studio Top Bar */}
-      <AnimeStudioTopBar 
-        onToggleEngine={toggleEngine}
-        isEngineOpen={sidebarOpen}
+    <div className="fixed inset-0 bg-[#020203] flex h-screen w-full overflow-hidden z-[1000] studio-engine-root">
+      {/* GLOBAL HUB SIDEBAR (Far Left) */}
+      <div className="relative z-[501] border-r border-zinc-800/20">
+        <StudioSideBar
+          collapsed={globalSidebarCollapsed}
+          setCollapsed={setGlobalSidebarCollapsed}
+        />
+      </div>
+
+      {/* ANIME STUDIO SIDEBAR (Next to Hub) */}
+      <AnimeStudioSideBar
+        basePath={basePath}
+        handleGenerate={handleMasterGenerate}
+        isLoading={isLoading}
+        rightSidebarOpen={sidebarOpen}
+        onToggleRightSidebar={toggleEngine}
+        collapsed={leftSidebarCollapsed}
+        onToggleCollapse={toggleLeftSidebar}
       />
 
-      {/* Global Studio Navigation */}
-      <AnimeStudioNavigation basePath={basePath} />
+      <div className="flex-1 flex flex-col min-w-0 h-full relative overflow-hidden">
+        {/* Backdrop Blur Overlays */}
+        <AnimatePresence>
+          {/* Global Hub Backdrop */}
+          {!globalSidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              onClick={() => setGlobalSidebarCollapsed(true)}
+              className="fixed inset-0 bg-black/60 z-[490] cursor-pointer"
+            />
+          )}
 
-      <div className="flex-1 flex overflow-hidden relative h-full">
-        <div className="flex-1 flex flex-col min-w-0 relative h-full">
+          {/* Engine Backdrop */}
+          {sidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'linear' }}
+              onClick={toggleEngine}
+              className="absolute inset-0 bg-black/60 z-[40] cursor-pointer"
+            />
+          )}
+
+          {/* Sidebar Backdrop */}
+          {!leftSidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'linear' }}
+              onClick={toggleLeftSidebar}
+              className="absolute inset-0 bg-black/40 z-[40] cursor-pointer"
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimeStudioTopBar
+          onToggleEngine={toggleEngine}
+          isEngineOpen={sidebarOpen}
+          onToggleSidebar={toggleLeftSidebar}
+          isSidebarCollapsed={leftSidebarCollapsed}
+          onToggleGlobalSidebar={toggleGlobalSidebar}
+          isGlobalSidebarOpen={!globalSidebarCollapsed}
+        />
 
         {/* Main Production Workspace */}
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">
+          <div className="min-h-full flex flex-col">
+            <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative z-10 flex-1">
+              <div id="studio-content-area" className="w-full min-h-[calc(100vh-250px)] bg-black/60 backdrop-blur-xl border border-cyan-900/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2.5rem] relative overflow-hidden flex flex-col">
+                <div className="relative z-10 w-full flex-1 flex flex-col">
+                  <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Anime Studio" submessage="Accessing Neural Database..." />}>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <Outlet />
+                    </div>
+                  </React.Suspense>
+                </div>
+              </div>
 
-
-          <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-8 relative z-10">
-            <div id="studio-content-area" className="w-full min-h-[600px] bg-[#0a0b0e]/80 backdrop-blur-md border border-zinc-800/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[2rem] relative overflow-hidden">
-
-              
-              <div className="relative z-10 w-full h-full">
-                <React.Suspense fallback={<StudioLoading fullPage={false} message="Loading Studio Module" submessage="Accessing Neural Database..." />}>
-                  <Outlet />
-                </React.Suspense>
+              {/* Intelligence Console - Integrated Control Strip */}
+              <div className="mt-6">
+                <SessionLogs
+                  history={history}
+                  setPrompt={setPrompt}
+                  setTone={setTone}
+                  setAudience={setAudience}
+                  setEpisode={setEpisode}
+                  setSession={setSession}
+                  setContentType={setContentType}
+                  setSelectedModel={setSelectedModel}
+                  setGeneratedMetadata={setGeneratedMetadata}
+                  theme="cyan"
+                />
               </div>
             </div>
 
-            {/* Production Intelligence Console */}
-            <div className="mt-8">
-              <SessionLogs
-                history={history}
-                setPrompt={setPrompt}
-                setTone={setTone}
-                setAudience={setAudience}
-                setEpisode={setEpisode}
-                setSession={setSession}
-                setContentType={setContentType}
-                setSelectedModel={setSelectedModel}
-                setGeneratedMetadata={setGeneratedMetadata}
-              />
-            </div>
-
-            {/* Studio Footer with Gap */}
-            <div className="mt-40">
+            {/* Studio Footer */}
+            <div className="mt-32">
               <StudioFooter />
             </div>
           </div>
@@ -317,28 +393,27 @@ export default function AnimeLayout() {
         numScenes={numScenes} setNumScenes={setNumScenes}
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
-          recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
-          characterRelationships={characterRelationships || ''}
-          setCharacterRelationships={setCharacterRelationships}
-          worldBuilding={generatedWorld || ''}
-          setWorldBuilding={setGeneratedWorld}
-          castProfiles={generatedCharacters || ''}
-          setCastProfiles={setGeneratedCharacters}
-          handleGenerate={handleGenerate}
-          handleMasterGenerate={handleMasterGenerate}
-          handleSaveCurrent={handleSaveCurrent}
-          isLoading={isLoading}
-          isSaving={isSaving}
-          generatedScript={generatedScript}
-          currentScriptId={currentScriptId}
-          user={user}
-          basePath={basePath}
-          navigate={navigate}
-          contentType="Anime"
-          theme={theme}
-          setTheme={setTheme}
-        />
-      </div>
+        recapperPersona={recapperPersona} setRecapperPersona={setRecapperPersona}
+        characterRelationships={characterRelationships || ''}
+        setCharacterRelationships={setCharacterRelationships}
+        worldBuilding={generatedWorld || ''}
+        setWorldBuilding={setGeneratedWorld}
+        castProfiles={generatedCharacters || ''}
+        setCastProfiles={setGeneratedCharacters}
+        handleGenerate={handleGenerate}
+        handleMasterGenerate={handleMasterGenerate}
+        handleSaveCurrent={handleSaveCurrent}
+        isLoading={isLoading}
+        isSaving={isSaving}
+        generatedScript={generatedScript}
+        currentScriptId={currentScriptId}
+        user={user}
+        basePath={basePath}
+        navigate={navigate}
+        contentType="Anime"
+        theme="cyan"
+        setTheme={setTheme}
+      />
     </div>
   );
 }

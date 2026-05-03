@@ -1,8 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Sparkles, RefreshCcw, Info, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { STYLE_OPTIONS, PLACEHOLDER_PROMPTS } from '../constants';
+import { cn } from '@/lib/utils';
 
 interface HeroPromptBarProps {
   promptText: string;
@@ -19,65 +20,171 @@ export const HeroPromptBar: React.FC<HeroPromptBarProps> = ({
   selectedStyle,
   setSelectedStyle,
   placeholderIndex,
-  handleGenerate,
+  handleGenerate: onGenerate,
 }) => {
+  const [isTransmitting, setIsTransmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = () => {
+    if (!promptText.trim()) {
+      setError("DIRECTIVE REQUIRED FOR TRANSMISSION");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
+    setIsTransmitting(true);
+    // Simulate Neural Link established
+    setTimeout(() => {
+      onGenerate();
+      setIsTransmitting(false);
+    }, 1200);
+  };
+
+  const randomizeDirective = () => {
+    const random = PLACEHOLDER_PROMPTS[Math.floor(Math.random() * PLACEHOLDER_PROMPTS.length)];
+    setPromptText(random);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="max-w-5xl mx-auto w-full"
+      className="max-w-5xl mx-auto w-full space-y-6"
     >
       <div className="relative group">
-        <div className="absolute -inset-[1px] bg-gradient-to-r from-studio/50 via-purple-500/50 to-studio/50 rounded-[1.75rem] blur-sm opacity-40 group-hover:opacity-70 transition-opacity" />
-        <div className="relative bg-zinc-900/80 backdrop-blur-md border border-white/10 rounded-[1.75rem] p-3 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
-          <div className="flex items-start gap-3">
-              <textarea
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleGenerate();
-                  }
-                }}
-                placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
-                aria-label="Describe the anime art you want to generate"
-                rows={3}
-                className="flex-1 bg-transparent border-none outline-none text-white text-base md:text-lg font-medium placeholder:text-zinc-600 py-3 px-2 resize-none max-h-[9rem] overflow-y-auto hide-scrollbar leading-relaxed"
-              />
-          </div>
-          <div className="flex items-center justify-end pt-2 px-1">
-            <Button
-              onClick={handleGenerate}
-              className="h-12 px-8 rounded-xl bg-studio text-black hover:bg-studio/90 font-black uppercase tracking-widest text-xs shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:scale-105 active:scale-95 shrink-0 relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-[-20deg] z-0" />
-              <span className="relative z-10 flex items-center">
-                <Send className="w-4 h-4 mr-2" />
-                Generate
-              </span>
-            </Button>
+        {/* Focus Aura */}
+        <div className="absolute -inset-[2px] bg-gradient-to-r from-studio/40 via-fuchsia-500/40 to-studio/40 rounded-[2rem] blur-xl opacity-0 group-focus-within:opacity-40 transition-opacity duration-700" />
+        
+        <div className="relative bg-[#0a0a0b]/80 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-4 shadow-[0_30px_70px_rgba(0,0,0,0.8)]">
+          <div className="flex flex-col gap-4">
+              <div className="flex items-start gap-4 p-2">
+                <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0">
+                   <Sparkles className="w-6 h-6 text-studio" />
+                </div>
+                <textarea
+                  value={promptText}
+                  onChange={(e) => {
+                    setPromptText(e.target.value);
+                    if (error) setError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleGenerate();
+                    }
+                  }}
+                  placeholder={PLACEHOLDER_PROMPTS[placeholderIndex]}
+                  aria-label="Describe the anime art you want to generate"
+                  rows={2}
+                  className="flex-1 bg-transparent border-none outline-none text-white text-lg md:text-xl font-bold placeholder:text-zinc-700 py-2 resize-none max-h-[12rem] overflow-y-auto hide-scrollbar leading-relaxed uppercase tracking-tight"
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-white/5 pt-4 px-2">
+                <div className="flex items-center gap-3">
+                   <button 
+                    onClick={randomizeDirective}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.02] border border-white/5 text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+                   >
+                      <RefreshCcw className="w-3 h-3" /> Randomize
+                   </button>
+                   <AnimatePresence>
+                     {error && (
+                       <motion.div 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="flex items-center gap-2 text-red-500 text-[9px] font-black uppercase tracking-widest"
+                       >
+                          <AlertCircle className="w-3.5 h-3.5" /> {error}
+                       </motion.div>
+                     )}
+                   </AnimatePresence>
+                </div>
+
+                <Button
+                  onClick={handleGenerate}
+                  disabled={isTransmitting}
+                  className={cn(
+                    "h-14 px-10 rounded-2xl font-black uppercase tracking-[0.2em] text-xs transition-all relative overflow-hidden group",
+                    isTransmitting ? "bg-zinc-800 text-zinc-500" : "bg-studio text-black hover:bg-white hover:scale-105"
+                  )}
+                >
+                  <AnimatePresence mode="wait">
+                    {isTransmitting ? (
+                      <motion.div 
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center gap-3"
+                      >
+                        <div className="w-4 h-4 border-2 border-zinc-500 border-t-zinc-200 rounded-full animate-spin" />
+                        Transmitting...
+                      </motion.div>
+                    ) : (
+                      <motion.span 
+                        key="idle"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="relative z-10 flex items-center"
+                      >
+                        <Send className="w-4 h-4 mr-3" />
+                        Initialize Synthesis
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-        <span className="text-[9px] font-black text-zinc-600 uppercase tracking-widest shrink-0 mr-1">Style:</span>
-        {STYLE_OPTIONS.map((style) => (
-          <button
-            key={style.label}
-            onClick={() => setSelectedStyle(style.label)}
-            className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all ${selectedStyle === style.label
-                ? style.color + ' ring-1 ring-white/20 scale-105'
-                : 'bg-zinc-800/50 text-zinc-500 border-zinc-800 hover:text-zinc-300'
-              }`}
-          >
-            {style.label}
-          </button>
-        ))}
+      {/* STYLE GRID MASTER */}
+      <div className="bg-[#0a0a0b]/40 backdrop-blur-md rounded-3xl p-6 border border-white/5 space-y-4">
+        <div className="flex items-center justify-between px-2">
+           <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-studio" />
+              <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Engine Styles</span>
+           </div>
+           <div className="flex items-center gap-2 text-zinc-600">
+              <Info className="w-3.5 h-3.5" />
+              <span className="text-[9px] font-black uppercase tracking-widest">Select Neural Node</span>
+           </div>
+        </div>
+        
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
+          {STYLE_OPTIONS.map((style) => (
+            <button
+              key={style.label}
+              onClick={() => setSelectedStyle(style.label)}
+              title={style.desc}
+              className={cn(
+                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all relative group overflow-hidden",
+                selectedStyle === style.label
+                  ? style.color + " ring-1 ring-white/10 scale-105 shadow-xl"
+                  : "bg-zinc-900/50 text-zinc-600 border-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
+              )}
+            >
+              {selectedStyle === style.label && (
+                <motion.div 
+                  layoutId="active-style"
+                  className="absolute inset-0 bg-white/5"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                 {style.label}
+                 {selectedStyle === style.label && <span className="text-[8px] opacity-40 italic">{style.node}</span>}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
 };
+
 

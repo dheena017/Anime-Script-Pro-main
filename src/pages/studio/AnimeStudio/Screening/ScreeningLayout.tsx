@@ -3,9 +3,9 @@ import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
-import { ScreeningHeader } from '../components/Screening/ScreeningHeader';
-import { ScreeningToolbar } from '../components/Screening/ScreeningToolbar';
-import { ScreeningTab } from '../components/Screening/Tabs/ScreeningTabs';
+import { ScreeningHeader } from './components/ScreeningHeader';
+import { ScreeningToolbar } from './components/ScreeningToolbar';
+import { ScreeningTab } from './Tabs/ScreeningTabs';
 
 export const ScreeningContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -39,7 +39,7 @@ export default function ScreeningLayout() {
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata
       });
-      showNotification?.('Production Preview Synchronized', 'success');
+      showNotification?.('Preview data saved successfully!', 'success');
     } catch (e) {
       console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');

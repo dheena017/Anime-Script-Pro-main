@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Plus, ListFilter, Search, LayoutGrid, List, User } from 'lucide-react';
+import { Plus, ListFilter, Search, Layout as LayoutGrid, List, User } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { CastCard } from '../../components/Cast/CastCard';
+import { CastCard } from '../components/CastCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 

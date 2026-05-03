@@ -111,7 +111,7 @@ export function SceneViewPage() {
     
     setTimeout(() => {
       setIsSaving(false);
-      showNotification?.("Scene Manifest Synchronized", "success");
+      showNotification?.("Scene saved successfully!", "success");
       addLog("STORYBOARD", "COMPLETED", `Scene ${currentSceneIndex + 1} manifest successfully archived.`);
     }, 500);
   };

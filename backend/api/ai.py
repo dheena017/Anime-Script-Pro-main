@@ -12,14 +12,14 @@ from sqlmodel import select
 
 from backend.database import AsyncSession, async_engine
 from backend.database.models import Project
-from backend.deps import get_auth_user_id
-from backend.ai_engine import ai_engine, build_genai_client
+from backend.utils.deps import get_auth_user_id
+from backend.services.ai_engine import ai_engine, build_genai_client
 from backend.schemas import GenerationRequest, GenerationResponse
 
 router = APIRouter(prefix="/api", tags=["AI Engine"])
 
 MODEL_MAP = {
-    # 3.1 Series (Current)
+    # 3.1 Series (Highest Quota)
     "gemini-3.1-flash": "gemini-3.1-flash-lite-preview",
     "gemini-3.1-pro": "gemini-3.1-pro-preview",
     
@@ -29,18 +29,21 @@ MODEL_MAP = {
     
     # 2.5 Series
     "gemini-2.5-flash": "gemini-2.5-flash",
+    "gemini-2.5-flash-lite": "gemini-2.5-flash-lite",
     "gemini-2.5-pro": "gemini-2.5-pro",
     
     # 2.0 Series
-    "gemini-2.0-flash": "gemini-2.0-flash",
-    "gemini-2.0-pro": "gemini-2.5-pro", # Mapping 2.0 Pro to 2.5 Pro as per current availability
+    "gemini-2.0-flash": "gemini-3.1-flash-lite-preview", # Redirecting 2.0 to 3.1 Lite due to 0 quota
+    "gemini-2.0-flash-lite": "gemini-2.0-flash-lite",
+    "gemini-2.0-pro": "gemini-2.5-pro", 
     "gemini-2.0-pro-exp-02-05": "gemini-2.5-pro",
     
     # Legacy/Standard Aliases
-    "gemini-flash-latest": "gemini-2.5-flash",
+    "gemini-flash-latest": "gemini-3.1-flash-lite-preview",
     "gemini-pro-latest": "gemini-2.5-pro",
-    "gemini-1.5-flash": "gemini-2.0-flash",
+    "gemini-1.5-flash": "gemini-3.1-flash-lite-preview",
     "gemini-1.5-pro": "gemini-2.5-pro",
+    "gemini-1.5-flash-8b": "gemini-3.1-flash-lite-preview",
 }
 
 @router.post("/generate", response_model=GenerationResponse)
@@ -63,11 +66,11 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
     STABLE_MODELS = [
         "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", 
         "gemini-3-flash-preview", "gemini-3-pro-preview",
-        "gemini-3.1-flash-lite-preview"
+        "gemini-3.1-flash-lite-preview", "gemini-2.0-flash-lite"
     ]
     if target_model not in STABLE_MODELS and not any(target_model.startswith(m) for m in STABLE_MODELS):
-        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.0-flash.")
-        target_model = "gemini-2.0-flash"
+        logger.warning(f"Resolved model '{target_model}' not in stable registry. Falling back to gemini-2.5-flash.")
+        target_model = "gemini-2.5-flash"
     
     if target_model.startswith("models/"):
         target_model = target_model.replace("models/", "")
@@ -96,18 +99,14 @@ async def generate_content(request: GenerationRequest, user_id: str = Depends(ge
 
         
     # --- Ultra-Fallback Logic ---
-    # Exhaustive sequence of models to try if the primary one fails
+    # Optimized based on User Quota Table (RPM/TPM/RPD)
     FALLBACK_MODELS = [
-        target_model, # Try requested first
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-3.1-flash-lite-preview",
-        "gemini-2.5-pro",
-        "gemini-3.1-pro-preview",
-        "gemini-3-flash-preview",
-        "gemini-3-pro-preview",
-        "gemini-2.0-flash-lite",
-        "gemini-2.5-flash-lite",
+        target_model, # Try requested first (Likely 3.1 Flash Lite)
+        "gemini-3.1-flash-lite-preview", # 15 RPM
+        "gemini-2.5-flash-lite",         # 10 RPM
+        "gemini-3-flash-preview",        # 5 RPM
+        "gemini-2.5-flash",              # 5 RPM
+        "gemma-3-27b-it",                # 30 RPM (High availability fallback)
     ]
     
     # Remove duplicates while preserving order

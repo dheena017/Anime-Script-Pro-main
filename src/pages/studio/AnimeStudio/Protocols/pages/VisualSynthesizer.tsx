@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { ImageIcon } from 'lucide-react';
 import { 
   IMAGE_PROMPT_GENERATION_PROMPT, 

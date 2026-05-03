@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ProtocolsToolbar } from './ProtocolsToolbar';
+import { ProtocolsToolbar } from './components/ProtocolsToolbar';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Save, RefreshCw } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
@@ -30,10 +30,10 @@ export default function ProtocolsLayout() {
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata
       });
-      showNotification('Protocol Manifest Synchronized', 'success');
+      showNotification('Protocols saved successfully!', 'success');
     } catch (e) {
       console.error("Manual sync failed:", e);
-      showNotification('Protocol Sync Error', 'error');
+      showNotification('Failed to save protocols', 'error');
     } finally {
       setIsSaving(false);
     }

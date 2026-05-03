@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { UserPlus } from 'lucide-react';
 import { 
   CHARACTER_GENERATION_PROMPT, 

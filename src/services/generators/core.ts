@@ -53,7 +53,7 @@ function logAIUserHint(message: string) {
   console.groupCollapsed("[AI Core] User Guidance");
   console.info(message);
   console.info("• If you are running locally, set VITE_GEMINI_API_KEY in your .env file.");
-  console.info("• If you want to use the backend proxy, ensure the FastAPI backend is running and accessible at http://127.0.0.1:8002.");
+  console.info("• If you want to use the backend proxy, ensure the FastAPI backend is running and accessible at http://127.0.0.1:8080.");
   console.groupEnd();
 }
 
@@ -135,9 +135,47 @@ export class TimeoutError extends AIError {
 export const AI_EVENTS = new EventTarget();
 
 const inFlightRequests = new Map<string, Promise<string>>();
-const DEFAULT_BACKEND_URL = "http://127.0.0.1:8002";
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8080";
 const BACKEND_BASE_URL = API_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL || DEFAULT_BACKEND_URL;
 const BACKEND_GENERATE_URL = `${BACKEND_BASE_URL.replace(/\/+$|^\s+|\s+$/g, '')}/api/generate`;
+
+const DETAIL_DEPTH_DIRECTIVE = `
+DETAIL DEPTH POLICY:
+- Make every answer rich, specific, and production-ready.
+- Prefer concrete sensory detail, explicit relationships, precise staging, and clear cause-and-effect.
+- Expand each field to the maximum useful specificity allowed by the requested format.
+- Use layered detail: surface description, hidden implication, continuity consequence, and production utility.
+- If the output must remain JSON, Markdown table, or another strict schema, stay inside that format while still making each value as detailed as possible.
+- Do not replace detail with generic summary language unless the prompt explicitly demands brevity.
+- If a prompt is already constrained, deepen the value content rather than widening the schema.
+`;
+
+function composeDetailedSystemInstruction(systemInstruction: string): string {
+  const trimmedInstruction = systemInstruction.trim();
+
+  if (!trimmedInstruction) {
+    return DETAIL_DEPTH_DIRECTIVE.trim();
+  }
+
+  const strictFormatSignals = [
+    'Return only the JSON',
+    'Return ONLY the JSON',
+    'Return only the markdown table',
+    'Return only the prompt list',
+    'Return ONLY the rewritten scene description',
+    'Return ONLY the duration in seconds',
+    'Return clean Markdown',
+    'Do not use code fences',
+    'Do not add explanations',
+  ];
+
+  const supportsStrictFormatting = strictFormatSignals.some(signal => trimmedInstruction.includes(signal));
+  const detailAppendix = supportsStrictFormatting
+    ? `${DETAIL_DEPTH_DIRECTIVE}\nFORMAT SAFETY:\n- Preserve the exact requested schema and output shape.\n- Increase detail within the permitted fields only.`
+    : DETAIL_DEPTH_DIRECTIVE;
+
+  return `${trimmedInstruction}\n\n${detailAppendix.trim()}`;
+}
 
 export interface AIMetadata {
   text: string;
@@ -172,7 +210,8 @@ export async function callAI(
   topK: number = 40,
   timeoutMs: number = 180000
 ) {
-  const requestKey = JSON.stringify({ model, prompt, systemInstruction, temperature, maxTokens, topP, topK });
+  const detailedSystemInstruction = composeDetailedSystemInstruction(systemInstruction);
+  const requestKey = JSON.stringify({ model, prompt, systemInstruction: detailedSystemInstruction, temperature, maxTokens, topP, topK });
   if (inFlightRequests.has(requestKey)) {
     logger.info('Duplicate generation request detected. Reusing existing in-flight request.');
     return inFlightRequests.get(requestKey)!;
@@ -183,22 +222,22 @@ export async function callAI(
     broadcastAIStart(model);
 
     logger.info(`Starting generation request for model: ${model}`);
-    logger.info(`Prompt length: ${prompt?.length || 0}, instruction length: ${systemInstruction?.length || 0}`);
+    logger.info(`Prompt length: ${prompt?.length || 0}, instruction length: ${detailedSystemInstruction?.length || 0}`);
 
     // Context Audit: Find "SOURCE OF TRUTH" markers in the system instruction
-    const worldInjected = systemInstruction.includes("WORLD LORE SOURCE OF TRUTH");
-    const castInjected = systemInstruction.includes("CHARACTER DNA REGISTRY");
-    const planInjected = systemInstruction.includes("EPISODE MASTER BLUEPRINT");
+    const worldInjected = detailedSystemInstruction.includes("WORLD LORE SOURCE OF TRUTH");
+    const castInjected = detailedSystemInstruction.includes("CHARACTER DNA REGISTRY");
+    const planInjected = detailedSystemInstruction.includes("EPISODE MASTER BLUEPRINT");
 
     logger.group(`Neural Context Audit`);
     console.log("%cWorld Lore Sync:", STYLES.info, worldInjected ? "ACTIVE ✅" : "NONE ❌");
     console.log("%cCast DNA Sync:", STYLES.info, castInjected ? "ACTIVE ✅" : "NONE ❌");
     console.log("%cEpisode Plan Sync:", STYLES.info, planInjected ? "ACTIVE ✅" : "NONE ❌");
-    console.log("%cTotal Instruction Volume:", STYLES.info, systemInstruction.length, "chars");
+    console.log("%cTotal Instruction Volume:", STYLES.info, detailedSystemInstruction.length, "chars");
     logger.end();
 
     logger.group(`Request to ${model}`);
-    console.log("%cSystem Instruction:", STYLES.info, systemInstruction);
+    console.log("%cSystem Instruction:", STYLES.info, detailedSystemInstruction);
     console.log("%cUser Prompt:", STYLES.info, prompt);
     logger.end();
 
@@ -213,34 +252,19 @@ export async function callAI(
     // Normalize and prepare model fallbacks
     //
     const normalizeModelId = (id: string | undefined): string => {
-      if (!id) return "gemini-2.5-flash";
+      if (!id) return "gemini-2.0-flash";
       let normalized = id.toLowerCase().trim();
-      // Remove "models/" prefix if present, as the SDK adds it or handles it
       normalized = normalized.replace(/^models\//, "");
       // Common aliases
-      if (normalized === "gemini-flash") return "gemini-2.5-flash";
-      if (normalized === "gemini-pro") return "gemini-2.5-pro";
+      if (normalized === "gemini-flash") return "gemini-1.5-flash";
+      if (normalized === "gemini-pro") return "gemini-1.5-pro";
       return normalized;
     };
 
     const primaryModel = normalizeModelId(model);
-    const fallbackModels = [
-      "gemini-2.5-flash",
-      "gemini-2.5-pro",
-      "gemini-2.5-flash-lite",
-      "gemini-2-flash",
-      "gemini-2-flash-lite",
-      "gemini-2.0-flash",
-      "gemini-3-flash",
-      "gemini-3.1-flash-lite-preview",
-      "gemini-3.1-pro",
-      "gemini-3-flash-preview",
-      "gemini-3-pro-preview"
-    ];
-
     const modelFallbacks = [
       primaryModel,
-      ...fallbackModels.filter(m => m !== primaryModel)
+      ...["gemini-3.1-flash-lite-preview", "gemini-2.5-flash-lite", "gemini-3-flash-preview", "gemini-2.5-flash", "gemma-3-27b-it"].filter(m => m !== primaryModel)
     ];
 
     let lastError = null;
@@ -256,7 +280,7 @@ export async function callAI(
         const payload = {
           model: currentModel,
           prompt: prompt,
-          systemInstruction: systemInstruction,
+          systemInstruction: detailedSystemInstruction,
           temperature: temperature,
           max_tokens: maxTokens,
           top_p: topP,
@@ -344,8 +368,8 @@ export async function callAI(
         logger.warn(`Model ${currentModel} failed: ${errMessage}`);
 
         if (errMessage.toString().includes('Failed to fetch') || errMessage.toString().includes('ERR_EMPTY_RESPONSE')) {
-          logAIUserHint("The backend proxy fetch failed. Confirm that the frontend dev server can reach /api/generate and that the backend is running on port 8002.");
-          throw new NetworkError("Backend proxy unreachable. Ensure the backend is running at http://127.0.0.1:8002 and Vite proxy /api is configured.");
+          logAIUserHint("The backend proxy fetch failed. Confirm that the frontend dev server can reach /api/generate and that the backend is running on port 8080.");
+          throw new NetworkError("Backend proxy unreachable. Ensure the backend is running at http://127.0.0.1:8080 and Vite proxy /api is configured.");
         }
 
         const nextModel = modelFallbacks[modelFallbacks.indexOf(currentModel) + 1];

@@ -70,6 +70,8 @@ interface GeneratorState {
   seoMetadata?: any | null;
   seriesPlan?: any[] | null;
   worldLore?: any | null;
+  activeModelAttempt: string | null;
+  fallbackHistory: string[];
 }
 
 interface GeneratorDispatch {
@@ -156,6 +158,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [generatedDistributionPlan, setGeneratedDistributionPlan] = useState<string | null>(null);
   const [isGeneratingDistribution, setIsGeneratingDistribution] = useState(false);
 
+  const [activeModelAttempt, setActiveModelAttempt] = useState<string | null>(null);
+  const [fallbackHistory, setFallbackHistory] = useState<string[]>([]);
+
   const showNotification = useCallback((message: string, type?: 'error' | 'success' | 'info') => {
     rawShowNotification(message, type);
   }, [rawShowNotification]);
@@ -237,9 +242,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
   const [maxTokens, setMaxTokens] = useState(2048);
   const [topP, setTopP] = useState(0.95);
   const [topK, setTopK] = useState(40);
-  const [selectedModel, setSelectedModel] = useState<string>('gpt-4o-mini');
-  const [tone, setTone] = useState('');
-  const [audience, setAudience] = useState('');
+  const [selectedModel, setSelectedModel] = useState<string>('gemini-3.1-flash');
+  const [tone, setTone] = useState('Analytical');
+  const [audience, setAudience] = useState('Developers');
 
   // Compatibility cast/world/visual placeholders
   const [castData, setCastData] = useState<any | null>(null);
@@ -327,14 +332,19 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
 
     const handleStart = (e: any) => {
       addLog("NEURAL_ENGINE", "INITIALIZED", `Activating ${e.detail.model} for synthesis...`);
+      setActiveModelAttempt(e.detail.model);
+      setFallbackHistory([]);
     };
 
     const handleComplete = (e: any) => {
       addLog("NEURAL_ENGINE", "COMPLETED", `Synthesis finished via ${e.detail.model} (${e.detail.latency.toFixed(0)}ms)`);
+      setActiveModelAttempt(null);
     };
 
     const handleFallback = (e: any) => {
       addLog("NEURAL_ENGINE", "RETRYING", `Switching from ${e.detail.failedModel} to ${e.detail.nextModel} due to friction.`);
+      setActiveModelAttempt(e.detail.nextModel);
+      setFallbackHistory(prev => [...prev, e.detail.failedModel]);
     };
 
     AI_EVENTS.addEventListener('ai_generation_complete', handleTelemetry);
@@ -410,7 +420,9 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     // SEO / series
     seoMetadata: generatedMetadata,
     seriesPlan: generatedSeriesPlan,
-    worldLore: null
+    worldLore: null,
+    activeModelAttempt,
+    fallbackHistory
   }), [
     prompt, theme, generatedScript, generatedCharacters, generatedMetadata, 
     generatedImagePrompts, generatedSeriesPlan, generatedDescription, generatedWorld, generatedAltText,
@@ -421,7 +433,8 @@ export function GeneratorProvider({ children }: { children: React.ReactNode }) {
     projectHistory, productionSequence, isLiked, 
     generatedGrowthStrategy, isGeneratingGrowthStrategy, generatedDistributionPlan, isGeneratingDistribution
     , temperature, maxTokens, topP, topK, selectedModel, tone, audience,
-    castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan
+    castData, castList, castProfiles, characterRelationships, visualData, videoData, generatedMetadata, generatedSeriesPlan,
+    activeModelAttempt, fallbackHistory
   ]);
 
   const dispatch = useMemo<GeneratorDispatch>(() => ({

@@ -1,20 +1,62 @@
 import { callAI } from "./core";
+import { MOCK_STORY_BIBLE } from "./mockData";
 import { VIDEO_PROMPT_GENERATION_PROMPT } from "../prompts";
 
+function validateVideoScript(script: string): void {
+  if (!script || typeof script !== 'string' || script.trim().length < 20) {
+    throw new Error('Video script must be at least 20 characters long.');
+  }
+}
+
+function inferContentType(script: string): string {
+  return script.toLowerCase().includes("anime") ? "Anime" : "Series";
+}
+
+function buildFallbackVideoPrompt(script: string, contentType: string): string {
+  return [
+    `Story Bible: ${MOCK_STORY_BIBLE.title}`,
+    `Content Type: ${contentType}`,
+    `Motion Language: ${MOCK_STORY_BIBLE.visualPalette}`,
+    `Camera Rule: keep the motion cinematic, story-led, and continuity-safe.`,
+    `Script Anchor: ${script.slice(0, 180).trim() || MOCK_STORY_BIBLE.script[0].narration}`,
+  ].join("\n");
+}
+
+function buildFallbackVideoUrl(): string {
+  return "https://vjs.zencdn.net/v/oceans.mp4";
+}
+
 export async function generateVideoPrompts(script: string, model: string = "gemini-1.5-flash-latest") {
-  const contentType = script.toLowerCase().includes("anime") ? "Anime" : "Series";
+  validateVideoScript(script);
+  const contentType = inferContentType(script);
   const systemInstruction = VIDEO_PROMPT_GENERATION_PROMPT(contentType, script);
 
   try {
-    const text = await callAI(model, `Generate video prompts for this production script: ${script}`, systemInstruction);
-    return text || "Failed to synthesize video prompts.";
+    const prompt = `
+Generate cinematic video prompts for this production script.
+
+CONTENT TYPE:
+${contentType}
+
+SCRIPT:
+${script}
+
+PIPELINE REQUIREMENTS:
+- The prompts must align with the scene, story, world, and character continuity established elsewhere in the project.
+- Prioritize camera movement, lighting, motion, mood, and production feasibility.
+- Make the prompts specific enough for image-to-video or scene animation workflows.
+`;
+
+    const text = await callAI(model, prompt, systemInstruction);
+    return text || buildFallbackVideoPrompt(script, contentType);
   } catch (error) {
     console.error("Error generating video prompts:", error);
-    return "Error: " + (error instanceof Error ? error.message : String(error));
+    return buildFallbackVideoPrompt(script, contentType);
   }
 }
 
 export async function simulateVideoRender(prompt: string) {
+  validateVideoScript(prompt);
   console.info(`%c[Video Lab] %cSimulating render for: %c${prompt.slice(0, 50)}...`, 'color: #8b5cf6; font-weight: bold;', 'color: #94a3b8;', 'color: #fff; font-weight: bold;');
   // Simulate a long-running video synthesis process
   return new Promise((resolve) => {
@@ -29,6 +71,8 @@ export async function simulateVideoRender(prompt: string) {
 }
 
 export async function generateSceneVideo(prompt: string, model: string = "veo-2.0-generate-001"): Promise<string | null> {
+  validateVideoScript(prompt);
+
   // Try to use Veo or simulate it if the API is unsupported
   console.info(`%c[Video Engine] %cInitiating Image-to-Video using %c${model} %cfor prompt: ${prompt}`, 'color: #8b5cf6; font-weight: bold;', 'color: #94a3b8;', 'color: #fff; font-weight: bold;', 'color: #94a3b8;');
   
@@ -39,10 +83,10 @@ export async function generateSceneVideo(prompt: string, model: string = "veo-2.
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Simulate returning a generated video URL
-    return "https://vjs.zencdn.net/v/oceans.mp4";
+    return buildFallbackVideoUrl();
   } catch (error) {
     console.error("Error generating video:", error);
-    return null;
+    return buildFallbackVideoUrl();
   }
 }
 

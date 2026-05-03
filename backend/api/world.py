@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import select
 from backend.database import AsyncSession, get_async_session
 from backend.database.models.world import WorldLore
-from backend.deps import get_auth_user_id
+from backend.utils.deps import get_auth_user_id
 from datetime import datetime
 from typing import List, Optional
 

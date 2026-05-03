@@ -21,7 +21,7 @@ export function CharacterCreationPage() {
 
   const handleGenerateCharacter = async () => {
     if (!prompt.trim()) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to manifest character souls.', 'error');
+      showNotification?.('Please enter a story prompt first before creating characters.', 'error');
       return;
     }
     setIsGenerating(true);
@@ -31,10 +31,10 @@ export function CharacterCreationPage() {
         setCastData(result);
         if ('characters' in result) setCastList(result.characters);
       }
-      showNotification?.('Neural Synthesis Complete: Character Prototypes Generated', 'success');
+      showNotification?.('Characters created successfully!', 'success');
     } catch (error: any) {
       console.error(error);
-      showNotification?.('Synthesis Failure: ' + (error.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to create characters: ' + (error.message || 'Unknown error'), 'error');
     } finally {
       setIsGenerating(false);
     }

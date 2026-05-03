@@ -1,7 +1,10 @@
 import { generateWorld } from "./generators/world";
 import { generateCharacters } from "./generators/characters";
+import { generateRelationships } from "./generators/characters";
 import { generateSeriesPlan } from "./generators/series";
 import { generateScript } from "./generators/script";
+import { generateMetadata, generateYouTubeDescription, generateAltTexts, generateGrowthStrategy, generateDistributionStrategy } from "./generators/metadata";
+import { generateImagePrompts } from "./generators/image";
 import { generateProductionSequences, ProductionUnit } from "@/lib/sequence-utils";
 import { apiRequest } from "@/lib/api-utils";
 import { VIBE_LIBRARY } from "@/lib/vibe-presets";
@@ -21,9 +24,18 @@ export interface OrchestrationResult {
   project: any;
   world: string;
   cast: any;
+  relationships: any;
   series: any[];
   sequences: ProductionUnit[];
   script?: string;
+  marketing?: {
+    metadata: string;
+    description: string;
+    altText: string;
+    growthStrategy: string;
+    distributionStrategy: string;
+    imagePrompts: string;
+  };
 }
 
 /**
@@ -38,31 +50,49 @@ export class ProductionOrchestrator {
     this.context = context;
   }
 
+  private async runPhase<T>(phaseName: string, operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation();
+    } catch (error: any) {
+      const errorMsg = error?.message || String(error);
+      console.error(`[ORCHESTRATOR:${phaseName}] ${errorMsg}`, error);
+      throw new Error(`${phaseName} failed: ${errorMsg}`);
+    }
+  }
+
   async executeFullCycle(onProgress?: (phase: string, data?: any) => void): Promise<OrchestrationResult> {
     try {
       // STATE 01: WORLD Lore
       if (onProgress) onProgress("SIGNAL_INIT: Synchronizing Universal Lore Parameters...");
-      const world = await this.initializeFoundation();
+      const world = await this.runPhase("WORLD_INIT", () => this.initializeFoundation());
 
       // STATE 02: Narrative SCALPEL
       if (onProgress) onProgress("PROTOCOL_SCALPEL: Fracturing Narrative into 60-Episode Arcs...");
-      const { series } = await this.buildSeries(world);
+      const { series } = await this.runPhase("SERIES_BUILD", () => this.buildSeries(world));
 
       // STATE 03: CHARACTER DNA
       if (onProgress) onProgress("SYNTHESIS_DNA: Extracting Visual DNA for Principal Cast...");
-      const cast = await this.buildCast(world);
+      const cast = await this.runPhase("CAST_BUILD", () => this.buildCast(world));
+
+      // STATE 03B: RELATIONSHIP MATRIX
+      if (onProgress) onProgress("RELATIONSHIP_MATRIX: Mapping Social Friction and Allegiance Lines...");
+      const relationships = await this.runPhase("RELATIONSHIP_BUILD", () => this.buildRelationships(cast));
 
       // STATE 04: SERIES Roadmap
       if (onProgress) onProgress("ROADMAP_INIT: Finalizing Temporal Production Roadmap...");
-      await this.saveSeriesPlan(series);
+      await this.runPhase("SERIES_PERSIST", () => this.saveSeriesPlan(series));
 
       // STATE 05: SCRIPT Engine
       if (onProgress) onProgress("MANIFEST_SCRIPT: Materializing Script Pilot via Shogun Engine...");
-      const script = await this.materializePilot(world, cast, series[0]);
+      const script = await this.runPhase("SCRIPT_MATERIALIZE", () => this.materializePilot(world, cast, series[0], relationships));
+
+      // STATE 05B: PACKAGING ASSETS
+      if (onProgress) onProgress("PACKAGING_ASSETS: Generating Metadata, Alt Text, Growth, and Image Prompts...");
+      const marketing = await this.runPhase("MARKETING_PACKAGE", () => this.buildMarketingAssets(script));
 
       // STATE 06: VISUAL Manifest
       if (onProgress) onProgress("SCAFFOLD_VISUAL: Deploying 960-Unit Storyboard Grid...");
-      const sequences = await this.scaffoldGeneration(series);
+      const sequences = await this.runPhase("SCENE_SCAFFOLD", () => this.scaffoldGeneration(series));
 
       // STATE 07: GLOBAL Reach
       if (onProgress) onProgress("SEO_OPTIMIZE: Hardening Global Metadata for Premiere...");
@@ -73,7 +103,7 @@ export class ProductionOrchestrator {
       await this.preparePrompts();
 
       // STATE 09: PREMIERE Hub
-      if (onProgress) onProgress("PREMIERE_READY: Opening Screening Room Access Portals...");
+      if (onProgress) onProgress("PREMIERE_READY: Opening Screening Room Access Points...");
       await this.prepareScreening();
 
       // STATE 10: CORE Logic
@@ -84,9 +114,11 @@ export class ProductionOrchestrator {
         project: this.project,
         world,
         cast,
+        relationships,
         series,
         sequences,
-        script
+        script,
+        marketing
       };
     } catch (error: any) {
       const errorMsg = error?.message || "Unknown Orchestration Error";
@@ -154,7 +186,13 @@ export class ProductionOrchestrator {
     });
 
     // 2. Generate 60 Episode Narrative Flow (Series Plan)
-    const series = await generateSeriesPlan(architecturePrompt, this.context.model, this.context.contentType, 60);
+    const series = await generateSeriesPlan(
+      architecturePrompt,
+      this.context.model,
+      this.context.contentType,
+      60,
+      world
+    );
 
     if (!Array.isArray(series)) throw new Error("Failed to generate series episodes.");
 
@@ -180,6 +218,26 @@ export class ProductionOrchestrator {
     });
 
     return cast;
+  }
+
+  private async buildRelationships(cast: any[]) {
+    const castAsText = cast.map((character: any) => `${character.name} (${character.archetype}): ${character.personality}`).join('\n');
+    const relationships = await generateRelationships(
+      this.context.contentType,
+      castAsText,
+      this.context.model,
+      this.context.contentType
+    );
+
+    await apiRequest("/api/relationships", {
+      method: "POST",
+      body: JSON.stringify({
+        project_id: this.project.id,
+        relationships
+      })
+    });
+
+    return relationships;
   }
 
   private async saveSeriesPlan(series: any[]) {
@@ -303,13 +361,19 @@ export class ProductionOrchestrator {
     }
   }
 
-  private async materializePilot(world: string, cast: any, firstEpisode: any) {
+  private async materializePilot(world: string, cast: any, firstEpisode: any, relationships: any) {
     const scriptPrompt = `PILOT_PILOT: ${this.context.prompt}\n\nEPISODE_GOAL: ${firstEpisode.title} - ${firstEpisode.summary || firstEpisode.hook}`;
 
     // Convert cast to string if it's an array
     const castProfiles = Array.isArray(cast)
       ? cast.map(c => `${c.name} (${c.role}): ${c.personality}`).join('\n')
       : JSON.stringify(cast);
+
+    const relationshipProfiles = Array.isArray(relationships)
+      ? relationships.map((relationship: any) => `${relationship.source} -> ${relationship.target} [${relationship.type}]: ${relationship.description}`).join('\n')
+      : JSON.stringify(relationships);
+
+    const episodePlan = firstEpisode ? `${firstEpisode.title}\n${firstEpisode.summary || firstEpisode.hook || ''}` : null;
 
     const scriptMarkdown = await generateScript(
       scriptPrompt,
@@ -321,9 +385,10 @@ export class ProductionOrchestrator {
       this.context.model,
       this.context.contentType,
       "SHOGUN_AI",
-      null, // characterRelationships
+      relationshipProfiles,
       world,
-      castProfiles
+      castProfiles,
+      episodePlan
     );
 
     // Save Pilot Script to DB
@@ -341,6 +406,40 @@ export class ProductionOrchestrator {
     });
 
     return scriptMarkdown;
+  }
+
+  private async buildMarketingAssets(scriptMarkdown: string) {
+    const [metadata, description, altText, growthStrategy, distributionStrategy, imagePrompts] = await Promise.all([
+      generateMetadata(scriptMarkdown, this.context.model),
+      generateYouTubeDescription(scriptMarkdown, this.context.model, this.context.contentType),
+      generateAltTexts(scriptMarkdown, this.context.model),
+      generateGrowthStrategy(scriptMarkdown, this.context.model, this.context.contentType),
+      generateDistributionStrategy(scriptMarkdown, this.context.model),
+      generateImagePrompts(scriptMarkdown, this.context.model)
+    ]);
+
+    await apiRequest("/api/prompts", {
+      method: "POST",
+      body: JSON.stringify({
+        project_id: this.project.id,
+        context: "MARKETING_PACKAGE",
+        metadata,
+        description,
+        altText,
+        growthStrategy,
+        distributionStrategy,
+        imagePrompts
+      })
+    });
+
+    return {
+      metadata,
+      description,
+      altText,
+      growthStrategy,
+      distributionStrategy,
+      imagePrompts
+    };
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 interface AuthContextType {
@@ -10,12 +10,23 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const fallbackAuthContext: AuthContextType = {
+  user: null,
+  loading: true,
+  login: async () => {
+    throw new Error('AuthProvider is not mounted: login is unavailable.');
+  },
+  logout: async () => {
+    // no-op fallback
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const AUTH_REQUEST_TIMEOUT_MS = 15000;
 
-  const fetchCurrentUser = async (token: string) => {
+  const fetchCurrentUser = useCallback(async (token: string) => {
     try {
       const response = await axios.get('/api/users/profile', {
         headers: { Authorization: `Bearer ${token}` },
@@ -28,11 +39,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       sessionStorage.removeItem('auth_token');
       setUser(null);
     }
-  };
+  }, []);
 
+  // Only initialize auth once on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      // Check for backend token
       const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
       if (token) {
         await fetchCurrentUser(token);
@@ -41,9 +52,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     initializeAuth();
+    // Empty dependency array - only run once on mount
   }, []);
 
-  const login = async (email: string, password: string, rememberMe: boolean) => {
+  const login = useCallback(async (email: string, password: string, rememberMe: boolean) => {
     try {
       const response = await axios.post('/api/auth/login', { email, password });
       const { access_token } = response.data;
@@ -58,16 +70,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       throw err;
     }
-  };
+  }, [fetchCurrentUser]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_token');
     setUser(null);
-  };
+  }, []);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -76,7 +91,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    console.error('useAuthContext was used without AuthProvider. Falling back to safe auth state.');
+    return fallbackAuthContext;
   }
   return context;
 };

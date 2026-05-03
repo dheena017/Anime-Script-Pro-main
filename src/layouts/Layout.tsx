@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { StudioSideBar as Sidebar } from '@/components/studio/layout/StudioSideBar';
+import { StudioSideBar as Sidebar } from '@/pages/studio/components/studio/layout/StudioSideBar';
 import { cn } from '@/lib/utils';
 import {
   User,
@@ -11,11 +11,11 @@ import {
   Search
 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
-import { NeuralConsole } from '@/components/studio/NeuralConsole';
-import { NeuralErrorSentinel } from '@/components/studio/NeuralErrorSentinel';
+import { NeuralConsole } from '@/pages/studio/components/studio/NeuralConsole';
+import { NeuralErrorSentinel } from '@/pages/studio/components/studio/NeuralErrorSentinel';
 import { NotificationCenter } from '@/components/widgets/NotificationCenter';
 
-import { StudioFooter } from '@/components/studio/layout/StudioFooter';
+import { StudioFooter } from '@/pages/studio/components/studio/layout/StudioFooter';
 
 export function Layout() {
   const { isFullscreen, currentProject } = useApp();
@@ -23,9 +23,9 @@ export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
 
-  const isStudioMode = location.pathname.startsWith('/anime') || 
-                      location.pathname.startsWith('/manhwa') || 
-                      location.pathname.startsWith('/comic');
+  const isStudioMode = location.pathname.startsWith('/anime') ||
+    location.pathname.startsWith('/manhwa') ||
+    location.pathname.startsWith('/comic');
 
   return (
     <div className={cn(
@@ -36,24 +36,25 @@ export function Layout() {
 
       {/* Unified Sidebar */}
       <Sidebar collapsed={!isSidebarOpen} setCollapsed={(val) => setIsSidebarOpen(!val)} />
-      
+
       {/* Content Backdrop / Blur when Sidebar is open */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'linear' }}
             onClick={() => setIsSidebarOpen(false)}
             className="fixed inset-0 bg-black/60 z-[450] cursor-pointer"
           />
         )}
       </AnimatePresence>
 
-      <div 
+      <div
         className="flex-1 flex flex-col min-w-0 bg-[#050505] transition-all duration-300 overflow-hidden"
       >
-        <header 
+        <header
           className="sticky top-0 z-[400] border-b border-zinc-800/50 bg-black/40 backdrop-blur-md shrink-0 transition-all duration-300"
         >
           <div className="max-w-full mx-auto px-4 sm:px-6 py-3 flex items-center justify-between w-full h-[60px]">
@@ -123,7 +124,7 @@ export function Layout() {
               </AnimatePresence>
             </div>
           </main>
-          
+
           <div className="mt-40 mb-10">
             <StudioFooter />
           </div>

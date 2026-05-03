@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List, Optional
 from backend.database.models import CommunityPost
 from backend.database import AsyncSession, async_engine
-from backend.deps import get_auth_user_id   
+from backend.utils.deps import get_auth_user_id   
 
 router = APIRouter(prefix="/api/community", tags=["Community"])
 

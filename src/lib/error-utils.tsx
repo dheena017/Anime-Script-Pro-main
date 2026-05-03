@@ -1,5 +1,5 @@
 import React from 'react';
-import { auth } from '../firebase';
+import { auth } from '../config/firebase';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

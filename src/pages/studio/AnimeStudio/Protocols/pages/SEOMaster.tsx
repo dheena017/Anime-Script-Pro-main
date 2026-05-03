@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { Search } from 'lucide-react';
 import { 
   METADATA_GENERATION_PROMPT, 

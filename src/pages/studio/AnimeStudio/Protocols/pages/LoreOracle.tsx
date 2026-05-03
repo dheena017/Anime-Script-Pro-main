@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { Globe } from 'lucide-react';
 import { WORLD_GENERATION_PROMPT } from '@/services/prompts';
 

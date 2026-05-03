@@ -23,7 +23,7 @@ export default function AssetsLayout() {
 
   const handleGenerateAll = async () => {
     if (!generatedScript) {
-      showNotification?.('Prerequisite Failure: Synthesis a script manifest before generating all assets.', 'error');
+      showNotification?.('Please write a script first before generating assets.', 'error');
       return;
     }
     
@@ -41,9 +41,9 @@ export default function AssetsLayout() {
       setGeneratedMetadata(meta);
       setGeneratedDescription(desc);
       setGeneratedImagePrompts(prompts);
-      showNotification?.('Neural Synthesis Complete: All Assets Generated', 'success');
+      showNotification?.('All assets generated successfully!', 'success');
     } catch (e: any) {
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Error'), 'error');
+      showNotification?.('Failed to generate assets: ' + (e.message || 'Error'), 'error');
     } finally {
       setIsGeneratingMetadata(false);
       setIsGeneratingDescription(false);

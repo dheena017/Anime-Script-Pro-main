@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { SlidersHorizontal } from 'lucide-react';
 import { 
   ENHANCE_NARRATION_PROMPT, 

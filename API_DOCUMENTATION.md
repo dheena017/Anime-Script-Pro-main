@@ -62,7 +62,7 @@ The following resource modules are proxied to the backend and handle the bulk of
 
 ## 🛠️ 4. Proxy Configuration
 The Orchestrator uses `http-proxy-middleware` to route traffic.
-- **Target**: `http://localhost:8002` (Default Backend URL)
+- **Target**: `http://localhost:8080` (Default Backend URL)
 - **Timeout**: 90 seconds (Optimized for heavy AI generation)
 - **Bypass**: In development, requests include the `x-bypass-auth` header to facilitate local testing.
 

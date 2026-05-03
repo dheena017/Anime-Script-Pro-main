@@ -41,8 +41,7 @@ npm run dev
 ### 2. Python AI Backend (Manual Start)
 ```bash
 .\backend\venv\Scripts\activate
-uvicorn backend.fastapi_app:app --reload --port 8002
-```
+python -m uvicorn backend.fastapi_app:app --reload --port 8080```
 
 ### 3. Environment Configuration (`.env`)
 Ensure your environment is primed for autonomous generation:
@@ -116,3 +115,6 @@ The studio utilizes a high-contrast **Noir System** designed for focus and creat
 <div align="center">
   <sub>Built for the next generation of digital architects.</sub>
 </div>
+
+
+thse any preloader text that all the message need to good and the humman need to understand. the premium, professional aesthetic of the studio

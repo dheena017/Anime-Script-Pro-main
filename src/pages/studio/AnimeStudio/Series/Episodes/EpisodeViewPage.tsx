@@ -9,7 +9,7 @@ import {
   Heart,
   Share2,
   MoreHorizontal,
-  LayoutGrid,
+  Layout as LayoutGrid,
   Video,
   Volume2,
   Camera,

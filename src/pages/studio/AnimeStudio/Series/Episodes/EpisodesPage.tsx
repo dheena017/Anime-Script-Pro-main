@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Plus, ListFilter, Search, LayoutGrid, List } from 'lucide-react';
+import { Plus, ListFilter, Search, Layout as LayoutGrid, List } from 'lucide-react';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { SeriesView } from '../../components/Series/SeriesView';
+import { SeriesView } from '../components/SeriesView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -126,7 +126,7 @@ export default function EpisodesPage() {
           viewMode={viewMode}
           onUpdateEpisode={handleUpdateEpisode}
           onUpdateAssetMatrix={handleUpdateAssetMatrix}
-          onFocusEpisode={(epNum) => {
+          onFocusEpisode={(epNum: string) => {
             navigate(`/${contentType.toLowerCase()}/series/episodes/${epNum}`);
           }}
         />

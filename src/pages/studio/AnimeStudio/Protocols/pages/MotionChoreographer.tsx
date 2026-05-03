@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { Zap } from 'lucide-react';
 import { VIDEO_PROMPT_GENERATION_PROMPT } from '@/services/prompts';
 

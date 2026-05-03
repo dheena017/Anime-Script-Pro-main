@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List
 from backend.database.models import Notification
 from backend.database import AsyncSession, AsyncSession, async_engine
-from backend.deps import get_auth_user_id
+from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api/notifications", tags=["Notifications"])
 

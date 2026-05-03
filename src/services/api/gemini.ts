@@ -15,6 +15,7 @@ export * from "../generators/world";
 
 export * from "../generators/video";
 export * from "../generators/sceneGenerator";
+export * from "../generators/episodePipeline";
 
 
 

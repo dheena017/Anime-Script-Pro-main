@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { Layers } from 'lucide-react';
 import { SERIES_PLAN_GENERATION_PROMPT } from '@/services/prompts';
 

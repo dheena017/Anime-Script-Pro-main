@@ -154,8 +154,7 @@
 
 /* Glass & Technical Components */
 .glass {
-  @apply bg-zinc-950/40 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative;
-  will-change: backdrop-filter;
+  @apply bg-zinc-950/55 backdrop-blur-sm border border-white/5 shadow-[0_8px_24px_rgba(0,0,0,0.42)] relative;
 }
 
 .glass::after {
@@ -165,12 +164,32 @@
 }
 
 .technical-card {
-  @apply bg-[#080808]/60 backdrop-blur-md border border-zinc-900 shadow-2xl relative overflow-hidden;
-  will-change: backdrop-filter;
+  @apply bg-[#080808]/70 backdrop-blur-sm border border-zinc-900 shadow-2xl relative overflow-hidden;
 }
 
 .glow-text {
   text-shadow: 0 0 10px var(--studio-glow), 0 0 20px var(--studio-glow);
+}
+
+.btn-genesis {
+  @apply h-16 px-12 text-white font-black uppercase tracking-[0.3em] text-[11px] rounded-full transition-all duration-500 border-none flex items-center justify-center gap-4 relative overflow-hidden;
+  background-color: var(--studio-primary);
+  box-shadow: 0 0 20px var(--studio-glow), 0 0 40px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.btn-genesis:hover {
+  @apply scale-[1.02];
+  background-color: color-mix(in srgb, var(--studio-primary), white 10%);
+  box-shadow: 0 0 40px var(--studio-glow), 0 0 80px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.2);
+}
+
+.btn-genesis::before {
+  content: "";
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full skew-x-12 transition-transform duration-700;
+}
+
+.btn-genesis:hover::before {
+  @apply translate-x-full;
 }
 
 .scanline {

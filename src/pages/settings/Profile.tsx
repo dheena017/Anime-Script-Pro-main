@@ -1,11 +1,24 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { Camera, Sparkles, Eye, Save } from 'lucide-react';
+import {
+  Camera,
+  Sparkles,
+  Eye,
+  Globe,
+  ShieldCheck,
+  Zap,
+  Lock,
+  ChevronRight,
+  User as UserIcon,
+  Briefcase,
+  MapPin,
+  FileText
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
 import { settingsService } from '../../services/api/settings';
-import { StudioLoading } from '../../components/studio/StudioLoading';
-
+import { StudioLoading } from '../studio/components/studio/StudioLoading';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '../../lib/utils';
 
 export function ProfileSettings() {
   const { user } = useAuth();
@@ -15,10 +28,9 @@ export function ProfileSettings() {
   const [timezone, setTimezone] = useState('GMT-8 (Pacific Studio Time)');
   const [vision, setVision] = useState('');
   const [publicVisible, setPublicVisible] = useState(false);
-  
+
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
 
   useEffect(() => {
     async function hydrate() {
@@ -48,116 +60,249 @@ export function ProfileSettings() {
         ...payloadOverrides
       }
     });
-    setIsSaving(false);
+    setTimeout(() => setIsSaving(false), 800);
   }, [displayName, role, timezone, vision, publicVisible]);
 
   if (loading) {
-     return <StudioLoading fullPage={false} message="Hydrating Profile..." submessage="Syncing identity metadata with the production cloud..." />;
+    return <StudioLoading fullPage={false} message="Hydrating Identity Matrix..." submessage="Syncing architectural metadata with the production cloud..." />;
   }
 
-
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 relative">
-      {isSaving && (
-         <div className="absolute top-4 right-8 z-50 flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-500/50 rounded-full animate-pulse transition-all">
-            <Save className="w-3 h-3 text-red-400" />
-            <span className="text-[9px] font-black uppercase tracking-widest text-white">Syncing ID...</span>
-         </div>
-      )}
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700 relative selection:bg-studio/30">
 
-      <Card className="bg-[#0a0a0a]/80 backdrop-blur-md border-zinc-800/50 shadow-2xl relative overflow-hidden group rounded-3xl">
-        <div className="absolute top-0 right-0 p-32 bg-red-600/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-red-600/10 transition-colors duration-700" />
-        
-        <CardHeader className="relative z-10 border-b border-zinc-900 pb-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-red-500/10 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
-              <Sparkles className="w-5 h-5 text-red-500" />
+      {/* 1. ATOMIC SYNC OVERLAY */}
+      <AnimatePresence>
+        {isSaving && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, x: 20 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, y: -20, x: 20 }}
+            className="fixed top-8 right-8 z-[100] flex items-center gap-3 px-5 py-2.5 bg-studio/10 border border-studio/20 backdrop-blur-xl rounded-full shadow-[0_20px_50px_rgba(6,182,212,0.2)]"
+          >
+            <div className="w-2 h-2 rounded-full bg-studio animate-pulse" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-studio">Atomic Identity Sync Active</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 2. PUBLIC IDENTITY TERMINAL */}
+      <Card className="bg-[#0a0a0b] border border-white/5 rounded-[3.5rem] shadow-3xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-studio/5 blur-[150px] rounded-full pointer-events-none" />
+
+        <CardHeader className="border-b border-white/5 p-10 md:p-14">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
+            <div className="flex items-center gap-8">
+              <div className="w-16 h-16 rounded-2xl bg-studio/10 flex items-center justify-center border border-studio/20 shadow-2xl relative">
+                <div className="absolute inset-0 bg-studio/5 blur-xl animate-pulse" />
+                <Sparkles className="w-8 h-8 text-studio relative z-10" />
+              </div>
+              <div className="space-y-1">
+                <CardTitle className="text-3xl font-black text-white uppercase italic tracking-tighter">Public Identity</CardTitle>
+                <CardDescription className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">Universal Production Signature across the Global Architect Network</CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-2xl font-black text-white tracking-widest uppercase">Public Identity</CardTitle>
-              <CardDescription className="text-zinc-500 font-medium">Your universal signature across the Anime Script Pro network.</CardDescription>
+
+            <div className="flex items-center gap-6">
+              <div className="hidden xl:flex items-center gap-8 px-8 py-4 bg-white/[0.02] border border-white/5 rounded-[2rem]">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Registry Status</span>
+                  <span className="text-xs font-black text-emerald-500 italic uppercase">Verified</span>
+                </div>
+                <div className="w-px h-8 bg-white/5" />
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] font-black text-zinc-700 uppercase tracking-widest">Link Health</span>
+                  <span className="text-xs font-black text-studio italic uppercase">Optimal</span>
+                </div>
+              </div>
             </div>
           </div>
         </CardHeader>
-        
-        <CardContent className="relative z-10 space-y-10 pt-8">
-          <div className="flex items-center gap-8 p-6 bg-black/40 rounded-2xl border border-zinc-800/50 hover:border-red-500/30 transition-colors duration-500">
-            <div className="relative group/avatar cursor-pointer">
-              <div className="absolute -inset-0.5 bg-gradient-to-tr from-red-600 to-fuchsia-600 rounded-full blur opacity-40 group-hover/avatar:opacity-75 transition duration-500"></div>
-              <div className="relative w-28 h-28 rounded-full bg-zinc-900 border-2 border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
+
+        <CardContent className="p-10 md:p-14 space-y-14 relative">
+
+          {/* Avatar Mesh Section */}
+          <div className="flex flex-col md:flex-row items-center gap-12 p-10 bg-white/[0.02] border border-white/5 rounded-[3rem] hover:border-studio/30 transition-all duration-700 relative overflow-hidden group/avatar-box">
+            <div className="absolute top-0 right-0 p-10 opacity-5 group-hover/avatar-box:opacity-10 transition-opacity">
+              <UserIcon className="w-32 h-32 text-studio" />
+            </div>
+
+            <div className="relative group/avatar cursor-pointer shrink-0">
+              <div className="absolute -inset-2 bg-gradient-to-tr from-studio to-fuchsia-600 rounded-full blur opacity-20 group-hover/avatar:opacity-60 transition duration-1000"></div>
+              <div className="relative w-36 h-36 rounded-full bg-black border-4 border-white/5 overflow-hidden flex items-center justify-center shadow-3xl">
                 {user?.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
-                   <span className="text-4xl font-black text-zinc-700">{(user?.user_metadata?.full_name || user?.user_metadata?.display_name)?.[0] || 'U'}</span>
+                  <span className="text-5xl font-black text-zinc-800">{(user?.user_metadata?.full_name || user?.user_metadata?.display_name)?.[0] || 'U'}</span>
                 )}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                  <Camera className="w-8 h-8 text-white" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 flex items-center justify-center transition-all duration-500 backdrop-blur-sm">
+                  <Camera className="w-10 h-10 text-white" />
                 </div>
               </div>
             </div>
-            <div className="space-y-3">
-              <h3 className="text-lg font-bold text-zinc-200">Neural Network Avatar</h3>
-              <div className="flex items-center gap-3">
-                <Button className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-bold uppercase tracking-widest text-[10px]">Upload Mesh</Button>
-                <Button variant="ghost" className="text-zinc-500 hover:text-red-400 font-bold uppercase tracking-widest text-[10px]">Remove</Button>
+
+            <div className="space-y-6 text-center md:text-left relative z-10">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">Neural Network Avatar</h3>
+                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em]">Signature ID: #ASP-{(user?.id || 'ARCHITECT').slice(0, 8).toUpperCase()}</p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                <button className="px-8 py-3 bg-studio text-black rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all shadow-xl active:scale-95">Initialize Uplink</button>
+                <button className="px-8 py-3 bg-white/[0.03] border border-white/10 text-zinc-500 rounded-xl font-black uppercase tracking-widest text-[10px] hover:text-red-500 hover:border-red-500/30 transition-all active:scale-95">Purge Mesh</button>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-3 relative group/input">
-              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]">Director Name</label>
-              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} onBlur={() => syncToCloud()} type="text" className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-white focus:border-red-500 focus:outline-none transition-all" />
-            </div>
+          {/* Identity Protocol Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {[
+              {
+                id: 'name',
+                label: 'Director Identity',
+                value: displayName,
+                onChange: (val: string) => setDisplayName(val),
+                icon: UserIcon,
+                nodeId: 'NODE-P1',
+                placeholder: 'ENTER ARCHITECT NAME...'
+              },
+              {
+                id: 'email',
+                label: 'Transmission Contact',
+                value: user?.email || 'dheena@gmail.com',
+                readOnly: true,
+                icon: Globe,
+                nodeId: 'NODE-P2'
+              }
+            ].map((node) => (
+              <div key={node.id} className="space-y-4 group/node">
+                <div className="flex items-center justify-between px-2">
+                  <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] italic flex items-center gap-3">
+                    <node.icon className="w-3.5 h-3.5 text-studio" /> {node.label}
+                  </label>
+                  <span className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">{node.nodeId}</span>
+                </div>
+                <div className="relative">
+                  <input
+                    value={node.value}
+                    onChange={(e) => node.onChange?.(e.target.value)}
+                    onBlur={() => !node.readOnly && syncToCloud()}
+                    readOnly={node.readOnly}
+                    type="text"
+                    placeholder={node.placeholder}
+                    className={cn(
+                      "w-full bg-black/60 border border-zinc-900 rounded-[1.5rem] px-8 py-5 text-sm font-black text-white focus:border-studio/50 transition-all outline-none italic tracking-widest uppercase",
+                      node.readOnly ? "opacity-40 cursor-not-allowed border-dashed" : "group-hover/node:border-studio/20"
+                    )}
+                  />
+                  {node.readOnly && (
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                      <Lock className="w-4 h-4 text-zinc-800" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
 
-            <div className="space-y-3 relative group/input opacity-70">
-              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]">Contact Node</label>
-              <input type="email" defaultValue={user?.email || 'dheena@gmail.com'} readOnly className="w-full p-4 bg-black/40 border border-zinc-800/50 rounded-xl text-sm font-medium text-zinc-500 cursor-not-allowed" />
-            </div>
+            {[
+              {
+                id: 'role',
+                label: 'Production Role',
+                value: role,
+                options: ['Executive Producer', 'Lead Screenwriter', 'Art Director', 'Showrunner', 'Solo Creator'],
+                onChange: (val: string) => { setRole(val); syncToCloud({ role: val }); },
+                icon: Briefcase,
+                nodeId: 'NODE-P3'
+              },
+              {
+                id: 'timezone',
+                label: 'Studio Base Time',
+                value: timezone,
+                options: ['GMT-8 (Pacific Studio Time)', 'GMT-5 (Eastern Hub)', 'GMT+0 (London Central)', 'GMT+9 (Tokyo / Global East)'],
+                onChange: (val: string) => { setTimezone(val); syncToCloud({ timezone: val }); },
+                icon: MapPin,
+                nodeId: 'NODE-P4'
+              }
+            ].map((node) => (
+              <div key={node.id} className="space-y-4 group/node">
+                <div className="flex items-center justify-between px-2">
+                  <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] italic flex items-center gap-3">
+                    <node.icon className="w-3.5 h-3.5 text-studio" /> {node.label}
+                  </label>
+                  <span className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">{node.nodeId}</span>
+                </div>
+                <div className="relative">
+                  <select
+                    value={node.value}
+                    onChange={(e) => node.onChange?.(e.target.value)}
+                    className="w-full bg-black/60 border border-zinc-900 rounded-[1.5rem] px-8 py-5 text-sm font-black text-white focus:border-studio/50 transition-all appearance-none cursor-pointer uppercase italic tracking-widest"
+                  >
+                    {node.options?.map(opt => <option key={opt}>{opt}</option>)}
+                  </select>
+                  <ChevronRight className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 rotate-90 pointer-events-none" />
+                </div>
+              </div>
+            ))}
+          </div>
 
-            <div className="space-y-3 relative group/input">
-              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]">Production Role</label>
-              <select value={role} onChange={(e) => { setRole(e.target.value); syncToCloud({role: e.target.value}); }} className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-white focus:border-red-500 focus:outline-none">
-                <option>Executive Producer</option>
-                <option>Lead Screenwriter</option>
-                <option>Art Director</option>
-                <option>Showrunner</option>
-                <option>Solo Creator</option>
-              </select>
+          {/* Vision Statement Protocol */}
+          <div className="space-y-4 group/node pt-6 border-t border-white/5">
+            <div className="flex items-center justify-between px-2">
+              <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] italic flex items-center gap-3">
+                <FileText className="w-3.5 h-3.5 text-studio" /> Vision Directive / Bio
+              </label>
+              <span className="text-[8px] font-black text-zinc-800 uppercase tracking-widest">NODE-P5</span>
             </div>
-
-            <div className="space-y-3 relative group/input">
-              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]">Studio Base (Timezone)</label>
-              <select value={timezone} onChange={(e) => { setTimezone(e.target.value); syncToCloud({timezone: e.target.value}); }} className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-white focus:border-red-500 focus:outline-none">
-                <option>GMT-8 (Pacific Studio Time)</option>
-                <option>GMT-5 (Eastern Hub)</option>
-                <option>GMT+0 (London Central)</option>
-                <option>GMT+9 (Tokyo / Global East)</option>
-              </select>
+            <div className="relative group/prompt">
+              <div className="absolute -inset-1 bg-studio/5 rounded-[2rem] blur-xl opacity-0 group-focus-within/prompt:opacity-100 transition duration-700" />
+              <textarea
+                value={vision}
+                onChange={(e) => setVision(e.target.value)}
+                onBlur={() => syncToCloud()}
+                rows={4}
+                placeholder="ESTABLISH PRODUCTION VISION..."
+                className="w-full bg-black/60 border border-zinc-900 rounded-[2rem] p-8 text-xs font-black text-studio focus:border-studio/50 focus:outline-none transition-all resize-none shadow-3xl leading-relaxed uppercase tracking-widest"
+              />
             </div>
           </div>
 
-          <div className="space-y-3 relative group/input border-t border-zinc-900/50 pt-6">
-             <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]">Vision Statement / Bio</label>
-             <textarea value={vision} onChange={(e) => setVision(e.target.value)} onBlur={() => syncToCloud()} rows={4} className="w-full p-4 bg-zinc-900/50 border border-zinc-800 rounded-xl text-sm font-medium text-white focus:border-red-500 focus:outline-none transition-all resize-none" />
-          </div>
+          {/* Visibility Protocol */}
+          <div className="pt-10 border-t border-white/5 space-y-8">
+            <div className="flex items-center justify-between p-10 bg-white/[0.02] border border-white/5 rounded-[3rem] hover:border-emerald-500/30 transition-all duration-700 group/vis">
+              <div className="flex gap-8 items-center">
+                <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-700", publicVisible ? "bg-emerald-500/20 text-emerald-400" : "bg-zinc-900 text-zinc-800")}>
+                  <Eye className={cn("w-8 h-8", publicVisible ? "animate-pulse" : "")} />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-black text-white uppercase italic tracking-tighter group-hover/vis:text-emerald-400 transition-colors">Global Portfolio Link</h4>
+                  <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em] leading-relaxed">Allow other creators to synchronize and view your neural generation archives.</p>
+                </div>
+              </div>
+              <div
+                onClick={() => { setPublicVisible(!publicVisible); syncToCloud({ public_visible: !publicVisible }); }}
+                className={cn(
+                  "w-16 h-8 rounded-full relative cursor-pointer transition-all duration-500",
+                  publicVisible ? "bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "bg-zinc-900"
+                )}
+              >
+                <div className={cn("absolute top-1 w-6 h-6 bg-white rounded-full shadow-2xl transition-all duration-500", publicVisible ? "left-9" : "left-1 bg-zinc-700")} />
+              </div>
+            </div>
 
-          <div className="pt-6 border-t border-zinc-900/50 space-y-6">
-             <div className="flex items-center justify-between">
-                <div>
-                   <h4 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2"><Eye className="w-4 h-4 text-green-500" /> Public Portfolio Visibility</h4>
-                   <p className="text-[11px] text-zinc-500 font-bold uppercase mt-1">Allow other creators to view your generated works.</p>
+            {/* Identity Footer Metadata */}
+            <footer className="flex flex-col md:flex-row items-center justify-between gap-8 text-[9px] font-black text-zinc-700 uppercase tracking-[0.4em]">
+              <div className="flex items-center gap-4">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>Verified Architect Hash: #ID-8842-X</span>
+              </div>
+              <div className="flex items-center gap-8">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 text-studio fill-studio" />
+                  <span>Production Hub: Tokyo / LA Sync Active</span>
                 </div>
-                <div onClick={() => { setPublicVisible(!publicVisible); syncToCloud({public_visible: !publicVisible}); }} className={`w-12 h-6 rounded-full relative cursor-pointer border border-zinc-700 transition-colors ${publicVisible ? 'bg-green-600' : 'bg-zinc-800'}`}>
-                  <div className={`absolute top-[2px] w-5 h-5 bg-white rounded-full transition-transform ${publicVisible ? 'left-[calc(100%-22px)]' : 'left-[2px]'}`} />
-                </div>
-             </div>
+              </div>
+            </footer>
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-
-

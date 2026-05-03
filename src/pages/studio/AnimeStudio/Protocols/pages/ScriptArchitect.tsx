@@ -1,4 +1,4 @@
-import { ProtocolDetailView } from '../ProtocolDetailView';
+import { ProtocolDetailView } from '../components/ProtocolDetailView';
 import { ScrollText } from 'lucide-react';
 import { 
   SCRIPT_GENERATION_PROMPT, 

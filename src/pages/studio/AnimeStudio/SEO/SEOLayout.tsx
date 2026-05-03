@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateMetadata } from '@/services/api/gemini';
-import { SEOHeader } from '../components/SEO/SEOHeader';
-import { SEOToolbar } from '../components/SEO/SEOToolbar';
-import { SEOTab } from '../components/SEO/Tabs/SEOTabs';
+import { SEOHeader } from './components/SEOHeader';
+import { SEOToolbar } from './components/SEOToolbar';
+import { SEOTab } from './Tabs/SEOTabs';
 
 export const SEOContext = React.createContext<{
   setHandlers: React.Dispatch<React.SetStateAction<any>>;
@@ -44,7 +44,7 @@ export default function SEOLayout() {
         series_plan: generatedSeriesPlan,
         seo_metadata: generatedMetadata
       });
-      showNotification?.('SEO Metadata Synchronized', 'success');
+      showNotification?.('SEO data saved successfully!', 'success');
     } catch (e) {
       console.error("Manual sync failed:", e);
       showNotification?.('Sync Error', 'error');
@@ -55,17 +55,17 @@ export default function SEOLayout() {
 
   const handleGenerate = async () => {
     if (!generatedScript) {
-      showNotification?.('Missing Core Parameter: Enter a production prompt to initialize synthesis.', 'error');
+      showNotification?.('Please write a script first before generating SEO data.', 'error');
       return;
     }
     setIsLoading(true);
     try {
       const metadata = await generateMetadata(generatedScript, selectedModel);
       setGeneratedMetadata(metadata);
-      showNotification?.('SEO Analysis Complete: Metadata Manifested', 'success');
+      showNotification?.('SEO metadata generated successfully!', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('SEO Failure: ' + (e.message || 'Unknown Error'), 'error');
+      showNotification?.('Failed to generate SEO data: ' + (e.message || 'Unknown error'), 'error');
     } finally {
       setIsLoading(false);
     }

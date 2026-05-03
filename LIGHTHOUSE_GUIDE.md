@@ -95,7 +95,7 @@ Automated audits run on push to `master`, `main`, or `develop` branches, and on 
 ## Troubleshooting
 
 ### "Target page might be invalid"
-Ensure your dev server is running on `http://localhost:5173` (or set `AUDIT_URL` environment variable).
+Ensure your dev server is running on `http://localhost:3000` (or set `AUDIT_URL` environment variable).
 
 ### Port Already in Use
 Change the audit URL:

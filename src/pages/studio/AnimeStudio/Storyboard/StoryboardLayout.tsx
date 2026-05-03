@@ -5,9 +5,9 @@ import { useGenerator } from '@/hooks/useGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { generateImagePrompts } from '@/services/api/gemini';
 
-import { StoryboardHeader } from '../components/Storyboard/StoryboardHeader';
-import { StoryboardToolbar } from '../components/Storyboard/StoryboardToolbar';
-import { StoryboardTab } from '../components/Storyboard/Tabs/StoryboardTabs';
+import { StoryboardHeader } from './components/StoryboardHeader';
+import { StoryboardToolbar } from './components/StoryboardToolbar';
+import { StoryboardTab } from './Tabs/StoryboardTabs';
 
 export const StoryboardContext = React.createContext<{
   setHandlers: (handlers: any) => void;
@@ -23,7 +23,7 @@ export default function StoryboardLayout() {
     generatedImagePrompts, setGeneratedImagePrompts,
     isGeneratingImagePrompts, setIsGeneratingImagePrompts,
     selectedModel, showNotification,
-    isSaving, 
+    isSaving,
     syncCore,
     session, episode
   } = useGenerator();
@@ -36,17 +36,17 @@ export default function StoryboardLayout() {
 
   const handleGenerate = async () => {
     if (!generatedScript) {
-      showNotification?.('Prerequisite Failure: Synthesize a script manifest before generating visual DNA.', 'error');
+      showNotification?.('Please write a script first before creating your storyboard.', 'error');
       return;
     }
     setIsGeneratingImagePrompts(true);
     try {
       const prompts = await generateImagePrompts(generatedScript, selectedModel);
       setGeneratedImagePrompts(prompts);
-      showNotification?.('Visual DNA manifest synchronized', 'success');
+      showNotification?.('Storyboard visuals generated successfully!', 'success');
     } catch (e: any) {
       console.error(e);
-      showNotification?.('Synthesis Failure: ' + (e.message || 'Error'), 'error');
+      showNotification?.('Failed to generate visuals: ' + (e.message || 'Error'), 'error');
     } finally {
       setIsGeneratingImagePrompts(false);
     }

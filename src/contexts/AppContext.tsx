@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { notificationService } from '@/services/api/notifications';
 import { projectService } from '@/services/api/projects';
 
@@ -22,15 +22,17 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentProject, setCurrentProject] = useState<any | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [userTier] = useState<string>('God Mode'); 
+  const [userTier] = useState<string>('God Mode');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'error' | 'success' | 'info' } | null>(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   const showNotification = useCallback((message: string, type: 'error' | 'success' | 'info' = 'info') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
   }, []);
 
+  // Fullscreen change listener - stable effect
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -39,7 +41,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  const refreshAppData = async () => {
+  const refreshAppData = useCallback(async () => {
     // 1. Fetch Notifications from FastAPI
     const notifs = await notificationService.getNotifications(LOCAL_USER_ID);
     setNotifications(notifs);
@@ -53,29 +55,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Failed to fetch projects in context:", e);
     }
+  }, [currentProject]);
 
-    // Note: Profile/Tier logic can also be migrated to FastAPI in the future
-  };
-
+  // Only initialize once on mount - NOT on every render
   useEffect(() => {
-    refreshAppData();
-  }, []);
+    if (!hasInitialized) {
+      refreshAppData();
+      setHasInitialized(true);
+    }
+  }, [hasInitialized, refreshAppData]);
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = useMemo(() => notifications.filter(n => !n.is_read).length, [notifications]);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const value = useMemo(() => ({
+    currentProject,
+    setCurrentProject,
+    notifications,
+    unreadCount,
+    userTier,
+    refreshAppData,
+    isFullscreen,
+    setIsFullscreen,
+    notification,
+    showNotification
+  }), [currentProject, notifications, unreadCount, userTier, refreshAppData, isFullscreen, notification, showNotification]);
 
   return (
-    <AppContext.Provider value={{ 
-      currentProject, 
-      setCurrentProject, 
-      notifications, 
-      unreadCount, 
-      userTier, 
-      refreshAppData,
-      isFullscreen,
-      setIsFullscreen,
-      notification,
-      showNotification
-    }}>
+    <AppContext.Provider value={value}>
       {children}
       {notification && (
         <div className={`fixed bottom-8 right-8 z-[100] p-4 rounded-2xl border backdrop-blur-md animate-in slide-in-from-right-10 duration-500 shadow-2xl ${notification.type === 'error' ? 'bg-red-500/10 border-red-500/50 text-red-500 shadow-red-500/20' :

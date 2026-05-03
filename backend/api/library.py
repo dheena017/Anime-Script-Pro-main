@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List, Optional, Dict, Any
 from backend.database.models import SavedPrompt, ReusableCharacter, CastMember
 from backend.database import AsyncSession, async_engine
-from backend.deps import get_auth_user_id
+from backend.utils.deps import get_auth_user_id
 
 router = APIRouter(prefix="/api", tags=["Creative Library"])
 

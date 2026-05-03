@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional, Dict
 from backend.database.models import Template
 from backend.database import AsyncSession, async_engine
-from backend.deps import get_auth_user_id
+from backend.utils.deps import get_auth_user_id
 from backend.schemas import TemplateIn, TemplateOut
 
 router = APIRouter(prefix="/api/templates", tags=["Templates"])

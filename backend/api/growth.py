@@ -3,7 +3,7 @@ from sqlmodel import select
 from typing import List, Optional
 from backend.database.models.assets import GrowthStrategy
 from backend.database import AsyncSession, async_engine
-from backend.deps import get_auth_user_id
+from backend.utils.deps import get_auth_user_id
 from backend.schemas import GenerationResponse
 
 router = APIRouter(prefix="/api/growth", tags=["Growth"])
@@ -34,7 +34,7 @@ async def generate_specific_strategy(
         
         try:
             # Call AI with the specific prompt from the strategy blueprint
-            from backend.ai_engine import call_ai
+            from backend.services.ai_engine import call_ai
             system_instruction = f"{strategy.prompt}\n\nUSE THIS SCRIPT AS SOURCE DATA:\n{script_content}"
             content = await call_ai(model, "Generate the strategy blueprint based on my script.", system_instruction)
             
